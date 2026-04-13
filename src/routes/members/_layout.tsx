@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LayoutDashboard, User, Settings, Sun, Moon } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Sun, Moon } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -16,7 +16,6 @@ export const membersLayoutRoute = createRoute({
 
 const NAV_LINKS = [
   { to: "/members" as const, label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/members/profile" as const, label: "Profile", icon: User, exact: false },
 ];
 
 function navLinkClass(base?: string) {
@@ -52,7 +51,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Bottom: theme toggle + settings */}
+      {/* Bottom: theme toggle + settings + profile */}
       <div className="flex flex-col gap-1 border-t border-border p-2">
         <button
           onClick={toggleTheme}

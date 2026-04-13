@@ -8,12 +8,10 @@ import { authCallbackRoute } from "./auth-callback";
 import { loginRoute } from "./login";
 import { membersLayoutRoute } from "./members/_layout";
 import { membersDashboardRoute } from "./members/index";
-import { membersProfileRoute } from "./members/profile";
 import { membersSettingsRoute } from "./members/settings";
 
 const membersTree = membersLayoutRoute.addChildren([
   membersDashboardRoute,
-  membersProfileRoute,
   membersSettingsRoute,
 ]);
 
