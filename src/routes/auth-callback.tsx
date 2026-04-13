@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { createRoute, useNavigate } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
-import { useAuth } from "@/context/AuthContext";
 
 export const authCallbackRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -10,14 +9,19 @@ export const authCallbackRoute = createRoute({
 });
 
 function AuthCallbackPage() {
-  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading) {
-      navigate({ to: user ? "/members" : "/" });
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      sessionStorage.setItem("auth_token", token);
+      window.history.replaceState({}, "", window.location.pathname);
+      navigate({ to: "/members" });
+    } else {
+      navigate({ to: "/" });
     }
-  }, [loading, user, navigate]);
+  }, []);
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
