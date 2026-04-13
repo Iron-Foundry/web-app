@@ -6,9 +6,7 @@ import {
   useState,
 } from "react";
 
-export const API_URL: string =
-  (typeof Bun !== "undefined" ? Bun.env.BUN_PUBLIC_API_URL : undefined) ??
-  "http://localhost:8000";
+export const API_URL: string = Bun.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export interface AuthUser {
   discord_user_id: string;
