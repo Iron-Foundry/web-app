@@ -1,28 +1,22 @@
 import type { ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { DISCORD_ROLE_ORDER } from "@/lib/ranks";
 
-const RANK_ORDER = [
-  "Guest",
-  "Member",
-  "Sergeant",
-  "Lieutenant",
-  "Captain",
-  "General",
-  "Mentor",
-  "Moderator",
-  "Senior Moderator",
-  "Deputy Owner",
-  "Owner",
-] as const;
-
-export function hasMinRank(userRank: string | null, minRank: string): boolean {
-  if (!userRank) return false;
-  const userIdx = RANK_ORDER.indexOf(userRank as (typeof RANK_ORDER)[number]);
-  const minIdx = RANK_ORDER.indexOf(minRank as (typeof RANK_ORDER)[number]);
-  if (userIdx === -1 || minIdx === -1) return false;
-  return userIdx >= minIdx;
+/**
+ * Returns true if `discordRoles` contains at least one role at or above
+ * `minRole` in the privilege hierarchy.
+ * Permissions are always based on Discord roles, never the raw ingame clan_rank.
+ */
+export function hasMinRank(discordRoles: string[], minRole: string): boolean {
+  const minIdx = DISCORD_ROLE_ORDER.indexOf(minRole as (typeof DISCORD_ROLE_ORDER)[number]);
+  if (minIdx === -1) return false;
+  return discordRoles.some((role) => {
+    const idx = DISCORD_ROLE_ORDER.indexOf(role as (typeof DISCORD_ROLE_ORDER)[number]);
+    return idx !== -1 && idx >= minIdx;
+  });
 }
 
+/** Renders children only if the authenticated user meets `minRole`. */
 export function RequireRank({
   rank,
   children,
@@ -32,10 +26,10 @@ export function RequireRank({
 }): JSX.Element {
   const { user } = useAuth();
 
-  if (!hasMinRank(user?.clan_rank ?? null, rank)) {
+  if (!user || !hasMinRank(user.discord_roles, rank)) {
     return (
       <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-        Access denied — requires rank <strong>{rank}</strong> or higher.
+        Access denied — requires role <strong>{rank}</strong> or higher.
       </div>
     ) as JSX.Element;
   }
