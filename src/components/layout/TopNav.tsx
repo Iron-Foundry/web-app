@@ -67,6 +67,42 @@ export function TopNav() {
             </SheetTrigger>
             <SheetContent side="right" className="w-56 border-border bg-card pt-12">
               <NavLinks orientation="vertical" onNavigate={() => setMobileOpen(false)} />
+              {user && (
+                <Link
+                  to="/members"
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "flex w-full rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
+                    "transition-colors hover:bg-muted hover:text-foreground",
+                    "[&.active]:bg-muted [&.active]:text-primary"
+                  )}
+                >
+                  Members
+                </Link>
+              )}
+              <div className="mt-4 border-t border-border pt-4 px-2">
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 px-1">
+                      {user.avatar && (
+                        <img
+                          src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
+                          alt=""
+                          className="h-7 w-7 rounded-full"
+                        />
+                      )}
+                      <span className="truncate text-sm text-foreground">{user.username}</span>
+                    </div>
+                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { logout(); setMobileOpen(false); }}>
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="sm" className="w-full" onClick={() => { navigate({ to: "/login" }); setMobileOpen(false); }}>
+                    Login
+                  </Button>
+                )}
+              </div>
             </SheetContent>
           </Sheet>
         </div>

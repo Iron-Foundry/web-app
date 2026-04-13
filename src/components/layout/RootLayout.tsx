@@ -5,7 +5,7 @@ export function RootLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <TopNav />
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex flex-col flex-1 p-6">{children}</main>
     </div>
   );
 }
