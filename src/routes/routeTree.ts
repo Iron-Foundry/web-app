@@ -6,7 +6,16 @@ import { staffRoute } from "./staff";
 import { eventsRoute } from "./events";
 import { authCallbackRoute } from "./auth-callback";
 import { loginRoute } from "./login";
-import { membersRoute } from "./members/index";
+import { membersLayoutRoute } from "./members/_layout";
+import { membersDashboardRoute } from "./members/index";
+import { membersProfileRoute } from "./members/profile";
+import { membersSettingsRoute } from "./members/settings";
+
+const membersTree = membersLayoutRoute.addChildren([
+  membersDashboardRoute,
+  membersProfileRoute,
+  membersSettingsRoute,
+]);
 
 export const routeTree = rootRoute.addChildren([
   homeRoute,
@@ -16,5 +25,5 @@ export const routeTree = rootRoute.addChildren([
   eventsRoute,
   authCallbackRoute,
   loginRoute,
-  membersRoute,
+  membersTree,
 ]);

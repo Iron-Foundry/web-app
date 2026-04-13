@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavLinks } from "./NavLinks";
 import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
 
 export function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -20,6 +21,18 @@ export function TopNav() {
 
         <div className="hidden items-center gap-4 md:flex">
           <NavLinks orientation="horizontal" />
+          {user && (
+            <Link
+              to="/members"
+              className={cn(
+                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
+                "transition-colors hover:bg-muted hover:text-foreground",
+                "[&.active]:bg-muted [&.active]:text-primary"
+              )}
+            >
+              Members
+            </Link>
+          )}
           {user ? (
             <div className="flex items-center gap-2">
               {user.avatar && (

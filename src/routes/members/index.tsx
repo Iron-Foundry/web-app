@@ -1,36 +1,20 @@
-import { useEffect } from "react";
-import { createRoute, useNavigate } from "@tanstack/react-router";
-import { rootRoute } from "../__root";
+import { createRoute } from "@tanstack/react-router";
+import { membersLayoutRoute } from "./_layout";
 import { useAuth } from "@/context/AuthContext";
 
-export const membersRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/members",
-  component: MembersPage,
+export const membersDashboardRoute = createRoute({
+  getParentRoute: () => membersLayoutRoute,
+  path: "/",
+  component: DashboardPage,
 });
 
-function MembersPage() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate({ to: "/login" });
-    }
-  }, [loading, user, navigate]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">Loading…</p>
-      </div>
-    );
-  }
+function DashboardPage() {
+  const { user } = useAuth();
 
   if (!user) return null;
 
   return (
-    <div className="mx-auto max-w-4xl py-10 space-y-6">
+    <div className="max-w-4xl space-y-6">
       <h1 className="font-rs-bold text-4xl text-primary">
         Welcome, {user.username}!
       </h1>
