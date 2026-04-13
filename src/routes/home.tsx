@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
+import { useAuth } from "@/context/AuthContext";
 import { rootRoute } from "./__root";
 import clanPhoto from "@/assets/clan-photo.png";
 import bannerLogo from "@/assets/BannerLogo-160x87.png";
@@ -88,6 +89,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 }
 
 function HomePage() {
+  const { user, loading } = useAuth();
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [clanXp, setClanXp] = useState<number | null>(null);
   const [clanEhb, setClanEhb] = useState<number | null>(null);
@@ -113,6 +115,15 @@ function HomePage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-10 py-6">
+      {/* ── Beta notice ───────────────────────────────────────── */}
+      {!loading && (
+        <div className="rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-center text-sm text-primary">
+          {user
+            ? `Hey ${user.username}! You got here via login — tell salt it worked! 🎉`
+            : "If you got here via Discord login or API key, tell salt! If you didn't, also tell salt — and how you managed it!"}
+        </div>
+      )}
+
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="flex flex-col items-center gap-6 text-center">
         <img src={bannerLogo} alt="Iron Foundry" className="h-auto w-40" />
