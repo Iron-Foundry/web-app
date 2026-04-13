@@ -19,11 +19,6 @@ declare module "*.module.css" {
 
 /// <reference types="bun-types" />
 
-declare module "bun" {
-  interface Env {
-    readonly BUN_PUBLIC_API_URL?: string;
-  }
-}
 
 declare module "*.jpg" {
   const src: string;
