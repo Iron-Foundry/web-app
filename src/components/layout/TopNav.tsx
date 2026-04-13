@@ -1,11 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavLinks } from "./NavLinks";
+import { useAuth } from "@/context/AuthContext";
 
 export function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card">
@@ -16,6 +20,25 @@ export function TopNav() {
 
         <div className="hidden items-center gap-4 md:flex">
           <NavLinks orientation="horizontal" />
+          {user ? (
+            <div className="flex items-center gap-2">
+              {user.avatar && (
+                <img
+                  src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
+                  alt=""
+                  className="h-7 w-7 rounded-full"
+                />
+              )}
+              <span className="text-sm text-foreground">{user.username}</span>
+              <Button variant="ghost" size="sm" onClick={logout}>
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <Button size="sm" onClick={() => navigate({ to: "/login" })}>
+              Login
+            </Button>
+          )}
         </div>
 
         <div className="flex items-center md:hidden">
