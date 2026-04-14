@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Gem, TrendingUp, Zap, ScrollText, Map, Swords,
-  Heart, BookOpen, FileSearch, Skull, Timer, Flame,
+  Heart, BookOpen, FileSearch, Skull, Timer, Flame, KeyRound,
 } from "lucide-react";
 
 export const membersDashboardRoute = createRoute({
@@ -36,6 +36,7 @@ const FEED_META: Record<string, { icon: React.ElementType; color: string; badge:
   pk:                 { icon: Skull,      color: "text-red-500",    badge: "PK"           },
   personal_best:      { icon: Timer,      color: "text-cyan-400",   badge: "PB"           },
   hcim_death:         { icon: Flame,      color: "text-red-600",    badge: "HCIM Death"   },
+  loot_key:           { icon: KeyRound,   color: "text-yellow-500", badge: "Loot Key"     },
 };
 
 const FALLBACK_META = { icon: Gem, color: "text-muted-foreground", badge: "Event" };
@@ -59,6 +60,7 @@ function formatValue(item: FeedItem): string | null {
     case "drop":
     case "clue":
     case "pk":
+    case "loot_key":
       return `${formatGp(item.value)} gp`;
     case "level":
       return `Level ${item.value}`;
