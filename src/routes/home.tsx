@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
+import { API_URL } from "@/context/AuthContext";
 import clanPhoto from "@/assets/clan-photo.png";
 import bannerLogo from "@/assets/BannerLogo-160x87.png";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,21 +23,6 @@ interface WomGroupResponse {
   memberships: { player: { exp: number; ehb: number } }[];
 }
 
-// TODO: replace with API fetch — drops above value threshold, 99s + total level, XP milestones 15M→200M
-const RECENT_ACHIEVEMENTS: Achievement[] = [
-  { type: "drop",         player: "SaltisRS",  label: "Twisted bow",      detail: "Chambers of Xeric", value: 1_200_000_000 },
-  { type: "level",        player: "aBtw",      label: "Slayer",                                        value: 99            },
-  { type: "xp_milestone", player: "Ethamiel",  label: "Attack",                                        value: 200_000_000   },
-  { type: "drop",         player: "Fe Gate",   label: "Abyssal whip",     detail: "Abyssal Demons",    value: 2_500_000     },
-  { type: "level",        player: "Iron Pyke", label: "Total Level",                                   value: 2_000         },
-  { type: "xp_milestone", player: "PvM Items", label: "Ranged",                                        value: 100_000_000   },
-  { type: "level",        player: "Dunkies",   label: "Herblore",                                      value: 99            },
-  { type: "xp_milestone", player: "Martyrs",   label: "Strength",                                      value: 50_000_000    },
-  { type: "drop",         player: "Blowie",    label: "Bandos chestplate", detail: "General Graardor", value: 38_000_000    },
-  { type: "level",        player: "Major Mahi",label: "Farming",                                       value: 99            },
-  { type: "xp_milestone", player: "Edgeherv",  label: "Hitpoints",                                     value: 15_000_000    },
-  { type: "drop",         player: "Prayer",    label: "Dragon warhammer",  detail: "Lizardman Shaman", value: 45_000_000    },
-];
 
 type AchievementType = "drop" | "level" | "xp_milestone";
 
@@ -91,6 +77,8 @@ function HomePage() {
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [clanXp, setClanXp] = useState<number | null>(null);
   const [clanEhb, setClanEhb] = useState<number | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [achievementsLoading, setAchievementsLoading] = useState(true);
 
   useEffect(() => {
     fetch(`https://api.wiseoldman.net/v2/groups/${WOM_GROUP_ID}`)
@@ -109,6 +97,12 @@ function HomePage() {
         setClanEhb(totalEhb > 0 ? Math.round(totalEhb) : null);
       })
       .catch(() => {});
+
+    fetch(`${API_URL}/clan/recent-achievements?limit=20`)
+      .then((r) => r.json() as Promise<Achievement[]>)
+      .then(setAchievements)
+      .catch(() => {})
+      .finally(() => setAchievementsLoading(false));
   }, []);
 
   return (
@@ -232,29 +226,35 @@ function HomePage() {
         </h2>
         <Card>
           <CardContent className="p-0">
-            <ul className="divide-y divide-border">
-              {RECENT_ACHIEVEMENTS.map((achievement, i) => {
-                const meta = ACHIEVEMENT_META[achievement.type];
-                const Icon = meta.icon;
-                return (
-                  <li key={i} className="flex items-center gap-3 px-4 py-1.5">
-                    <Icon className={`h-4 w-4 shrink-0 ${meta.color}`} />
-                    <span className="text-sm font-medium text-foreground truncate">
-                      {achievement.label}
-                    </span>
-                    <span className="text-xs text-muted-foreground shrink-0">
-                      {achievement.player}
-                    </span>
-                    <Badge variant="secondary" className="shrink-0 text-xs">
-                      {achievement.detail ?? meta.badge}
-                    </Badge>
-                    <span className={`ml-auto shrink-0 font-rs-bold text-sm ${meta.color}`}>
-                      {formatAchievementValue(achievement)}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+            {achievementsLoading ? (
+              <p className="px-4 py-6 text-sm text-muted-foreground">Loading…</p>
+            ) : achievements.length === 0 ? (
+              <p className="px-4 py-6 text-sm text-muted-foreground">No recent achievements yet.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {achievements.map((achievement, i) => {
+                  const meta = ACHIEVEMENT_META[achievement.type];
+                  const Icon = meta.icon;
+                  return (
+                    <li key={i} className="flex items-center gap-3 px-4 py-1.5">
+                      <Icon className={`h-4 w-4 shrink-0 ${meta.color}`} />
+                      <span className="text-sm font-medium text-foreground truncate">
+                        {achievement.label}
+                      </span>
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        {achievement.player}
+                      </span>
+                      <Badge variant="secondary" className="shrink-0 text-xs">
+                        {achievement.detail ?? meta.badge}
+                      </Badge>
+                      <span className={`ml-auto shrink-0 font-rs-bold text-sm ${meta.color}`}>
+                        {formatAchievementValue(achievement)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </CardContent>
         </Card>
       </section>

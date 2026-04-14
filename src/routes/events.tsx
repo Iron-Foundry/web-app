@@ -9,18 +9,16 @@ export const eventsRoute = createRoute({
 
 function EventsPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-6 py-6">
-      <div className="space-y-1">
+    <div className="flex flex-col -m-6 h-[calc(100vh-3.5rem)]">
+      <div className="px-6 pt-6 pb-3 space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Calendar</h1>
         <p className="text-muted-foreground">Upcoming clan events and activities.</p>
       </div>
-      <div className="overflow-hidden rounded-xl border border-border">
+      <div className="flex-1 overflow-hidden p-4">
         <iframe
           src="https://teamup.com/ksu6d1cq6fsn5ait2t"
           title="Iron Foundry Events Calendar"
-          className="w-full"
-          style={{ height: "900px" }}
-          frameBorder="0"
+          className="w-full h-full rounded-md border border-border"
         />
       </div>
     </div>
