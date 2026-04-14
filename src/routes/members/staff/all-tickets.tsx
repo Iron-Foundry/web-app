@@ -24,7 +24,7 @@ interface TicketSummary {
   closed_at: string | null;
   close_reason: string | null;
   staff_note: string | null;
-  creator: { id: number; display_name: string; avatar_url: string };
+  creator: { id: number; display_name: string; avatar_url: string | null };
 }
 
 interface Attachment {
