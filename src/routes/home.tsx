@@ -108,6 +108,8 @@ function HomePage() {
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [clanXp, setClanXp] = useState<number | null>(null);
   const [clanEhb, setClanEhb] = useState<number | null>(null);
+  const [totalGp, setTotalGp] = useState<number | null>(null);
+  const [totalDrops, setTotalDrops] = useState<number | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementsLoading, setAchievementsLoading] = useState(true);
 
@@ -126,6 +128,14 @@ function HomePage() {
           0,
         ) ?? null;
         setClanEhb(totalEhb > 0 ? Math.round(totalEhb) : null);
+      })
+      .catch(() => {});
+
+    fetch(`${API_URL}/clan/stats`)
+      .then((r) => r.json() as Promise<{ total_gp: number; total_drops: number }>)
+      .then((data) => {
+        setTotalGp(data.total_gp ?? null);
+        setTotalDrops(data.total_drops ?? null);
       })
       .catch(() => {});
 
@@ -184,19 +194,35 @@ function HomePage() {
       </section>
 
       {/* ── Stats ────────────────────────────────────────────── */}
-      <section className="grid grid-cols-3 gap-4">
-        <StatCard
-          label="Members"
-          value={memberCount !== null ? memberCount.toLocaleString() : "—"}
-        />
-        <StatCard
-          label="Clan XP"
-          value={clanXp !== null ? formatGp(clanXp) : "—"}
-        />
-        <StatCard
-          label="Clan EHB"
-          value={clanEhb !== null ? clanEhb.toLocaleString() : "—"}
-        />
+      <section className="space-y-4">
+        <div className="grid grid-cols-3 gap-4">
+          <StatCard
+            label="Members"
+            value={memberCount !== null ? memberCount.toLocaleString() : "—"}
+          />
+          <StatCard
+            label="Clan XP"
+            value={clanXp !== null ? formatGp(clanXp) : "—"}
+          />
+          <StatCard
+            label="Clan EHB"
+            value={clanEhb !== null ? clanEhb.toLocaleString() : "—"}
+          />
+        </div>
+        <div className="flex justify-center gap-4">
+          <div className="w-full max-w-xs">
+            <StatCard
+              label="Total GP Looted"
+              value={totalGp !== null ? formatGp(totalGp) : "—"}
+            />
+          </div>
+          <div className="w-full max-w-xs">
+            <StatCard
+              label="Total Drops"
+              value={totalDrops !== null ? totalDrops.toLocaleString() : "—"}
+            />
+          </div>
+        </div>
       </section>
 
       <Separator />
