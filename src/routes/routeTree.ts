@@ -10,11 +10,17 @@ import { membersLayoutRoute } from "./members/_layout";
 import { membersDashboardRoute } from "./members/index";
 import { membersSettingsRoute } from "./members/settings";
 import { membersTicketsRoute } from "./members/tickets";
+import { staffIndexRoute } from "./members/staff/index";
+import { staffMembersRoute } from "./members/staff/members";
+import { staffAllTicketsRoute } from "./members/staff/all-tickets";
 
 const membersTree = membersLayoutRoute.addChildren([
   membersDashboardRoute,
   membersSettingsRoute,
   membersTicketsRoute,
+  staffIndexRoute,
+  staffMembersRoute,
+  staffAllTicketsRoute,
 ]);
 
 export const routeTree = rootRoute.addChildren([

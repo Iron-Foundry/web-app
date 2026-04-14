@@ -69,6 +69,17 @@ export const DISCORD_ROLE_ORDER = [
 
 export type DiscordRole = (typeof DISCORD_ROLE_ORDER)[number];
 
+/** True if the user holds at least minRole. */
+export function hasMinRank(discordRoles: string[], minRole: string): boolean {
+  const minIdx = DISCORD_ROLE_ORDER.indexOf(minRole as DiscordRole);
+  if (minIdx === -1) return false;
+  for (const role of discordRoles) {
+    const idx = DISCORD_ROLE_ORDER.indexOf(role as DiscordRole);
+    if (idx >= minIdx) return true;
+  }
+  return false;
+}
+
 /** Highest-privilege role the user holds, or null. */
 export function highestRole(discordRoles: string[]): DiscordRole | null {
   let best = -1;

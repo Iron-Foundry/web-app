@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LayoutDashboard, Settings, Sun, Moon, Ticket } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Sun, Moon, Ticket, ShieldCheck, Users, Inbox } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { hasMinRank } from "@/lib/ranks";
 
 export const membersLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -19,6 +20,12 @@ const NAV_LINKS = [
   { to: "/members/tickets" as const, label: "Tickets",   icon: Ticket,          exact: false },
 ];
 
+const STAFF_NAV = [
+  { to: "/members/staff" as const,             label: "Staff Home",  icon: ShieldCheck, minRank: "Mentor",    exact: true },
+  { to: "/members/staff/members" as const,     label: "Members",     icon: Users,       minRank: "Moderator", exact: false },
+  { to: "/members/staff/all-tickets" as const, label: "All Tickets", icon: Inbox,       minRank: "Moderator", exact: false },
+];
+
 function navLinkClass(base?: string) {
   return cn(
     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
@@ -28,8 +35,10 @@ function navLinkClass(base?: string) {
   );
 }
 
-function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarNav({ onNavigate, discordRoles }: { onNavigate?: () => void; discordRoles: string[] }) {
   const { theme, toggleTheme } = useTheme();
+
+  const visibleStaff = STAFF_NAV.filter(({ minRank }) => hasMinRank(discordRoles, minRank));
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
@@ -48,6 +57,27 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           </Link>
         ))}
       </nav>
+
+      {/* Staff section */}
+      {visibleStaff.length > 0 && (
+        <div className="px-2 pb-1">
+          <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+            Staff
+          </p>
+          {visibleStaff.map(({ to, label, icon: Icon, exact }) => (
+            <Link
+              key={to}
+              to={to}
+              onClick={onNavigate}
+              activeOptions={{ exact }}
+              className={navLinkClass()}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {label}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Spacer */}
       <div className="flex-1" />
@@ -116,7 +146,7 @@ function MembersLayout() {
             {user.rsn ?? user.username}
           </span>
         </div>
-        <SidebarNav />
+        <SidebarNav discordRoles={user.discord_roles} />
       </aside>
 
 
@@ -141,7 +171,7 @@ function MembersLayout() {
                 {user.rsn ?? user.username}
               </span>
             </div>
-            <SidebarNav onNavigate={() => setMobileOpen(false)} />
+            <SidebarNav onNavigate={() => setMobileOpen(false)} discordRoles={user.discord_roles} />
           </SheetContent>
         </Sheet>
       </div>
