@@ -62,7 +62,7 @@ function AboutPage() {
           <FeatureCard icon={Trophy} title="Ranking System">
             <p>
               Our ranking system is centred around your PvM achievements, giving you clear goals and
-              recognition — both in-game and on Discord — as you advance.
+              recognition - both in-game and on Discord - as you advance.
             </p>
             <p>
               From early encounters like <span className="text-foreground font-medium">Obor</span>,
@@ -75,7 +75,7 @@ function AboutPage() {
                 Challenge Mode Chambers of Xeric
               </span>
               , or even those seeking{" "}
-              <span className="text-foreground font-medium">Radiant and Blorva</span> — there's
+              <span className="text-foreground font-medium">Radiant and Blorva</span> - there's
               always a next step, and a team ready to help you reach it.
             </p>
           </FeatureCard>
@@ -93,7 +93,7 @@ function AboutPage() {
               We run daily teams for{" "}
               <span className="text-foreground font-medium">Theatre of Blood</span>,{" "}
               <span className="text-foreground font-medium">Chambers of Xeric</span>, and{" "}
-              <span className="text-foreground font-medium">Tombs of Amascut</span> — so there's
+              <span className="text-foreground font-medium">Tombs of Amascut</span> - so there's
               always something to get stuck into.
             </p>
             <p>
@@ -105,8 +105,8 @@ function AboutPage() {
           <FeatureCard icon={CalendarDays} title="Events & Community">
             <p>
               Our dedicated moderators and events team keep everything running smoothly while
-              organising regular events — such as{" "}
-              <span className="text-foreground font-medium">bingos & frenzies</span> — to keep our
+              organising regular events - such as{" "}
+              <span className="text-foreground font-medium">bingos & frenzies</span> - to keep our
               community engaged and thriving.
             </p>
           </FeatureCard>
@@ -131,7 +131,7 @@ function AboutPage() {
             where members connect and share achievements.
           </p>
           <p>
-            In-game, our clan chat is always lively — making it easy to find teammates or just hang
+            In-game, our clan chat is always lively - making it easy to find teammates or just hang
             out.
           </p>
         </FeatureCard>
@@ -143,7 +143,7 @@ function AboutPage() {
       <section className="rounded-xl border border-border bg-card px-8 py-8 text-center space-y-3">
         <h2 className="font-rs-bold text-3xl text-primary">No matter your level</h2>
         <p className="mx-auto max-w-2xl leading-relaxed text-muted-foreground">
-          At our core, we're friendly, welcoming, and always willing to help — with a good sense of
+          At our core, we're friendly, welcoming, and always willing to help - with a good sense of
           humour. Whether you're here to learn, teach, or just enjoy the grind with like-minded
           players, there's a place for you in Iron Foundry.
         </p>

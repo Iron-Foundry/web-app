@@ -16,16 +16,16 @@ const PAGE_META: Record<string, PageMeta> = {
   "/": {
     title: "Iron Foundry",
     description:
-      "An Ironman focused Mixed PvM Clan for Old School RuneScape. All skill levels welcome — come join the forge.",
+      "An Ironman focused Mixed PvM Clan for Old School RuneScape. All skill levels welcome - come join the forge.",
   },
   "/about": {
     title: "About | Iron Foundry",
-    description: "Meet the Iron Foundry community — Ironmen and Ironwomen united by a love of OSRS.",
+    description: "Meet the Iron Foundry community - Ironmen and Ironwomen united by a love of OSRS.",
   },
   "/rules": {
     title: "Clan Rules | Iron Foundry",
     description:
-      "Iron Foundry's community guidelines. No requirements to join — just bring good vibes.",
+      "Iron Foundry's community guidelines. No requirements to join - just bring good vibes.",
   },
   "/staff": {
     title: "Staff | Iron Foundry",

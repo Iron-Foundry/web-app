@@ -46,7 +46,7 @@ function StaffOverviewPage() {
   }, []);
 
   const fmt = (n: number | undefined) =>
-    n !== undefined ? n.toLocaleString() : "—";
+    n !== undefined ? n.toLocaleString() : "-";
 
   return (
     <div className="max-w-4xl space-y-6">

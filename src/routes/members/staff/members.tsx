@@ -104,23 +104,23 @@ function StaffMembersPage() {
                 return (
                   <tr key={m.discord_user_id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-2 font-medium text-foreground">
-                      {m.rsn ?? <span className="text-muted-foreground italic">—</span>}
+                      {m.rsn ?? <span className="text-muted-foreground italic">-</span>}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">{m.discord_username}</td>
-                    <td className="px-4 py-2 text-muted-foreground">{m.clan_rank ?? "—"}</td>
+                    <td className="px-4 py-2 text-muted-foreground">{m.clan_rank ?? "-"}</td>
                     <td className="px-4 py-2">
                       {topRole ? (
                         <Badge variant="secondary" className="text-xs">{topRole}</Badge>
-                      ) : "—"}
+                      ) : "-"}
                     </td>
                     <td className="px-4 py-2 text-right text-muted-foreground">
-                      {m.total_loot_value ? fmtGp(m.total_loot_value) : "—"}
+                      {m.total_loot_value ? fmtGp(m.total_loot_value) : "-"}
                     </td>
                     <td className="px-4 py-2 text-right text-muted-foreground">
-                      {m.collection_log_slots ?? "—"}
+                      {m.collection_log_slots ?? "-"}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">
-                      {m.created_at ? fmtDate(m.created_at) : "—"}
+                      {m.created_at ? fmtDate(m.created_at) : "-"}
                     </td>
                   </tr>
                 );

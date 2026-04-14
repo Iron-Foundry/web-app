@@ -199,28 +199,28 @@ function HomePage() {
         <div className="grid grid-cols-3 gap-4">
           <StatCard
             label="Members"
-            value={memberCount !== null ? memberCount.toLocaleString() : "—"}
+            value={memberCount !== null ? memberCount.toLocaleString() : "-"}
           />
           <StatCard
             label="Clan XP"
-            value={clanXp !== null ? formatGp(clanXp) : "—"}
+            value={clanXp !== null ? formatGp(clanXp) : "-"}
           />
           <StatCard
             label="Clan EHB"
-            value={clanEhb !== null ? clanEhb.toLocaleString() : "—"}
+            value={clanEhb !== null ? clanEhb.toLocaleString() : "-"}
           />
         </div>
         <div className="flex justify-center gap-4">
           <div className="w-full max-w-xs">
             <StatCard
               label="Total GP Looted"
-              value={totalGp !== null ? formatGp(totalGp) : "—"}
+              value={totalGp !== null ? formatGp(totalGp) : "-"}
             />
           </div>
           <div className="w-full max-w-xs">
             <StatCard
               label="Collection Log Items"
-              value={collectionLogItems !== null ? collectionLogItems.toLocaleString() : "—"}
+              value={collectionLogItems !== null ? collectionLogItems.toLocaleString() : "-"}
             />
           </div>
         </div>

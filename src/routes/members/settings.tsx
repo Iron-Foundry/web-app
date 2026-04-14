@@ -50,7 +50,7 @@ function ProfileSection() {
         setError(data.detail ?? "Failed to update RSN.");
       }
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error - please try again.");
     } finally {
       setSaving(false);
     }
@@ -79,15 +79,15 @@ function ProfileSection() {
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">In-game rank</span>
-          <span className="text-foreground">{user.clan_rank ?? "—"}</span>
+          <span className="text-foreground">{user.clan_rank ?? "-"}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Community rank</span>
-          <span className="text-foreground">{getDisplayRank(user.clan_rank) ?? "—"}</span>
+          <span className="text-foreground">{getDisplayRank(user.clan_rank) ?? "-"}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Discord role</span>
-          <span className="text-foreground">{highestRole(user.discord_roles) ?? "—"}</span>
+          <span className="text-foreground">{highestRole(user.discord_roles) ?? "-"}</span>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ function PrivacySection() {
         setError("Failed to update privacy setting.");
       }
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error - please try again.");
     } finally {
       setSaving(false);
     }

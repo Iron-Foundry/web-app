@@ -16,7 +16,7 @@ export interface AuthUser {
   avatar: string | null;
   rsn: string | null;
   clan_rank: string | null;      // raw in-game OSRS rank name
-  discord_roles: string[];       // Discord role names — used for permission checks
+  discord_roles: string[];       // Discord role names - used for permission checks
   stats_opt_out: boolean;
 }
 

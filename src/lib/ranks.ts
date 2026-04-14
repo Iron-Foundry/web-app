@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Rank mapping — in-game OSRS clan rank → community display name
+// Rank mapping - in-game OSRS clan rank → community display name
 // ---------------------------------------------------------------------------
 
 export const INGAME_TO_DISPLAY: Record<string, string> = {
@@ -45,7 +45,7 @@ export function getDisplayRank(ingameRank: string | null): string | null {
 }
 
 // ---------------------------------------------------------------------------
-// Discord role privilege order — used for permission checks
+// Discord role privilege order - used for permission checks
 // Permissions are derived from Discord roles, NOT ingame clan_rank.
 // ---------------------------------------------------------------------------
 

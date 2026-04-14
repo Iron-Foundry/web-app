@@ -35,14 +35,14 @@ function LoginPage() {
         return;
       }
       if (!resp.ok) {
-        setError("Something went wrong — please try again.");
+        setError("Something went wrong - please try again.");
         return;
       }
       const { token } = (await resp.json()) as { token: string };
       sessionStorage.setItem("auth_token", token);
       navigate({ to: "/members" });
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error - please try again.");
     } finally {
       setSubmitting(false);
     }
