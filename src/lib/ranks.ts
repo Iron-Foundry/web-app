@@ -82,7 +82,8 @@ export function hasMinRank(discordRoles: string[], minRole: string): boolean {
 }
 
 /** Highest-privilege role the user holds, or null. */
-export function highestRole(discordRoles: string[]): DiscordRole | null {
+export function highestRole(discordRoles: string[] | null | undefined): DiscordRole | null {
+  if (!discordRoles) return null;
   let best = -1;
   let bestRole: DiscordRole | null = null;
   for (const role of discordRoles) {

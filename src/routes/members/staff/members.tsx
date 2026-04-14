@@ -100,7 +100,7 @@ function StaffMembersPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((m) => {
-                const topRole = highestRole(m.discord_roles);
+                const topRole = highestRole(m.discord_roles ?? []);
                 return (
                   <tr key={m.discord_user_id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-2 font-medium text-foreground">
