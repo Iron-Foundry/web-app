@@ -64,6 +64,7 @@ export const DISCORD_ROLE_ORDER = [
   "Event Team",
   "Moderator",
   "Senior Moderator",
+  "Deputy Owner",
   "Co-owner",
 ] as const;
 
