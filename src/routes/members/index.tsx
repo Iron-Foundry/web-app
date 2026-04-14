@@ -105,9 +105,9 @@ function DashboardPage() {
   return (
     <div className="max-w-4xl space-y-6">
       <h1 className="font-rs-bold text-4xl text-primary">
-        Welcome, {user.username}!
+        Welcome, {user.rsn ?? user.username}!
       </h1>
-      {user.rsn && (
+      {user.rsn ? (
         <p className="text-muted-foreground">
           RSN: <span className="text-foreground">{user.rsn}</span>
           {user.clan_rank && (
@@ -116,6 +116,14 @@ function DashboardPage() {
             </span>
           )}
         </p>
+      ) : (
+        <div className="rounded-md border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400">
+          Link your RSN in{" "}
+          <Link to="/members/settings" className="underline font-medium">
+            Settings
+          </Link>{" "}
+          to unlock your activity feed, stats, and full member features.
+        </div>
       )}
 
       <div className="rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">

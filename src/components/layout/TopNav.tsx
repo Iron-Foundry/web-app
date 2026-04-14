@@ -42,7 +42,7 @@ export function TopNav() {
                   className="h-7 w-7 rounded-full"
                 />
               )}
-              <span className="text-sm text-foreground">{user.username}</span>
+              <span className="text-sm text-foreground">{user.rsn ?? user.username}</span>
               <Button variant="ghost" size="sm" onClick={logout}>
                 Logout
               </Button>
@@ -91,7 +91,7 @@ export function TopNav() {
                           className="h-7 w-7 rounded-full"
                         />
                       )}
-                      <span className="truncate text-sm text-foreground">{user.username}</span>
+                      <span className="truncate text-sm text-foreground">{user.rsn ?? user.username}</span>
                     </div>
                     <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { logout(); setMobileOpen(false); }}>
                       Logout

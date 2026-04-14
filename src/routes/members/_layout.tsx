@@ -112,7 +112,7 @@ function MembersLayout() {
             />
           )}
           <span className="truncate text-sm font-medium text-foreground">
-            {user.username}
+            {user.rsn ?? user.username}
           </span>
         </div>
         <SidebarNav />
@@ -137,7 +137,7 @@ function MembersLayout() {
                 />
               )}
               <span className="truncate text-sm font-medium text-foreground">
-                {user.username}
+                {user.rsn ?? user.username}
               </span>
             </div>
             <SidebarNav onNavigate={() => setMobileOpen(false)} />
