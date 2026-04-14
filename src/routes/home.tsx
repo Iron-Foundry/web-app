@@ -96,9 +96,9 @@ function AchievementIcon({
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <Card>
-      <CardContent className="flex flex-col items-center justify-center py-6">
-        <span className="text-3xl font-rs-bold text-primary">{value}</span>
-        <span className="mt-1 text-sm text-muted-foreground">{label}</span>
+      <CardContent className="flex flex-col items-center justify-center py-5">
+        <span className="text-2xl font-rs-bold text-primary">{value}</span>
+        <span className="mt-1 text-xs text-muted-foreground">{label}</span>
       </CardContent>
     </Card>
   );
