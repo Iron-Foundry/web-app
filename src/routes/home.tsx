@@ -65,7 +65,7 @@ function formatAchievementValue(a: Achievement): string {
 const WIKI = "https://oldschool.runescape.wiki/images";
 
 function wikiIconUrl(type: AchievementType, label: string): string {
-  if (label === "Total Level") return `${WIKI}/Overall_icon.png`;
+  if (label === "Total Level") return `${WIKI}/Stats_icon.png`;
   const slug = label.replace(/ /g, "_");
   if (type === "drop") return `${WIKI}/${slug}.png`;
   return `${WIKI}/${slug}_icon.png`;
