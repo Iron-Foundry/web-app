@@ -62,6 +62,37 @@ function formatAchievementValue(a: Achievement): string {
   }
 }
 
+const WIKI = "https://oldschool.runescape.wiki/images";
+
+function wikiIconUrl(type: AchievementType, label: string): string {
+  const slug = label.replace(/ /g, "_");
+  if (type === "drop") return `${WIKI}/${slug}.png`;
+  return `${WIKI}/${slug}_icon.png`;
+}
+
+function AchievementIcon({
+  type,
+  label,
+  Fallback,
+  className,
+}: {
+  type: AchievementType;
+  label: string;
+  Fallback: React.ElementType;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return <Fallback className={className} />;
+  return (
+    <img
+      src={wikiIconUrl(type, label)}
+      alt=""
+      className="h-4 w-4 shrink-0 object-contain"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <Card>
@@ -237,7 +268,12 @@ function HomePage() {
                   const Icon = meta.icon;
                   return (
                     <li key={i} className="flex items-center gap-3 px-4 py-1.5">
-                      <Icon className={`h-4 w-4 shrink-0 ${meta.color}`} />
+                      <AchievementIcon
+                        type={achievement.type}
+                        label={achievement.label}
+                        Fallback={Icon}
+                        className={`h-4 w-4 shrink-0 ${meta.color}`}
+                      />
                       <span className="text-sm font-medium text-foreground truncate">
                         {achievement.label}
                       </span>
