@@ -115,13 +115,13 @@ function AboutPage() {
 
       <Separator />
 
-      {/* ── RuneWatch + Community ─────────────────────────────── */}
+      {/* ── Fair Play + Community ─────────────────────────────── */}
       <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <FeatureCard icon={ShieldCheck} title="RuneWatch Recognised">
+        <FeatureCard icon={ShieldCheck} title="Fair & Trustworthy">
           <p>
-            We're officially supported and recognised by{" "}
-            <span className="text-foreground font-medium">RuneWatch</span>, reinforcing our
-            commitment to a positive, fair, and trustworthy player experience.
+            We're committed to maintaining a{" "}
+            <span className="text-foreground font-medium">fair and trustworthy player experience</span>,
+            ensuring every member can enjoy the game with confidence and integrity.
           </p>
         </FeatureCard>
 
