@@ -109,7 +109,7 @@ function HomePage() {
   const [clanXp, setClanXp] = useState<number | null>(null);
   const [clanEhb, setClanEhb] = useState<number | null>(null);
   const [totalGp, setTotalGp] = useState<number | null>(null);
-  const [totalDrops, setTotalDrops] = useState<number | null>(null);
+  const [collectionLogItems, setCollectionLogItems] = useState<number | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementsLoading, setAchievementsLoading] = useState(true);
 
@@ -132,10 +132,10 @@ function HomePage() {
       .catch(() => {});
 
     fetch(`${API_URL}/clan/stats`)
-      .then((r) => r.json() as Promise<{ total_gp: number; total_drops: number }>)
+      .then((r) => r.json() as Promise<{ total_gp: number; collection_log_items: number }>)
       .then((data) => {
         setTotalGp(data.total_gp ?? null);
-        setTotalDrops(data.total_drops ?? null);
+        setCollectionLogItems(data.collection_log_items ?? null);
       })
       .catch(() => {});
 
@@ -218,8 +218,8 @@ function HomePage() {
           </div>
           <div className="w-full max-w-xs">
             <StatCard
-              label="Total Drops"
-              value={totalDrops !== null ? totalDrops.toLocaleString() : "—"}
+              label="Collection Log Items"
+              value={collectionLogItems !== null ? collectionLogItems.toLocaleString() : "—"}
             />
           </div>
         </div>
