@@ -153,9 +153,9 @@ function DashboardPage() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-wrap gap-4 items-start">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
       {/* ── Welcome / Account ─────────────────────────────────── */}
-      <Card className="w-fit shrink-0">
+      <Card className="self-start">
         <CardHeader className="pb-2">
           <CardTitle className="font-rs-bold text-4xl text-primary">
             Welcome, {user.rsn ?? user.username}!
@@ -184,7 +184,7 @@ function DashboardPage() {
       </Card>
 
       {/* ── Activity Feed ─────────────────────────────────────── */}
-      <Card className="flex-1 min-w-72">
+      <Card className="self-start row-span-2">
         <CardHeader className="pb-2">
           <CardTitle className="font-rs-bold text-xl text-primary">Your Activity Feed</CardTitle>
         </CardHeader>
