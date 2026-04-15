@@ -153,35 +153,38 @@ function DashboardPage() {
   if (!user) return null;
 
   return (
-    <div className="max-w-4xl space-y-6">
-      <h1 className="font-rs-bold text-4xl text-primary">
-        Welcome, {user.rsn ?? user.username}!
-      </h1>
-      {user.rsn ? (
-        <p className="text-muted-foreground">
-          RSN: <span className="text-foreground">{user.rsn}</span>
-          {user.clan_rank && (
-            <span className="ml-3 text-muted-foreground">
-              Rank: <span className="text-foreground">{user.clan_rank}</span>
-            </span>
+    <div className="flex flex-wrap gap-4 items-start">
+      {/* ── Welcome / Account ─────────────────────────────────── */}
+      <Card className="w-fit shrink-0">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-rs-bold text-4xl text-primary">
+            Welcome, {user.rsn ?? user.username}!
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {user.rsn ? (
+            <p className="text-muted-foreground">
+              RSN: <span className="text-foreground">{user.rsn}</span>
+              {user.clan_rank && (
+                <span className="ml-3 text-muted-foreground">
+                  Rank: <span className="text-foreground">{user.clan_rank}</span>
+                </span>
+              )}
+            </p>
+          ) : (
+            <p className="text-sm text-yellow-600 dark:text-yellow-400">
+              Link your RSN in{" "}
+              <Link to="/members/settings" className="underline font-medium">
+                Settings
+              </Link>{" "}
+              to unlock your activity feed, stats, and full member features.
+            </p>
           )}
-        </p>
-      ) : (
-        <div className="rounded-md border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400">
-          Link your RSN in{" "}
-          <Link to="/members/settings" className="underline font-medium">
-            Settings
-          </Link>{" "}
-          to unlock your activity feed, stats, and full member features.
-        </div>
-      )}
-
-      <div className="rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
-        You made it! Tell salt you got here via login 🎉
-      </div>
+        </CardContent>
+      </Card>
 
       {/* ── Activity Feed ─────────────────────────────────────── */}
-      <Card>
+      <Card className="flex-1 min-w-72">
         <CardHeader className="pb-2">
           <CardTitle className="font-rs-bold text-xl text-primary">Your Activity Feed</CardTitle>
         </CardHeader>
@@ -241,3 +244,4 @@ function DashboardPage() {
     </div>
   );
 }
+
