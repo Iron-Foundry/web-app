@@ -6,8 +6,7 @@ import ifElectricBlue from "@/assets/IF_ELECTRIC_BLUE.png";
 import ifBW from "@/assets/LogoTSPSmall-B&W-320x320.png";
 import ifGreen from "@/assets/IF_GREEN.png";
 import ifYellow from "@/assets/IF_YELLOW.png";
-
-const API_URL = import.meta.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
+import { API_URL } from "@/context/AuthContext";
 
 export const staffRoute = createRoute({
   getParentRoute: () => rootRoute,

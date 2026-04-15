@@ -110,7 +110,7 @@ function HomePage() {
   const [clanXp, setClanXp] = useState<number | null>(null);
   const [clanEhb, setClanEhb] = useState<number | null>(null);
   const [totalGp, setTotalGp] = useState<number | null>(null);
-  const [totalClogs, setTotalClogs] = useState<number | null>(null);
+  const [totalLogSlots, setTotalLogSlots] = useState<number | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementsLoading, setAchievementsLoading] = useState(true);
 
@@ -133,10 +133,10 @@ function HomePage() {
       .catch(() => {});
 
     fetch(`${API_URL}/clan/stats`)
-      .then((r) => r.json() as Promise<{ total_gp: number; total_clogs: number }>)
+      .then((r) => r.json() as Promise<{ total_gp: number; collection_log_items: number }>)
       .then((data) => {
         setTotalGp(data.total_gp ?? null);
-        setTotalClogs(data.total_clogs ?? null);
+        setTotalLogSlots(data.collection_log_items ?? null);
       })
       .catch(() => {});
 
@@ -217,7 +217,7 @@ function HomePage() {
           />
           <StatCard
             label="Collection Logs"
-            value={totalClogs !== null ? totalClogs.toLocaleString() : "-"}
+            value={totalLogSlots !== null ? totalLogSlots.toLocaleString() : "-"}
           />
         </div>
       </section>
