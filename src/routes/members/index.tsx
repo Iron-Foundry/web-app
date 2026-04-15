@@ -9,6 +9,54 @@ import {
   Heart, BookOpen, FileSearch, Skull, Timer, Flame, KeyRound,
 } from "lucide-react";
 
+const WIKI = "https://oldschool.runescape.wiki/images";
+
+function wikiIconUrl(type: string, label: string): string | null {
+  const slug = label.replace(/ /g, "_");
+  switch (type) {
+    case "drop":
+    case "clue":
+    case "loot_key":
+      return `${WIKI}/${slug}.png`;
+    case "level":
+      return label === "Total Level"
+        ? `${WIKI}/Stats_icon.png`
+        : `${WIKI}/${slug}_icon.png`;
+    case "xp_milestone":
+      return `${WIKI}/${slug}_icon.png`;
+    case "quest":
+      return `${WIKI}/${slug}_reward_scroll.png`;
+    case "collection_log":
+      return `${WIKI}/${slug}_detail.png`;
+    default:
+      return null;
+  }
+}
+
+function FeedIcon({
+  type,
+  label,
+  Fallback,
+  className,
+}: {
+  type: string;
+  label: string;
+  Fallback: React.ElementType;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const url = wikiIconUrl(type, label);
+  if (failed || !url) return <Fallback className={className} />;
+  return (
+    <img
+      src={url}
+      alt=""
+      className="h-4 w-4 shrink-0 object-contain"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export const membersDashboardRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
   path: "/",
@@ -158,16 +206,21 @@ function DashboardPage() {
                 const value = formatValue(item);
                 return (
                   <li key={i} className="flex items-center gap-3 px-4 py-1.5">
-                    <Icon className={`h-4 w-4 shrink-0 ${meta.color}`} />
-                    <span className="text-sm font-medium text-foreground truncate">
+                    <FeedIcon
+                      type={item.type}
+                      label={item.label}
+                      Fallback={Icon}
+                      className={`h-4 w-4 shrink-0 ${meta.color}`}
+                    />
+                    <span className="text-sm font-medium text-foreground truncate flex-1 min-w-0">
                       {item.label}
                     </span>
                     {item.detail && (
-                      <span className="text-xs text-muted-foreground truncate shrink-0">
+                      <span className="text-xs text-muted-foreground shrink-0">
                         {item.detail}
                       </span>
                     )}
-                    <Badge variant="secondary" className="shrink-0 text-xs ml-auto">
+                    <Badge variant="secondary" className="shrink-0 text-xs">
                       {meta.badge}
                     </Badge>
                     {value && (
