@@ -52,12 +52,21 @@ const STAFF: StaffSection[] = [
       { name: "Blowie",       position: ["Mentorships & Ranks", "Tickets & Support"] },
       { name: "Major Mahi",   position: ["Tickets & Support"] },
       { name: "Turbobungus",  position: ["Events"] },
+      { name: "Ugly Dipshit",  position: ["Recruiting", "Coordinator", "Social Media"] },
+      { name: "Ponderrr",  position: ["Recruiting", "Tickets & Support"] },
+      { name: "MadMike887",  position: ["Recruiting"] },
+      { name: "Very Niceuuu",  position: ["Lead Community Activities", "Events"] },
     ],
   },
   {
     title: "Event Team",
     icon: ifGreen,
-    members: [],
+      members: [
+        { name: "Ursaring",   position: ["Large Scale", "Small Scale"] },
+        { name: "M imik",   position: ["Large Scale", "Community Events"] },
+        { name: "Bimmo",   position: ["Large Scale"] },
+        { name: "Effort Low",   position: ["Large Scale"] },
+    ],
   },
   {
     title: "Mentors",
