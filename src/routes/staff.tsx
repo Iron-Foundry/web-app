@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { Separator } from "@/components/ui/separator";
@@ -6,7 +7,7 @@ import ifElectricBlue from "@/assets/IF_ELECTRIC_BLUE.png";
 import ifBW from "@/assets/LogoTSPSmall-B&W-320x320.png";
 import ifGreen from "@/assets/IF_GREEN.png";
 import ifYellow from "@/assets/IF_YELLOW.png";
-import { API_URL } from "@/context/AuthContext";
+import { API_URL, getAuthToken } from "@/context/AuthContext";
 
 export const staffRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -87,12 +88,28 @@ const STAFF: StaffSection[] = [
 
 function MemberCard({ name, position, discordId }: StaffMember) {
   const hasMultiple = position && position.length > 1;
+  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!discordId) return;
+    const token = getAuthToken();
+    if (!token) return;
+    let cancelled = false;
+    fetch(`${API_URL}/clan/user-avatar/${discordId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? (r.json() as Promise<{ avatar_url: string }>) : Promise.reject()))
+      .then((data) => { if (!cancelled) setAvatarSrc(data.avatar_url); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [discordId]);
+
   return (
     <div className="group relative rounded-lg border border-border bg-card px-4 py-3 min-w-40">
       <div className="flex items-center gap-2">
-        {discordId && (
+        {discordId && avatarSrc && (
           <img
-            src={`${API_URL}/clan/user-avatar/${discordId}`}
+            src={avatarSrc}
             alt=""
             className="h-7 w-7 rounded-full object-cover"
           />
