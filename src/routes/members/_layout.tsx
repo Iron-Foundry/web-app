@@ -133,7 +133,7 @@ function MembersLayout() {
   return (
     <div className="flex flex-1 -m-6">
       {/* Desktop sidebar */}
-      <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col">
+      <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
         <div className="flex items-center gap-2 border-b border-border px-4 py-3">
           {user.avatar && (
             <img

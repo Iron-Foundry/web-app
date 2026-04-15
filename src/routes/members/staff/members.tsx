@@ -5,6 +5,7 @@ import { API_URL, getAuthToken } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { highestRole } from "@/lib/ranks";
 import { Input } from "@/components/ui/input";
+import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 
 export const staffMembersRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
@@ -15,6 +16,7 @@ export const staffMembersRoute = createRoute({
 interface MemberRow {
   discord_user_id: string;
   discord_username: string;
+  discord_avatar_url: string | null;
   rsn: string | null;
   clan_rank: string | null;
   discord_roles: string[];
@@ -23,7 +25,22 @@ interface MemberRow {
   created_at: string;
   total_loot_value: number;
   collection_log_slots: number;
+  recruited_by: string | null;
+  key_is_active: boolean;
 }
+
+type SortKey =
+  | "rsn"
+  | "discord_username"
+  | "clan_rank"
+  | "role"
+  | "total_loot_value"
+  | "collection_log_slots"
+  | "join_date"
+  | "recruited_by"
+  | "key_is_active";
+
+type SortDir = "asc" | "desc";
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -36,6 +53,58 @@ function fmtGp(v: number): string {
   if (v >= 1_000_000)     return `${(v / 1_000_000).toFixed(1)}M`;
   if (v >= 1_000)         return `${Math.round(v / 1_000)}K`;
   return v.toLocaleString();
+}
+
+function rowMatchesSearch(m: MemberRow, q: string): boolean {
+  return (
+    (m.rsn?.toLowerCase().includes(q) ?? false) ||
+    m.discord_username.toLowerCase().includes(q) ||
+    m.discord_user_id.includes(q) ||
+    (m.clan_rank?.toLowerCase().includes(q) ?? false) ||
+    (m.recruited_by?.includes(q) ?? false) ||
+    (m.discord_roles ?? []).some((r) => r.toLowerCase().includes(q)) ||
+    (m.key_is_active ? "active" : "inactive").includes(q) ||
+    (m.join_date ? fmtDate(m.join_date) : "").toLowerCase().includes(q) ||
+    String(m.total_loot_value).includes(q) ||
+    String(m.collection_log_slots).includes(q)
+  );
+}
+
+function sortMembers(rows: MemberRow[], key: SortKey, dir: SortDir): MemberRow[] {
+  return [...rows].sort((a, b) => {
+    let av: string | number | boolean | null;
+    let bv: string | number | boolean | null;
+
+    switch (key) {
+      case "rsn":             av = a.rsn ?? ""; bv = b.rsn ?? ""; break;
+      case "discord_username": av = a.discord_username; bv = b.discord_username; break;
+      case "clan_rank":       av = a.clan_rank ?? ""; bv = b.clan_rank ?? ""; break;
+      case "role":            av = highestRole(a.discord_roles) ?? ""; bv = highestRole(b.discord_roles) ?? ""; break;
+      case "total_loot_value": av = a.total_loot_value; bv = b.total_loot_value; break;
+      case "collection_log_slots": av = a.collection_log_slots; bv = b.collection_log_slots; break;
+      case "join_date":       av = a.join_date ?? a.created_at; bv = b.join_date ?? b.created_at; break;
+      case "recruited_by":    av = a.recruited_by ?? ""; bv = b.recruited_by ?? ""; break;
+      case "key_is_active":   av = a.key_is_active ? 1 : 0; bv = b.key_is_active ? 1 : 0; break;
+    }
+
+    if (av === null || av === undefined) av = "";
+    if (bv === null || bv === undefined) bv = "";
+
+    let cmp = 0;
+    if (typeof av === "number" && typeof bv === "number") {
+      cmp = av - bv;
+    } else {
+      cmp = String(av).localeCompare(String(bv));
+    }
+    return dir === "asc" ? cmp : -cmp;
+  });
+}
+
+function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
+  if (col !== sortKey) return <ChevronsUpDown className="inline h-3 w-3 ml-1 opacity-40" />;
+  return sortDir === "asc"
+    ? <ChevronUp className="inline h-3 w-3 ml-1" />
+    : <ChevronDown className="inline h-3 w-3 ml-1" />;
 }
 
 interface RsnCellProps {
@@ -78,14 +147,8 @@ function RsnCell({ memberId, rsn, onSaved }: RsnCellProps) {
         },
         body: JSON.stringify({ rsn: trimmed }),
       });
-      if (res.status === 409) {
-        setError("RSN already linked to another account.");
-        return;
-      }
-      if (!res.ok) {
-        setError("Failed to save.");
-        return;
-      }
+      if (res.status === 409) { setError("RSN already linked to another account."); return; }
+      if (!res.ok) { setError("Failed to save."); return; }
       const data = (await res.json()) as { rsn: string | null };
       onSaved(memberId, data.rsn);
       setEditing(false);
@@ -112,20 +175,8 @@ function RsnCell({ memberId, rsn, onSaved }: RsnCellProps) {
             className="h-7 py-0 px-2 text-xs w-36"
             placeholder="RSN…"
           />
-          <button
-            onClick={save}
-            disabled={saving}
-            className="text-xs text-primary hover:underline disabled:opacity-50"
-          >
-            Save
-          </button>
-          <button
-            onClick={cancel}
-            disabled={saving}
-            className="text-xs text-muted-foreground hover:underline disabled:opacity-50"
-          >
-            Cancel
-          </button>
+          <button onClick={save} disabled={saving} className="text-xs text-primary hover:underline disabled:opacity-50">Save</button>
+          <button onClick={cancel} disabled={saving} className="text-xs text-muted-foreground hover:underline disabled:opacity-50">Cancel</button>
         </div>
         {error && <span className="text-xs text-destructive">{error}</span>}
       </div>
@@ -155,6 +206,8 @@ function StaffMembersPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("join_date");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   useEffect(() => {
     const token = getAuthToken();
@@ -169,32 +222,43 @@ function StaffMembersPage() {
   }, []);
 
   function handleRsnSaved(id: string, rsn: string | null) {
-    setMembers((prev) =>
-      prev.map((m) => (m.discord_user_id === id ? { ...m, rsn } : m))
+    setMembers((prev) => prev.map((m) => (m.discord_user_id === id ? { ...m, rsn } : m)));
+  }
+
+  function handleSort(key: SortKey) {
+    if (key === sortKey) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
+
+  const q = search.toLowerCase().trim();
+  const filtered = q ? members.filter((m) => rowMatchesSearch(m, q)) : members;
+  const sorted = sortMembers(filtered, sortKey, sortDir);
+
+  function Th({ label, col, align }: { label: string; col: SortKey; align?: "right" }) {
+    return (
+      <th
+        className={`px-4 py-2 font-medium cursor-pointer select-none whitespace-nowrap hover:text-foreground${align === "right" ? " text-right" : ""}`}
+        onClick={() => handleSort(col)}
+      >
+        {label}
+        <SortIcon col={col} sortKey={sortKey} sortDir={sortDir} />
+      </th>
     );
   }
 
-  const q = search.toLowerCase();
-  const filtered = q
-    ? members.filter(
-        (m) =>
-          m.rsn?.toLowerCase().includes(q) ||
-          m.discord_username.toLowerCase().includes(q) ||
-          m.clan_rank?.toLowerCase().includes(q),
-      )
-    : members;
-
   return (
-    <div className="max-w-5xl space-y-4">
+    <div className="max-w-6xl space-y-4">
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Member List</h1>
-        <p className="text-muted-foreground text-sm">
-          {members.length} registered accounts
-        </p>
+        <p className="text-muted-foreground text-sm">{members.length} registered accounts</p>
       </div>
 
       <Input
-        placeholder="Search RSN, username or rank…"
+        placeholder="Search any field…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="max-w-sm"
@@ -202,49 +266,63 @@ function StaffMembersPage() {
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
-      ) : filtered.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <p className="text-sm text-muted-foreground">No members found.</p>
       ) : (
         <div className="rounded-md border border-border overflow-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-left text-xs text-muted-foreground">
-                <th className="px-4 py-2 font-medium">RSN</th>
-                <th className="px-4 py-2 font-medium">Discord</th>
-                <th className="px-4 py-2 font-medium">Rank</th>
-                <th className="px-4 py-2 font-medium">Role</th>
-                <th className="px-4 py-2 font-medium text-right">Loot</th>
-                <th className="px-4 py-2 font-medium text-right">Log</th>
-                <th className="px-4 py-2 font-medium">Joined</th>
+                <Th label="RSN"         col="rsn" />
+                <Th label="Discord"     col="discord_username" />
+                <Th label="Rank"        col="clan_rank" />
+                <Th label="Role"        col="role" />
+                <Th label="Loot"        col="total_loot_value" align="right" />
+                <Th label="Log"         col="collection_log_slots" align="right" />
+                <Th label="Joined"      col="join_date" />
+                <Th label="Recruited By" col="recruited_by" />
+                <Th label="API Key"     col="key_is_active" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.map((m) => {
+              {sorted.map((m) => {
                 const topRole = highestRole(m.discord_roles ?? []);
                 return (
                   <tr key={m.discord_user_id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-2">
-                      <RsnCell
-                        memberId={m.discord_user_id}
-                        rsn={m.rsn}
-                        onSaved={handleRsnSaved}
-                      />
+                      <RsnCell memberId={m.discord_user_id} rsn={m.rsn} onSaved={handleRsnSaved} />
                     </td>
-                    <td className="px-4 py-2 text-muted-foreground">{m.discord_username}</td>
+                    <td className="px-4 py-2 text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        {m.discord_avatar_url && (
+                          <img src={m.discord_avatar_url} alt="" className="h-5 w-5 rounded-full object-cover shrink-0" />
+                        )}
+                        <div>
+                          <div>{m.discord_username}</div>
+                          <div className="text-xs text-muted-foreground/60">{m.discord_user_id}</div>
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-4 py-2 text-muted-foreground">{m.clan_rank ?? "-"}</td>
                     <td className="px-4 py-2">
-                      {topRole ? (
-                        <Badge variant="secondary" className="text-xs">{topRole}</Badge>
-                      ) : "-"}
+                      {topRole ? <Badge variant="secondary" className="text-xs">{topRole}</Badge> : "-"}
                     </td>
                     <td className="px-4 py-2 text-right text-muted-foreground">
                       {m.total_loot_value ? fmtGp(m.total_loot_value) : "-"}
                     </td>
                     <td className="px-4 py-2 text-right text-muted-foreground">
-                      {m.collection_log_slots ?? "-"}
+                      {m.collection_log_slots || "-"}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">
                       {m.join_date ? fmtDate(m.join_date) : m.created_at ? fmtDate(m.created_at) : "-"}
+                    </td>
+                    <td className="px-4 py-2 text-muted-foreground">
+                      {m.recruited_by ?? "-"}
+                    </td>
+                    <td className="px-4 py-2">
+                      <span className={m.key_is_active ? "text-green-600 dark:text-green-400 text-xs font-medium" : "text-muted-foreground text-xs"}>
+                        {m.key_is_active ? "Active" : "Inactive"}
+                      </span>
                     </td>
                   </tr>
                 );
