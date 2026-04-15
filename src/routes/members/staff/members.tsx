@@ -13,7 +13,7 @@ export const staffMembersRoute = createRoute({
 });
 
 interface MemberRow {
-  discord_user_id: number;
+  discord_user_id: string;
   discord_username: string;
   rsn: string | null;
   clan_rank: string | null;
@@ -39,9 +39,9 @@ function fmtGp(v: number): string {
 }
 
 interface RsnCellProps {
-  memberId: number;
+  memberId: string;
   rsn: string | null;
-  onSaved: (id: number, rsn: string | null) => void;
+  onSaved: (id: string, rsn: string | null) => void;
 }
 
 function RsnCell({ memberId, rsn, onSaved }: RsnCellProps) {
@@ -168,7 +168,7 @@ function StaffMembersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  function handleRsnSaved(id: number, rsn: string | null) {
+  function handleRsnSaved(id: string, rsn: string | null) {
     setMembers((prev) =>
       prev.map((m) => (m.discord_user_id === id ? { ...m, rsn } : m))
     );
