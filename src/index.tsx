@@ -1,5 +1,14 @@
 import { serve } from "bun";
 import index from "./index.html";
+import { join } from "path";
+
+// Write dev-config.js before the bundler processes files on first request.
+// Bundling is lazy (happens on first HTTP request), so this write wins.
+const API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
+await Bun.write(
+  join(import.meta.dir, "dev-config.js"),
+  `// Written by dev server — do not edit manually\nwindow.__API_URL__ = window.__API_URL__ || ${JSON.stringify(API_URL)};\n`,
+);
 
 const server = serve({
   routes: {

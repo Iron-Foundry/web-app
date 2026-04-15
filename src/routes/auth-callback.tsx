@@ -15,7 +15,7 @@ function AuthCallbackPage() {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     if (token) {
-      sessionStorage.setItem("auth_token", token);
+      localStorage.setItem("auth_token", token);
       window.history.replaceState({}, "", window.location.pathname);
       navigate({ to: "/members" });
     } else {

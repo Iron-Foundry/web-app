@@ -107,12 +107,16 @@ function MemberCard({ name, position, discordId }: StaffMember) {
   return (
     <div className="group relative rounded-lg border border-border bg-card px-4 py-3 min-w-40">
       <div className="flex items-center gap-2">
-        {discordId && avatarSrc && (
-          <img
-            src={avatarSrc}
-            alt=""
-            className="h-7 w-7 rounded-full object-cover"
-          />
+        {discordId && (
+          <div className="h-7 w-7 shrink-0 rounded-full overflow-hidden bg-muted">
+            {avatarSrc && (
+              <img
+                src={avatarSrc}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            )}
+          </div>
         )}
         <div className="flex items-baseline gap-2">
           <span className="text-sm font-medium text-foreground">{name}</span>

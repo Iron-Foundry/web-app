@@ -16,13 +16,14 @@ export const homeRoute = createRoute({
   component: HomePage,
 });
 
-const WOM_GROUP_ID = 9403;
-
-interface WomGroupResponse {
-  memberCount: number;
-  memberships: { player: { exp: number; ehb: number } }[];
+interface WomStatsResponse {
+  member_count: number;
+  total_xp: number;
+  total_ehb: number;
+  cox_kc: number;
+  tob_kc: number;
+  toa_kc: number;
 }
-
 
 type AchievementType = "drop" | "level" | "xp_milestone";
 
@@ -42,9 +43,9 @@ const ACHIEVEMENT_META: Record<
     badge: string;
   }
 > = {
-  drop:         { icon: Gem,        color: "text-primary",  badge: "Drop"         },
-  level:        { icon: TrendingUp, color: "text-green-400", badge: "Level Up"     },
-  xp_milestone: { icon: Zap,        color: "text-blue-400",  badge: "XP Milestone" },
+  drop: { icon: Gem, color: "text-primary", badge: "Drop" },
+  level: { icon: TrendingUp, color: "text-green-400", badge: "Level Up" },
+  xp_milestone: { icon: Zap, color: "text-blue-400", badge: "XP Milestone" },
 };
 
 function formatGp(value: number): string {
@@ -56,9 +57,12 @@ function formatGp(value: number): string {
 
 function formatAchievementValue(a: Achievement): string {
   switch (a.type) {
-    case "drop":         return formatGp(a.value);
-    case "level":        return `Level ${a.value}`;
-    case "xp_milestone": return `${formatGp(a.value)} xp`;
+    case "drop":
+      return formatGp(a.value);
+    case "level":
+      return `Level ${a.value}`;
+    case "xp_milestone":
+      return `${formatGp(a.value)} xp`;
   }
 }
 
@@ -94,10 +98,29 @@ function AchievementIcon({
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({
+  label,
+  value,
+  backdrop,
+  backdropOpacity = 0.15,
+}: {
+  label: string;
+  value: string;
+  backdrop?: string;
+  backdropOpacity?: number;
+}) {
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center justify-center py-5">
+    <Card className="relative overflow-hidden">
+      {backdrop && (
+        <img
+          src={backdrop}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          style={{ opacity: backdropOpacity }}
+        />
+      )}
+      <CardContent className="relative flex flex-col items-center justify-center">
         <span className="text-2xl font-rs-bold text-primary">{value}</span>
         <span className="mt-1 text-xs text-muted-foreground">{label}</span>
       </CardContent>
@@ -109,31 +132,37 @@ function HomePage() {
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [clanXp, setClanXp] = useState<number | null>(null);
   const [clanEhb, setClanEhb] = useState<number | null>(null);
+  const [coxKc, setCoxKc] = useState<number | null>(null);
+  const [tobKc, setTobKc] = useState<number | null>(null);
+  const [toaKc, setToaKc] = useState<number | null>(null);
   const [totalGp, setTotalGp] = useState<number | null>(null);
   const [totalLogSlots, setTotalLogSlots] = useState<number | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementsLoading, setAchievementsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`https://api.wiseoldman.net/v2/groups/${WOM_GROUP_ID}`)
-      .then((r) => r.json() as Promise<WomGroupResponse>)
+    fetch(`${API_URL}/clan/wom-stats`)
+      .then((r) =>
+        r.ok ? (r.json() as Promise<WomStatsResponse>) : Promise.reject(),
+      )
       .then((data) => {
-        setMemberCount(data.memberCount ?? null);
-        const totalXp = data.memberships?.reduce(
-          (sum, m) => sum + (m.player?.exp ?? 0),
-          0,
-        ) ?? null;
-        setClanXp(totalXp > 0 ? totalXp : null);
-        const totalEhb = data.memberships?.reduce(
-          (sum, m) => sum + (m.player?.ehb ?? 0),
-          0,
-        ) ?? null;
-        setClanEhb(totalEhb > 0 ? Math.round(totalEhb) : null);
+        setMemberCount(data.member_count ?? null);
+        setClanXp(data.total_xp > 0 ? data.total_xp : null);
+        setClanEhb(data.total_ehb > 0 ? data.total_ehb : null);
+        setCoxKc(data.cox_kc > 0 ? data.cox_kc : null);
+        setTobKc(data.tob_kc > 0 ? data.tob_kc : null);
+        setToaKc(data.toa_kc > 0 ? data.toa_kc : null);
       })
       .catch(() => {});
 
     fetch(`${API_URL}/clan/stats`)
-      .then((r) => r.json() as Promise<{ total_gp: number; collection_log_items: number }>)
+      .then(
+        (r) =>
+          r.json() as Promise<{
+            total_gp: number;
+            collection_log_items: number;
+          }>,
+      )
       .then((data) => {
         setTotalGp(data.total_gp ?? null);
         setTotalLogSlots(data.collection_log_items ?? null);
@@ -167,7 +196,11 @@ function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <svg className="h-7 w-7" xmlns="http://www.w3.org/2000/svg" viewBox="-3 -3 22 22">
+              <svg
+                className="h-7 w-7"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="-3 -3 22 22"
+              >
                 <path
                   fill="#5865F2"
                   fillRule="evenodd"
@@ -195,29 +228,50 @@ function HomePage() {
       </section>
 
       {/* ── Stats ────────────────────────────────────────────── */}
-      <section className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
+      <section className="space-y-3">
+        <div className="grid grid-cols-3 gap-3">
           <StatCard
-            label="Members"
-            value={memberCount !== null ? memberCount.toLocaleString() : "-"}
+            label="Member Count"
+                      value={memberCount !== null ? memberCount.toLocaleString() : "-"}
+                      backdrop={clanPhoto}
           />
           <StatCard
-            label="Clan XP"
+            label="Total XP"
             value={clanXp !== null ? formatGp(clanXp) : "-"}
-          />
+            backdrop="https://oldschool.runescape.wiki/images/thumb/Forestry-_Part_Two_-_Community_Consultation_%281%29.png/640px-Forestry-_Part_Two_-_Community_Consultation_%281%29.png?b1a37"
+            backdropOpacity={0.25}
+            />
           <StatCard
-            label="Clan EHB"
+            label="Total EHB"
             value={clanEhb !== null ? clanEhb.toLocaleString() : "-"}
+            backdrop="https://oldschool.runescape.wiki/images/thumb/Araxxor_artwork_3D_no_text.png/614px-Araxxor_artwork_3D_no_text.png?79f22"
+            backdropOpacity={0.25}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-4 gap-3">
           <StatCard
-            label="GP Looted"
+            label="Loot Value"
             value={totalGp !== null ? formatGp(totalGp) : "-"}
+            backdrop="https://oldschool.runescape.wiki/images/thumb/Loot_Chest_%28opened%29.png/489px-Loot_Chest_%28opened%29.png?b8b83"
+            backdropOpacity={0.25}
           />
           <StatCard
-            label="Collection Logs"
-            value={totalLogSlots !== null ? totalLogSlots.toLocaleString() : "-"}
+            label="Tombs of Amascut"
+            value={toaKc !== null ? toaKc.toLocaleString() : "-"}
+            backdrop="https://oldschool.runescape.wiki/images/thumb/Tombs_of_Amascut_-_necropolis_concept_art.jpg/640px-Tombs_of_Amascut_-_necropolis_concept_art.jpg?b3e2f"
+            backdropOpacity={0.25}
+          />
+          <StatCard
+            label="Chambers of Xeric"
+            value={coxKc !== null ? coxKc.toLocaleString() : "-"}
+            backdrop="https://oldschool.runescape.wiki/images/thumb/Chambers_of_Xeric_artwork.jpg/640px-Chambers_of_Xeric_artwork.jpg?090e1"
+            backdropOpacity={0.25}
+          />
+          <StatCard
+            label="Theatre of Blood"
+            value={tobKc !== null ? tobKc.toLocaleString() : "-"}
+            backdrop="https://oldschool.runescape.wiki/images/thumb/Theatre_of_Blood_artwork.jpg/640px-Theatre_of_Blood_artwork.jpg?92a5f"
+            backdropOpacity={0.25}
           />
         </div>
       </section>
@@ -249,7 +303,7 @@ function HomePage() {
               friends join our ranks!
             </p>
           </div>
-          <div className="overflow-hidden rounded-xl border border-border">
+          <div className="overflow-hidden rounded-md border border-border">
             <img
               src={clanPhoto}
               alt="Iron Foundry clan photograph"
@@ -281,9 +335,13 @@ function HomePage() {
         <Card>
           <CardContent className="p-0">
             {achievementsLoading ? (
-              <p className="px-4 py-6 text-sm text-muted-foreground">Loading…</p>
+              <p className="px-4 py-6 text-sm text-muted-foreground">
+                Loading…
+              </p>
             ) : achievements.length === 0 ? (
-              <p className="px-4 py-6 text-sm text-muted-foreground">No recent achievements yet.</p>
+              <p className="px-4 py-6 text-sm text-muted-foreground">
+                No recent achievements yet.
+              </p>
             ) : (
               <ul className="divide-y divide-border">
                 {achievements.map((achievement, i) => {
@@ -306,7 +364,9 @@ function HomePage() {
                       <Badge variant="secondary" className="shrink-0 text-xs">
                         {achievement.detail ?? meta.badge}
                       </Badge>
-                      <span className={`ml-auto shrink-0 font-rs-bold text-sm ${meta.color}`}>
+                      <span
+                        className={`ml-auto shrink-0 font-rs-bold text-sm ${meta.color}`}
+                      >
                         {formatAchievementValue(achievement)}
                       </span>
                     </li>

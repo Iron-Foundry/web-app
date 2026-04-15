@@ -40,26 +40,23 @@ const AuthContext = createContext<AuthContextValue>({
 const TOKEN_KEY = "auth_token";
 
 export function getAuthToken(): string | null {
-  return sessionStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(TOKEN_KEY);
 }
 
+// Returns user on success, null if token is explicitly rejected (401), throws on network/server errors.
 async function fetchMe(token: string): Promise<AuthUser | null> {
-  try {
-    const r = await fetch(`${API_URL}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!r.ok) return null;
-    const data = await r.json() as AuthUser;
-    // Ensure array fields have defaults for older API responses
-    return {
-      ...data,
-      discord_roles: data.discord_roles ?? [],
-      stats_opt_out: data.stats_opt_out ?? false,
-      hide_presence_notifications: data.hide_presence_notifications ?? false,
-    };
-  } catch {
-    return null;
-  }
+  const r = await fetch(`${API_URL}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (r.status === 401) return null;
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const data = await r.json() as AuthUser;
+  return {
+    ...data,
+    discord_roles: data.discord_roles ?? [],
+    stats_opt_out: data.stats_opt_out ?? false,
+    hide_presence_notifications: data.hide_presence_notifications ?? false,
+  };
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -71,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
     if (urlToken) {
-      sessionStorage.setItem(TOKEN_KEY, urlToken);
+      localStorage.setItem(TOKEN_KEY, urlToken);
       params.delete("token");
       const newSearch = params.toString();
       const newUrl =
@@ -79,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.history.replaceState({}, "", newUrl);
     }
 
-    const stored = sessionStorage.getItem(TOKEN_KEY);
+    const stored = localStorage.getItem(TOKEN_KEY);
     if (!stored) {
       setLoading(false);
       return;
@@ -90,8 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data) {
           setUser(data);
         } else {
-          sessionStorage.removeItem(TOKEN_KEY);
+          // Explicit 401 — token is invalid
+          localStorage.removeItem(TOKEN_KEY);
         }
+      })
+      .catch(() => {
+        // Network/server error — keep token, user just appears logged out until next load
       })
       .finally(() => setLoading(false));
   }, []);
@@ -101,19 +102,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
   }, []);
 
   const refresh = useCallback(async () => {
-    const token = sessionStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
     if (!token) return;
-    const data = await fetchMe(token);
-    if (data) {
-      setUser(data);
-    } else {
-      sessionStorage.removeItem(TOKEN_KEY);
-      setUser(null);
+    try {
+      const data = await fetchMe(token);
+      if (data) {
+        setUser(data);
+      } else {
+        // Explicit 401 — token is invalid
+        localStorage.removeItem(TOKEN_KEY);
+        setUser(null);
+      }
+    } catch {
+      // Network/server error — leave existing state unchanged
     }
   }, []);
 

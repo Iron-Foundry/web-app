@@ -81,14 +81,24 @@ serve({
     if (pathname !== "/" && pathname.includes(".")) {
       const file = Bun.file(join(DIST, pathname));
       if (await file.exists()) {
-        return new Response(file);
+        // Bun's bundler emits content-hashed JS/CSS chunks — safe to cache for 1 year.
+        // Other assets (images, fonts) get 1 day. HTML is handled below with no-cache.
+        const ext = pathname.split(".").pop()?.toLowerCase() ?? "";
+        const cacheControl =
+          ext === "js" || ext === "css"
+            ? "public, max-age=31536000, immutable"
+            : "public, max-age=86400";
+        return new Response(file, { headers: { "Cache-Control": cacheControl } });
       }
     }
 
     // Inject per-route OG meta, replacing the existing <title> tag
     const html = baseHtml.replace(/<title>[^<]*<\/title>/, buildOgTags(pathname));
     return new Response(html, {
-      headers: { "Content-Type": "text/html; charset=utf-8" },
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-cache",
+      },
     });
   },
 });

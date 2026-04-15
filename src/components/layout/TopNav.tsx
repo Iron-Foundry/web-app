@@ -1,15 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavLinks } from "./NavLinks";
-import { useAuth } from "@/context/AuthContext";
+import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
 export function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
+  const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user || user.avatar) { setFetchedAvatarUrl(null); return; }
+    const token = getAuthToken();
+    if (!token) return;
+    let cancelled = false;
+    fetch(`${API_URL}/clan/user-avatar/${user.discord_user_id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? (r.json() as Promise<{ avatar_url: string }>) : Promise.reject()))
+      .then((data) => { if (!cancelled) setFetchedAvatarUrl(data.avatar_url); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const avatarUrl = user?.avatar
+    ? `https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`
+    : fetchedAvatarUrl;
   const navigate = useNavigate();
 
   return (
@@ -35,9 +54,9 @@ export function TopNav() {
           )}
           {user ? (
             <div className="flex items-center gap-2">
-              {user.avatar && (
+              {avatarUrl && (
                 <img
-                  src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
+                  src={avatarUrl}
                   alt=""
                   className="h-7 w-7 rounded-full"
                 />

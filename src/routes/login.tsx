@@ -14,7 +14,7 @@ export const loginRoute = createRoute({
 });
 
 function LoginPage() {
-  const { login } = useAuth();
+  const { login, refresh } = useAuth();
   const navigate = useNavigate();
   const [apiKey, setApiKey] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +39,8 @@ function LoginPage() {
         return;
       }
       const { token } = (await resp.json()) as { token: string };
-      sessionStorage.setItem("auth_token", token);
+      localStorage.setItem("auth_token", token);
+      await refresh();
       navigate({ to: "/members" });
     } catch {
       setError("Network error - please try again.");
@@ -61,7 +62,7 @@ function LoginPage() {
             <CardTitle className="text-lg">Discord</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm mb-2 text-muted-foreground">
               One-click login with your Discord account. You must be a member of
               the Iron Foundry server.
             </p>
@@ -88,9 +89,8 @@ function LoginPage() {
             <CardTitle className="text-lg">API Key</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-3 text-sm text-muted-foreground">
-              Generate a key in Discord with <code>/userkey new</code>, then
-              paste it below.
+            <p className="mb-2 text-sm text-muted-foreground">
+                Run <code>/userkey action:'new'</code> to request one on Discord.
             </p>
             <form onSubmit={handleApiKeyLogin} className="flex flex-col gap-3">
               <Input
@@ -113,7 +113,7 @@ function LoginPage() {
 
       <Separator className="my-8" />
       <p className="text-center text-xs text-muted-foreground">
-        Only Iron Foundry clan members can access the members area.
+          Only members of the Iron Foundry clan Discord can access the member area.
       </p>
     </div>
   );
