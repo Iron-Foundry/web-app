@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
@@ -38,6 +38,119 @@ function fmtGp(v: number): string {
   return v.toLocaleString();
 }
 
+interface RsnCellProps {
+  memberId: number;
+  rsn: string | null;
+  onSaved: (id: number, rsn: string | null) => void;
+}
+
+function RsnCell({ memberId, rsn, onSaved }: RsnCellProps) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(rsn ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function startEdit() {
+    setValue(rsn ?? "");
+    setError(null);
+    setEditing(true);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function cancel() {
+    setEditing(false);
+    setError(null);
+  }
+
+  async function save() {
+    const trimmed = value.trim() || null;
+    if (trimmed === rsn) { cancel(); return; }
+    setSaving(true);
+    setError(null);
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`${API_URL}/staff/members/${memberId}/rsn`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rsn: trimmed }),
+      });
+      if (res.status === 409) {
+        setError("RSN already linked to another account.");
+        return;
+      }
+      if (!res.ok) {
+        setError("Failed to save.");
+        return;
+      }
+      const data = (await res.json()) as { rsn: string | null };
+      onSaved(memberId, data.rsn);
+      setEditing(false);
+    } catch {
+      setError("Network error.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (editing) {
+    return (
+      <div className="flex flex-col gap-1 min-w-36">
+        <div className="flex items-center gap-1">
+          <Input
+            ref={inputRef}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") save();
+              if (e.key === "Escape") cancel();
+            }}
+            disabled={saving}
+            className="h-7 py-0 px-2 text-xs w-36"
+            placeholder="RSN…"
+          />
+          <button
+            onClick={save}
+            disabled={saving}
+            className="text-xs text-primary hover:underline disabled:opacity-50"
+          >
+            Save
+          </button>
+          <button
+            onClick={cancel}
+            disabled={saving}
+            className="text-xs text-muted-foreground hover:underline disabled:opacity-50"
+          >
+            Cancel
+          </button>
+        </div>
+        {error && <span className="text-xs text-destructive">{error}</span>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="group/rsn flex items-center gap-1.5">
+      <span className={rsn ? "font-medium text-foreground" : "italic text-muted-foreground"}>
+        {rsn ?? "-"}
+      </span>
+      <button
+        onClick={startEdit}
+        aria-label="Edit RSN"
+        className="opacity-0 group-hover/rsn:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </button>
+    </div>
+  );
+}
+
 function StaffMembersPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +167,12 @@ function StaffMembersPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  function handleRsnSaved(id: number, rsn: string | null) {
+    setMembers((prev) =>
+      prev.map((m) => (m.discord_user_id === id ? { ...m, rsn } : m))
+    );
+  }
 
   const q = search.toLowerCase();
   const filtered = q
@@ -104,8 +223,12 @@ function StaffMembersPage() {
                 const topRole = highestRole(m.discord_roles ?? []);
                 return (
                   <tr key={m.discord_user_id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-2 font-medium text-foreground">
-                      {m.rsn ?? <span className="text-muted-foreground italic">-</span>}
+                    <td className="px-4 py-2">
+                      <RsnCell
+                        memberId={m.discord_user_id}
+                        rsn={m.rsn}
+                        onSaved={handleRsnSaved}
+                      />
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">{m.discord_username}</td>
                     <td className="px-4 py-2 text-muted-foreground">{m.clan_rank ?? "-"}</td>

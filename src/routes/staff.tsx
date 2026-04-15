@@ -7,6 +7,8 @@ import ifBW from "@/assets/LogoTSPSmall-B&W-320x320.png";
 import ifGreen from "@/assets/IF_GREEN.png";
 import ifYellow from "@/assets/IF_YELLOW.png";
 
+const API_URL = import.meta.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
+
 export const staffRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/staff",
@@ -16,6 +18,7 @@ export const staffRoute = createRoute({
 interface StaffMember {
   name: string;
   position?: string[];
+  discordId?: string;
 }
 
 interface StaffSection {
@@ -29,69 +32,78 @@ const STAFF: StaffSection[] = [
     title: "Owners",
     icon: ifPurple,
     members: [
-      { name: "Martyrs",  position: ["Co-Owner", "Expert Yapper"]    },
-      { name: "Salt",     position: ["Co-Owner", "Lead Developer"]    },
+      { name: "Martyrs",  position: ["Co-Owner", "Expert Yapper"], discordId: "406502736528408608"    },
+      { name: "Salt",     position: ["Co-Owner", "Lead Developer"], discordId: "225683257146998785"    },
     ],
   },
   {
     title: "Senior Moderators",
     icon: ifElectricBlue,
     members: [
-      { name: "aBtw",     position: ["Lead Mentorships & Ranks"] },
-      { name: "Ethamiel", position: ["Lead Coordinator", "Lead Events", "Lead Recruiting", "Expert Yapper"] },
+      { name: "aBtw",     position: ["Lead Mentorships & Ranks"], discordId: "238129189234933761" },
+      { name: "Ethamiel", position: ["Lead Coordinator", "Lead Events", "Lead Recruiting", "Expert Yapper"], discordId: "1266898806985986108" },
     ],
   },
   {
     title: "Moderators",
     icon: ifBW,
     members: [
-      { name: "Dunkies",      position: ["General Moderator"] },
-      { name: "PvM Items",    position: ["General Moderator"] },
-      { name: "Gfe zanothe",  position: ["Mentorships & Ranks"] },
-      { name: "Iron Pyke",    position: ["Mentorships & Ranks"] },
-      { name: "Blowie",       position: ["Mentorships & Ranks", "Tickets & Support"] },
-      { name: "Major Mahi",   position: ["Tickets & Support"] },
-      { name: "Turbobungus",  position: ["Events"] },
-      { name: "Ugly Dipshit",  position: ["Recruiting", "Coordinator", "Social Media"] },
-      { name: "Ponderrr",  position: ["Recruiting", "Tickets & Support"] },
-      { name: "MadMike887",  position: ["Recruiting"] },
-      { name: "Very Niceuuu",  position: ["Lead Community Activities", "Events"] },
+      { name: "Dunkies",      position: ["General Moderator"], discordId: "262425953681145867" },
+      { name: "PvM Items",    position: ["General Moderator"], discordId: "257307256016732161" },
+      { name: "Gfe zanothe",  position: ["Mentorships & Ranks"], discordId: "219775913083011072" },
+      { name: "Iron Pyke",    position: ["Mentorships & Ranks"], discordId: "1173045051862036520" },
+      { name: "LD Blowie",       position: ["Mentorships & Ranks", "Tickets & Support"], discordId: "185151555480190976" },
+      { name: "Major Mahi",   position: ["Tickets & Support"], discordId: "117672374362439684" },
+      { name: "Turbobungus",  position: ["Events"], discordId: "526978897586159627" },
+      { name: "Ugly Dipshit",  position: ["Recruiting", "Coordinator", "Social Media"], discordId: "126047413113716736" },
+      { name: "Ponderrr",  position: ["Recruiting", "Tickets & Support"], discordId: "1221565409359040604" },
+      { name: "MadMike887",  position: ["Recruiting"], discordId: "275911716192124929" },
+      { name: "Very Niceuuu",  position: ["Lead Community Activities", "Events"], discordId: "294951214314029056" },
     ],
   },
   {
     title: "Event Team",
     icon: ifGreen,
       members: [
-        { name: "Ursaring",   position: ["Large Scale", "Small Scale"] },
-        { name: "M imik",   position: ["Large Scale", "Community Events"] },
-        { name: "Bimmo",   position: ["Large Scale"] },
-        { name: "Effort Low",   position: ["Large Scale"] },
+        { name: "Ursaring",   position: ["Large Scale", "Small Scale"], discordId: "334193733627150338" },
+        { name: "M imik",   position: ["Large Scale", "Community Events"], discordId: "311546073737068546" },
+        { name: "Bimmo",   position: ["Large Scale"], discordId: "147852591244640256" },
+        { name: "Effort Low",   position: ["Large Scale"], discordId: "611981968506224640" },
     ],
   },
   {
     title: "Mentors",
     icon: ifYellow,
       members: [
-        { name: "Soklyve",   position: [] },
-        { name: "BromieJuan",   position: [] },
-        { name: "Goon Knight",   position: [] },
-        { name: "Hyuacktuah",   position: [] },
-        { name: "Ursaring",   position: [] },
-        { name: "Sr6",   position: [] },
-        { name: "Bimmo",   position: [] },
+        { name: "Soklyve",   position: [], discordId: "1117209236829650984" },
+        { name: "BromieJuan",   position: [], discordId: "241381729187659787" },
+        { name: "Goon Knight",   position: [], discordId: "1419350610200887327" },
+        { name: "Hyuacktuah",   position: [], discordId: "95867178078732288" },
+        { name: "Ursaring",   position: [], discordId: "334193733627150338" },
+        { name: "Sr6",   position: [], discordId: "109446695464497152" },
+        { name: "Bimmo",   position: [], discordId: "147852591244640256" },
     ],
   },
 ];
 
-function MemberCard({ name, position }: StaffMember) {
+function MemberCard({ name, position, discordId }: StaffMember) {
   const hasMultiple = position && position.length > 1;
   return (
     <div className="group relative rounded-lg border border-border bg-card px-4 py-3 min-w-40">
-      <div className="flex items-baseline gap-2">
-        <span className="text-sm font-medium text-foreground">{name}</span>
-        {position && position.length > 0 && (
-          <span className="text-xs text-muted-foreground">{position[0]}</span>
+      <div className="flex items-center gap-2">
+        {discordId && (
+          <img
+            src={`${API_URL}/clan/user-avatar/${discordId}`}
+            alt=""
+            className="h-7 w-7 rounded-full object-cover"
+          />
         )}
+        <div className="flex items-baseline gap-2">
+          <span className="text-sm font-medium text-foreground">{name}</span>
+          {position && position.length > 0 && (
+            <span className="text-xs text-muted-foreground">{position[0]}</span>
+          )}
+        </div>
       </div>
       {hasMultiple && (
         <div className="absolute left-0 top-full z-10 mt-1 hidden w-full rounded-lg border border-border bg-card px-4 py-2 shadow-lg group-hover:block">
