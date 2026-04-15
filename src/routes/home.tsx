@@ -110,7 +110,7 @@ function HomePage() {
   const [clanXp, setClanXp] = useState<number | null>(null);
   const [clanEhb, setClanEhb] = useState<number | null>(null);
   const [totalGp, setTotalGp] = useState<number | null>(null);
-  const [collectionLogItems, setCollectionLogItems] = useState<number | null>(null);
+  const [totalClogs, setTotalClogs] = useState<number | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementsLoading, setAchievementsLoading] = useState(true);
 
@@ -133,10 +133,10 @@ function HomePage() {
       .catch(() => {});
 
     fetch(`${API_URL}/clan/stats`)
-      .then((r) => r.json() as Promise<{ total_gp: number; collection_log_items: number }>)
+      .then((r) => r.json() as Promise<{ total_gp: number; total_clogs: number }>)
       .then((data) => {
         setTotalGp(data.total_gp ?? null);
-        setCollectionLogItems(data.collection_log_items ?? null);
+        setTotalClogs(data.total_clogs ?? null);
       })
       .catch(() => {});
 
@@ -210,19 +210,15 @@ function HomePage() {
             value={clanEhb !== null ? clanEhb.toLocaleString() : "-"}
           />
         </div>
-        <div className="flex justify-center gap-4">
-          <div className="w-full max-w-xs">
-            <StatCard
-              label="Total GP Looted"
-              value={totalGp !== null ? formatGp(totalGp) : "-"}
-            />
-          </div>
-          <div className="w-full max-w-xs">
-            <StatCard
-              label="Collection Log Items"
-              value={collectionLogItems !== null ? collectionLogItems.toLocaleString() : "-"}
-            />
-          </div>
+        <div className="grid grid-cols-2 gap-4">
+          <StatCard
+            label="GP Looted"
+            value={totalGp !== null ? formatGp(totalGp) : "-"}
+          />
+          <StatCard
+            label="Collection Logs"
+            value={totalClogs !== null ? totalClogs.toLocaleString() : "-"}
+          />
         </div>
       </section>
 

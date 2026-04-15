@@ -121,6 +121,44 @@ function ProfileSection() {
   );
 }
 
+function PrivacyToggle({
+  label,
+  description,
+  checked,
+  onToggle,
+  disabled,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  onToggle: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="space-y-0.5">
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <button
+        role="switch"
+        aria-checked={checked}
+        onClick={onToggle}
+        disabled={disabled}
+        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 ${
+          checked ? "bg-primary" : "bg-muted"
+        }`}
+      >
+        <span
+          className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transform transition-transform ${
+            checked ? "translate-x-5" : "translate-x-0"
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+
 function PrivacySection() {
   const { user, refresh } = useAuth();
   const [saving, setSaving] = useState(false);
@@ -128,13 +166,11 @@ function PrivacySection() {
 
   if (!user) return null;
 
-  async function handleToggle() {
+  async function handleToggle(field: string, value: boolean) {
     setSaving(true);
     setError(null);
     try {
-      const res = await authedPatch("/members/me/privacy", {
-        stats_opt_out: !user!.stats_opt_out,
-      });
+      const res = await authedPatch("/members/me/privacy", { [field]: value });
       if (res.ok) {
         await refresh();
       } else {
@@ -158,29 +194,22 @@ function PrivacySection() {
         command in Discord.
       </p>
 
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
-          <p className="text-sm font-medium text-foreground">Opt out of stats tracking</p>
-          <p className="text-xs text-muted-foreground">
-            Your in-game activity won't be stored or shown on leaderboards.
-          </p>
-        </div>
-        <button
-          role="switch"
-          aria-checked={user.stats_opt_out}
-          onClick={handleToggle}
-          disabled={saving}
-          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 ${
-            user.stats_opt_out ? "bg-primary" : "bg-muted"
-          }`}
-        >
-          <span
-            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transform transition-transform ${
-              user.stats_opt_out ? "translate-x-5" : "translate-x-0"
-            }`}
-          />
-        </button>
-      </div>
+      <PrivacyToggle
+        label="Opt out of stats tracking"
+        description="Your in-game activity won't be stored or shown on leaderboards."
+        checked={user.stats_opt_out}
+        onToggle={() => handleToggle("stats_opt_out", !user.stats_opt_out)}
+        disabled={saving}
+      />
+
+      <PrivacyToggle
+        label="Hide connection notifications"
+        description="Don't announce when you connect or disconnect from in-game clan chat."
+        checked={user.hide_presence_notifications}
+        onToggle={() => handleToggle("hide_presence_notifications", !user.hide_presence_notifications)}
+        disabled={saving}
+      />
+
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );

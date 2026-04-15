@@ -19,6 +19,7 @@ interface MemberRow {
   clan_rank: string | null;
   discord_roles: string[];
   stats_opt_out: boolean;
+  join_date: string | null;
   created_at: string;
   total_loot_value: number;
   collection_log_slots: number;
@@ -120,7 +121,7 @@ function StaffMembersPage() {
                       {m.collection_log_slots ?? "-"}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">
-                      {m.created_at ? fmtDate(m.created_at) : "-"}
+                      {m.join_date ? fmtDate(m.join_date) : m.created_at ? fmtDate(m.created_at) : "-"}
                     </td>
                   </tr>
                 );

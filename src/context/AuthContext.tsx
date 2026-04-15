@@ -18,6 +18,7 @@ export interface AuthUser {
   clan_rank: string | null;      // raw in-game OSRS rank name
   discord_roles: string[];       // Discord role names - used for permission checks
   stats_opt_out: boolean;
+  hide_presence_notifications: boolean;
 }
 
 interface AuthContextValue {
@@ -54,6 +55,7 @@ async function fetchMe(token: string): Promise<AuthUser | null> {
       ...data,
       discord_roles: data.discord_roles ?? [],
       stats_opt_out: data.stats_opt_out ?? false,
+      hide_presence_notifications: data.hide_presence_notifications ?? false,
     };
   } catch {
     return null;
