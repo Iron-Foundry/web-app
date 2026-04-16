@@ -16,18 +16,18 @@ interface LeaderboardEntry {
   player_name: string;
   activity: string;
   variant: string;
-  time_seconds: number;
+  time_seconds: number; // float seconds, e.g. 83.45
 }
 
-/** Format integer seconds → M:SS or H:MM:SS */
+/** Format float seconds → M:SS.ss or H:MM:SS.ss */
 function formatTime(s: number): string {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  if (h > 0) {
-    return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
-  }
-  return `${m}:${String(sec).padStart(2, "0")}`;
+  const wholeSec = Math.floor(s % 60);
+  const cs = Math.round((s % 1) * 100);
+  const secStr = `${String(wholeSec).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
+  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${secStr}`;
+  return `${m}:${secStr}`;
 }
 
 function rankLabel(rank: number): string {
@@ -42,8 +42,9 @@ type Grouped = Record<string, Record<string, LeaderboardEntry[]>>;
 function groupEntries(entries: LeaderboardEntry[]): Grouped {
   const out: Grouped = {};
   for (const e of entries) {
-    (out[e.activity] ??= {})[e.variant || ""] ??= [];
-    out[e.activity][e.variant || ""].push(e);
+    const key = e.variant || "";
+    const byVariant = (out[e.activity] ??= {});
+    (byVariant[key] ??= []).push(e);
   }
   return out;
 }
@@ -79,7 +80,7 @@ function LeaderboardsPage() {
   const activities = Object.keys(grouped).sort();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 py-6">
+    <div className="mx-auto max-w-7xl space-y-8 py-6">
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Personal Bests</h1>
         <p className="text-sm text-muted-foreground">
@@ -94,9 +95,9 @@ function LeaderboardsPage() {
       ) : activities.length === 0 ? (
         <p className="text-sm text-muted-foreground">No times recorded yet.</p>
       ) : (
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {activities.map((activity) => {
-            const variantMap = grouped[activity];
+            const variantMap = grouped[activity]!;
             const variants = Object.keys(variantMap).sort();
             return (
               <Card key={activity}>
@@ -105,7 +106,7 @@ function LeaderboardsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4 pt-0">
                   {variants.map((variant) => {
-                    const rows = variantMap[variant];
+                    const rows = variantMap[variant]!;
                     return (
                       <div key={variant} className="space-y-1">
                         {variant && (
@@ -113,32 +114,27 @@ function LeaderboardsPage() {
                             {variant}
                           </p>
                         )}
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                              <th className="pb-1 pr-4 font-medium w-12">Rank</th>
-                              <th className="pb-1 pr-4 font-medium">Player</th>
-                              <th className="pb-1 font-medium text-right">Time</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-border">
-                            {rows.map((entry, i) => (
-                              <tr key={entry.player_name} className="hover:bg-muted/40">
-                                <td className="py-1.5 pr-4 text-muted-foreground text-xs w-12">
-                                  {rankLabel(i + 1)}
-                                </td>
-                                <td className="py-1.5 pr-4 font-medium text-foreground">
-                                  {entry.player_name}
-                                </td>
-                                <td className="py-1.5 text-right">
-                                  <Badge variant="secondary" className="font-rs-bold text-xs tabular-nums">
-                                    {formatTime(entry.time_seconds)}
-                                  </Badge>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                        <div className="w-full text-sm">
+                          {/* Header */}
+                          <div className="grid grid-cols-[2rem_1fr_auto] gap-x-4 border-b border-border pb-1 text-xs text-muted-foreground">
+                            <span>Rank</span>
+                            <span>Player</span>
+                            <span>Time</span>
+                          </div>
+                          {/* Rows */}
+                          {rows.map((entry, i) => (
+                            <div
+                              key={entry.player_name}
+                              className="grid grid-cols-[2rem_1fr_auto] gap-x-4 items-center border-b border-border py-1.5 last:border-0 hover:bg-muted/40 rounded-sm"
+                            >
+                              <span className="text-xs text-muted-foreground">{rankLabel(i + 1)}</span>
+                              <span className="font-medium text-foreground truncate">{entry.player_name}</span>
+                              <Badge variant="secondary" className="font-rs-bold text-xs tabular-nums">
+                                {formatTime(entry.time_seconds)}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     );
                   })}
