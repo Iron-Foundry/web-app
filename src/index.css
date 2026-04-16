@@ -1,6 +1,9 @@
 @import "../styles/globals.css";
 
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
   body {
     @apply min-w-[320px] min-h-screen bg-background text-foreground;
   }

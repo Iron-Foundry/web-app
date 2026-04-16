@@ -264,7 +264,7 @@ function LeaderboardsPage() {
   if (loading || !user) return null;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 py-6">
+    <div className="mx-auto max-w-7xl w-full space-y-6 py-6">
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Leaderboards</h1>
       </div>
