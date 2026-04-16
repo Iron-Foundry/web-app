@@ -232,8 +232,9 @@ function HomePage() {
         <div className="grid grid-cols-3 gap-3">
           <StatCard
             label="Member Count"
-                      value={memberCount !== null ? memberCount.toLocaleString() : "-"}
-                      backdrop={clanPhoto}
+            value={memberCount !== null ? memberCount.toLocaleString() : "-"}
+            backdrop={clanPhoto}
+            backdropOpacity={0.25}
           />
           <StatCard
             label="Total XP"
