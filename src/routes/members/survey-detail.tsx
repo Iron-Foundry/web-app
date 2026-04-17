@@ -34,7 +34,7 @@ interface TemplateDetail {
   template_id: string;
   title: string;
   description: string | null;
-  visibility: string | null;
+  is_open: boolean;
   category: string;
   is_active: boolean;
   fields: Field[];
@@ -324,7 +324,7 @@ export function SurveyDetailPage({
     );
   }
 
-  const isOpen = template.visibility !== null;
+  const isOpen = template.is_open;
   const submission = localSubmission ?? template.user_submission;
   const alreadySubmitted = submission !== null;
 

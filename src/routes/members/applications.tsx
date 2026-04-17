@@ -19,7 +19,7 @@ interface ApplicationEntry {
   template_id: string;
   title: string;
   description: string | null;
-  visibility: string | null;
+  is_open: boolean;
   category: "survey" | "application";
   user_submitted: boolean;
 }
@@ -34,7 +34,7 @@ function authHeaders(): Record<string, string> {
 // ── ApplicationCard ───────────────────────────────────────────────────────────
 
 function ApplicationCard({ entry }: { entry: ApplicationEntry }) {
-  const isOpen = entry.visibility !== null;
+  const isOpen = entry.is_open;
 
   return (
     <Card>

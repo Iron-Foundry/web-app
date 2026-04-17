@@ -30,6 +30,7 @@ interface TemplateEntry {
   template_id: string;
   title: string;
   description: string | null;
+  is_open: boolean;
   visibility: string | null;
   category: "survey" | "application";
   is_active: boolean;
@@ -157,10 +158,12 @@ function TemplateCard({
   entry,
   isSeniorStaff,
   onVisibilityChange,
+  onOpenChange,
 }: {
   entry: TemplateEntry;
   isSeniorStaff: boolean;
   onVisibilityChange: (templateId: string, visibility: string | null) => void;
+  onOpenChange: (templateId: string, isOpen: boolean) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [fields, setFields] = useState<Field[] | null>(null);
@@ -168,8 +171,7 @@ function TemplateCard({
   const [loadingResponses, setLoadingResponses] = useState(false);
   const [rankFilter, setRankFilter] = useState("all");
   const [saving, setSaving] = useState(false);
-
-  const isOpen = entry.visibility !== null;
+  const [togglingOpen, setTogglingOpen] = useState(false);
 
   // Lazy-fetch responses + fields on first expand
   useEffect(() => {
@@ -210,6 +212,18 @@ function TemplateCard({
     onVisibilityChange(entry.template_id, body.visibility);
   }
 
+  async function handleOpenToggle() {
+    setTogglingOpen(true);
+    const next = !entry.is_open;
+    await fetch(`${API_URL}/surveys/${entry.template_id}/open`, {
+      method: "PATCH",
+      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ is_open: next }),
+    });
+    setTogglingOpen(false);
+    onOpenChange(entry.template_id, next);
+  }
+
   // Ranks present in responses, ordered by DISCORD_ROLE_ORDER
   const presentRanks = responses
     ? (DISCORD_ROLE_ORDER as readonly string[]).filter((rank) =>
@@ -233,7 +247,7 @@ function TemplateCard({
             <Badge variant="outline" className="text-xs capitalize">
               {entry.category}
             </Badge>
-            {isOpen ? (
+            {entry.is_open ? (
               <Badge variant="default" className="text-xs">
                 Open
               </Badge>
@@ -253,9 +267,21 @@ function TemplateCard({
 
         {/* Controls row */}
         <div className="flex items-center gap-4 flex-wrap">
+          {isSeniorStaff && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={handleOpenToggle}
+              disabled={togglingOpen}
+            >
+              {entry.is_open ? "Close survey" : "Open survey"}
+            </Button>
+          )}
+
           {isSeniorStaff ? (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Visible to:</span>
+              <span className="text-xs text-muted-foreground">Responses visible to:</span>
               <Select
                 value={entry.visibility ?? "staff_only"}
                 onValueChange={handleVisibilityChange}
@@ -275,7 +301,7 @@ function TemplateCard({
             </div>
           ) : (
             <span className="text-xs text-muted-foreground">
-              Visible to: {entry.visibility ?? "Staff only"}
+              Responses visible to: {entry.visibility ?? "Staff only"}
             </span>
           )}
 
@@ -399,6 +425,12 @@ function StaffSurveysPage() {
     );
   }
 
+  function handleOpenChange(templateId: string, isOpen: boolean) {
+    setTemplates((prev) =>
+      prev.map((e) => (e.template_id === templateId ? { ...e, is_open: isOpen } : e))
+    );
+  }
+
   const TABS: { value: CategoryFilter; label: string }[] = [
     { value: "all", label: "All" },
     { value: "survey", label: "Surveys" },
@@ -452,6 +484,7 @@ function StaffSurveysPage() {
               entry={entry}
               isSeniorStaff={isSeniorStaff}
               onVisibilityChange={handleVisibilityChange}
+              onOpenChange={handleOpenChange}
             />
           ))}
         </div>
