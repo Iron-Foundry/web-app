@@ -23,9 +23,10 @@ const NAV_LINKS = [
 ];
 
 const STAFF_NAV = [
-  { to: "/members/staff" as const,             label: "Staff Home",  icon: ShieldCheck, minRank: "Mentor",    exact: true },
-  { to: "/members/staff/members" as const,     label: "Members",     icon: Users,       minRank: "Moderator", exact: false },
-  { to: "/members/staff/all-tickets" as const, label: "All Tickets", icon: Inbox,       minRank: "Moderator", exact: false },
+  { to: "/members/staff" as const,             label: "Staff Home",  icon: ShieldCheck,  minRank: "Mentor",    exact: true },
+  { to: "/members/staff/members" as const,     label: "Members",     icon: Users,        minRank: "Moderator", exact: false },
+  { to: "/members/staff/all-tickets" as const, label: "All Tickets", icon: Inbox,        minRank: "Moderator", exact: false },
+  { to: "/members/staff/surveys" as const,     label: "Surveys",     icon: ClipboardList, minRank: "Mentor",   exact: false },
 ];
 
 function navLinkClass(base?: string) {

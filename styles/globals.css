@@ -86,39 +86,39 @@
 
 .light {
   /* Base */
-  --background:           hsl(40,  30%, 95%);
-  --foreground:           hsl(222, 30%, 15%);
+  --background:           hsl(40,  18%, 96%);
+  --foreground:           hsl(222, 14%, 22%);
 
   /* Card / Popover */
-  --card:                 hsl(40,  25%, 90%);
-  --card-foreground:      hsl(222, 30%, 15%);
-  --popover:              hsl(40,  25%, 90%);
-  --popover-foreground:   hsl(222, 30%, 15%);
+  --card:                 hsl(40,  14%, 92%);
+  --card-foreground:      hsl(222, 14%, 22%);
+  --popover:              hsl(40,  14%, 92%);
+  --popover-foreground:   hsl(222, 14%, 22%);
 
-  /* Primary - Gold (deeper for light bg) */
-  --primary:              hsl(42,  75%, 40%);
-  --primary-foreground:   hsl(40,  30%, 97%);
+  /* Primary - Gold (softened) */
+  --primary:              hsl(42,  55%, 46%);
+  --primary-foreground:   hsl(40,  18%, 97%);
 
   /* Secondary */
-  --secondary:            hsl(210, 30%, 80%);
-  --secondary-foreground: hsl(222, 30%, 15%);
+  --secondary:            hsl(210, 18%, 84%);
+  --secondary-foreground: hsl(222, 14%, 22%);
 
   /* Muted */
-  --muted:                hsl(40,  20%, 85%);
-  --muted-foreground:     hsl(222, 15%, 40%);
+  --muted:                hsl(40,  10%, 88%);
+  --muted-foreground:     hsl(222,  9%, 48%);
 
   /* Accent */
-  --accent:               hsl(42,  75%, 40%);
-  --accent-foreground:    hsl(40,  30%, 97%);
+  --accent:               hsl(42,  55%, 46%);
+  --accent-foreground:    hsl(40,  18%, 97%);
 
   /* Destructive */
-  --destructive:          hsl(0,   65%, 45%);
-  --destructive-foreground: hsl(40, 30%, 97%);
+  --destructive:          hsl(0,   52%, 50%);
+  --destructive-foreground: hsl(40, 18%, 97%);
 
   /* Functional */
-  --border:               hsl(40,  20%, 78%);
-  --input:                hsl(40,  20%, 78%);
-  --ring:                 hsl(42,  75%, 40%);
+  --border:               hsl(40,  10%, 82%);
+  --input:                hsl(40,  10%, 82%);
+  --ring:                 hsl(42,  55%, 46%);
 }
 
 @layer base {

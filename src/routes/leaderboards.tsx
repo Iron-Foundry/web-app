@@ -39,7 +39,12 @@ interface KcBoss {
   entries: KcEntry[];
 }
 
-type Tab = "pb" | "clog" | "kc";
+interface LeaguesEntry {
+  player_name: string;
+  score: number;
+}
+
+type Tab = "pb" | "clog" | "kc" | "leagues";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -184,6 +189,34 @@ function KcTab({ bosses, loading }: { bosses: KcBoss[]; loading: boolean }) {
   );
 }
 
+function LeaguesTab({ entries, loading }: { entries: LeaguesEntry[]; loading: boolean }) {
+  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (entries.length === 0)
+    return <p className="text-sm text-muted-foreground">No leagues data yet.</p>;
+
+  return (
+    <Card>
+      <CardContent className="pt-4">
+        <div className="w-full text-sm">
+          <RankHeader valueLabel="Points" />
+          {entries.map((entry, i) => (
+            <RankRow
+              key={entry.player_name}
+              rank={i + 1}
+              name={entry.player_name}
+              value={
+                <Badge variant="secondary" className="font-rs-bold text-xs tabular-nums">
+                  {entry.score.toLocaleString()}
+                </Badge>
+              }
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ClogTab({ entries, loading }: { entries: ClogEntry[]; loading: boolean }) {
   if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (entries.length === 0)
@@ -233,6 +266,9 @@ function LeaderboardsPage() {
   const [kcBosses, setKcBosses] = useState<KcBoss[]>([]);
   const [kcLoading, setKcLoading] = useState(true);
 
+  const [leaguesEntries, setLeaguesEntries] = useState<LeaguesEntry[]>([]);
+  const [leaguesLoading, setLeaguesLoading] = useState(true);
+
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
   }, [loading, user, navigate]);
@@ -259,6 +295,12 @@ function LeaderboardsPage() {
       .then(setKcBosses)
       .catch(() => {})
       .finally(() => setKcLoading(false));
+
+    fetch(`${API_URL}/clan/leaderboards/leagues`, { headers })
+      .then((r) => (r.ok ? (r.json() as Promise<LeaguesEntry[]>) : Promise.reject()))
+      .then(setLeaguesEntries)
+      .catch(() => {})
+      .finally(() => setLeaguesLoading(false));
   }, [user]);
 
   if (loading || !user) return null;
@@ -279,6 +321,7 @@ function LeaderboardsPage() {
           <ToggleGroupItem value="pb">Personal Bests</ToggleGroupItem>
           <ToggleGroupItem value="clog">Collection Log</ToggleGroupItem>
           <ToggleGroupItem value="kc">Killcounts</ToggleGroupItem>
+          <ToggleGroupItem value="leagues">Leagues</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
@@ -287,6 +330,7 @@ function LeaderboardsPage() {
       {tab === "pb" && <PbTab entries={pbEntries} loading={pbLoading} />}
       {tab === "clog" && <ClogTab entries={clogEntries} loading={clogLoading} />}
       {tab === "kc" && <KcTab bosses={kcBosses} loading={kcLoading} />}
+      {tab === "leagues" && <LeaguesTab entries={leaguesEntries} loading={leaguesLoading} />}
     </div>
   );
 }
