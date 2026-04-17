@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, Link } from "@tanstack/react-router";
 import { membersLayoutRoute } from "./_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { hasMinRank } from "@/lib/ranks";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -31,6 +32,7 @@ interface ApplicationEntry {
   is_active: boolean;
   created_at: string | null;
   response_count?: number;
+  user_submitted: boolean;
 }
 
 const VISIBILITY_OPTIONS = [
@@ -97,12 +99,16 @@ function VisibilitySelect({
 function ApplicationCard({
   entry,
   isSeniorStaff,
+  isStaff,
   onVisibilityChange,
 }: {
   entry: ApplicationEntry;
   isSeniorStaff: boolean;
+  isStaff: boolean;
   onVisibilityChange: (templateId: string, visibility: string | null) => void;
 }) {
+  const isOpen = entry.visibility !== null;
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -111,9 +117,13 @@ function ApplicationCard({
             {entry.title}
           </h2>
           <div className="flex items-center gap-2 flex-wrap">
-            {entry.is_active && (
+            {isOpen ? (
               <Badge variant="default" className="text-xs">
-                Active
+                Open
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="text-xs">
+                Closed
               </Badge>
             )}
             {entry.response_count !== undefined && (
@@ -143,6 +153,34 @@ function ApplicationCard({
             Visible to: {visibilityLabel(entry.visibility)}
           </p>
         )}
+        <div className="pt-1">
+          {entry.user_submitted ? (
+            <Link
+              to="/members/applications/$templateId"
+              params={{ templateId: entry.template_id }}
+            >
+              <Button variant="outline" size="sm">
+                View submission
+              </Button>
+            </Link>
+          ) : isOpen ? (
+            <Link
+              to="/members/applications/$templateId"
+              params={{ templateId: entry.template_id }}
+            >
+              <Button size="sm">Fill out</Button>
+            </Link>
+          ) : isStaff ? (
+            <Link
+              to="/members/applications/$templateId"
+              params={{ templateId: entry.template_id }}
+            >
+              <Button variant="ghost" size="sm">
+                View questions
+              </Button>
+            </Link>
+          ) : null}
+        </div>
       </CardContent>
     </Card>
   );
@@ -155,9 +193,8 @@ function ApplicationsPage() {
   const [entries, setEntries] = useState<ApplicationEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isSeniorStaff = user
-    ? hasMinRank(user.discord_roles, "Senior Moderator")
-    : false;
+  const isSeniorStaff = user ? hasMinRank(user.discord_roles, "Senior Moderator") : false;
+  const isStaff = user ? hasMinRank(user.discord_roles, "Mentor") : false;
 
   useEffect(() => {
     fetch(`${API_URL}/surveys/applications`, { headers: authHeaders() })
@@ -197,6 +234,7 @@ function ApplicationsPage() {
               key={entry.template_id}
               entry={entry}
               isSeniorStaff={isSeniorStaff}
+              isStaff={isStaff}
               onVisibilityChange={handleVisibilityChange}
             />
           ))}
