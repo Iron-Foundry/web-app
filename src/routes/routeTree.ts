@@ -14,11 +14,15 @@ import { membersTicketsRoute } from "./members/tickets";
 import { staffIndexRoute } from "./members/staff/index";
 import { staffMembersRoute } from "./members/staff/members";
 import { staffAllTicketsRoute } from "./members/staff/all-tickets";
+import { membersSurveysRoute } from "./members/surveys";
+import { membersApplicationsRoute } from "./members/applications";
 
 const membersTree = membersLayoutRoute.addChildren([
   membersDashboardRoute,
   membersSettingsRoute,
   membersTicketsRoute,
+  membersSurveysRoute,
+  membersApplicationsRoute,
   staffIndexRoute,
   staffMembersRoute,
   staffAllTicketsRoute,

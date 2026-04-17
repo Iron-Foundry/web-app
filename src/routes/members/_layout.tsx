@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LayoutDashboard, Settings, Sun, Moon, Ticket, ShieldCheck, Users, Inbox } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Sun, Moon, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -16,8 +16,10 @@ export const membersLayoutRoute = createRoute({
 });
 
 const NAV_LINKS = [
-  { to: "/members" as const,         label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/members/tickets" as const, label: "Tickets",   icon: Ticket,          exact: false },
+  { to: "/members" as const,              label: "Dashboard",   icon: LayoutDashboard, exact: true },
+  { to: "/members/tickets" as const,      label: "Tickets",     icon: Ticket,          exact: false },
+  { to: "/members/surveys" as const,      label: "Surveys",     icon: ClipboardList,   exact: false },
+  { to: "/members/applications" as const, label: "Applications",icon: FileText,        exact: false },
 ];
 
 const STAFF_NAV = [
