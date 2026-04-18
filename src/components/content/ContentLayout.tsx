@@ -285,7 +285,7 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
       const created = await res.json();
       onSuccess();
       onClose();
-      navigate({ to: `${routeBase}/$entryId`, params: { entryId: created.id } });
+      navigate({ to: `${routeBase}/$slug`, params: { slug: created.slug } });
     } catch {
       setError("Network error.");
     } finally {
@@ -443,8 +443,8 @@ function CategoryNode({
           {cat.entries.map((entry) => (
             <Link
               key={entry.id}
-              to={`${routeBase}/$entryId`}
-              params={{ entryId: entry.id }}
+              to={`${routeBase}/$slug`}
+              params={{ slug: entry.slug }}
               className="block text-xs truncate text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-medium py-1 pr-2 rounded-sm hover:bg-muted/50"
               style={{ paddingLeft: `${paddingLeft + 20}px` }}
             >

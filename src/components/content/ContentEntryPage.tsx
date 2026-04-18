@@ -44,12 +44,12 @@ function AuthorChip({ user }: { user: EntryAuthor }) {
 }
 
 interface ContentEntryPageProps {
-  entryId: string;
+  slug: string;
   /** e.g. "/plugins" or "/resources" */
   routeBase: string;
 }
 
-export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) {
+export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   const { pageType, pageId, refreshTree } = useContentContext();
   const { user } = useAuth();
   const { hasPermission } = usePermissions();
@@ -71,17 +71,22 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // entryId (UUID) obtained after fetching by slug — used for PUT/DELETE
+  const [entryId, setEntryId] = useState<string | null>(null);
+
   useEffect(() => {
     setLoading(true);
     setError(null);
     setEditMode(false);
-    fetch(`${API_URL}/content/${pageType}/entries/${entryId}`)
+    setEntryId(null);
+    fetch(`${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
       .then((data: EntryDetail) => {
         setEntry(data);
+        setEntryId(data.id);
         setEditTitle(data.title);
         setEditSlug(data.slug);
         setSlugEdited(false);
@@ -93,7 +98,7 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
   }, [entryId, pageType]);
 
   async function handleSave(newBody: string) {
-    if (!entry) return;
+    if (!entry || !entryId) return;
     setSaving(true);
     setSaveError(null);
     const token = getAuthToken();
@@ -117,16 +122,19 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
         setSaveError(data.detail ?? "Failed to save.");
         return;
       }
-      // Refresh entry and exit edit mode
-      const updated = await fetch(`${API_URL}/content/${pageType}/entries/${entryId}`).then((r) =>
-        r.json(),
-      );
-      setEntry(updated);
-      setEditTitle(updated.title);
-      setEditSlug(updated.slug);
-      setSlugEdited(false);
+      const saved = await res.json() as { slug: string };
       setEditMode(false);
       refreshTree();
+      // If slug changed, navigate to the new URL; otherwise re-fetch in place
+      if (saved.slug !== slug) {
+        navigate({ to: `${routeBase}/$slug`, params: { slug: saved.slug } });
+      } else {
+        const updated = await fetch(`${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(saved.slug)}`).then((r) => r.json());
+        setEntry(updated);
+        setEditTitle(updated.title);
+        setEditSlug(updated.slug);
+        setSlugEdited(false);
+      }
     } catch {
       setSaveError("Network error.");
     } finally {
@@ -135,7 +143,7 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
   }
 
   async function handleDelete() {
-    if (!entry) return;
+    if (!entry || !entryId) return;
     if (!confirm(`Delete "${entry.title}"? This cannot be undone.`)) return;
     const token = getAuthToken();
     try {

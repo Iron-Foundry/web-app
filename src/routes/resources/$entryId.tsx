@@ -4,11 +4,11 @@ import { ContentEntryPage } from "@/components/content/ContentEntryPage";
 
 export const resourcesEntryRoute = createRoute({
   getParentRoute: () => resourcesLayoutRoute,
-  path: "/$entryId",
+  path: "/$slug",
   component: ResourcesEntry,
 });
 
 function ResourcesEntry() {
-  const { entryId } = resourcesEntryRoute.useParams();
-  return <ContentEntryPage entryId={entryId} routeBase="/resources" />;
+  const { slug } = resourcesEntryRoute.useParams();
+  return <ContentEntryPage slug={slug} routeBase="/resources" />;
 }
