@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { History, Pencil, Trash2 } from "lucide-react";
+import { Check, Copy, Download, History, Pencil, Trash2 } from "lucide-react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,24 @@ import { VersionHistoryDialog } from "./VersionHistoryDialog";
 
 function slugify(s: string): string {
   return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
+}
+
+/** Strip / convert HTML elements that Discord doesn't render. */
+function toDiscordMarkdown(body: string): string {
+  return body
+    .replace(/<kbd>(.*?)<\/kbd>/gi, (_, t) => `\`${t}\``)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "$2");
+}
+
+function downloadMd(title: string, body: string): void {
+  const filename = title.trim().replace(/[^a-z0-9\s-]/gi, "").replace(/\s+/g, "-").replace(/-+/g, "-").toLowerCase() + ".md";
+  const blob = new Blob([body], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
 }
 
 interface EntryAuthor {
@@ -72,6 +90,17 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   const [slugEdited, setSlugEdited] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const [copied, setCopied] = useState<"raw" | "discord" | null>(null);
+
+  function handleCopy(variant: "raw" | "discord") {
+    if (!entry) return;
+    const text = variant === "discord" ? toDiscordMarkdown(entry.body) : entry.body;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(variant);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  }
 
   // Optimistic concurrency
   const [loadedUpdatedAt, setLoadedUpdatedAt] = useState<string | null>(null);
@@ -201,7 +230,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 pb-4 border-b border-border">
         <h1 className="font-rs-bold text-3xl text-primary leading-tight">{entry.title}</h1>
         <div className="flex items-center gap-2 shrink-0">
           {canEdit && !editMode && (
@@ -326,6 +355,24 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
               ))}
             </>
           )}
+        </div>
+      )}
+
+      {/* Export / copy actions */}
+      {!editMode && entry.body && (
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => handleCopy("raw")}>
+            {copied === "raw" ? <Check className="h-3.5 w-3.5 mr-1.5 text-green-500" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
+            {copied === "raw" ? "Copied!" : "Copy Raw"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => handleCopy("discord")}>
+            {copied === "discord" ? <Check className="h-3.5 w-3.5 mr-1.5 text-green-500" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
+            {copied === "discord" ? "Copied!" : "Copy for Discord"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => downloadMd(entry.title, entry.body)}>
+            <Download className="h-3.5 w-3.5 mr-1.5" />
+            Export .md
+          </Button>
         </div>
       )}
 
