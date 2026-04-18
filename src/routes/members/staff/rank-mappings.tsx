@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -10,7 +11,7 @@ import { Plus, Trash2 } from "lucide-react";
 export const staffRankMappingsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
   path: "/staff/rank-mappings",
-  component: RankMappingsPage,
+  component: () => <StaffGuard minRank="Senior Moderator"><RankMappingsPage /></StaffGuard>,
 });
 
 // ── Types ─────────────────────────────────────────────────────────────────────

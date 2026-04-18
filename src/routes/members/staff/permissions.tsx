@@ -3,6 +3,7 @@ import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { StaffGuard } from "@/components/StaffGuard";
 import { cacheInvalidate } from "@/lib/cache";
 import { getPageRegistry, registerPage, type PagePermissionConfig } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ registerPage({
 export const staffPermissionsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
   path: "/staff/permissions",
-  component: PermissionsPage,
+  component: () => <StaffGuard minRank="Senior Moderator"><PermissionsPage /></StaffGuard>,
 });
 
 // ── Constants ─────────────────────────────────────────────────────────────────

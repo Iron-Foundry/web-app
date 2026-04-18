@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { StaffGuard } from "@/components/StaffGuard";
 import { Badge } from "@/components/ui/badge";
 import { highestRole } from "@/lib/ranks";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ registerPage({
 export const staffMembersRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
   path: "/staff/members",
-  component: StaffMembersPage,
+  component: () => <StaffGuard minRank="Moderator"><StaffMembersPage /></StaffGuard>,
 });
 
 interface MemberRow {

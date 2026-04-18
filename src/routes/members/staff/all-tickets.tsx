@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { StaffGuard } from "@/components/StaffGuard";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,7 @@ registerPage({
 export const staffAllTicketsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
   path: "/staff/all-tickets",
-  component: StaffAllTicketsPage,
+  component: () => <StaffGuard minRank="Moderator"><StaffAllTicketsPage /></StaffGuard>,
 });
 
 // ── Types ─────────────────────────────────────────────────────────────────

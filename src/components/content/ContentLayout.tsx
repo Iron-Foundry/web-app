@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, Menu, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Menu, Pencil, Plus, Trash2, X } from "lucide-react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { cacheInvalidate, fetchCached } from "@/lib/cache";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -17,6 +17,7 @@ export interface ContentEntry {
   id: string;
   title: string;
   slug: string;
+  sort_order: number;
 }
 
 export interface CategoryTree {
@@ -87,7 +88,6 @@ function CategoryDialog({
   const [parentId, setParentId] = useState<string>(
     editing?.parent_id ?? defaultParentId ?? "__root__",
   );
-  const [sortOrder, setSortOrder] = useState(String(editing?.sort_order ?? 0));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,7 +95,6 @@ function CategoryDialog({
     if (open) {
       setLabel(editing?.label ?? "");
       setParentId(editing?.parent_id ?? defaultParentId ?? "__root__");
-      setSortOrder(String(editing?.sort_order ?? 0));
       setError(null);
     }
   }, [open, editing, defaultParentId]);
@@ -127,7 +126,6 @@ function CategoryDialog({
           body: JSON.stringify({
             label: trimmed,
             parent_id: resolvedParentId,
-            sort_order: Number(sortOrder) || 0,
           }),
         });
       } else {
@@ -189,17 +187,6 @@ function CategoryDialog({
               </SelectContent>
             </Select>
           </div>
-          {editing && (
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-sort">Sort order</Label>
-              <Input
-                id="cat-sort"
-                type="number"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-              />
-            </div>
-          )}
           {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
         <DialogFooter>
@@ -346,6 +333,8 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
 
 interface CategoryNodeProps {
   cat: CategoryTree;
+  siblings: CategoryTree[];
+  siblingIndex: number;
   allCategories: CategoryTree[];
   pageType: string;
   pageId: string;
@@ -356,8 +345,62 @@ interface CategoryNodeProps {
   onRefresh: () => void;
 }
 
+async function applyReorder(
+  siblings: CategoryTree[],
+  fromIndex: number,
+  toIndex: number,
+  pageType: string,
+) {
+  const reordered = [...siblings];
+  const [moved] = reordered.splice(fromIndex, 1);
+  reordered.splice(toIndex, 0, moved);
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+  await Promise.all(
+    reordered.map((c, idx) => {
+      if (c.sort_order === idx) return Promise.resolve();
+      return fetch(`${API_URL}/content/${pageType}/categories/${c.id}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ sort_order: idx }),
+      });
+    }),
+  );
+}
+
+async function applyEntryReorder(
+  entries: ContentEntry[],
+  fromIndex: number,
+  toIndex: number,
+  pageType: string,
+) {
+  const reordered = [...entries];
+  const [moved] = reordered.splice(fromIndex, 1);
+  reordered.splice(toIndex, 0, moved);
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+  await Promise.all(
+    reordered.map((e, idx) => {
+      if (e.sort_order === idx) return Promise.resolve();
+      return fetch(`${API_URL}/content/${pageType}/entries/${e.id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ sort_order: idx }),
+      });
+    }),
+  );
+}
+
 function CategoryNode({
   cat,
+  siblings,
+  siblingIndex,
   allCategories,
   pageType,
   pageId,
@@ -371,6 +414,32 @@ function CategoryNode({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [newEntryDialogOpen, setNewEntryDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reordering, setReordering] = useState(false);
+  const [entryReordering, setEntryReordering] = useState(false);
+
+  async function handleMoveEntry(direction: "up" | "down", fromIndex: number) {
+    const toIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
+    if (toIndex < 0 || toIndex >= cat.entries.length) return;
+    setEntryReordering(true);
+    try {
+      await applyEntryReorder(cat.entries, fromIndex, toIndex, pageType);
+      onRefresh();
+    } finally {
+      setEntryReordering(false);
+    }
+  }
+
+  async function handleMove(direction: "up" | "down") {
+    const toIndex = direction === "up" ? siblingIndex - 1 : siblingIndex + 1;
+    if (toIndex < 0 || toIndex >= siblings.length) return;
+    setReordering(true);
+    try {
+      await applyReorder(siblings, siblingIndex, toIndex, pageType);
+      onRefresh();
+    } finally {
+      setReordering(false);
+    }
+  }
 
   async function handleDelete() {
     if (!confirm(`Delete category "${cat.label}" and all its contents? This cannot be undone.`)) return;
@@ -390,9 +459,9 @@ function CategoryNode({
   const paddingLeft = 8 + level * 12;
 
   return (
-    <div>
+    <div className="mb-1">
       <div
-        className="flex items-center gap-0.5 py-1 pr-1 text-sm hover:bg-muted/50 rounded-sm group"
+        className="relative flex items-center py-1 pr-1 text-sm hover:bg-muted/50 rounded-sm group"
         style={{ paddingLeft: `${paddingLeft}px` }}
       >
         <button
@@ -401,36 +470,65 @@ function CategoryNode({
         >
           {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
         </button>
-        <span className="flex-1 text-muted-foreground truncate text-xs font-medium uppercase tracking-wide">
+        <span className={cn(
+          "flex-1 truncate font-medium uppercase tracking-wide min-w-0",
+          level === 0
+            ? "text-primary text-sm"
+            : "text-muted-foreground text-[13px]",
+        )}>
           {cat.label}
         </span>
-        {canEdit && (
-          <button
-            onClick={() => setEditDialogOpen(true)}
-            className="shrink-0 p-0.5 text-muted-foreground/40 hover:text-muted-foreground opacity-0 group-hover:opacity-100"
-            title="Edit category"
-          >
-            <Pencil className="h-3 w-3" />
-          </button>
-        )}
-        {canDelete && (
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="shrink-0 p-0.5 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100"
-            title="Delete category"
-          >
-            <Trash2 className="h-3 w-3" />
-          </button>
+        {(canEdit || canDelete) && (
+          <div className="absolute right-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 bg-card/95 rounded px-0.5">
+            {canEdit && (
+              <>
+                <button
+                  onClick={() => handleMove("up")}
+                  disabled={reordering || siblingIndex === 0}
+                  className="p-0.5 text-primary/50 hover:text-primary disabled:opacity-0"
+                  title="Move up"
+                >
+                  <ArrowUp className="h-3 w-3" />
+                </button>
+                <button
+                  onClick={() => handleMove("down")}
+                  disabled={reordering || siblingIndex === siblings.length - 1}
+                  className="p-0.5 text-primary/50 hover:text-primary disabled:opacity-0"
+                  title="Move down"
+                >
+                  <ArrowDown className="h-3 w-3" />
+                </button>
+                <button
+                  onClick={() => setEditDialogOpen(true)}
+                  className="p-0.5 text-primary/50 hover:text-primary"
+                  title="Edit category"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+              </>
+            )}
+            {canDelete && (
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="p-0.5 text-primary/50 hover:text-destructive"
+                title="Delete category"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            )}
+          </div>
         )}
       </div>
 
       {open && (
         <>
-          {cat.children.map((child) => (
+          {cat.children.map((child, idx) => (
             <CategoryNode
               key={child.id}
               cat={child}
+              siblings={cat.children}
+              siblingIndex={idx}
               allCategories={allCategories}
               pageType={pageType}
               pageId={pageId}
@@ -441,21 +539,45 @@ function CategoryNode({
               onRefresh={onRefresh}
             />
           ))}
-          {cat.entries.map((entry) => (
-            <Link
+          {cat.entries.map((entry, entryIdx) => (
+            <div
               key={entry.id}
-              to={`${routeBase}/$slug`}
-              params={{ slug: entry.slug }}
-              className="block text-xs truncate text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-medium py-1 pr-2 rounded-sm hover:bg-muted/50"
+              className="relative group/entry hover:bg-muted/50 rounded-sm"
               style={{ paddingLeft: `${paddingLeft + 20}px` }}
             >
-              {entry.title}
-            </Link>
+              <Link
+                to={`${routeBase}/$slug`}
+                params={{ slug: entry.slug }}
+                className="block text-[13px] leading-snug text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-medium py-1 pr-1"
+              >
+                {entry.title}
+              </Link>
+              {canEdit && (
+                <div className="absolute right-0 top-0 bottom-0 flex items-center gap-0.5 opacity-0 group-hover/entry:opacity-100 bg-card/95 rounded px-0.5">
+                  <button
+                    onClick={() => handleMoveEntry("up", entryIdx)}
+                    disabled={entryReordering || entryIdx === 0}
+                    className="p-0.5 text-primary/50 hover:text-primary disabled:opacity-0"
+                    title="Move up"
+                  >
+                    <ArrowUp className="h-3 w-3" />
+                  </button>
+                  <button
+                    onClick={() => handleMoveEntry("down", entryIdx)}
+                    disabled={entryReordering || entryIdx === cat.entries.length - 1}
+                    className="p-0.5 text-primary/50 hover:text-primary disabled:opacity-0"
+                    title="Move down"
+                  >
+                    <ArrowDown className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
           {canEdit && (
             <button
               onClick={() => setNewEntryDialogOpen(true)}
-              className="flex items-center gap-1 text-xs text-muted-foreground/50 hover:text-muted-foreground py-1"
+              className="flex items-center gap-1 text-[13px] text-muted-foreground/50 hover:text-muted-foreground py-1"
               style={{ paddingLeft: `${paddingLeft + 20}px` }}
             >
               <Plus className="h-3 w-3" />
@@ -538,10 +660,12 @@ function SidebarContent({
         {categories.length === 0 ? (
           <p className="px-3 py-4 text-xs text-muted-foreground/60">No categories yet.</p>
         ) : (
-          categories.map((cat) => (
+          categories.map((cat, idx) => (
             <CategoryNode
               key={cat.id}
               cat={cat}
+              siblings={categories}
+              siblingIndex={idx}
               allCategories={categories}
               pageType={pageType}
               pageId={pageId}
@@ -625,7 +749,7 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
     <ContentContext.Provider value={contextValue}>
       <div className="flex flex-1 min-h-0 -m-6">
         {/* Desktop sidebar */}
-        <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">
+        <aside className="hidden w-64 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">
           <SidebarContent {...sidebarProps} />
         </aside>
 
@@ -637,7 +761,7 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
                 {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col w-56 border-border bg-card pt-4 gap-0 p-0">
+            <SheetContent side="left" className="flex flex-col w-64 border-border bg-card pt-4 gap-0 p-0">
               <SidebarContent {...sidebarProps} onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
