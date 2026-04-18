@@ -9,14 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Pencil, Plus } from "lucide-react";
+import { TemplateEditorDialog, type TemplateEntry } from "./survey-editor";
 
 export const staffSurveysRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
@@ -25,19 +19,6 @@ export const staffSurveysRoute = createRoute({
 });
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-interface TemplateEntry {
-  template_id: string;
-  title: string;
-  description: string | null;
-  is_open: boolean;
-  visibility: string | null;
-  category: "survey" | "application";
-  is_active: boolean;
-  response_count: number;
-  web_response_count: number;
-  user_submitted: boolean;
-}
 
 interface Field {
   id: string;
@@ -61,10 +42,10 @@ interface ResponseEntry {
 type CategoryFilter = "all" | "survey" | "application";
 
 const VISIBILITY_OPTIONS = [
-  { value: "staff_only", label: "Staff only" },
   { value: "Mentor", label: "Mentor" },
   { value: "Event Team", label: "Event Team" },
   { value: "Moderator", label: "Moderator" },
+  { value: "Senior Moderator", label: "Senior Mod" },
 ] as const;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -159,11 +140,13 @@ function TemplateCard({
   isSeniorStaff,
   onVisibilityChange,
   onOpenChange,
+  onEdit,
 }: {
   entry: TemplateEntry;
   isSeniorStaff: boolean;
-  onVisibilityChange: (templateId: string, visibility: string | null) => void;
+  onVisibilityChange: (templateId: string, visibility: string[] | null) => void;
   onOpenChange: (templateId: string, isOpen: boolean) => void;
+  onEdit: (templateId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [fields, setFields] = useState<Field[] | null>(null);
@@ -200,9 +183,9 @@ function TemplateCard({
       .finally(() => setLoadingResponses(false));
   }, [expanded, entry.template_id, responses]);
 
-  async function handleVisibilityChange(next: string) {
+  async function handleVisibilityChange(next: string[]) {
     setSaving(true);
-    const body = { visibility: next === "staff_only" ? null : next };
+    const body = { visibility: next.length === 0 ? null : next };
     await fetch(`${API_URL}/surveys/${entry.template_id}/visibility`, {
       method: "PATCH",
       headers: { ...authHeaders(), "Content-Type": "application/json" },
@@ -244,6 +227,16 @@ function TemplateCard({
         <div className="flex items-start justify-between gap-2 flex-wrap">
           <h2 className="font-rs-bold text-lg text-primary leading-tight">{entry.title}</h2>
           <div className="flex items-center gap-2 flex-wrap">
+            {isSeniorStaff && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0"
+                onClick={() => onEdit(entry.template_id)}
+              >
+                <Pencil className="h-3 w-3" />
+              </Button>
+            )}
             <Badge variant="outline" className="text-xs capitalize">
               {entry.category}
             </Badge>
@@ -280,28 +273,32 @@ function TemplateCard({
           )}
 
           {isSeniorStaff ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Responses visible to:</span>
-              <Select
-                value={entry.visibility ?? "staff_only"}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground shrink-0">Responses visible to:</span>
+              <ToggleGroup
+                type="multiple"
+                variant="outline"
+                value={entry.visibility ?? []}
                 onValueChange={handleVisibilityChange}
                 disabled={saving}
+                className="flex-wrap"
               >
-                <SelectTrigger className="h-7 w-36 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {VISIBILITY_OPTIONS.map((o) => (
-                    <SelectItem key={o.value} value={o.value} className="text-xs">
-                      {o.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {VISIBILITY_OPTIONS.map((o) => (
+                  <ToggleGroupItem key={o.value} value={o.value} className="h-6 px-2 text-xs">
+                    {o.label}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+              {(!entry.visibility || entry.visibility.length === 0) && (
+                <span className="text-xs text-muted-foreground">(Staff only)</span>
+              )}
             </div>
           ) : (
             <span className="text-xs text-muted-foreground">
-              Responses visible to: {entry.visibility ?? "Staff only"}
+              Responses visible to:{" "}
+              {!entry.visibility || entry.visibility.length === 0
+                ? "Staff only"
+                : entry.visibility.join(", ")}
             </span>
           )}
 
@@ -402,6 +399,8 @@ function StaffSurveysPage() {
   const [templates, setTemplates] = useState<TemplateEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
 
   const isSeniorStaff = user ? hasMinRank(user.discord_roles, "Senior Moderator") : false;
 
@@ -419,7 +418,7 @@ function StaffSurveysPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  function handleVisibilityChange(templateId: string, visibility: string | null) {
+  function handleVisibilityChange(templateId: string, visibility: string[] | null) {
     setTemplates((prev) =>
       prev.map((e) => (e.template_id === templateId ? { ...e, visibility } : e))
     );
@@ -429,6 +428,26 @@ function StaffSurveysPage() {
     setTemplates((prev) =>
       prev.map((e) => (e.template_id === templateId ? { ...e, is_open: isOpen } : e))
     );
+  }
+
+  function handleEdit(templateId: string) {
+    setEditId(templateId);
+    setEditorOpen(true);
+  }
+
+  function handleNew() {
+    setEditId(null);
+    setEditorOpen(true);
+  }
+
+  function handleSaved(saved: TemplateEntry) {
+    setTemplates((prev) => {
+      const exists = prev.some((e) => e.template_id === saved.template_id);
+      if (exists) {
+        return prev.map((e) => (e.template_id === saved.template_id ? { ...e, ...saved } : e));
+      }
+      return [saved, ...prev];
+    });
   }
 
   const TABS: { value: CategoryFilter; label: string }[] = [
@@ -443,12 +462,27 @@ function StaffSurveysPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="space-y-1">
-        <h1 className="font-rs-bold text-4xl text-primary">Surveys & Applications</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage visibility and review web responses.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="font-rs-bold text-4xl text-primary">Surveys & Applications</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage visibility and review web responses.
+          </p>
+        </div>
+        {isSeniorStaff && (
+          <Button size="sm" className="gap-1.5 shrink-0" onClick={handleNew}>
+            <Plus className="h-4 w-4" />
+            New template
+          </Button>
+        )}
       </div>
+
+      <TemplateEditorDialog
+        open={editorOpen}
+        editId={editId}
+        onClose={() => setEditorOpen(false)}
+        onSaved={handleSaved}
+      />
 
       <Separator />
 
@@ -485,6 +519,7 @@ function StaffSurveysPage() {
               isSeniorStaff={isSeniorStaff}
               onVisibilityChange={handleVisibilityChange}
               onOpenChange={handleOpenChange}
+              onEdit={handleEdit}
             />
           ))}
         </div>
