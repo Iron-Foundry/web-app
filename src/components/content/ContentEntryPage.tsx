@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import DOMPurify from "dompurify";
 import { Check, Copy, Download, History, Pencil, Trash2 } from "lucide-react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -18,10 +19,12 @@ function slugify(s: string): string {
 
 /** Strip / convert HTML elements that Discord doesn't render. */
 function toDiscordMarkdown(body: string): string {
-  return body
+  // Sanitize first: strip everything except <kbd> and <br> so subsequent
+  // string operations run on a known-safe, normalised tag set.
+  const safe = DOMPurify.sanitize(body, { ALLOWED_TAGS: ["kbd", "br"], ALLOWED_ATTR: [] });
+  return safe
     .replace(/<kbd>(.*?)<\/kbd>/gi, (_, t) => `\`${t}\``)
     .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "$2");
 }
 
