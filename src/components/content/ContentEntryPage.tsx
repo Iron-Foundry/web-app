@@ -95,7 +95,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [entryId, pageType]);
+  }, [slug, pageType]);
 
   async function handleSave(newBody: string) {
     if (!entry || !entryId) return;
