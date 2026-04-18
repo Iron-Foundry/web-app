@@ -251,6 +251,12 @@ function BadgeEditorDialog({
 
 // ── Assign dialog ─────────────────────────────────────────────────────────────
 
+interface MemberSuggestion {
+  discord_user_id: number;
+  discord_username: string;
+  rsn: string | null;
+}
+
 function AssignDialog({
   badge,
   open,
@@ -268,45 +274,91 @@ function AssignDialog({
   });
 
   const [members, setMembers] = useState<BadgeMember[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<MemberSuggestion[]>([]);
+  const [selected, setSelected] = useState<MemberSuggestion | null>(null);
+  const [searching, setSearching] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Load existing badge members when dialog opens
   useEffect(() => {
     if (!open || !badge) return;
-    setLoading(true);
+    setLoadingMembers(true);
+    setQuery("");
+    setSuggestions([]);
+    setSelected(null);
+    setError(null);
     fetch(`${API_URL}/badges/${badge.id}/members`, { headers: authHeaders() })
       .then((r) => r.ok ? r.json() as Promise<BadgeMember[]> : Promise.resolve([]))
       .then(setMembers)
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingMembers(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, badge]);
 
-  async function handleAssign() {
-    if (!badge || !search.trim()) return;
-    setAssigning(true);
-    try {
-      // search by RSN or username — first look up the user
-      const r = await fetch(`${API_URL}/staff/members?search=${encodeURIComponent(search.trim())}`, {
-        headers: authHeaders(),
-      });
-      if (!r.ok) return;
-      const list = await r.json() as { discord_user_id: number; rsn: string | null; discord_username: string }[];
-      const match = list[0];
-      if (!match) { alert("Member not found."); return; }
+  // Debounced member search
+  useEffect(() => {
+    if (selected) return; // already picked someone
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const q = query.trim();
+    if (!q) { setSuggestions([]); return; }
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const r = await fetch(`${API_URL}/staff/members?search=${encodeURIComponent(q)}`, {
+          headers: authHeaders(),
+        });
+        if (r.ok) {
+          const list = await r.json() as MemberSuggestion[];
+          // filter out already-assigned members
+          const assignedIds = new Set(members.map((m) => m.discord_user_id));
+          setSuggestions(list.filter((s) => !assignedIds.has(s.discord_user_id)).slice(0, 8));
+        }
+      } catch { /* ignore */ } finally {
+        setSearching(false);
+      }
+    }, 250);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, selected, members]);
 
-      const ar = await fetch(`${API_URL}/badges/${badge.id}/assign`, {
+  function handleSelect(s: MemberSuggestion) {
+    setSelected(s);
+    setQuery(s.rsn ?? s.discord_username);
+    setSuggestions([]);
+  }
+
+  function handleClear() {
+    setSelected(null);
+    setQuery("");
+    setSuggestions([]);
+    setError(null);
+  }
+
+  async function handleAssign() {
+    if (!badge || !selected) return;
+    setAssigning(true);
+    setError(null);
+    try {
+      const r = await fetch(`${API_URL}/badges/${badge.id}/assign`, {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ discord_user_id: match.discord_user_id }),
+        body: JSON.stringify({ discord_user_id: selected.discord_user_id }),
       });
-      if (ar.ok) {
+      if (r.ok) {
         setMembers((prev) => [
           ...prev,
-          { discord_user_id: match.discord_user_id, username: match.discord_username, rsn: match.rsn, assigned_at: new Date().toISOString() },
+          { discord_user_id: selected.discord_user_id, username: selected.discord_username, rsn: selected.rsn, assigned_at: new Date().toISOString() },
         ]);
-        setSearch("");
+        handleClear();
+      } else {
+        const data = await r.json().catch(() => ({})) as { detail?: string };
+        setError(data.detail ?? `Error ${r.status}`);
       }
+    } catch {
+      setError("Network error.");
     } finally {
       setAssigning(false);
     }
@@ -332,21 +384,52 @@ function AssignDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-2">
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by RSN or username…"
-            onKeyDown={(e) => e.key === "Enter" && handleAssign()}
-          />
-          <Button onClick={handleAssign} disabled={assigning || !search.trim()} size="sm">
-            <UserPlus className="h-4 w-4" />
-          </Button>
+        {/* Search + assign row */}
+        <div className="space-y-1.5">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                value={query}
+                onChange={(e) => { setQuery(e.target.value); if (selected) setSelected(null); }}
+                placeholder="Search by RSN or username…"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && selected) handleAssign();
+                  if (e.key === "Escape") handleClear();
+                }}
+                autoComplete="off"
+              />
+              {/* Suggestions dropdown */}
+              {suggestions.length > 0 && (
+                <ul className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md overflow-hidden">
+                  {suggestions.map((s) => (
+                    <li key={s.discord_user_id}>
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2"
+                        onMouseDown={(e) => { e.preventDefault(); handleSelect(s); }}
+                      >
+                        <span className="font-medium text-foreground">{s.rsn ?? s.discord_username}</span>
+                        {s.rsn && <span className="text-xs text-muted-foreground">{s.discord_username}</span>}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {searching && !suggestions.length && query.trim() && !selected && (
+                <p className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover px-3 py-2 text-xs text-muted-foreground shadow-md">
+                  Searching…
+                </p>
+              )}
+            </div>
+            <Button onClick={handleAssign} disabled={assigning || !selected} size="sm">
+              <UserPlus className="h-4 w-4" />
+            </Button>
+          </div>
+          {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
 
         <Separator />
 
-        {loading ? (
+        {loadingMembers ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : members.length === 0 ? (
           <p className="text-sm text-muted-foreground">No members assigned yet.</p>
