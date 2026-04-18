@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronDown, ChevronRight, Menu, Pencil, Plus, Trash2, X } from "lucide-react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { cacheInvalidate, fetchCached } from "@/lib/cache";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -590,15 +591,18 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/content/${pageType}/categories`)
-      .then((r) => (r.ok ? r.json() : []))
+    fetchCached<CategoryTree[]>(
+      `${API_URL}/content/${pageType}/categories`,
+      { cacheKey: `content:cats:${pageType}` },
+    )
       .then(setCategories)
       .catch(() => {});
   }, [pageType, refreshKey]);
 
-  function refreshTree() {
+  const refreshTree = useCallback(() => {
+    cacheInvalidate(`content:cats:${pageType}`);
     setRefreshKey((k) => k + 1);
-  }
+  }, [pageType]);
 
   const sidebarProps: SidebarContentProps = {
     categories,
@@ -612,8 +616,13 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
     onRefresh: refreshTree,
   };
 
+  const contextValue = useMemo(
+    () => ({ categories, refreshTree, pageType, pageId, pageName }),
+    [categories, refreshTree, pageType, pageId, pageName],
+  );
+
   return (
-    <ContentContext.Provider value={{ categories, refreshTree, pageType, pageId, pageName }}>
+    <ContentContext.Provider value={contextValue}>
       <div className="flex flex-1 min-h-0 -m-6">
         {/* Desktop sidebar */}
         <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">

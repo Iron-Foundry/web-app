@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { EntryEditor } from "./EntryEditor";
 import { useContentContext } from "./ContentLayout";
+import { cacheInvalidate, fetchCached } from "@/lib/cache";
 
 function slugify(s: string): string {
   return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
@@ -75,26 +76,30 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   const [entryId, setEntryId] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
     setEditMode(false);
     setEntryId(null);
-    fetch(`${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((data: EntryDetail) => {
+    fetchCached<EntryDetail>(
+      `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
+      { signal: controller.signal, cacheKey: `content:entry:${pageType}:${slug}` },
+    )
+      .then((data) => {
         setEntry(data);
         setEntryId(data.id);
         setEditTitle(data.title);
         setEditSlug(data.slug);
         setSlugEdited(false);
-        // Auto-enter edit mode if body is empty (brand new entry)
         if (!data.body && canEdit) setEditMode(true);
       })
-      .catch((e: Error) => setError(e.message))
+      .catch((e: Error) => {
+        if (e.name !== "AbortError") setError(e.message);
+      })
       .finally(() => setLoading(false));
+
+    return () => controller.abort();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, pageType]);
 
   async function handleSave(newBody: string) {
@@ -123,13 +128,18 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         return;
       }
       const saved = await res.json() as { slug: string };
+      // Bust both old and new slug caches (slug may have changed)
+      cacheInvalidate(`content:entry:${pageType}:`);
       setEditMode(false);
       refreshTree();
       // If slug changed, navigate to the new URL; otherwise re-fetch in place
       if (saved.slug !== slug) {
         navigate({ to: `${routeBase}/$slug`, params: { slug: saved.slug } });
       } else {
-        const updated = await fetch(`${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(saved.slug)}`).then((r) => r.json());
+        const updated = await fetchCached<EntryDetail>(
+          `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(saved.slug)}`,
+          { cacheKey: `content:entry:${pageType}:${saved.slug}` },
+        );
         setEntry(updated);
         setEditTitle(updated.title);
         setEditSlug(updated.slug);

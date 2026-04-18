@@ -3,6 +3,7 @@ import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { cacheInvalidate } from "@/lib/cache";
 import { getPageRegistry, registerPage, type PagePermissionConfig } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -154,6 +155,7 @@ function PermissionsPage() {
       });
       if (r.ok) {
         const data = (await r.json()) as { pages: PagePermissionsMap };
+        cacheInvalidate("config:page-permissions");
         setSaved(data.pages);
         setLocal(data.pages);
         setFeedback({ ok: true, msg: "Saved." });

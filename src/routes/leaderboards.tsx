@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute, useNavigate } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { fetchCached } from "@/lib/cache";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -286,26 +287,22 @@ function LeaderboardsPage() {
     const token = getAuthToken();
     const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
-    fetch(`${API_URL}/clan/leaderboards`, { headers })
-      .then((r) => (r.ok ? (r.json() as Promise<PbEntry[]>) : Promise.reject()))
+    fetchCached<PbEntry[]>(`${API_URL}/clan/leaderboards`, { headers, cacheKey: "leaderboards:pb" })
       .then(setPbEntries)
       .catch(() => {})
       .finally(() => setPbLoading(false));
 
-    fetch(`${API_URL}/clan/leaderboards/collection-log`, { headers })
-      .then((r) => (r.ok ? (r.json() as Promise<ClogEntry[]>) : Promise.reject()))
+    fetchCached<ClogEntry[]>(`${API_URL}/clan/leaderboards/collection-log`, { headers, cacheKey: "leaderboards:clog" })
       .then(setClogEntries)
       .catch(() => {})
       .finally(() => setClogLoading(false));
 
-    fetch(`${API_URL}/clan/leaderboards/killcounts`, { headers })
-      .then((r) => (r.ok ? (r.json() as Promise<KcBoss[]>) : Promise.reject()))
+    fetchCached<KcBoss[]>(`${API_URL}/clan/leaderboards/killcounts`, { headers, cacheKey: "leaderboards:kc" })
       .then(setKcBosses)
       .catch(() => {})
       .finally(() => setKcLoading(false));
 
-    fetch(`${API_URL}/clan/leaderboards/leagues`, { headers })
-      .then((r) => (r.ok ? (r.json() as Promise<LeaguesEntry[]>) : Promise.reject()))
+    fetchCached<LeaguesEntry[]>(`${API_URL}/clan/leaderboards/leagues`, { headers, cacheKey: "leaderboards:leagues" })
       .then(setLeaguesEntries)
       .catch(() => {})
       .finally(() => setLeaguesLoading(false));

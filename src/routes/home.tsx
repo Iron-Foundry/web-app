@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { API_URL } from "@/context/AuthContext";
+import { fetchCached } from "@/lib/cache";
 import clanPhoto from "@/assets/clan-photo.png";
 import bannerLogo from "@/assets/BannerLogo-160x87.png";
 import { Card, CardContent } from "@/components/ui/card";
@@ -141,10 +142,7 @@ function HomePage() {
   const [achievementsLoading, setAchievementsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/clan/wom-stats`)
-      .then((r) =>
-        r.ok ? (r.json() as Promise<WomStatsResponse>) : Promise.reject(),
-      )
+    fetchCached<WomStatsResponse>(`${API_URL}/clan/wom-stats`, { cacheKey: "home:wom-stats" })
       .then((data) => {
         setMemberCount(data.member_count ?? null);
         setClanXp(data.total_xp > 0 ? data.total_xp : null);
@@ -155,22 +153,20 @@ function HomePage() {
       })
       .catch(() => {});
 
-    fetch(`${API_URL}/clan/stats`)
-      .then(
-        (r) =>
-          r.json() as Promise<{
-            total_gp: number;
-            collection_log_items: number;
-          }>,
-      )
+    fetchCached<{ total_gp: number; collection_log_items: number }>(
+      `${API_URL}/clan/stats`,
+      { cacheKey: "home:stats" },
+    )
       .then((data) => {
         setTotalGp(data.total_gp ?? null);
         setTotalLogSlots(data.collection_log_items ?? null);
       })
       .catch(() => {});
 
-    fetch(`${API_URL}/clan/recent-achievements?limit=20`)
-      .then((r) => r.json() as Promise<Achievement[]>)
+    fetchCached<Achievement[]>(
+      `${API_URL}/clan/recent-achievements?limit=20`,
+      { cacheKey: "home:recent-achievements" },
+    )
       .then(setAchievements)
       .catch(() => {})
       .finally(() => setAchievementsLoading(false));

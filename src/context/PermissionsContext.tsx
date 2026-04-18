@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import type { PagePermissionConfig, PermAction } from "@/lib/permissions";
+import { fetchCached } from "@/lib/cache";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -71,8 +72,10 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
     const token = getAuthToken();
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-    fetch(`${API_URL}/config/page-permissions`, { headers })
-      .then((r) => (r.ok ? r.json() : Promise.resolve({ pages: {} })))
+    fetchCached<{ pages: PagePermissionConfig }>(
+      `${API_URL}/config/page-permissions`,
+      { headers, cacheKey: "config:page-permissions", ttl: 10 * 60 * 1000 },
+    )
       .then((data) => setPagePermissions(data.pages ?? {}))
       .catch(() => {})
       .finally(() => setLoading(false));
