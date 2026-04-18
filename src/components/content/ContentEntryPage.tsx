@@ -4,9 +4,15 @@ import { Pencil, Trash2 } from "lucide-react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { EntryEditor } from "./EntryEditor";
 import { useContentContext } from "./ContentLayout";
+
+function slugify(s: string): string {
+  return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
+}
 
 interface EntryAuthor {
   discord_user_id: number | null;
@@ -18,6 +24,7 @@ interface EntryAuthor {
 interface EntryDetail {
   id: string;
   title: string;
+  slug: string;
   body: string;
   created_at: string | null;
   updated_at: string | null;
@@ -58,6 +65,9 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
 
   // Edit mode is local state — also auto-enable for brand new entries (empty body)
   const [editMode, setEditMode] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editSlug, setEditSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -72,6 +82,9 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
       })
       .then((data: EntryDetail) => {
         setEntry(data);
+        setEditTitle(data.title);
+        setEditSlug(data.slug);
+        setSlugEdited(false);
         // Auto-enter edit mode if body is empty (brand new entry)
         if (!data.body && canEdit) setEditMode(true);
       })
@@ -85,13 +98,19 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
     setSaveError(null);
     const token = getAuthToken();
     try {
+      const payload: Record<string, string> = { body: newBody };
+      const trimmedTitle = editTitle.trim();
+      if (trimmedTitle && trimmedTitle !== entry.title) payload.title = trimmedTitle;
+      const trimmedSlug = editSlug.trim();
+      if (trimmedSlug && trimmedSlug !== entry.slug) payload.slug = trimmedSlug;
+
       const res = await fetch(`${API_URL}/content/${pageType}/entries/${entryId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ body: newBody }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -103,6 +122,9 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
         r.json(),
       );
       setEntry(updated);
+      setEditTitle(updated.title);
+      setEditSlug(updated.slug);
+      setSlugEdited(false);
       setEditMode(false);
       refreshTree();
     } catch {
@@ -147,7 +169,12 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
         <h1 className="font-rs-bold text-3xl text-primary leading-tight">{entry.title}</h1>
         <div className="flex items-center gap-2 shrink-0">
           {canEdit && !editMode && (
-            <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>
+            <Button size="sm" variant="outline" onClick={() => {
+              setEditTitle(entry.title);
+              setEditSlug(entry.slug);
+              setSlugEdited(false);
+              setEditMode(true);
+            }}>
               <Pencil className="h-3.5 w-3.5 mr-1.5" />
               Edit
             </Button>
@@ -166,12 +193,40 @@ export function ContentEntryPage({ entryId, routeBase }: ContentEntryPageProps) 
 
       {/* Editor or renderer */}
       {editMode ? (
-        <EntryEditor
-          initialBody={entry.body}
-          onSave={handleSave}
-          onCancel={() => setEditMode(false)}
-          saving={saving}
-        />
+        <div className="space-y-4">
+          {/* Title + slug metadata */}
+          <div className="grid grid-cols-2 gap-3 rounded-md border border-border bg-muted/30 p-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Title</Label>
+              <Input
+                value={editTitle}
+                onChange={(e) => {
+                  setEditTitle(e.target.value);
+                  if (!slugEdited) setEditSlug(slugify(e.target.value));
+                }}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Slug</Label>
+              <Input
+                value={editSlug}
+                onChange={(e) => {
+                  setEditSlug(e.target.value);
+                  setSlugEdited(e.target.value !== "" && e.target.value !== slugify(editTitle));
+                }}
+                className="h-8 font-mono text-sm"
+                placeholder={slugify(editTitle) || "slug"}
+              />
+            </div>
+          </div>
+          <EntryEditor
+            initialBody={entry.body}
+            onSave={handleSave}
+            onCancel={() => setEditMode(false)}
+            saving={saving}
+          />
+        </div>
       ) : (
         <div className="min-h-[100px]">
           {entry.body ? (

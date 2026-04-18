@@ -225,8 +225,14 @@ interface NewEntryDialogProps {
   onSuccess: () => void;
 }
 
+function slugify(s: string): string {
+  return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
+}
+
 function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSuccess }: NewEntryDialogProps) {
   const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -234,9 +240,21 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
   useEffect(() => {
     if (open) {
       setTitle("");
+      setSlug("");
+      setSlugEdited(false);
       setError(null);
     }
   }, [open]);
+
+  function handleTitleChange(val: string) {
+    setTitle(val);
+    if (!slugEdited) setSlug(slugify(val));
+  }
+
+  function handleSlugChange(val: string) {
+    setSlug(val);
+    setSlugEdited(val !== "" && val !== slugify(title));
+  }
 
   async function handleSave() {
     const trimmed = title.trim();
@@ -253,9 +271,11 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
     };
 
     try {
+      const payload: Record<string, string> = { title: trimmed };
+      if (slug.trim()) payload.slug = slug.trim();
       const res = await fetch(
         `${API_URL}/content/${pageType}/categories/${categoryId}/entries`,
-        { method: "POST", headers, body: JSON.stringify({ title: trimmed }) },
+        { method: "POST", headers, body: JSON.stringify(payload) },
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -265,7 +285,6 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
       const created = await res.json();
       onSuccess();
       onClose();
-      // Navigate to the new entry — it will auto-enter edit mode (empty body)
       navigate({ to: `${routeBase}/$entryId`, params: { entryId: created.id } });
     } catch {
       setError("Network error.");
@@ -273,6 +292,8 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
       setSaving(false);
     }
   }
+
+  const preview = slug || slugify(title);
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -286,10 +307,24 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
             <Input
               id="entry-title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => handleTitleChange(e.target.value)}
               placeholder="Entry title"
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
+              autoFocus
             />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="entry-slug">Slug</Label>
+            <Input
+              id="entry-slug"
+              value={slug}
+              onChange={(e) => handleSlugChange(e.target.value)}
+              placeholder={slugify(title) || "auto-generated"}
+              className="font-mono text-sm"
+            />
+            {preview && (
+              <p className="text-xs text-muted-foreground">URL: <span className="font-mono">{preview}</span></p>
+            )}
           </div>
           {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
