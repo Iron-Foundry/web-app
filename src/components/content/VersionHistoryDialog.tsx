@@ -97,7 +97,7 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl h-[80vh] flex flex-col p-0 gap-0">
+      <DialogContent className="w-[95vw] max-w-7xl sm:max-w-7xl h-[80vh] flex flex-col p-0 gap-0">
         <DialogHeader className="px-4 py-3 border-b border-border shrink-0">
           <DialogTitle>Version History</DialogTitle>
         </DialogHeader>
