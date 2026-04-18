@@ -7,6 +7,8 @@ import { eventsRoute } from "./events";
 import { authCallbackRoute } from "./auth-callback";
 import { loginRoute } from "./login";
 import { leaderboardsRoute } from "./leaderboards";
+import { pluginsRoute } from "./plugins";
+import { resourcesRoute } from "./resources";
 import { membersLayoutRoute } from "./members/_layout";
 import { membersDashboardRoute } from "./members/index";
 import { membersSettingsRoute } from "./members/settings";
@@ -43,5 +45,7 @@ export const routeTree = rootRoute.addChildren([
   authCallbackRoute,
   loginRoute,
   leaderboardsRoute,
+  pluginsRoute,
+  resourcesRoute,
   membersTree,
 ]);

@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 
 const SUBNAV_LINKS = [
   { to: "/leaderboards", label: "Leaderboards" },
+  { to: "/plugins", label: "Plugins" },
+  { to: "/resources", label: "Resources & Guides" },
 ] as const;
 
 export function SubNav() {
