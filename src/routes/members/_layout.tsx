@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LayoutDashboard, Settings, Sun, Moon, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Sun, Moon, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft, Lock } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -27,7 +27,8 @@ const STAFF_NAV = [
   { to: "/members/staff/members" as const,     label: "Members",     icon: Users,        minRank: "Moderator", exact: false },
   { to: "/members/staff/all-tickets" as const, label: "All Tickets", icon: Inbox,        minRank: "Moderator", exact: false },
   { to: "/members/staff/surveys" as const,       label: "Surveys",       icon: ClipboardList,    minRank: "Mentor",            exact: false },
-  { to: "/members/staff/rank-mappings" as const, label: "Rank Mappings", icon: ArrowRightLeft,   minRank: "Senior Moderator",  exact: false },
+  { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings",  icon: ArrowRightLeft, minRank: "Senior Moderator", exact: false },
+  { to: "/members/staff/permissions" as const,    label: "Permissions",    icon: Lock,           minRank: "Senior Moderator", exact: false },
 ];
 
 function navLinkClass(base?: string) {
@@ -39,10 +40,10 @@ function navLinkClass(base?: string) {
   );
 }
 
-function SidebarNav({ onNavigate, discordRoles }: { onNavigate?: () => void; discordRoles: string[] }) {
+function SidebarNav({ onNavigate, effectiveRoles }: { onNavigate?: () => void; effectiveRoles: string[] }) {
   const { theme, toggleTheme } = useTheme();
 
-  const visibleStaff = STAFF_NAV.filter(({ minRank }) => hasMinRank(discordRoles, minRank));
+  const visibleStaff = STAFF_NAV.filter(({ minRank }) => hasMinRank(effectiveRoles, minRank));
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
@@ -150,7 +151,7 @@ function MembersLayout() {
             {user.rsn ?? user.username}
           </span>
         </div>
-        <SidebarNav discordRoles={user.discord_roles} />
+        <SidebarNav effectiveRoles={user.effective_roles} />
       </aside>
 
 
@@ -175,7 +176,7 @@ function MembersLayout() {
                 {user.rsn ?? user.username}
               </span>
             </div>
-            <SidebarNav onNavigate={() => setMobileOpen(false)} discordRoles={user.discord_roles} />
+            <SidebarNav onNavigate={() => setMobileOpen(false)} effectiveRoles={user.effective_roles} />
           </SheetContent>
         </Sheet>
       </div>

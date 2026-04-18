@@ -223,7 +223,7 @@ export function SurveyDetailPage({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [localSubmission, setLocalSubmission] = useState<Record<string, unknown> | null>(null);
 
-  const isStaff = user ? hasMinRank(user.discord_roles, "Mentor") : false;
+  const isStaff = user ? hasMinRank(user.effective_roles, "Mentor") : false;
   const listPath = category === "survey" ? "/members/surveys" : "/members/applications";
   const listLabel = category === "survey" ? "Surveys" : "Applications";
 

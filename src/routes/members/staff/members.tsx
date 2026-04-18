@@ -6,6 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { highestRole } from "@/lib/ranks";
 import { Input } from "@/components/ui/input";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { registerPage } from "@/lib/permissions";
+
+registerPage({
+  id: "staff.members",
+  label: "Staff — Members",
+  description: "View and manage clan member roster.",
+  defaults: { read: ["Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
+});
 
 export const staffMembersRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,

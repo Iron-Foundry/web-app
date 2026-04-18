@@ -7,6 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ChevronDown, ChevronRight, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { registerPage } from "@/lib/permissions";
+
+registerPage({
+  id: "staff.all-tickets",
+  label: "Staff — All Tickets",
+  description: "View all support tickets across all members.",
+  defaults: { read: ["Moderator"], edit: ["Moderator"], delete: ["Senior Moderator"] },
+});
 
 export const staffAllTicketsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,

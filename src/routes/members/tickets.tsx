@@ -6,6 +6,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronRight, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { registerPage } from "@/lib/permissions";
+
+registerPage({
+  id: "members.tickets",
+  label: "Tickets",
+  description: "Member support ticket list.",
+  defaults: { read: [], edit: [], delete: [] },
+});
 
 export const membersTicketsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,

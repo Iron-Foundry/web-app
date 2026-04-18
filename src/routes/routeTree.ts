@@ -18,6 +18,7 @@ import { staffMembersRoute } from "./members/staff/members";
 import { staffAllTicketsRoute } from "./members/staff/all-tickets";
 import { staffSurveysRoute } from "./members/staff/surveys";
 import { staffRankMappingsRoute } from "./members/staff/rank-mappings";
+import { staffPermissionsRoute } from "./members/staff/permissions";
 import { membersSurveysRoute } from "./members/surveys";
 import { membersApplicationsRoute } from "./members/applications";
 import { surveyDetailRoute } from "./members/surveys.$templateId";
@@ -36,6 +37,7 @@ const membersTree = membersLayoutRoute.addChildren([
   staffAllTicketsRoute,
   staffSurveysRoute,
   staffRankMappingsRoute,
+  staffPermissionsRoute,
 ]);
 
 export const routeTree = rootRoute.addChildren([

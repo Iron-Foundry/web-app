@@ -6,6 +6,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { registerPage } from "@/lib/permissions";
+
+registerPage({
+  id: "members.surveys",
+  label: "Surveys",
+  description: "Member survey list and submission page.",
+  defaults: { read: [], edit: [], delete: [] },
+});
 
 export const membersSurveysRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,

@@ -3,6 +3,14 @@ import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { hasMinRank, highestRole, DISCORD_ROLE_ORDER } from "@/lib/ranks";
+import { registerPage } from "@/lib/permissions";
+
+registerPage({
+  id: "staff.surveys",
+  label: "Staff — Surveys",
+  description: "Manage survey and application templates, view responses.",
+  defaults: { read: ["Mentor"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
+});
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -402,7 +410,7 @@ function StaffSurveysPage() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
 
-  const isSeniorStaff = user ? hasMinRank(user.discord_roles, "Senior Moderator") : false;
+  const isSeniorStaff = user ? hasMinRank(user.effective_roles, "Senior Moderator") : false;
 
   useEffect(() => {
     Promise.all([

@@ -26,7 +26,7 @@ export function RequireRank({
 }): JSX.Element {
   const { user } = useAuth();
 
-  if (!user || !hasMinRank(user.discord_roles, rank)) {
+  if (!user || !hasMinRank(user.effective_roles, rank)) {
     return (
       <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
         Access denied - requires role <strong>{rank}</strong> or higher.
