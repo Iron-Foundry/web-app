@@ -5,7 +5,7 @@ import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { hasMinRank } from "@/lib/ranks";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Ticket, ShieldCheck } from "lucide-react";
+import { Users, Ticket, ShieldCheck, BookOpen } from "lucide-react";
 
 export const staffIndexRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
@@ -37,6 +37,7 @@ function StaffOverviewPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const canViewModerator = hasMinRank(effectiveRoles, "Moderator");
+  const canViewSeniorMod = hasMinRank(effectiveRoles, "Senior Moderator");
 
   const [overview, setOverview] = useState<Overview | null>(null);
 
@@ -93,6 +94,20 @@ function StaffOverviewPage() {
               </div>
             </div>
           </Link>
+          {canViewSeniorMod && (
+            <Link
+              to="/members/staff/content"
+              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <BookOpen className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium text-foreground">Content</p>
+                  <p className="text-xs text-muted-foreground">Manage deprecated content entries</p>
+                </div>
+              </div>
+            </Link>
+          )}
         </div>
       )}
     </div>

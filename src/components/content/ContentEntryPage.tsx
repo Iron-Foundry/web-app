@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Pencil, Trash2 } from "lucide-react";
+import { History, Pencil, Trash2 } from "lucide-react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { MarkdownRenderer } from "./MarkdownRenderer";
 import { EntryEditor } from "./EntryEditor";
 import { useContentContext } from "./ContentLayout";
 import { cacheInvalidate, fetchCached } from "@/lib/cache";
+import { VersionHistoryDialog } from "./VersionHistoryDialog";
 
 function slugify(s: string): string {
   return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
@@ -74,6 +75,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
 
   // entryId (UUID) obtained after fetching by slug — used for PUT/DELETE
   const [entryId, setEntryId] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -187,15 +189,21 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         <h1 className="font-rs-bold text-3xl text-primary leading-tight">{entry.title}</h1>
         <div className="flex items-center gap-2 shrink-0">
           {canEdit && !editMode && (
-            <Button size="sm" variant="outline" onClick={() => {
-              setEditTitle(entry.title);
-              setEditSlug(entry.slug);
-              setSlugEdited(false);
-              setEditMode(true);
-            }}>
-              <Pencil className="h-3.5 w-3.5 mr-1.5" />
-              Edit
-            </Button>
+            <>
+              <Button size="sm" variant="outline" onClick={() => setHistoryOpen(true)}>
+                <History className="h-3.5 w-3.5 mr-1.5" />
+                History
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => {
+                setEditTitle(entry.title);
+                setEditSlug(entry.slug);
+                setSlugEdited(false);
+                setEditMode(true);
+              }}>
+                <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                Edit
+              </Button>
+            </>
           )}
           {canDelete && !editMode && (
             <Button size="sm" variant="outline" onClick={handleDelete} className="text-destructive hover:text-destructive">
@@ -273,6 +281,27 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
             </>
           )}
         </div>
+      )}
+
+      {entryId && (
+        <VersionHistoryDialog
+          open={historyOpen}
+          onOpenChange={setHistoryOpen}
+          pageType={pageType}
+          entryId={entryId}
+          onRestored={async () => {
+            cacheInvalidate(`content:entry:${pageType}:`);
+            setHistoryOpen(false);
+            const updated = await fetchCached<EntryDetail>(
+              `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
+              { cacheKey: `content:entry:${pageType}:${slug}` },
+            );
+            setEntry(updated);
+            setEditTitle(updated.title);
+            setEditSlug(updated.slug);
+            setSlugEdited(false);
+          }}
+        />
       )}
     </div>
   );
