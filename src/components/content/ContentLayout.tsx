@@ -37,6 +37,7 @@ interface ContentContextValue {
   pageType: string;
   pageId: string;
   pageName: string;
+  routeBase: string;
 }
 
 const ContentContext = createContext<ContentContextValue>({
@@ -45,6 +46,7 @@ const ContentContext = createContext<ContentContextValue>({
   pageType: "",
   pageId: "",
   pageName: "",
+  routeBase: "",
 });
 
 export function useContentContext(): ContentContextValue {
@@ -740,8 +742,8 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   };
 
   const contextValue = useMemo(
-    () => ({ categories, refreshTree, pageType, pageId, pageName }),
-    [categories, refreshTree, pageType, pageId, pageName],
+    () => ({ categories, refreshTree, pageType, pageId, pageName, routeBase }),
+    [categories, refreshTree, pageType, pageId, pageName, routeBase],
   );
 
   return (
