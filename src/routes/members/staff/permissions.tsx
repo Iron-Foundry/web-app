@@ -28,7 +28,8 @@ export const staffPermissionsRoute = createRoute({
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const ROLE_OPTIONS = ["Mentor", "Event Team", "Moderator", "Senior Moderator"];
+// Fallback if rank-mappings haven't loaded yet
+const FALLBACK_ROLES = ["Mentor", "Event Team", "Moderator", "Senior Moderator"];
 
 const ACTIONS = [
   { key: "read",   label: "Read",   hint: "empty = all users" },
@@ -52,10 +53,12 @@ type PagePermissionsMap = Record<string, PagePermissionConfig>;
 function PageCard({
   page,
   cfg,
+  roleOptions,
   onSetAction,
 }: {
   page: ReturnType<typeof getPageRegistry>[number];
   cfg: PagePermissionConfig;
+  roleOptions: string[];
   onSetAction: (action: keyof PagePermissionConfig, roles: string[]) => void;
 }) {
   return (
@@ -84,7 +87,7 @@ function PageCard({
               onValueChange={(v) => onSetAction(key, v)}
               className="flex-wrap justify-start"
             >
-              {ROLE_OPTIONS.map((role) => (
+              {roleOptions.map((role) => (
                 <ToggleGroupItem key={role} value={role} className="text-xs h-7 px-2.5">
                   {role}
                 </ToggleGroupItem>
@@ -105,6 +108,7 @@ function PermissionsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [roleOptions, setRoleOptions] = useState<string[]>(FALLBACK_ROLES);
 
   const pages = getPageRegistry();
 
@@ -112,14 +116,23 @@ function PermissionsPage() {
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
-    fetch(`${API_URL}/config/page-permissions`, { headers: authHeaders })
+    const permissionsReq = fetch(`${API_URL}/config/page-permissions`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.resolve({ pages: {} })))
       .then((data: { pages: PagePermissionsMap }) => {
         setSaved(data.pages ?? {});
         setLocal(data.pages ?? {});
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {});
+
+    const rankMappingsReq = fetch(`${API_URL}/config/rank-mappings`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.resolve({ mappings: [] })))
+      .then((data: { mappings: { clan_rank: string; discord_role: string }[] }) => {
+        const roles = [...new Set((data.mappings ?? []).map((m) => m.discord_role).filter(Boolean))];
+        if (roles.length > 0) setRoleOptions(roles);
+      })
+      .catch(() => {});
+
+    Promise.all([permissionsReq, rankMappingsReq]).finally(() => setLoading(false));
   }, []);
 
   function getConfig(pageId: string): PagePermissionConfig {
@@ -243,6 +256,7 @@ function PermissionsPage() {
                     key={page.id}
                     page={page}
                     cfg={getConfig(page.id)}
+                    roleOptions={roleOptions}
                     onSetAction={(action, roles) => setAction(page.id, action, roles)}
                   />
                 ))
