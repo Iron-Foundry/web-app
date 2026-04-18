@@ -12,7 +12,7 @@ registerPage({
   id: "members.surveys",
   label: "Surveys",
   description: "Member survey list and submission page.",
-  defaults: { read: [], edit: [], delete: [] },
+  defaults: { read: [], create: [], edit: [], delete: [] },
 });
 
 export const membersSurveysRoute = createRoute({

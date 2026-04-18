@@ -7,7 +7,7 @@ import type { PagePermissionConfig, PermAction } from "@/lib/permissions";
 type PagePermissionsMap = Record<string, PagePermissionConfig>;
 
 interface PermissionsContextValue {
-  /** Raw DB config: pageId → { read, edit, delete } */
+  /** Raw DB config: pageId → { read, create, edit, delete } */
   pagePermissions: PagePermissionsMap;
   /**
    * Returns true if the user (identified by effectiveRoles) can perform the
@@ -15,9 +15,9 @@ interface PermissionsContextValue {
    *
    * Rules:
    * - "read" with empty allowed list → open to all authenticated users.
-   * - "edit"/"delete" with empty allowed list → denied (Senior Mod+ bypass).
+   * - "create"/"edit"/"delete" with empty allowed list → denied (Senior Mod+ bypass).
    * - If the user holds any role in the allowed list → granted.
-   * - Senior Moderator+ always bypass for edit/delete.
+   * - Senior Moderator+ always bypass for create/edit/delete.
    */
   hasPermission: (pageId: string, action: PermAction, effectiveRoles: string[]) => boolean;
   /** True while the initial config fetch is in flight. */
@@ -46,7 +46,7 @@ function checkPermission(
   // Open read: empty allowed list means anyone can read
   if (action === "read" && allowed.length === 0) return true;
 
-  // Senior Mod+ always bypass for edit/delete
+  // Senior Mod+ always bypass for create/edit/delete
   if (action !== "read" && effectiveRoles.some((r) => SENIOR_MOD_BYPASS.includes(r))) {
     return true;
   }

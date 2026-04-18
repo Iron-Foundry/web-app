@@ -12,7 +12,7 @@ registerPage({
   id: "members.applications",
   label: "Applications",
   description: "Member application list and submission page.",
-  defaults: { read: [], edit: [], delete: [] },
+  defaults: { read: [], create: [], edit: [], delete: [] },
 });
 
 export const membersApplicationsRoute = createRoute({

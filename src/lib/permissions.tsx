@@ -4,10 +4,11 @@ import { DISCORD_ROLE_ORDER } from "@/lib/ranks";
 
 // ── Page permission registry ──────────────────────────────────────────────────
 
-export type PermAction = "read" | "edit" | "delete";
+export type PermAction = "read" | "create" | "edit" | "delete";
 
 export interface PagePermissionConfig {
   read: string[];
+  create: string[];
   edit: string[];
   delete: string[];
 }

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LayoutDashboard, Settings, Sun, Moon, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft, Lock } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Award } from "lucide-react";
 import { rootRoute } from "../__root";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
+import { useAuth, type AuthUser } from "@/context/AuthContext";
+import { ViewAsProvider, useViewAs, useEffectiveRoles, VIEW_AS_OPTIONS, type ViewAsOption } from "@/context/ViewAsContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { hasMinRank } from "@/lib/ranks";
 
@@ -16,19 +17,20 @@ export const membersLayoutRoute = createRoute({
 });
 
 const NAV_LINKS = [
-  { to: "/members" as const,              label: "Dashboard",   icon: LayoutDashboard, exact: true },
-  { to: "/members/tickets" as const,      label: "Tickets",     icon: Ticket,          exact: false },
-  { to: "/members/surveys" as const,      label: "Surveys",     icon: ClipboardList,   exact: false },
-  { to: "/members/applications" as const, label: "Applications",icon: FileText,        exact: false },
+  { to: "/members" as const,              label: "Dashboard",    icon: LayoutDashboard, exact: true },
+  { to: "/members/tickets" as const,      label: "Tickets",      icon: Ticket,          exact: false },
+  { to: "/members/surveys" as const,      label: "Surveys",      icon: ClipboardList,   exact: false },
+  { to: "/members/applications" as const, label: "Applications", icon: FileText,        exact: false },
 ];
 
 const STAFF_NAV = [
-  { to: "/members/staff" as const,             label: "Staff Home",  icon: ShieldCheck,  minRank: "Mentor",    exact: true },
-  { to: "/members/staff/members" as const,     label: "Members",     icon: Users,        minRank: "Moderator", exact: false },
-  { to: "/members/staff/all-tickets" as const, label: "All Tickets", icon: Inbox,        minRank: "Moderator", exact: false },
-  { to: "/members/staff/surveys" as const,       label: "Surveys",       icon: ClipboardList,    minRank: "Mentor",            exact: false },
-  { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings",  icon: ArrowRightLeft, minRank: "Senior Moderator", exact: false },
-  { to: "/members/staff/permissions" as const,    label: "Permissions",    icon: Lock,           minRank: "Senior Moderator", exact: false },
+  { to: "/members/staff" as const,                label: "Staff Home",   icon: ShieldCheck,   minRank: "Mentor",           exact: true },
+  { to: "/members/staff/members" as const,        label: "Members",      icon: Users,         minRank: "Moderator",        exact: false },
+  { to: "/members/staff/all-tickets" as const,    label: "All Tickets",  icon: Inbox,         minRank: "Moderator",        exact: false },
+  { to: "/members/staff/surveys" as const,        label: "Surveys",      icon: ClipboardList, minRank: "Mentor",           exact: false },
+  { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings",icon: ArrowRightLeft,minRank: "Senior Moderator", exact: false },
+  { to: "/members/staff/permissions" as const,    label: "Permissions",  icon: Lock,          minRank: "Senior Moderator", exact: false },
+  { to: "/members/staff/badges" as const,         label: "Badges",       icon: Award,         minRank: "Mentor",           exact: false },
 ];
 
 function navLinkClass(base?: string) {
@@ -40,15 +42,41 @@ function navLinkClass(base?: string) {
   );
 }
 
-function SidebarNav({ onNavigate, effectiveRoles }: { onNavigate?: () => void; effectiveRoles: string[] }) {
-  const { theme, toggleTheme } = useTheme();
+function ViewAsSelector({ realRoles }: { realRoles: string[] }) {
+  const { viewAs, setViewAs } = useViewAs();
+
+  if (!hasMinRank(realRoles, "Senior Moderator")) return null;
+
+  return (
+    <div className="px-2 pb-2 shrink-0">
+      <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 flex items-center gap-1">
+        <Eye className="h-3 w-3" /> View as
+      </p>
+      <Select value={viewAs} onValueChange={(v) => setViewAs(v as ViewAsOption)}>
+        <SelectTrigger className="h-8 text-xs w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {VIEW_AS_OPTIONS.map(({ value, label }) => (
+            <SelectItem key={value} value={value} className="text-xs">
+              {label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function SidebarNav({ onNavigate, realRoles }: { onNavigate?: () => void; realRoles: string[] }) {
+  const effectiveRoles = useEffectiveRoles(realRoles);
 
   const visibleStaff = STAFF_NAV.filter(({ minRank }) => hasMinRank(effectiveRoles, minRank));
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden">
+    <div className="flex flex-col flex-1 min-h-0">
       {/* Top nav links */}
-      <nav className="flex flex-col gap-1 p-2">
+      <nav className="flex flex-col gap-1 p-2 shrink-0">
         {NAV_LINKS.map(({ to, label, icon: Icon, exact }) => (
           <Link
             key={to}
@@ -65,7 +93,7 @@ function SidebarNav({ onNavigate, effectiveRoles }: { onNavigate?: () => void; e
 
       {/* Staff section */}
       {visibleStaff.length > 0 && (
-        <div className="px-2 pb-1">
+        <div className="px-2 pb-1 shrink-0">
           <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
             Staff
           </p>
@@ -87,19 +115,11 @@ function SidebarNav({ onNavigate, effectiveRoles }: { onNavigate?: () => void; e
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Bottom: theme toggle + settings + profile */}
-      <div className="flex flex-col gap-1 border-t border-border p-2">
-        <button
-          onClick={toggleTheme}
-          className={navLinkClass("w-full text-left cursor-pointer")}
-        >
-          {theme === "dark" ? (
-            <Sun className="h-4 w-4 shrink-0" />
-          ) : (
-            <Moon className="h-4 w-4 shrink-0" />
-          )}
-          {theme === "dark" ? "Light mode" : "Dark mode"}
-        </button>
+      {/* View As selector — Senior Mod+ only */}
+      <ViewAsSelector realRoles={realRoles} />
+
+      {/* Bottom: settings */}
+      <div className="flex flex-col gap-1 border-t border-border p-2 shrink-0">
         <Link
           to="/members/settings"
           onClick={onNavigate}
@@ -114,10 +134,88 @@ function SidebarNav({ onNavigate, effectiveRoles }: { onNavigate?: () => void; e
   );
 }
 
+function ViewAsBanner() {
+  const { viewAs, setViewAs } = useViewAs();
+  if (viewAs === "self") return null;
+  const label = VIEW_AS_OPTIONS.find((o) => o.value === viewAs)?.label ?? viewAs;
+  return (
+    <div className="shrink-0 flex items-center justify-between gap-2 bg-amber-500/15 border-b border-amber-500/30 px-4 py-1.5 text-xs text-amber-600 dark:text-amber-400">
+      <span className="flex items-center gap-1.5">
+        <Eye className="h-3.5 w-3.5" />
+        Viewing as <strong>{label}</strong>
+      </span>
+      <button
+        onClick={() => setViewAs("self")}
+        className="underline underline-offset-2 hover:no-underline"
+      >
+        Exit
+      </button>
+    </div>
+  );
+}
+
+function MembersShell({ user }: { user: AuthUser }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <div className="flex flex-1 min-h-0 -m-6">
+      {/* Desktop sidebar */}
+      <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-border px-4 py-3 shrink-0">
+          {user.avatar && (
+            <img
+              src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
+              alt=""
+              className="h-7 w-7 rounded-full"
+            />
+          )}
+          <span className="truncate text-sm font-medium text-foreground">
+            {user.rsn ?? user.username}
+          </span>
+        </div>
+        <SidebarNav realRoles={user.effective_roles} />
+      </aside>
+
+      {/* Mobile sidebar trigger */}
+      <div className="fixed bottom-4 left-4 z-40 md:hidden">
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="h-10 w-10 rounded-full shadow-md">
+              {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="flex flex-col w-56 border-border bg-card pt-4 gap-0">
+            <div className="flex items-center gap-2 border-b border-border px-4 py-3 shrink-0">
+              {user.avatar && (
+                <img
+                  src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
+                  alt=""
+                  className="h-7 w-7 rounded-full"
+                />
+              )}
+              <span className="truncate text-sm font-medium text-foreground">
+                {user.rsn ?? user.username}
+              </span>
+            </div>
+            <SidebarNav onNavigate={() => setMobileOpen(false)} realRoles={user.effective_roles} />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Page content */}
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <ViewAsBanner />
+        <div className="flex-1 min-h-0 p-6 overflow-auto">
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MembersLayout() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -136,55 +234,8 @@ function MembersLayout() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-1 -m-6">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
-        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-          {user.avatar && (
-            <img
-              src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
-              alt=""
-              className="h-7 w-7 rounded-full"
-            />
-          )}
-          <span className="truncate text-sm font-medium text-foreground">
-            {user.rsn ?? user.username}
-          </span>
-        </div>
-        <SidebarNav effectiveRoles={user.effective_roles} />
-      </aside>
-
-
-      {/* Mobile sidebar trigger */}
-      <div className="fixed bottom-4 left-4 z-40 md:hidden">
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="h-10 w-10 rounded-full shadow-md">
-              {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="flex flex-col w-56 border-border bg-card pt-4 gap-0">
-            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-              {user.avatar && (
-                <img
-                  src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
-                  alt=""
-                  className="h-7 w-7 rounded-full"
-                />
-              )}
-              <span className="truncate text-sm font-medium text-foreground">
-                {user.rsn ?? user.username}
-              </span>
-            </div>
-            <SidebarNav onNavigate={() => setMobileOpen(false)} effectiveRoles={user.effective_roles} />
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Page content */}
-      <div className="flex-1 p-6 overflow-auto">
-        <Outlet />
-      </div>
-    </div>
+    <ViewAsProvider>
+      <MembersShell user={user} />
+    </ViewAsProvider>
   );
 }

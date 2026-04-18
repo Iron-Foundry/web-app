@@ -12,7 +12,7 @@ registerPage({
   id: "members.tickets",
   label: "Tickets",
   description: "Member support ticket list.",
-  defaults: { read: [], edit: [], delete: [] },
+  defaults: { read: [], create: [], edit: [], delete: [] },
 });
 
 export const membersTicketsRoute = createRoute({

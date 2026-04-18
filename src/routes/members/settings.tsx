@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
+import { Copy, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { membersLayoutRoute } from "./_layout";
 import { useAuth, API_URL, getAuthToken } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { getDisplayRank, highestRole } from "@/lib/ranks";
 
@@ -215,13 +217,168 @@ function PrivacySection() {
   );
 }
 
-function AccountSection() {
+interface ApiKeyData {
+  key: string | null;
+  is_active: boolean;
+  created_at: string | null;
+}
+
+function ApiKeySection() {
+  const { user } = useAuth();
+  const [keyData, setKeyData] = useState<ApiKeyData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [rotating, setRotating] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const [justRotated, setJustRotated] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const token = getAuthToken();
+    fetch(`${API_URL}/members/me/api-key`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => setKeyData(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [user]);
+
+  async function handleRotate() {
+    if (
+      keyData?.key &&
+      !confirm("Generate a new API key? The current key will stop working immediately.")
+    ) {
+      return;
+    }
+    setRotating(true);
+    setError(null);
+    setJustRotated(false);
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`${API_URL}/members/me/api-key/rotate`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = (await res.json()) as ApiKeyData;
+        setKeyData(data);
+        setJustRotated(true);
+        setRevealed(true);
+      } else {
+        setError("Failed to rotate key.");
+      }
+    } catch {
+      setError("Network error.");
+    } finally {
+      setRotating(false);
+    }
+  }
+
+  function handleCopy() {
+    if (!keyData?.key) return;
+    navigator.clipboard.writeText(keyData.key).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function maskKey(key: string) {
+    if (key.length <= 12) return "•".repeat(key.length);
+    return key.slice(0, 6) + "•".repeat(key.length - 12) + key.slice(-6);
+  }
+
+  if (!user) return null;
+
+  const hasKey = !!keyData?.key;
+  const createdAt = keyData?.created_at
+    ? new Date(keyData.created_at).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : null;
+
   return (
-    <div className="rounded-md border border-border bg-card p-6 space-y-3">
-      <h2 className="text-sm font-semibold text-foreground">Account</h2>
-      <p className="text-sm text-muted-foreground">
-        Additional account settings coming soon.
-      </p>
+    <div className="rounded-md border border-border bg-card p-6 space-y-4">
+      <div>
+        <h2 className="text-sm font-semibold text-foreground">API Key</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Authenticate external tools (e.g. RuneLite plugins) with this key.
+        </p>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      ) : (
+        <>
+          {hasKey && keyData?.key ? (
+            <div className="space-y-2">
+              {justRotated && (
+                <div className="rounded-md bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
+                  New key generated. Copy it now — rotate again to replace it.
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <code className="flex-1 rounded-md border border-input bg-muted px-3 py-2 text-xs font-mono text-foreground truncate">
+                  {revealed ? keyData.key : maskKey(keyData.key)}
+                </code>
+                <button
+                  onClick={() => setRevealed((v) => !v)}
+                  className="shrink-0 p-2 rounded-md border border-input hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title={revealed ? "Hide key" : "Show key"}
+                >
+                  {revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+                <button
+                  onClick={handleCopy}
+                  className="shrink-0 p-2 rounded-md border border-input hover:bg-muted text-muted-foreground hover:text-foreground"
+                  title="Copy to clipboard"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+              </div>
+              {copied && <p className="text-xs text-green-600 dark:text-green-400">Copied!</p>}
+              {createdAt && (
+                <p className="text-xs text-muted-foreground">Generated {createdAt}</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No API key yet.</p>
+          )}
+
+          {error && <p className="text-xs text-destructive">{error}</p>}
+
+          <Button
+            size="sm"
+            variant={hasKey ? "outline" : "default"}
+            onClick={handleRotate}
+            disabled={rotating}
+          >
+            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+            {rotating ? "Generating…" : hasKey ? "Rotate key" : "Generate key"}
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function AppearanceSection() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <div className="rounded-md border border-border bg-card p-6 space-y-4">
+      <h2 className="text-sm font-semibold text-foreground">Appearance</h2>
+      <div className="flex items-center justify-between">
+        <div className="space-y-0.5">
+          <p className="text-sm font-medium text-foreground">Theme</p>
+          <p className="text-xs text-muted-foreground">Switch between light and dark mode.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={toggleTheme}>
+          {theme === "dark" ? "Light mode" : "Dark mode"}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -233,8 +390,9 @@ function SettingsPage() {
     <div className="max-w-lg space-y-6">
       <h1 className="font-rs-bold text-3xl text-primary">Settings</h1>
       <ProfileSection />
+      <ApiKeySection />
       <PrivacySection />
-      <AccountSection />
+      <AppearanceSection />
     </div>
   );
 }

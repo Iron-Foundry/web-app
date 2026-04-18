@@ -7,8 +7,12 @@ import { eventsRoute } from "./events";
 import { authCallbackRoute } from "./auth-callback";
 import { loginRoute } from "./login";
 import { leaderboardsRoute } from "./leaderboards";
-import { pluginsRoute } from "./plugins";
-import { resourcesRoute } from "./resources";
+import { pluginsLayoutRoute } from "./plugins/_layout";
+import { pluginsIndexRoute } from "./plugins/index";
+import { pluginsEntryRoute } from "./plugins/$entryId";
+import { resourcesLayoutRoute } from "./resources/_layout";
+import { resourcesIndexRoute } from "./resources/index";
+import { resourcesEntryRoute } from "./resources/$entryId";
 import { membersLayoutRoute } from "./members/_layout";
 import { membersDashboardRoute } from "./members/index";
 import { membersSettingsRoute } from "./members/settings";
@@ -19,6 +23,7 @@ import { staffAllTicketsRoute } from "./members/staff/all-tickets";
 import { staffSurveysRoute } from "./members/staff/surveys";
 import { staffRankMappingsRoute } from "./members/staff/rank-mappings";
 import { staffPermissionsRoute } from "./members/staff/permissions";
+import { staffBadgesRoute } from "./members/staff/badges";
 import { membersSurveysRoute } from "./members/surveys";
 import { membersApplicationsRoute } from "./members/applications";
 import { surveyDetailRoute } from "./members/surveys.$templateId";
@@ -38,7 +43,11 @@ const membersTree = membersLayoutRoute.addChildren([
   staffSurveysRoute,
   staffRankMappingsRoute,
   staffPermissionsRoute,
+  staffBadgesRoute,
 ]);
+
+const pluginsTree = pluginsLayoutRoute.addChildren([pluginsIndexRoute, pluginsEntryRoute]);
+const resourcesTree = resourcesLayoutRoute.addChildren([resourcesIndexRoute, resourcesEntryRoute]);
 
 export const routeTree = rootRoute.addChildren([
   homeRoute,
@@ -49,7 +58,7 @@ export const routeTree = rootRoute.addChildren([
   authCallbackRoute,
   loginRoute,
   leaderboardsRoute,
-  pluginsRoute,
-  resourcesRoute,
+  pluginsTree,
+  resourcesTree,
   membersTree,
 ]);

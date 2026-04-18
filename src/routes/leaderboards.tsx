@@ -6,6 +6,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { registerPage } from "@/lib/permissions";
+
+registerPage({
+  id: "leaderboards",
+  label: "Leaderboards",
+  description: "Clan skill and activity leaderboards.",
+  defaults: { read: [], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
+});
 
 export const leaderboardsRoute = createRoute({
   getParentRoute: () => rootRoute,

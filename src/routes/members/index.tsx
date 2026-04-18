@@ -4,10 +4,22 @@ import { membersLayoutRoute } from "./_layout";
 import { useAuth, API_URL, getAuthToken } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { highestRole, getDisplayRank, hasMinRank } from "@/lib/ranks";
+import { cn } from "@/lib/utils";
 import {
   Gem, TrendingUp, Zap, ScrollText, Map, Swords,
   Heart, BookOpen, FileSearch, Skull, Timer, Flame, KeyRound,
 } from "lucide-react";
+
+const ROLE_BADGE_CLASS: Record<string, string> = {
+  "Co-owner":         "border-amber-500/60  text-amber-600  dark:text-amber-400",
+  "Deputy Owner":     "border-amber-500/60  text-amber-600  dark:text-amber-400",
+  "Senior Moderator": "border-red-400/60    text-red-600    dark:text-red-400",
+  "Moderator":        "border-orange-400/60 text-orange-600 dark:text-orange-400",
+  "Event Team":       "border-green-500/60  text-green-700  dark:text-green-400",
+  "Mentor":           "border-blue-400/60   text-blue-600   dark:text-blue-400",
+};
 
 const WIKI = "https://oldschool.runescape.wiki/images";
 
@@ -62,6 +74,15 @@ export const membersDashboardRoute = createRoute({
   path: "/",
   component: DashboardPage,
 });
+
+interface PlayerBadge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string | null;
+  color: string;
+  text_color: string;
+}
 
 interface FeedItem {
   type: string;
@@ -134,6 +155,16 @@ function DashboardPage() {
   const { user } = useAuth();
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [playerBadges, setPlayerBadges] = useState<PlayerBadge[]>([]);
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) return;
+    fetch(`${API_URL}/badges/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.ok ? r.json() as Promise<PlayerBadge[]> : Promise.resolve([]))
+      .then(setPlayerBadges)
+      .catch(() => {});
+  }, [user?.discord_user_id]);
 
   useEffect(() => {
     const token = getAuthToken();
@@ -156,30 +187,106 @@ function DashboardPage() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
       {/* ── Welcome / Account ─────────────────────────────────── */}
       <Card className="self-start">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-rs-bold text-4xl text-primary">
-            Welcome, {user.rsn ?? user.username}!
-          </CardTitle>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3">
+            {user.avatar ? (
+              <img
+                src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=64`}
+                alt=""
+                className="h-12 w-12 rounded-full shrink-0"
+              />
+            ) : (
+              <div className="h-12 w-12 rounded-full bg-muted shrink-0" />
+            )}
+            <div className="min-w-0">
+              <CardTitle className="font-rs-bold text-3xl text-primary leading-tight">
+                Welcome, {user.rsn ?? user.username}!
+              </CardTitle>
+              {(() => {
+                const top = highestRole(user.effective_roles);
+                return top && top in ROLE_BADGE_CLASS ? (
+                  <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 mt-1", ROLE_BADGE_CLASS[top])}>
+                    {top}
+                  </Badge>
+                ) : null;
+              })()}
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
-          {user.rsn ? (
-            <p className="text-muted-foreground">
-              RSN: <span className="text-foreground">{user.rsn}</span>
-              {user.clan_rank && (
-                <span className="ml-3 text-muted-foreground">
-                  Rank: <span className="text-foreground">{user.clan_rank}</span>
-                </span>
-              )}
-            </p>
-          ) : (
+
+        <CardContent className="space-y-4">
+          {!user.rsn && (
             <p className="text-sm text-yellow-600 dark:text-yellow-400">
               Link your RSN in{" "}
-              <Link to="/members/settings" className="underline font-medium">
-                Settings
-              </Link>{" "}
+              <Link to="/members/settings" className="underline font-medium">Settings</Link>{" "}
               to unlock your activity feed, stats, and full member features.
             </p>
           )}
+
+          {/* Profile details */}
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Discord</span>
+              <span className="text-foreground">{user.username}</span>
+            </div>
+            {user.rsn && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">RSN</span>
+                <span className="text-foreground">{user.rsn}</span>
+              </div>
+            )}
+            {user.clan_rank && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">In-game rank</span>
+                <span className="text-foreground">{user.clan_rank}</span>
+              </div>
+            )}
+            {user.clan_rank && getDisplayRank(user.clan_rank) !== user.clan_rank && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Community rank</span>
+                <span className="text-foreground">{getDisplayRank(user.clan_rank)}</span>
+              </div>
+            )}
+            {hasMinRank(user.effective_roles, "Mentor") && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Staff role</span>
+                <span className="text-foreground">{highestRole(user.effective_roles)}</span>
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Player badges */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">Badges</p>
+            {playerBadges.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">No badges earned yet.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {playerBadges.map((b) => {
+                  const isSvg = b.icon?.trimStart().startsWith("<");
+                  return (
+                    <span
+                      key={b.id}
+                      title={b.description}
+                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                      style={{ background: b.color, color: b.text_color }}
+                    >
+                      {b.icon && (
+                        isSvg ? (
+                          <span className="h-3.5 w-3.5 shrink-0" dangerouslySetInnerHTML={{ __html: b.icon }} style={{ color: b.text_color }} />
+                        ) : (
+                          <img src={b.icon} alt="" className="h-3.5 w-3.5 shrink-0 object-contain" />
+                        )
+                      )}
+                      {b.name}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 

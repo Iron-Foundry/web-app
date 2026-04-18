@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { hasMinRank } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -223,7 +224,8 @@ export function SurveyDetailPage({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [localSubmission, setLocalSubmission] = useState<Record<string, unknown> | null>(null);
 
-  const isStaff = user ? hasMinRank(user.effective_roles, "Mentor") : false;
+  const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
+  const isStaff = hasMinRank(effectiveRoles, "Mentor");
   const listPath = category === "survey" ? "/members/surveys" : "/members/applications";
   const listLabel = category === "survey" ? "Surveys" : "Applications";
 

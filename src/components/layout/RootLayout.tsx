@@ -4,10 +4,10 @@ import { SubNav } from "./SubNav";
 
 export function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
       <TopNav />
       <SubNav />
-      <main className="flex flex-col flex-1 p-6">{children}</main>
+      <main className="flex flex-col flex-1 min-h-0 overflow-auto p-6">{children}</main>
     </div>
   );
 }

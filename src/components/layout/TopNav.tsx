@@ -1,11 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavLinks } from "./NavLinks";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { highestRole } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
+
+const ROLE_BADGE_CLASS: Record<string, string> = {
+  "Co-owner":         "border-amber-500/60   text-amber-600   dark:text-amber-400",
+  "Deputy Owner":     "border-amber-500/60   text-amber-600   dark:text-amber-400",
+  "Senior Moderator": "border-red-400/60     text-red-600     dark:text-red-400",
+  "Moderator":        "border-orange-400/60  text-orange-600  dark:text-orange-400",
+  "Event Team":       "border-green-500/60   text-green-700   dark:text-green-400",
+  "Mentor":           "border-blue-400/60    text-blue-600    dark:text-blue-400",
+};
+
+function RoleBadge({ roles }: { roles: string[] }) {
+  const top = highestRole(roles);
+  if (!top || !(top in ROLE_BADGE_CLASS)) return null;
+  return (
+    <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", ROLE_BADGE_CLASS[top])}>
+      {top}
+    </Badge>
+  );
+}
 
 export function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -61,7 +82,13 @@ export function TopNav() {
                   className="h-7 w-7 rounded-full"
                 />
               )}
-              <span className="text-sm text-foreground">{user.rsn ?? user.username}</span>
+              <div className="flex flex-col items-start leading-none gap-0.5">
+                <span className="text-sm text-foreground">{user.rsn ?? user.username}</span>
+                <RoleBadge roles={user.effective_roles} />
+              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate({ to: "/members/settings" })}>
+                <Settings className="h-4 w-4" />
+              </Button>
               <Button variant="ghost" size="sm" onClick={logout}>
                 Logout
               </Button>
