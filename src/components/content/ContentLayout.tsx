@@ -462,15 +462,13 @@ function CategoryNode({
   return (
     <div className="mb-1">
       <div
-        className="relative flex items-center py-1 pr-1 text-sm hover:bg-muted/50 rounded-sm group"
+        className="relative flex items-center py-1 pr-1 text-sm hover:bg-muted/50 rounded-sm group cursor-pointer select-none"
         style={{ paddingLeft: `${paddingLeft}px` }}
+        onClick={() => setOpen(!open)}
       >
-        <button
-          onClick={() => setOpen(!open)}
-          className="shrink-0 p-0.5 text-muted-foreground/60 hover:text-muted-foreground"
-        >
+        <span className="shrink-0 p-0.5 text-muted-foreground/60">
           {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-        </button>
+        </span>
         <span className={cn(
           "flex-1 truncate font-medium uppercase tracking-wide min-w-0",
           level === 0
@@ -484,7 +482,7 @@ function CategoryNode({
             {canEdit && (
               <>
                 <button
-                  onClick={() => handleMove("up")}
+                  onClick={(e) => { e.stopPropagation(); handleMove("up"); }}
                   disabled={reordering || siblingIndex === 0}
                   className="p-0.5 text-primary/50 hover:text-primary disabled:opacity-0"
                   title="Move up"
@@ -492,7 +490,7 @@ function CategoryNode({
                   <ArrowUp className="h-3 w-3" />
                 </button>
                 <button
-                  onClick={() => handleMove("down")}
+                  onClick={(e) => { e.stopPropagation(); handleMove("down"); }}
                   disabled={reordering || siblingIndex === siblings.length - 1}
                   className="p-0.5 text-primary/50 hover:text-primary disabled:opacity-0"
                   title="Move down"
@@ -500,7 +498,7 @@ function CategoryNode({
                   <ArrowDown className="h-3 w-3" />
                 </button>
                 <button
-                  onClick={() => setEditDialogOpen(true)}
+                  onClick={(e) => { e.stopPropagation(); setEditDialogOpen(true); }}
                   className="p-0.5 text-primary/50 hover:text-primary"
                   title="Edit category"
                 >
@@ -510,7 +508,7 @@ function CategoryNode({
             )}
             {canDelete && (
               <button
-                onClick={handleDelete}
+                onClick={(e) => { e.stopPropagation(); handleDelete(); }}
                 disabled={deleting}
                 className="p-0.5 text-primary/50 hover:text-destructive"
                 title="Delete category"

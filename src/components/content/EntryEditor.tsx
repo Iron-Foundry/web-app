@@ -16,6 +16,7 @@ interface EntryEditorProps {
   onSave: (body: string) => void;
   onCancel: () => void;
   saving: boolean;
+  onBodyChange?: (body: string) => void;
 }
 
 const tabTrigger = cn(
@@ -24,7 +25,7 @@ const tabTrigger = cn(
   "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
 );
 
-export function EntryEditor({ initialBody, onSave, onCancel, saving }: EntryEditorProps) {
+export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChange }: EntryEditorProps) {
   const [body, setBody] = useState(initialBody);
   const [assetPickerOpen, setAssetPickerOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -50,6 +51,7 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving }: EntryEdit
     const after = body.slice(end);
     const newBody = before + text + after;
     setBody(newBody);
+    onBodyChange?.(newBody);
     // Restore cursor after insertion
     requestAnimationFrame(() => {
       el.focus();
@@ -84,7 +86,7 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving }: EntryEdit
           ref={textareaRef}
           className="flex-1 min-h-[400px] resize-none rounded-md border border-input bg-background p-3 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-ring"
           value={body}
-          onChange={(e) => setBody(e.target.value)}
+          onChange={(e) => { setBody(e.target.value); onBodyChange?.(e.target.value); }}
           placeholder="Write markdown here…"
           spellCheck={false}
         />

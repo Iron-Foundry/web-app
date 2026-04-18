@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { History, Pencil, Trash2 } from "lucide-react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
@@ -73,6 +73,11 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Optimistic concurrency
+  const [loadedUpdatedAt, setLoadedUpdatedAt] = useState<string | null>(null);
+  const [conflictDetected, setConflictDetected] = useState(false);
+  const latestBodyRef = useRef<string>("");
+
   // entryId (UUID) obtained after fetching by slug — used for PUT/DELETE
   const [entryId, setEntryId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -93,7 +98,9 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         setEditTitle(data.title);
         setEditSlug(data.slug);
         setSlugEdited(false);
-        if (!data.body && canEdit) setEditMode(true);
+        setLoadedUpdatedAt(data.updated_at);
+        setConflictDetected(false);
+        if (!data.body && canEdit) { latestBodyRef.current = data.body; setEditMode(true); }
       })
       .catch((e: Error) => {
         if (e.name !== "AbortError") setError(e.message);
@@ -104,17 +111,21 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, pageType]);
 
-  async function handleSave(newBody: string) {
+  async function handleSave(newBody: string, skipConflictCheck = false) {
     if (!entry || !entryId) return;
     setSaving(true);
     setSaveError(null);
+    setConflictDetected(false);
     const token = getAuthToken();
     try {
-      const payload: Record<string, string> = { body: newBody };
+      const payload: Record<string, string | null> = { body: newBody };
       const trimmedTitle = editTitle.trim();
       if (trimmedTitle && trimmedTitle !== entry.title) payload.title = trimmedTitle;
       const trimmedSlug = editSlug.trim();
       if (trimmedSlug && trimmedSlug !== entry.slug) payload.slug = trimmedSlug;
+      if (!skipConflictCheck) {
+        payload.expected_updated_at = loadedUpdatedAt;
+      }
 
       const res = await fetch(`${API_URL}/content/${pageType}/entries/${entryId}`, {
         method: "PUT",
@@ -126,10 +137,14 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        if (res.status === 409 && data.detail === "edit_conflict") {
+          setConflictDetected(true);
+          return;
+        }
         setSaveError(data.detail ?? "Failed to save.");
         return;
       }
-      const saved = await res.json() as { slug: string };
+      const saved = await res.json() as { slug: string; updated_at: string | null };
       // Bust both old and new slug caches (slug may have changed)
       cacheInvalidate(`content:entry:${pageType}:`);
       setEditMode(false);
@@ -146,6 +161,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         setEditTitle(updated.title);
         setEditSlug(updated.slug);
         setSlugEdited(false);
+        setLoadedUpdatedAt(updated.updated_at);
       }
     } catch {
       setSaveError("Network error.");
@@ -198,6 +214,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
                 setEditTitle(entry.title);
                 setEditSlug(entry.slug);
                 setSlugEdited(false);
+                latestBodyRef.current = entry.body;
                 setEditMode(true);
               }}>
                 <Pencil className="h-3.5 w-3.5 mr-1.5" />
@@ -246,11 +263,40 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
               />
             </div>
           </div>
+          {conflictDetected && (
+            <div className="flex items-start gap-3 rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm">
+              <span className="flex-1 text-foreground">
+                <span className="font-semibold text-destructive">Edit conflict — </span>
+                this entry was modified by someone else while you were editing.
+              </span>
+              <div className="flex gap-2 shrink-0">
+                <Button size="sm" variant="outline" className="h-7 text-xs"
+                  onClick={() => handleSave(latestBodyRef.current, true)} disabled={saving}>
+                  Save anyway
+                </Button>
+                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground"
+                  onClick={async () => {
+                    setConflictDetected(false); setSaveError(null); setEditMode(false);
+                    cacheInvalidate(`content:entry:${pageType}:`);
+                    const fresh = await fetchCached<EntryDetail>(
+                      `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
+                      { cacheKey: `content:entry:${pageType}:${slug}` },
+                    );
+                    setEntry(fresh); setEditTitle(fresh.title); setEditSlug(fresh.slug);
+                    setSlugEdited(false); setLoadedUpdatedAt(fresh.updated_at);
+                  }}
+                  disabled={saving}>
+                  Discard my changes
+                </Button>
+              </div>
+            </div>
+          )}
           <EntryEditor
             initialBody={entry.body}
             onSave={handleSave}
-            onCancel={() => setEditMode(false)}
+            onCancel={() => { setEditMode(false); setConflictDetected(false); }}
             saving={saving}
+            onBodyChange={(b) => { latestBodyRef.current = b; }}
           />
         </div>
       ) : (
