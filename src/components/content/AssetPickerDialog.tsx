@@ -119,7 +119,7 @@ export function AssetPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Asset Library</DialogTitle>
         </DialogHeader>
@@ -168,14 +168,22 @@ export function AssetPickerDialog({
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 p-1">
               {filtered.map((asset) => (
-                <button
+                <div
                   key={asset.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => {
                     onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""));
                     onClose();
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""));
+                      onClose();
+                    }
+                  }}
                   className={cn(
-                    "group relative rounded-md border border-border bg-muted/30 overflow-hidden text-left",
+                    "group relative rounded-md border border-border bg-muted/30 overflow-hidden text-left cursor-pointer",
                     "hover:border-primary hover:bg-muted transition-colors",
                   )}
                 >
@@ -210,7 +218,7 @@ export function AssetPickerDialog({
                       <Trash2 className="h-3 w-3" />
                     </button>
                   )}
-                </button>
+                </div>
               ))}
             </div>
           )}
