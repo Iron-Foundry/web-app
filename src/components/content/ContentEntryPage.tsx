@@ -387,15 +387,16 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
           entryId={entryId}
           onRestored={async () => {
             cacheInvalidate(`content:entry:${pageType}:`);
-            setHistoryOpen(false);
             const updated = await fetchCached<EntryDetail>(
               `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
               { cacheKey: `content:entry:${pageType}:${slug}` },
             );
             setEntry(updated);
+            setEntryId(updated.id);
             setEditTitle(updated.title);
             setEditSlug(updated.slug);
             setSlugEdited(false);
+            setLoadedUpdatedAt(updated.updated_at);
           }}
         />
       )}
