@@ -201,13 +201,13 @@ function KcTab({ bosses, loading }: { bosses: KcBoss[]; loading: boolean }) {
 function LeaguesTab({ entries, loading }: { entries: LeaguesEntry[]; loading: boolean }) {
   if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (entries.length === 0)
-    return <p className="text-sm text-muted-foreground">No leagues data yet.</p>;
+    return <p className="text-sm text-muted-foreground">No cluescroll data yet.</p>;
 
   return (
     <Card>
       <CardContent className="pt-4">
         <div className="w-full text-sm">
-          <RankHeader valueLabel="Points" />
+          <RankHeader valueLabel="Clues" />
           {entries.map((entry, i) => (
             <RankRow
               key={entry.player_name}
@@ -324,9 +324,9 @@ function LeaderboardsPage() {
           onValueChange={(v) => { if (v) setTab(v as Tab); }}
         >
           <ToggleGroupItem value="pb">Personal Bests</ToggleGroupItem>
-          <ToggleGroupItem value="clog">Collection Log</ToggleGroupItem>
+          <ToggleGroupItem value="clog">Collection Logs</ToggleGroupItem>
           <ToggleGroupItem value="kc">Killcounts</ToggleGroupItem>
-          <ToggleGroupItem value="leagues">Leagues</ToggleGroupItem>
+          <ToggleGroupItem value="leagues">Cluescrolls</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
