@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ImageIcon, Trash2, Upload } from "lucide-react";
+import { Film, ImageIcon, Trash2, Upload } from "lucide-react";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -26,8 +26,8 @@ function formatBytes(n: number): string {
 interface AssetPickerDialogProps {
   open: boolean;
   onClose: () => void;
-  /** Called when user selects an asset. Provides full URL and suggested alt text. */
-  onSelect: (url: string, alt: string) => void;
+  /** Called when user selects an asset. Provides full URL, suggested alt text, and content type. */
+  onSelect: (url: string, alt: string, contentType: string) => void;
   /** Whether the current user can upload (Mentor+). */
   canUpload: boolean;
   /** Whether the current user can delete others' assets (Senior Mod+). */
@@ -116,6 +116,7 @@ export function AssetPickerDialog({
     : assets;
 
   const isImage = (a: Asset) => a.content_type.startsWith("image/");
+  const isVideo = (a: Asset) => a.content_type.startsWith("video/");
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -146,7 +147,7 @@ export function AssetPickerDialog({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,image/avif"
+                accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,image/avif,video/mp4,video/webm,video/ogg"
                 className="hidden"
                 onChange={handleUpload}
               />
@@ -173,12 +174,12 @@ export function AssetPickerDialog({
                   role="button"
                   tabIndex={0}
                   onClick={() => {
-                    onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""));
+                    onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""), asset.content_type);
                     onClose();
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                      onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""));
+                      onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""), asset.content_type);
                       onClose();
                     }
                   }}
@@ -195,6 +196,8 @@ export function AssetPickerDialog({
                         alt={asset.original_name}
                         className="max-h-24 max-w-full object-contain"
                       />
+                    ) : isVideo(asset) ? (
+                      <Film className="h-8 w-8 text-muted-foreground/40" />
                     ) : (
                       <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
                     )}

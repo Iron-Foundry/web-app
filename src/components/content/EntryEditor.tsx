@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 import { Tabs } from "radix-ui";
-import { HelpCircle, ImageIcon } from "lucide-react";
+import { HelpCircle, ImageIcon, Video } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useContentContext } from "./ContentLayout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { MarkdownCheatsheet } from "./MarkdownCheatsheet";
@@ -25,9 +26,24 @@ const tabTrigger = cn(
   "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
 );
 
+function extractYouTubeId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1).split("?")[0];
+    if (u.hostname === "youtube.com" || u.hostname === "www.youtube.com") {
+      if (u.pathname === "/watch") return u.searchParams.get("v");
+      const m = u.pathname.match(/\/embed\/([^/?]+)/);
+      if (m) return m[1];
+    }
+  } catch {}
+  return null;
+}
+
 export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChange }: EntryEditorProps) {
   const [body, setBody] = useState(initialBody);
   const [assetPickerOpen, setAssetPickerOpen] = useState(false);
+  const [embedUrlOpen, setEmbedUrlOpen] = useState(false);
+  const [embedUrlValue, setEmbedUrlValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { user } = useAuth();
@@ -59,8 +75,27 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
     });
   }
 
-  function handleAssetSelect(url: string, alt: string) {
-    insertAtCursor(`![${alt}](${url})`);
+  function handleAssetSelect(url: string, alt: string, contentType: string) {
+    if (contentType.startsWith("video/")) {
+      insertAtCursor(`\n<video src="${url}" controls></video>\n`);
+    } else {
+      insertAtCursor(`![${alt}](${url})`);
+    }
+  }
+
+  function handleEmbedUrl() {
+    const url = embedUrlValue.trim();
+    if (!url) return;
+    const ytId = extractYouTubeId(url);
+    if (ytId) {
+      insertAtCursor(
+        `\n<iframe src="https://www.youtube-nocookie.com/embed/${ytId}" width="560" height="315" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>\n`,
+      );
+    } else {
+      insertAtCursor(`[Watch](${url})`);
+    }
+    setEmbedUrlValue("");
+    setEmbedUrlOpen(false);
   }
 
   return (
@@ -68,18 +103,49 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
       {/* Left: editor */}
       <div className="flex flex-col flex-1 min-h-0 gap-1">
         {/* Toolbar */}
-        <div className="flex items-center gap-1 shrink-0">
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-7 px-2 text-xs"
-            onClick={() => setAssetPickerOpen(true)}
-            title="Insert image"
-            type="button"
-          >
-            <ImageIcon className="h-3.5 w-3.5 mr-1" />
-            Internal Assets
-          </Button>
+        <div className="flex flex-col gap-1 shrink-0">
+          <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 px-2 text-xs"
+              onClick={() => setAssetPickerOpen(true)}
+              title="Insert image or video asset"
+              type="button"
+            >
+              <ImageIcon className="h-3.5 w-3.5 mr-1" />
+              Internal Assets
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 px-2 text-xs"
+              onClick={() => setEmbedUrlOpen((v) => !v)}
+              title="Embed YouTube or video URL"
+              type="button"
+            >
+              <Video className="h-3.5 w-3.5 mr-1" />
+              Embed Video
+            </Button>
+          </div>
+          {embedUrlOpen && (
+            <div className="flex items-center gap-1">
+              <Input
+                className="h-7 text-xs"
+                placeholder="YouTube or video URL…"
+                value={embedUrlValue}
+                onChange={(e) => setEmbedUrlValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleEmbedUrl();
+                  if (e.key === "Escape") { setEmbedUrlOpen(false); setEmbedUrlValue(""); }
+                }}
+                autoFocus
+              />
+              <Button size="sm" className="h-7 text-xs shrink-0" onClick={handleEmbedUrl} type="button">
+                Embed
+              </Button>
+            </div>
+          )}
         </div>
 
         <textarea
