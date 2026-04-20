@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-
 interface Example {
   label: string;
   syntax: string;
@@ -147,8 +145,6 @@ const SECTIONS: Section[] = [
   },
 ];
 
-// ── Example card ──────────────────────────────────────────────────────────────
-
 function ExampleCard({ example }: { example: Example }) {
   const [copied, setCopied] = useState(false);
 
@@ -163,12 +159,10 @@ function ExampleCard({ example }: { example: Example }) {
     <div className="space-y-2">
       <p className="text-xs text-muted-foreground/70">{example.label}</p>
 
-      {/* Rendered output */}
       <div className="rounded-md border border-border/60 bg-background px-3 py-2 text-sm min-h-[2rem]">
         <MarkdownRenderer body={example.syntax} />
       </div>
 
-      {/* Raw syntax */}
       <div className="relative group">
         <pre className="rounded-md bg-muted px-3 py-2 text-xs font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap break-all">
           {example.syntax}
@@ -184,8 +178,6 @@ function ExampleCard({ example }: { example: Example }) {
     </div>
   );
 }
-
-// ── Cheatsheet ────────────────────────────────────────────────────────────────
 
 export function MarkdownCheatsheet() {
   return (

@@ -15,9 +15,9 @@ export interface AuthUser {
   username: string;
   avatar: string | null;
   rsn: string | null;
-  clan_rank: string | null;      // raw in-game OSRS rank name
-  discord_roles: string[];       // raw Discord role names
-  effective_roles: string[];     // discord_roles + rank-mapped roles (use for permission checks)
+  clan_rank: string | null;
+  discord_roles: string[];
+  effective_roles: string[];
   stats_opt_out: boolean;
   hide_presence_notifications: boolean;
 }
@@ -44,7 +44,6 @@ export function getAuthToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
-// Returns user on success, null if token is explicitly rejected (401), throws on network/server errors.
 async function fetchMe(token: string): Promise<AuthUser | null> {
   const r = await fetch(`${API_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -66,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Absorb token from URL param (OAuth2 callback)
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
     if (urlToken) {
@@ -89,12 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data) {
           setUser(data);
         } else {
-          // Explicit 401 — token is invalid
           localStorage.removeItem(TOKEN_KEY);
         }
       })
       .catch(() => {
-        // Network/server error — keep token, user just appears logged out until next load
       })
       .finally(() => setLoading(false));
   }, []);
@@ -116,12 +112,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data) {
         setUser(data);
       } else {
-        // Explicit 401 — token is invalid
         localStorage.removeItem(TOKEN_KEY);
         setUser(null);
       }
     } catch {
-      // Network/server error — leave existing state unchanged
     }
   }, []);
 

@@ -17,7 +17,6 @@ export function LinkRsnModal() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Show only when logged in with no RSN linked
   const open = !!user && !user.rsn;
 
   async function handleSubmit() {
@@ -36,7 +35,7 @@ export function LinkRsnModal() {
         body: JSON.stringify({ rsn: trimmed }),
       });
       if (res.ok) {
-        await refresh(); // user.rsn will be set → open becomes false
+        await refresh();
       } else {
         const data = (await res.json().catch(() => ({}))) as { detail?: string };
         setError(data.detail ?? "Failed to link RSN. Please try again.");

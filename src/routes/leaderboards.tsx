@@ -22,13 +22,11 @@ export const leaderboardsRoute = createRoute({
   component: LeaderboardsPage,
 });
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
 interface PbEntry {
   player_name: string;
   activity: string;
   variant: string;
-  time_seconds: number; // float seconds e.g. 83.45
+  time_seconds: number;
 }
 
 interface ClogEntry {
@@ -54,8 +52,6 @@ interface LeaguesEntry {
 }
 
 type Tab = "pb" | "clog" | "kc" | "leagues";
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTime(s: number): string {
   const h = Math.floor(s / 3600);
@@ -85,8 +81,6 @@ function groupPbs(entries: PbEntry[]): Grouped {
   }
   return out;
 }
-
-// ── Sub-components ───────────────────────────────────────────────────────────
 
 function RankRow({ rank, name, value }: { rank: number; name: string; value: React.ReactNode }) {
   return (
@@ -258,8 +252,6 @@ function ClogTab({ entries, loading }: { entries: ClogEntry[]; loading: boolean 
     </Card>
   );
 }
-
-// ── Page ─────────────────────────────────────────────────────────────────────
 
 function LeaderboardsPage() {
   const { user, loading } = useAuth();

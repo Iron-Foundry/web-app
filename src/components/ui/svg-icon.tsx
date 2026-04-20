@@ -48,7 +48,6 @@ export function SvgIcon({
       )}
       aria-label={ariaLabel}
       aria-hidden={ariaHidden ?? !ariaLabel}
-      // Only used with trusted internal SVG assets
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: markup }}
     />

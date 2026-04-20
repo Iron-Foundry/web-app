@@ -13,7 +13,7 @@ export const membersSettingsRoute = createRoute({
   component: SettingsPage,
 });
 
-// ── shared fetch helper ────────────────────────────────────────────────────
+
 
 async function authedPatch(path: string, body: unknown): Promise<Response> {
   const token = getAuthToken();
@@ -27,7 +27,7 @@ async function authedPatch(path: string, body: unknown): Promise<Response> {
   });
 }
 
-// ── sub-sections ───────────────────────────────────────────────────────────
+
 
 function ProfileSection() {
   const { user, refresh } = useAuth();
@@ -383,7 +383,7 @@ function AppearanceSection() {
   );
 }
 
-// ── page ───────────────────────────────────────────────────────────────────
+
 
 function SettingsPage() {
   return (

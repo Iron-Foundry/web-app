@@ -2,8 +2,6 @@ import type { ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { DISCORD_ROLE_ORDER } from "@/lib/ranks";
 
-// ── Page permission registry ──────────────────────────────────────────────────
-
 export type PermAction = "read" | "create" | "edit" | "delete";
 
 export interface PagePermissionConfig {

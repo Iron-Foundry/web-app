@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+
 
 interface Field {
   id: string;
@@ -42,14 +42,14 @@ interface TemplateDetail {
   user_submission: Record<string, unknown> | null;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 function authHeaders(): Record<string, string> {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// ── Field renderers ───────────────────────────────────────────────────────────
+
 
 function ReadOnlyField({ field, value }: { field: Field; value: unknown }) {
   const display = (() => {
@@ -205,7 +205,7 @@ function EditableField({
   return null;
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+
 
 export function SurveyDetailPage({
   category,
@@ -305,8 +305,6 @@ export function SurveyDetailPage({
       setSubmitting(false);
     }
   }
-
-  // ── Render states ───────────────────────────────────────────────────────────
 
   if (loading) {
     return (

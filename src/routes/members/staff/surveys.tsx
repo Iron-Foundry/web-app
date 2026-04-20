@@ -27,8 +27,6 @@ export const staffSurveysRoute = createRoute({
   component: StaffSurveysPage,
 });
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 interface Field {
   id: string;
   label: string;
@@ -57,8 +55,6 @@ const VISIBILITY_OPTIONS = [
   { value: "Senior Moderator", label: "Senior Mod" },
 ] as const;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function authHeaders(): Record<string, string> {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -78,8 +74,6 @@ function formatAnswer(val: unknown): string {
   if (Array.isArray(val)) return (val as string[]).join(", ");
   return String(val);
 }
-
-// ── ResponseCard ──────────────────────────────────────────────────────────────
 
 function ResponseCard({ resp, fields }: { resp: ResponseEntry; fields: Field[] }) {
   const [open, setOpen] = useState(false);
@@ -142,8 +136,6 @@ function ResponseCard({ resp, fields }: { resp: ResponseEntry; fields: Field[] }
   );
 }
 
-// ── TemplateCard ──────────────────────────────────────────────────────────────
-
 function TemplateCard({
   entry,
   isSeniorStaff,
@@ -165,7 +157,6 @@ function TemplateCard({
   const [saving, setSaving] = useState(false);
   const [togglingOpen, setTogglingOpen] = useState(false);
 
-  // Lazy-fetch responses + fields on first expand
   useEffect(() => {
     if (!expanded || responses !== null) return;
     setLoadingResponses(true);
@@ -216,7 +207,6 @@ function TemplateCard({
     onOpenChange(entry.template_id, next);
   }
 
-  // Ranks present in responses, ordered by DISCORD_ROLE_ORDER
   const presentRanks = responses
     ? (DISCORD_ROLE_ORDER as readonly string[]).filter((rank) =>
         responses.some((r) => highestRole(r.discord_roles) === rank)
@@ -267,7 +257,6 @@ function TemplateCard({
           <p className="text-sm text-muted-foreground">{entry.description}</p>
         )}
 
-        {/* Controls row */}
         <div className="flex items-center gap-4 flex-wrap">
           {isSeniorStaff && (
             <Button
@@ -320,7 +309,6 @@ function TemplateCard({
           </span>
         </div>
 
-        {/* Expand toggle */}
         <Button
           variant="ghost"
           size="sm"
@@ -335,7 +323,6 @@ function TemplateCard({
           {expanded ? "Hide responses" : "View responses"}
         </Button>
 
-        {/* Responses section */}
         {expanded && (
           <div className="space-y-3 pt-1">
             <Separator />
@@ -346,7 +333,6 @@ function TemplateCard({
 
             {!loadingResponses && responses !== null && (
               <>
-                {/* Rank filter */}
                 {presentRanks.length > 0 && (
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs text-muted-foreground shrink-0">
@@ -400,8 +386,6 @@ function TemplateCard({
     </Card>
   );
 }
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 function StaffSurveysPage() {
   const { user } = useAuth();
@@ -496,7 +480,6 @@ function StaffSurveysPage() {
 
       <Separator />
 
-      {/* Category tabs */}
       <div className="flex gap-1">
         {TABS.map(({ value, label }) => (
           <button

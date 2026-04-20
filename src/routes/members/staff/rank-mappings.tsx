@@ -14,21 +14,15 @@ export const staffRankMappingsRoute = createRoute({
   component: () => <StaffGuard minRank="Senior Moderator"><RankMappingsPage /></StaffGuard>,
 });
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 interface RankMapping {
   clan_rank: string;
   discord_role: string;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function authHeaders(): Record<string, string> {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 function RankMappingsPage() {
   const [mappings, setMappings] = useState<RankMapping[]>([]);
@@ -89,7 +83,6 @@ function RankMappingsPage() {
     }
   }
 
-  // Group by discord_role for display — but edit as a flat list
   const byRole = mappings.reduce<Record<string, string[]>>((acc, m) => {
     if (m.discord_role) {
       (acc[m.discord_role] ??= []).push(m.clan_rank);
@@ -113,7 +106,6 @@ function RankMappingsPage() {
 
       {!loading && (
         <div className="space-y-4">
-          {/* Column headers */}
           {mappings.length > 0 && (
             <div className="grid grid-cols-[1fr_1fr_2rem] gap-3 px-1">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -125,7 +117,6 @@ function RankMappingsPage() {
             </div>
           )}
 
-          {/* Mapping rows */}
           <div className="space-y-2">
             {mappings.map((m, i) => (
               <div key={i} className="grid grid-cols-[1fr_1fr_2rem] gap-3 items-center">
@@ -169,7 +160,6 @@ function RankMappingsPage() {
 
           <Separator />
 
-          {/* Preview grouped by Discord role */}
           {Object.keys(byRole).length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">

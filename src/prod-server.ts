@@ -65,7 +65,6 @@ function buildOgTags(pathname: string): string {
   ].join("\n    ");
 }
 
-// Inject API_URL at startup (same for all requests)
 const rawHtml = await Bun.file(join(DIST, "index.html")).text();
 const baseHtml = rawHtml.replace(
   "<head>",
@@ -77,12 +76,9 @@ serve({
   async fetch(req) {
     const { pathname } = new URL(req.url);
 
-    // Serve static assets (JS, CSS, images, etc.)
     if (pathname !== "/" && pathname.includes(".")) {
       const file = Bun.file(join(DIST, pathname));
       if (await file.exists()) {
-        // Bun's bundler emits content-hashed JS/CSS chunks — safe to cache for 1 year.
-        // Other assets (images, fonts) get 1 day. HTML is handled below with no-cache.
         const ext = pathname.split(".").pop()?.toLowerCase() ?? "";
         const cacheControl =
           ext === "js" || ext === "css"
@@ -92,7 +88,6 @@ serve({
       }
     }
 
-    // Inject per-route OG meta, replacing the existing <title> tag
     const html = baseHtml.replace(/<title>[^<]*<\/title>/, buildOgTags(pathname));
     return new Response(html, {
       headers: {

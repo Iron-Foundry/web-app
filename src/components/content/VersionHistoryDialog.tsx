@@ -65,7 +65,6 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
       const detail = await r.json() as VersionDetail;
       setSelected(detail);
     } catch {
-      // ignore
     } finally {
       setLoadingBody(false);
     }
@@ -86,7 +85,6 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
       onRestored();
       onOpenChange(false);
     } catch {
-      // ignore
     } finally {
       setReverting(false);
     }
@@ -103,7 +101,6 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
         </DialogHeader>
 
         <div className="flex flex-1 min-h-0">
-          {/* Left panel — version list */}
           <div className="w-52 shrink-0 border-r border-border overflow-y-auto">
             {loading && (
               <p className="text-xs text-muted-foreground p-3">Loading…</p>
@@ -136,7 +133,6 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
             ))}
           </div>
 
-          {/* Right panel — preview */}
           <div className="flex-1 overflow-auto p-4">
             {!selected && !loadingBody && (
               <p className="text-sm text-muted-foreground italic">Select a version to preview.</p>
@@ -150,7 +146,6 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
           </div>
         </div>
 
-        {/* Footer */}
         <div className="px-4 py-3 border-t border-border shrink-0 flex justify-end">
           <Button
             size="sm"

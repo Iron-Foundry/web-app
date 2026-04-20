@@ -23,7 +23,7 @@ export const staffAllTicketsRoute = createRoute({
   component: () => <StaffGuard minRank="Moderator"><StaffAllTicketsPage /></StaffGuard>,
 });
 
-// ── Types ─────────────────────────────────────────────────────────────────
+
 
 interface TicketSummary {
   ticket_id: number;
@@ -57,7 +57,7 @@ interface Transcript {
   staff_note: string | null;
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+
 
 function fmtType(t: string) {
   return t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -81,7 +81,7 @@ const STATUS_BADGE: Record<string, string> = {
   archived: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
 };
 
-// ── Sub-components ─────────────────────────────────────────────────────────
+
 
 function TranscriptView({ transcript }: { transcript: Transcript | null }) {
   if (!transcript) {
@@ -218,7 +218,7 @@ function StaffTicketCard({ ticket }: { ticket: TicketSummary }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────
+
 
 function StaffAllTicketsPage() {
   const [tickets, setTickets] = useState<TicketSummary[]>([]);

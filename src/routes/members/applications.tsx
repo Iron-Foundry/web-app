@@ -21,7 +21,7 @@ export const membersApplicationsRoute = createRoute({
   component: ApplicationsPage,
 });
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+
 
 interface ApplicationEntry {
   template_id: string;
@@ -32,14 +32,14 @@ interface ApplicationEntry {
   user_submitted: boolean;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 function authHeaders(): Record<string, string> {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// ── ApplicationCard ───────────────────────────────────────────────────────────
+
 
 function ApplicationCard({ entry }: { entry: ApplicationEntry }) {
   const isOpen = entry.is_open;
@@ -97,7 +97,7 @@ function ApplicationCard({ entry }: { entry: ApplicationEntry }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+
 
 function ApplicationsPage() {
   const [entries, setEntries] = useState<ApplicationEntry[]>([]);

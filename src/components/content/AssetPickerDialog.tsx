@@ -59,7 +59,6 @@ export function AssetPickerDialog({
       const res = await fetch(`${API_URL}/assets`, { headers: authHeaders() });
       if (res.ok) setAssets(await res.json());
     } catch {
-      // best effort
     } finally {
       setLoading(false);
     }
@@ -188,7 +187,6 @@ export function AssetPickerDialog({
                     "hover:border-primary hover:bg-muted transition-colors",
                   )}
                 >
-                  {/* Thumbnail */}
                   <div className="flex items-center justify-center h-24 bg-muted/50">
                     {isImage(asset) ? (
                       <img
@@ -203,7 +201,6 @@ export function AssetPickerDialog({
                     )}
                   </div>
 
-                  {/* Label */}
                   <div className="px-2 py-1.5">
                     <p className="text-xs font-medium truncate text-foreground">
                       {asset.original_name}
@@ -211,7 +208,6 @@ export function AssetPickerDialog({
                     <p className="text-[10px] text-muted-foreground">{formatBytes(asset.size_bytes)}</p>
                   </div>
 
-                  {/* Delete button */}
                   {canDeleteAny && (
                     <button
                       onClick={(e) => handleDelete(asset, e)}

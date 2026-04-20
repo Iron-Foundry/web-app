@@ -12,8 +12,6 @@ import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 
-// ── Route registration ────────────────────────────────────────────────────────
-
 registerPage({
   id: "staff.permissions",
   label: "Page Permissions",
@@ -27,9 +25,6 @@ export const staffPermissionsRoute = createRoute({
   component: () => <StaffGuard minRank="Senior Moderator"><PermissionsPage /></StaffGuard>,
 });
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
-// Fallback if rank-mappings haven't loaded yet
 const FALLBACK_ROLES = ["Mentor", "Event Team", "Moderator", "Senior Moderator"];
 
 const ACTIONS = [
@@ -45,11 +40,7 @@ const TABS = [
   { value: "staff",   label: "Staff",   prefix: "staff." },
 ] as const;
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 type PagePermissionsMap = Record<string, PagePermissionConfig>;
-
-// ── Sub-components ────────────────────────────────────────────────────────────
 
 function PageCard({
   page,
@@ -100,8 +91,6 @@ function PageCard({
     </div>
   );
 }
-
-// ── Page component ────────────────────────────────────────────────────────────
 
 function PermissionsPage() {
   const [saved, setSaved] = useState<PagePermissionsMap>({});
@@ -187,7 +176,6 @@ function PermissionsPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
 
-  // Group pages by tab
   function pagesForTab(tab: (typeof TABS)[number]) {
     return pages.filter((p) => {
       if (tab.prefix === null) return !p.id.includes(".");
@@ -197,7 +185,6 @@ function PermissionsPage() {
 
   return (
     <div className="max-w-3xl space-y-5">
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold">Page Permissions</h1>
@@ -223,7 +210,6 @@ function PermissionsPage() {
         <p className="text-sm text-muted-foreground">No pages registered yet.</p>
       ) : (
         <Tabs.Root defaultValue="public">
-          {/* Tab list */}
           <Tabs.List className="flex border-b border-border gap-1">
             {TABS.map((tab) => {
               const count = pagesForTab(tab).length;
@@ -246,7 +232,6 @@ function PermissionsPage() {
             })}
           </Tabs.List>
 
-          {/* Tab content */}
           {TABS.map((tab) => (
             <Tabs.Content key={tab.value} value={tab.value} className="mt-5 space-y-4">
               {pagesForTab(tab).length === 0 ? (

@@ -68,7 +68,6 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
     const newBody = before + text + after;
     setBody(newBody);
     onBodyChange?.(newBody);
-    // Restore cursor after insertion
     requestAnimationFrame(() => {
       el.focus();
       el.setSelectionRange(start + text.length, start + text.length);
@@ -100,7 +99,6 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
 
   return (
     <div className="flex gap-4 h-full min-h-0">
-      {/* Left: editor */}
       <div className="flex flex-col flex-1 min-h-0 gap-1">
         {/* Toolbar */}
         <div className="flex flex-col gap-1 shrink-0">
@@ -158,7 +156,6 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
         />
       </div>
 
-      {/* Right: preview / examples */}
       <div className="flex flex-col flex-1 min-h-0 rounded-md border border-border overflow-hidden">
         <Tabs.Root defaultValue="preview" className="flex flex-col flex-1 min-h-0">
           <Tabs.List className="flex items-center gap-1 border-b border-border bg-muted/40 px-2 py-1.5 shrink-0">
@@ -181,7 +178,6 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
         </Tabs.Root>
       </div>
 
-      {/* Action buttons */}
       <div className="flex flex-col gap-2 shrink-0">
         <Button onClick={() => onSave(body)} disabled={saving}>
           {saving ? "Saving…" : "Save"}

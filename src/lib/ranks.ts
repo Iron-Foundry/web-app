@@ -1,9 +1,4 @@
-// ---------------------------------------------------------------------------
-// Rank mapping - in-game OSRS clan rank → community display name
-// ---------------------------------------------------------------------------
-
 export const INGAME_TO_DISPLAY: Record<string, string> = {
-  // Progression ranks (ingame name = display name)
   "Guest":       "Guest",
   "Achiever":    "Achiever",
   "Sapphire":    "Sapphire",
@@ -13,14 +8,12 @@ export const INGAME_TO_DISPLAY: Record<string, string> = {
   "Dragonstone": "Dragonstone",
   "Onyx":        "Onyx",
   "Zenyte":      "Zenyte",
-  // Staff ranks (ingame name differs from display name)
   "Myth":          "Mentor",
   "Legend":        "Event Team",
   "Captain":       "Moderator",
   "General":       "Senior Moderator",
   "Deputy Owner":  "Co-owner",
   "Owner":         "Co-owner",
-  // Legacy
   "Legacy":      "Ex-Moderator",
 };
 
@@ -43,11 +36,6 @@ export function getDisplayRank(ingameRank: string | null): string | null {
   if (!ingameRank) return null;
   return INGAME_TO_DISPLAY[ingameRank] ?? `${ingameRank} (fun rank)`;
 }
-
-// ---------------------------------------------------------------------------
-// Discord role privilege order - used for permission checks
-// Permissions are derived from Discord roles, NOT ingame clan_rank.
-// ---------------------------------------------------------------------------
 
 export const DISCORD_ROLE_ORDER = [
   "Guest",

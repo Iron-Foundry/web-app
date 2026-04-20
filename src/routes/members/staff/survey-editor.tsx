@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/select";
 import { ChevronUp, ChevronDown, Plus, Trash2 } from "lucide-react";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 export interface TemplateEntry {
   template_id: string;
   title: string;
@@ -45,8 +43,6 @@ interface FieldDraft {
   options: string[];
   max_choices: number;
 }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function authHeaders(): Record<string, string> {
   const token = getAuthToken();
@@ -80,8 +76,6 @@ const FIELD_TYPES: { value: FieldDraft["type"]; label: string }[] = [
   { value: "yes_no", label: "Yes / No" },
   { value: "select", label: "Select" },
 ];
-
-// ── FieldEditor ───────────────────────────────────────────────────────────────
 
 function FieldEditor({
   field,
@@ -262,8 +256,6 @@ function FieldEditor({
   );
 }
 
-// ── TemplateEditorDialog ──────────────────────────────────────────────────────
-
 export function TemplateEditorDialog({
   open,
   editId,
@@ -283,7 +275,6 @@ export function TemplateEditorDialog({
   const [error, setError] = useState<string | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
 
-  // Populate form when editing
   useEffect(() => {
     if (!open) return;
     if (!editId) {
@@ -353,7 +344,6 @@ export function TemplateEditorDialog({
       }
     }
 
-    // Ensure all field IDs are set
     const resolvedFields = fields.map((f) => ({
       ...f,
       id: f.id.trim() || slugify(f.label),
@@ -406,7 +396,6 @@ export function TemplateEditorDialog({
           <p className="text-sm text-muted-foreground py-4">Loading…</p>
         ) : (
           <div className="space-y-4 pt-2">
-            {/* Title */}
             <div className="space-y-1">
               <p className="text-sm font-medium">Title *</p>
               <Input
@@ -416,7 +405,6 @@ export function TemplateEditorDialog({
               />
             </div>
 
-            {/* Category */}
             <div className="space-y-1">
               <p className="text-sm font-medium">Category</p>
               <div className="flex gap-2">
@@ -437,7 +425,6 @@ export function TemplateEditorDialog({
               </div>
             </div>
 
-            {/* Description */}
             <div className="space-y-1">
               <p className="text-sm font-medium">Description (optional)</p>
               <Textarea
@@ -450,7 +437,6 @@ export function TemplateEditorDialog({
 
             <Separator />
 
-            {/* Fields */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium">

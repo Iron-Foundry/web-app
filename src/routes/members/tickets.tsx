@@ -21,7 +21,7 @@ export const membersTicketsRoute = createRoute({
   component: TicketsPage,
 });
 
-// ── Types ─────────────────────────────────────────────────────────────────
+
 
 interface TicketSummary {
   ticket_id: number;
@@ -61,7 +61,7 @@ interface Transcript {
   entries: TranscriptEntry[];
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+
 
 function fmtType(t: string) {
   return t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -85,7 +85,7 @@ const STATUS_BADGE: Record<string, string> = {
   archived: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
 };
 
-// ── Sub-components ─────────────────────────────────────────────────────────
+
 
 function TranscriptView({ transcript }: { transcript: Transcript | null }) {
   if (!transcript) {
@@ -221,7 +221,7 @@ function TicketCard({ ticket }: { ticket: TicketSummary }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────
+
 
 function TicketsPage() {
   const [tickets, setTickets] = useState<TicketSummary[]>([]);

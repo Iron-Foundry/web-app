@@ -24,8 +24,6 @@ export const staffBadgesRoute = createRoute({
   component: BadgesPage,
 });
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 interface BadgeEntry {
   id: string;
   name: string;
@@ -42,8 +40,6 @@ interface BadgeMember {
   rsn: string | null;
   assigned_at: string | null;
 }
-
-// ── Badge preview ─────────────────────────────────────────────────────────────
 
 function BadgePreview({ badge, size = "md" }: { badge: Partial<BadgeEntry>; size?: "sm" | "md" | "lg" }) {
   const isSvg = badge.icon?.trimStart().startsWith("<");
@@ -73,8 +69,6 @@ function BadgePreview({ badge, size = "md" }: { badge: Partial<BadgeEntry>; size
     </span>
   );
 }
-
-// ── Editor dialog ─────────────────────────────────────────────────────────────
 
 const GRADIENT_PRESETS = [
   { label: "Indigo",   value: "#6366f1" },
@@ -165,7 +159,6 @@ function BadgeEditorDialog({
           <DialogTitle>{initial ? "Edit Badge" : "New Badge"}</DialogTitle>
         </DialogHeader>
 
-        {/* Preview */}
         <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
           <BadgePreview badge={preview} size="lg" />
         </div>
@@ -181,7 +174,6 @@ function BadgeEditorDialog({
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this badge for?" className="mt-1 resize-none" rows={2} />
           </div>
 
-          {/* Icon upload */}
           <div>
             <label className="text-xs font-medium text-muted-foreground">Icon (SVG or PNG)</label>
             <div className="mt-1 flex items-center gap-2">
@@ -197,7 +189,6 @@ function BadgeEditorDialog({
             </div>
           </div>
 
-          {/* Color */}
           <div>
             <label className="text-xs font-medium text-muted-foreground">Background color / gradient</label>
             <div className="mt-1 flex flex-wrap gap-1.5 mb-2">
@@ -223,7 +214,6 @@ function BadgeEditorDialog({
             />
           </div>
 
-          {/* Text color */}
           <div>
             <label className="text-xs font-medium text-muted-foreground">Text color</label>
             <div className="mt-1 flex items-center gap-2">
@@ -248,8 +238,6 @@ function BadgeEditorDialog({
     </Dialog>
   );
 }
-
-// ── Assign dialog ─────────────────────────────────────────────────────────────
 
 interface MemberSuggestion {
   discord_user_id: number;
@@ -283,7 +271,6 @@ function AssignDialog({
   const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load existing badge members when dialog opens
   useEffect(() => {
     if (!open || !badge) return;
     setLoadingMembers(true);
@@ -299,9 +286,8 @@ function AssignDialog({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, badge]);
 
-  // Debounced member search
   useEffect(() => {
-    if (selected) return; // already picked someone
+    if (selected) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     const q = query.trim();
     if (!q) { setSuggestions([]); return; }
@@ -313,7 +299,6 @@ function AssignDialog({
         });
         if (r.ok) {
           const list = await r.json() as MemberSuggestion[];
-          // filter out already-assigned members
           const assignedIds = new Set(members.map((m) => m.discord_user_id));
           setSuggestions(list.filter((s) => !assignedIds.has(s.discord_user_id)).slice(0, 8));
         }
@@ -384,7 +369,6 @@ function AssignDialog({
           </DialogTitle>
         </DialogHeader>
 
-        {/* Search + assign row */}
         <div className="space-y-1.5">
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -398,7 +382,6 @@ function AssignDialog({
                 }}
                 autoComplete="off"
               />
-              {/* Suggestions dropdown */}
               {suggestions.length > 0 && (
                 <ul className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md overflow-hidden">
                   {suggestions.map((s) => (
@@ -452,8 +435,6 @@ function AssignDialog({
     </Dialog>
   );
 }
-
-// ── Main page ─────────────────────────────────────────────────────────────────
 
 function BadgesPage() {
   const { user } = useAuth();

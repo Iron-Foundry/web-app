@@ -11,7 +11,7 @@ interface Entry {
 
 const store = new Map<string, Entry>();
 
-const DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
+const DEFAULT_TTL = 5 * 60 * 1000;
 
 export function cacheGet<T>(key: string): T | null {
   const entry = store.get(key);

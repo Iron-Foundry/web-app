@@ -17,10 +17,7 @@ function slugify(s: string): string {
   return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
 }
 
-/** Strip / convert HTML elements that Discord doesn't render. */
 function toDiscordMarkdown(body: string): string {
-  // Sanitize first: strip everything except <kbd> and <br> so subsequent
-  // string operations run on a known-safe, normalised tag set.
   const safe = DOMPurify.sanitize(body, { ALLOWED_TAGS: ["kbd", "br"], ALLOWED_ATTR: [] });
   return safe
     .replace(/<kbd>(.*?)<\/kbd>/gi, (_, t) => `\`${t}\``)
@@ -68,7 +65,6 @@ function AuthorChip({ user }: { user: EntryAuthor }) {
 
 interface ContentEntryPageProps {
   slug: string;
-  /** e.g. "/plugins" or "/resources" */
   routeBase: string;
 }
 
@@ -86,7 +82,6 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Edit mode is local state — also auto-enable for brand new entries (empty body)
   const [editMode, setEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editSlug, setEditSlug] = useState("");
@@ -105,12 +100,10 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
     });
   }
 
-  // Optimistic concurrency
   const [loadedUpdatedAt, setLoadedUpdatedAt] = useState<string | null>(null);
   const [conflictDetected, setConflictDetected] = useState(false);
   const latestBodyRef = useRef<string>("");
 
-  // entryId (UUID) obtained after fetching by slug — used for PUT/DELETE
   const [entryId, setEntryId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -177,11 +170,9 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         return;
       }
       const saved = await res.json() as { slug: string; updated_at: string | null };
-      // Bust both old and new slug caches (slug may have changed)
       cacheInvalidate(`content:entry:${pageType}:`);
       setEditMode(false);
       refreshTree();
-      // If slug changed, navigate to the new URL; otherwise re-fetch in place
       if (saved.slug !== slug) {
         navigate({ to: `${routeBase}/$slug`, params: { slug: saved.slug } });
       } else {
@@ -214,7 +205,6 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
       refreshTree();
       navigate({ to: routeBase });
     } catch {
-      // best effort
     }
   }
 
@@ -232,7 +222,6 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-start justify-between gap-4 pb-4 border-b border-border">
         <h1 className="font-rs-bold text-3xl text-primary leading-tight">{entry.title}</h1>
         <div className="flex items-center gap-2 shrink-0">
@@ -263,13 +252,10 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         </div>
       </div>
 
-      {/* Save error */}
       {saveError && <p className="text-xs text-destructive">{saveError}</p>}
 
-      {/* Editor or renderer */}
       {editMode ? (
         <div className="space-y-4">
-          {/* Title + slug metadata */}
           <div className="grid grid-cols-2 gap-3 rounded-md border border-border bg-muted/30 p-3">
             <div className="space-y-1">
               <Label className="text-xs">Title</Label>
@@ -341,27 +327,31 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         </div>
       )}
 
-      {/* Author / collaborator footer */}
       {!editMode && (entry.author || entry.collaborators.length > 0) && (
-        <div className="mt-8 pt-4 border-t border-border flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          {entry.author && (
-            <>
-              <span>Written by</span>
-              <AuthorChip user={entry.author} />
-            </>
-          )}
-          {entry.collaborators.length > 0 && (
-            <>
-              <span>· Edited by</span>
-              {entry.collaborators.map((c, i) => (
-                <AuthorChip key={c.discord_user_id ?? i} user={c} />
-              ))}
-            </>
-          )}
-        </div>
-      )}
+              <div className="mt-8 pt-4 border-t border-border flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                  
+                  <div>
+                      {entry.author && (
+                        <>
+                          <span>Written by</span>
+                          <AuthorChip user={entry.author} />
+                        </>
+                      )}
+                      {entry.collaborators.length > 0 && (
+                        <>
+                          <span>· Edited by</span>
+                          {entry.collaborators.map((c, i) => (
+                            <AuthorChip key={c.discord_user_id ?? i} user={c} />
+                          ))}
+                        </>
+                              )}
+                  </div>
+                  <div className="">test</div>
+              </div>
+        )}
+      
 
-      {/* Export / copy actions */}
+
       {!editMode && entry.body && (
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={() => handleCopy("raw")}>

@@ -21,7 +21,7 @@ export const membersSurveysRoute = createRoute({
   component: SurveysPage,
 });
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+
 
 interface SurveyEntry {
   template_id: string;
@@ -32,14 +32,14 @@ interface SurveyEntry {
   user_submitted: boolean;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 function authHeaders(): Record<string, string> {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// ── SurveyCard ────────────────────────────────────────────────────────────────
+
 
 function SurveyCard({ entry }: { entry: SurveyEntry }) {
   const isOpen = entry.is_open;
@@ -97,7 +97,7 @@ function SurveyCard({ entry }: { entry: SurveyEntry }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+
 
 function SurveysPage() {
   const [entries, setEntries] = useState<SurveyEntry[]>([]);

@@ -3,8 +3,6 @@ import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import type { PagePermissionConfig, PermAction } from "@/lib/permissions";
 import { fetchCached } from "@/lib/cache";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 type PagePermissionsMap = Record<string, PagePermissionConfig>;
 
 interface PermissionsContextValue {
@@ -25,8 +23,6 @@ interface PermissionsContextValue {
   loading: boolean;
 }
 
-// ── Context ───────────────────────────────────────────────────────────────────
-
 const PermissionsContext = createContext<PermissionsContextValue>({
   pagePermissions: {},
   hasPermission: () => true,
@@ -44,10 +40,8 @@ function checkPermission(
   const config = pagePermissions[pageId];
   const allowed: string[] = config?.[action] ?? [];
 
-  // Open read: empty allowed list means anyone can read
   if (action === "read" && allowed.length === 0) return true;
 
-  // Senior Mod+ always bypass for create/edit/delete
   if (action !== "read" && effectiveRoles.some((r) => SENIOR_MOD_BYPASS.includes(r))) {
     return true;
   }
@@ -56,8 +50,6 @@ function checkPermission(
 
   return effectiveRoles.some((r) => allowed.includes(r));
 }
-
-// ── Provider ──────────────────────────────────────────────────────────────────
 
 export function PermissionsProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();

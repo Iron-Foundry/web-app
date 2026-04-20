@@ -12,8 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 export interface ContentEntry {
   id: string;
   title: string;
@@ -52,8 +50,6 @@ const ContentContext = createContext<ContentContextValue>({
 export function useContentContext(): ContentContextValue {
   return useContext(ContentContext);
 }
-
-// ── Category dialog ───────────────────────────────────────────────────────────
 
 interface CategoryDialogProps {
   open: boolean;
@@ -205,8 +201,6 @@ function CategoryDialog({
   );
 }
 
-// ── New entry dialog ──────────────────────────────────────────────────────────
-
 interface NewEntryDialogProps {
   open: boolean;
   onClose: () => void;
@@ -331,8 +325,6 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
     </Dialog>
   );
 }
-
-// ── CategoryNode ──────────────────────────────────────────────────────────────
 
 interface CategoryNodeProps {
   cat: CategoryTree;
@@ -609,8 +601,6 @@ function CategoryNode({
   );
 }
 
-// ── Sidebar content ───────────────────────────────────────────────────────────
-
 interface SidebarContentProps {
   categories: CategoryTree[];
   pageType: string;
@@ -692,13 +682,10 @@ function SidebarContent({
   );
 }
 
-// ── ContentLayout (exported) ──────────────────────────────────────────────────
-
 interface ContentLayoutProps {
   pageType: string;
   pageName: string;
   pageId: string;
-  /** Base path like "/plugins" or "/resources" */
   routeBase: string;
 }
 
@@ -749,12 +736,10 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   return (
     <ContentContext.Provider value={contextValue}>
       <div className="flex flex-1 min-h-0 -m-6">
-        {/* Desktop sidebar */}
         <aside className="hidden w-64 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">
           <SidebarContent {...sidebarProps} />
         </aside>
 
-        {/* Mobile sidebar trigger */}
         <div className="fixed bottom-4 left-4 z-40 md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
@@ -768,7 +753,6 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
           </Sheet>
         </div>
 
-        {/* Page content */}
         <div className="flex-1 min-h-0 overflow-auto p-6">
           <Outlet />
         </div>
