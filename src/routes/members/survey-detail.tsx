@@ -225,7 +225,7 @@ export function SurveyDetailPage({
   const [localSubmission, setLocalSubmission] = useState<Record<string, unknown> | null>(null);
 
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
-  const isStaff = hasMinRank(effectiveRoles, "Mentor");
+  const isStaff = hasMinRank(effectiveRoles, "Foundry Mentors");
   const listPath = category === "survey" ? "/members/surveys" : "/members/applications";
   const listLabel = category === "survey" ? "Surveys" : "Applications";
 

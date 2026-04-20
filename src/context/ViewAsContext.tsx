@@ -5,7 +5,7 @@ export type ViewAsOption = "self" | "member" | "mentor" | "event-team" | "modera
 export const VIEW_AS_OPTIONS: { value: ViewAsOption; label: string; roles: string[] }[] = [
   { value: "self",        label: "Myself",                roles: [] },
   { value: "member",      label: "Member (no perms)",     roles: [] },
-  { value: "mentor",      label: "Mentor",                roles: ["Mentor"] },
+  { value: "mentor",      label: "Foundry Mentors",       roles: ["Foundry Mentors"] },
   { value: "event-team",  label: "Event Team",            roles: ["Event Team"] },
   { value: "moderator",   label: "Moderator",             roles: ["Moderator"] },
 ];

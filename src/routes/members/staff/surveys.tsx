@@ -10,7 +10,7 @@ registerPage({
   id: "staff.surveys",
   label: "Staff — Surveys",
   description: "Manage survey and application templates, view responses.",
-  defaults: { read: ["Mentor"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
+  defaults: { read: ["Foundry Mentors"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
 });
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -49,7 +49,7 @@ interface ResponseEntry {
 type CategoryFilter = "all" | "survey" | "application";
 
 const VISIBILITY_OPTIONS = [
-  { value: "Mentor", label: "Mentor" },
+  { value: "Foundry Mentors", label: "Foundry Mentors" },
   { value: "Event Team", label: "Event Team" },
   { value: "Moderator", label: "Moderator" },
   { value: "Senior Moderator", label: "Senior Mod" },

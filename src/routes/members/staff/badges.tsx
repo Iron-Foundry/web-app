@@ -15,7 +15,7 @@ registerPage({
   id: "staff.badges",
   label: "Staff — Badges",
   description: "Create and assign profile badges to members.",
-  defaults: { read: ["Mentor"], create: ["Mentor"], edit: ["Mentor"], delete: ["Senior Moderator"] },
+  defaults: { read: ["Foundry Mentors"], create: ["Foundry Mentors"], edit: ["Foundry Mentors"], delete: ["Senior Moderator"] },
 });
 
 export const staffBadgesRoute = createRoute({

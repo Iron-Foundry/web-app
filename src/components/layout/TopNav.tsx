@@ -15,7 +15,7 @@ const ROLE_BADGE_CLASS: Record<string, string> = {
   "Senior Moderator": "border-red-400/60     text-red-600     dark:text-red-400",
   "Moderator":        "border-orange-400/60  text-orange-600  dark:text-orange-400",
   "Event Team":       "border-green-500/60   text-green-700   dark:text-green-400",
-  "Mentor":           "border-blue-400/60    text-blue-600    dark:text-blue-400",
+  "Foundry Mentors":  "border-blue-400/60    text-blue-600    dark:text-blue-400",
 };
 
 function RoleBadge({ roles }: { roles: string[] }) {

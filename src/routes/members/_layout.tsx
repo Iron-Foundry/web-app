@@ -24,13 +24,13 @@ const NAV_LINKS = [
 ];
 
 const STAFF_NAV = [
-  { to: "/members/staff" as const,                label: "Staff Home",   icon: ShieldCheck,   minRank: "Mentor",           exact: true },
+  { to: "/members/staff" as const,                label: "Staff Home",   icon: ShieldCheck,   minRank: "Foundry Mentors",  exact: true },
   { to: "/members/staff/members" as const,        label: "Members",      icon: Users,         minRank: "Moderator",        exact: false },
   { to: "/members/staff/all-tickets" as const,    label: "All Tickets",  icon: Inbox,         minRank: "Moderator",        exact: false },
-  { to: "/members/staff/surveys" as const,        label: "Surveys",      icon: ClipboardList, minRank: "Mentor",           exact: false },
+  { to: "/members/staff/surveys" as const,        label: "Surveys",      icon: ClipboardList, minRank: "Foundry Mentors",  exact: false },
   { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings",icon: ArrowRightLeft,minRank: "Senior Moderator", exact: false },
   { to: "/members/staff/permissions" as const,    label: "Permissions",  icon: Lock,          minRank: "Senior Moderator", exact: false },
-  { to: "/members/staff/badges" as const,         label: "Badges",       icon: Award,         minRank: "Mentor",           exact: false },
+  { to: "/members/staff/badges" as const,         label: "Badges",       icon: Award,         minRank: "Foundry Mentors",  exact: false },
 ];
 
 function navLinkClass(base?: string) {

@@ -7,7 +7,7 @@ registerPage({
   id: "plugins",
   label: "Plugins",
   description: "RuneLite plugin listings and recommendations.",
-  defaults: { read: [], create: ["Mentor"], edit: ["Mentor"], delete: ["Senior Moderator"] },
+  defaults: { read: [], create: ["Foundry Mentors"], edit: ["Foundry Mentors"], delete: ["Senior Moderator"] },
 });
 
 export const pluginsLayoutRoute = createRoute({

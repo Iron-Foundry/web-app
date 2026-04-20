@@ -25,7 +25,7 @@ export const staffPermissionsRoute = createRoute({
   component: () => <StaffGuard minRank="Senior Moderator"><PermissionsPage /></StaffGuard>,
 });
 
-const FALLBACK_ROLES = ["Mentor", "Event Team", "Moderator", "Senior Moderator"];
+const FALLBACK_ROLES = ["Foundry Mentors", "Event Team", "Moderator", "Senior Moderator"];
 
 const ACTIONS = [
   { key: "read",   label: "Read",   hint: "empty = all users" },

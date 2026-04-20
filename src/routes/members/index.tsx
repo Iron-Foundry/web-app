@@ -18,7 +18,7 @@ const ROLE_BADGE_CLASS: Record<string, string> = {
   "Senior Moderator": "border-red-400/60    text-red-600    dark:text-red-400",
   "Moderator":        "border-orange-400/60 text-orange-600 dark:text-orange-400",
   "Event Team":       "border-green-500/60  text-green-700  dark:text-green-400",
-  "Mentor":           "border-blue-400/60   text-blue-600   dark:text-blue-400",
+  "Foundry Mentors":  "border-blue-400/60   text-blue-600   dark:text-blue-400",
 };
 
 const WIKI = "https://oldschool.runescape.wiki/images";
@@ -247,7 +247,7 @@ function DashboardPage() {
                 <span className="text-foreground">{getDisplayRank(user.clan_rank)}</span>
               </div>
             )}
-            {hasMinRank(user.effective_roles, "Mentor") && (
+            {hasMinRank(user.effective_roles, "Foundry Mentors") && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Staff role</span>
                 <span className="text-foreground">{highestRole(user.effective_roles)}</span>

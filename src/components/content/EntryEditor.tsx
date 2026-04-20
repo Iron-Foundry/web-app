@@ -52,7 +52,7 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
   const effectiveRoles = user?.effective_roles ?? [];
 
   const canEdit = hasPermission(pageId, "edit", effectiveRoles);
-  const canUpload = canEdit && hasMinRank(effectiveRoles, "Mentor");
+  const canUpload = canEdit && hasMinRank(effectiveRoles, "Foundry Mentors");
   const canDeleteAny = hasMinRank(effectiveRoles, "Senior Moderator");
 
   function insertAtCursor(text: string) {
