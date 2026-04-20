@@ -50,6 +50,7 @@ interface EntryDetail {
   updated_at: string | null;
   author: EntryAuthor | null;
   collaborators: EntryAuthor[];
+  last_updated_by: EntryAuthor | null;
 }
 
 function AuthorChip({ user }: { user: EntryAuthor }) {
@@ -327,28 +328,34 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         </div>
       )}
 
-      {!editMode && (entry.author || entry.collaborators.length > 0) && (
-              <div className="mt-8 pt-4 border-t border-border flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                  
-                  <div>
-                      {entry.author && (
-                        <>
-                          <span>Written by</span>
-                          <AuthorChip user={entry.author} />
-                        </>
-                      )}
-                      {entry.collaborators.length > 0 && (
-                        <>
-                          <span>· Edited by</span>
-                          {entry.collaborators.map((c, i) => (
-                            <AuthorChip key={c.discord_user_id ?? i} user={c} />
-                          ))}
-                        </>
-                              )}
-                  </div>
-                  <div className="">test</div>
-              </div>
-        )}
+      {!editMode && (entry.author || entry.created_at || entry.updated_at) && (
+        <div className="mt-8 pt-4 border-t border-border flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
+          {entry.created_at && (
+            <div className="flex items-center gap-1.5">
+              <span>Created</span>
+              <span className="text-foreground">{new Date(entry.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
+              {entry.author && (
+                <>
+                  <span>by</span>
+                  <AuthorChip user={entry.author} />
+                </>
+              )}
+            </div>
+          )}
+          {entry.updated_at && entry.updated_at !== entry.created_at && (
+            <div className="flex items-center gap-1.5">
+              <span>Last updated</span>
+              <span className="text-foreground">{new Date(entry.updated_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
+              {entry.last_updated_by && (
+                <>
+                  <span>by</span>
+                  <AuthorChip user={entry.last_updated_by} />
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       
 
 
