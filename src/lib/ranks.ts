@@ -37,6 +37,10 @@ export function getDisplayRank(ingameRank: string | null): string | null {
   return INGAME_TO_DISPLAY[ingameRank] ?? `${ingameRank} (fun rank)`;
 }
 
+/**
+ * Ordered list of Discord role names for display purposes (badge CSS, highestRole sorting).
+ * NOTE: This list is display-only. Authorization uses role IDs from the DB, not this list.
+ */
 export const DISCORD_ROLE_ORDER = [
   "Guest",
   "Achiever",
@@ -58,18 +62,10 @@ export const DISCORD_ROLE_ORDER = [
 
 export type DiscordRole = (typeof DISCORD_ROLE_ORDER)[number];
 
-/** True if the user holds at least minRole. */
-export function hasMinRank(discordRoles: string[], minRole: string): boolean {
-  const minIdx = DISCORD_ROLE_ORDER.indexOf(minRole as DiscordRole);
-  if (minIdx === -1) return false;
-  for (const role of discordRoles) {
-    const idx = DISCORD_ROLE_ORDER.indexOf(role as DiscordRole);
-    if (idx >= minIdx) return true;
-  }
-  return false;
-}
-
-/** Highest-privilege role the user holds, or null. */
+/**
+ * Highest-privilege role the user holds (by name), or null.
+ * Works with legacy name-based effective_roles arrays.
+ */
 export function highestRole(discordRoles: string[] | null | undefined): DiscordRole | null {
   if (!discordRoles) return null;
   let best = -1;
@@ -82,4 +78,16 @@ export function highestRole(discordRoles: string[] | null | undefined): DiscordR
     }
   }
   return bestRole;
+}
+
+/**
+ * Resolve role IDs to labels using roleLabels map, then return the highest-privilege label.
+ * Use this when effective_roles contains Discord snowflake IDs (new format).
+ */
+export function highestRoleDisplay(
+  effectiveRoles: string[],
+  roleLabels: Record<string, string>,
+): DiscordRole | null {
+  const names = effectiveRoles.map((id) => roleLabels[id] ?? id);
+  return highestRole(names);
 }

@@ -3,12 +3,12 @@ import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Award } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
-import { ViewAsProvider, useViewAs, useEffectiveRoles, VIEW_AS_OPTIONS, type ViewAsOption } from "@/context/ViewAsContext";
+import { useViewAs, useEffectiveRoles } from "@/context/ViewAsContext";
+import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { hasMinRank } from "@/lib/ranks";
 
 export const membersLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -24,13 +24,13 @@ const NAV_LINKS = [
 ];
 
 const STAFF_NAV = [
-  { to: "/members/staff" as const,                label: "Staff Home",   icon: ShieldCheck,   minRank: "Foundry Mentors",  exact: true },
-  { to: "/members/staff/members" as const,        label: "Members",      icon: Users,         minRank: "Moderator",        exact: false },
-  { to: "/members/staff/all-tickets" as const,    label: "All Tickets",  icon: Inbox,         minRank: "Moderator",        exact: false },
-  { to: "/members/staff/surveys" as const,        label: "Surveys",      icon: ClipboardList, minRank: "Foundry Mentors",  exact: false },
-  { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings",icon: ArrowRightLeft,minRank: "Senior Moderator", exact: false },
-  { to: "/members/staff/permissions" as const,    label: "Permissions",  icon: Lock,          minRank: "Senior Moderator", exact: false },
-  { to: "/members/staff/badges" as const,         label: "Badges",       icon: Award,         minRank: "Foundry Mentors",  exact: false },
+  { to: "/members/staff" as const,                label: "Staff Home",   icon: ShieldCheck,   pageId: "staff.home",         exact: true },
+  { to: "/members/staff/members" as const,        label: "Members",      icon: Users,         pageId: "staff.members",      exact: false },
+  { to: "/members/staff/all-tickets" as const,    label: "All Tickets",  icon: Inbox,         pageId: "staff.all-tickets",  exact: false },
+  { to: "/members/staff/surveys" as const,        label: "Surveys",      icon: ClipboardList, pageId: "staff.surveys",      exact: false },
+  { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings",icon: ArrowRightLeft,pageId: "staff.rank-mappings",exact: false },
+  { to: "/members/staff/permissions" as const,    label: "Permissions",  icon: Lock,          pageId: "staff.permissions",  exact: false },
+  { to: "/members/staff/badges" as const,         label: "Badges",       icon: Award,         pageId: "staff.badges",       exact: false },
 ];
 
 function navLinkClass(base?: string) {
@@ -42,22 +42,40 @@ function navLinkClass(base?: string) {
   );
 }
 
+const VIEW_AS_FIXED = [
+  { value: "self",   label: "Myself" },
+  { value: "member", label: "Member (no perms)" },
+];
+
 function ViewAsSelector({ realRoles }: { realRoles: string[] }) {
   const { viewAs, setViewAs } = useViewAs();
+  const { adminBypassRoles } = usePermissions();
+  const { user } = useAuth();
 
-  if (!hasMinRank(realRoles, "Senior Moderator")) return null;
+  const isBypassUser = realRoles.some((r) => adminBypassRoles.includes(r));
+  if (!isBypassUser) return null;
+
+  // Build dynamic options from role_labels
+  const roleLabels = user?.role_labels ?? {};
+  const dynamicOptions = Object.entries(roleLabels).map(([id, label]) => ({
+    value: id,
+    label,
+  }));
+
+  const allOptions = [...VIEW_AS_FIXED, ...dynamicOptions];
+  const currentLabel = allOptions.find((o) => o.value === viewAs)?.label ?? viewAs;
 
   return (
     <div className="px-2 pb-2 shrink-0">
       <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 flex items-center gap-1">
         <Eye className="h-3 w-3" /> View as
       </p>
-      <Select value={viewAs} onValueChange={(v) => setViewAs(v as ViewAsOption)}>
+      <Select value={viewAs} onValueChange={setViewAs}>
         <SelectTrigger className="h-8 text-xs w-full">
-          <SelectValue />
+          <SelectValue>{currentLabel}</SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {VIEW_AS_OPTIONS.map(({ value, label }) => (
+          {allOptions.map(({ value, label }) => (
             <SelectItem key={value} value={value} className="text-xs">
               {label}
             </SelectItem>
@@ -70,8 +88,11 @@ function ViewAsSelector({ realRoles }: { realRoles: string[] }) {
 
 function SidebarNav({ onNavigate, realRoles }: { onNavigate?: () => void; realRoles: string[] }) {
   const effectiveRoles = useEffectiveRoles(realRoles);
+  const { hasPermission } = usePermissions();
 
-  const visibleStaff = STAFF_NAV.filter(({ minRank }) => hasMinRank(effectiveRoles, minRank));
+  const visibleStaff = STAFF_NAV.filter(({ pageId }) =>
+    hasPermission(pageId, "read", effectiveRoles)
+  );
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -115,7 +136,7 @@ function SidebarNav({ onNavigate, realRoles }: { onNavigate?: () => void; realRo
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* View As selector — Senior Mod+ only */}
+      {/* View As selector — bypass roles only */}
       <ViewAsSelector realRoles={realRoles} />
 
       {/* Bottom: settings */}
@@ -136,8 +157,12 @@ function SidebarNav({ onNavigate, realRoles }: { onNavigate?: () => void; realRo
 
 function ViewAsBanner() {
   const { viewAs, setViewAs } = useViewAs();
+  const { user } = useAuth();
   if (viewAs === "self") return null;
-  const label = VIEW_AS_OPTIONS.find((o) => o.value === viewAs)?.label ?? viewAs;
+  const label =
+    viewAs === "member"
+      ? "Member (no perms)"
+      : (user?.role_labels?.[viewAs] ?? viewAs);
   return (
     <div className="shrink-0 flex items-center justify-between gap-2 bg-amber-500/15 border-b border-amber-500/30 px-4 py-1.5 text-xs text-amber-600 dark:text-amber-400">
       <span className="flex items-center gap-1.5">
@@ -226,16 +251,12 @@ function MembersLayout() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">Loading…</p>
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     );
   }
 
   if (!user) return null;
 
-  return (
-    <ViewAsProvider>
-      <MembersShell user={user} />
-    </ViewAsProvider>
-  );
+  return <MembersShell user={user} />;
 }

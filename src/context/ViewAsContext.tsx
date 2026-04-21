@@ -1,18 +1,18 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
-export type ViewAsOption = "self" | "member" | "mentor" | "event-team" | "moderator";
+export type ViewAsOption = string; // "self" | "member" | role-id
 
-export const VIEW_AS_OPTIONS: { value: ViewAsOption; label: string; roles: string[] }[] = [
-  { value: "self",        label: "Myself",                roles: [] },
-  { value: "member",      label: "Member (no perms)",     roles: [] },
-  { value: "mentor",      label: "Foundry Mentors",       roles: ["Foundry Mentors"] },
-  { value: "event-team",  label: "Event Team",            roles: ["Event Team"] },
-  { value: "moderator",   label: "Moderator",             roles: ["Moderator"] },
-];
+interface ViewAsEntry {
+  value: ViewAsOption;
+  label: string;
+  roles: string[];
+}
 
 interface ViewAsContextValue {
   viewAs: ViewAsOption;
   setViewAs: (option: ViewAsOption) => void;
+  /** The resolved option entry for the current viewAs selection. */
+  currentOption: ViewAsEntry | undefined;
   /** Non-null when viewing as a role other than self. */
   overrideRoles: string[] | null;
 }
@@ -20,18 +20,28 @@ interface ViewAsContextValue {
 const ViewAsContext = createContext<ViewAsContextValue>({
   viewAs: "self",
   setViewAs: () => {},
+  currentOption: undefined,
   overrideRoles: null,
 });
 
 export function ViewAsProvider({ children }: { children: React.ReactNode }) {
   const [viewAs, setViewAs] = useState<ViewAsOption>("self");
-  const overrideRoles =
+
+  const currentOption = useMemo<ViewAsEntry | undefined>(() => {
+    if (viewAs === "self") return { value: "self", label: "Myself", roles: [] };
+    if (viewAs === "member") return { value: "member", label: "Member (no perms)", roles: [] };
+    return undefined; // role-ID options are resolved dynamically via useViewAsOptions
+  }, [viewAs]);
+
+  const overrideRoles: string[] | null =
     viewAs === "self"
       ? null
-      : (VIEW_AS_OPTIONS.find((o) => o.value === viewAs)?.roles ?? null);
+      : viewAs === "member"
+        ? []
+        : [viewAs]; // treat the selected role ID as the override
 
   return (
-    <ViewAsContext.Provider value={{ viewAs, setViewAs, overrideRoles }}>
+    <ViewAsContext.Provider value={{ viewAs, setViewAs, currentOption, overrideRoles }}>
       {children}
     </ViewAsContext.Provider>
   );
@@ -43,7 +53,7 @@ export function useViewAs(): ViewAsContextValue {
 
 /**
  * Returns the roles to use for all permission checks.
- * Senior staff viewing as another role get the override; everyone else gets their real roles.
+ * Bypass-role users viewing as another role get the override; everyone else gets their real roles.
  */
 export function useEffectiveRoles(actualRoles: string[]): string[] {
   const { overrideRoles } = useViewAs();

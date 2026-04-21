@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
-import { hasMinRank } from "@/lib/ranks";
+import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -215,6 +215,7 @@ export function SurveyDetailPage({
   templateId: string;
 }) {
   const { user } = useAuth();
+  const { hasPermission } = usePermissions();
   const [template, setTemplate] = useState<TemplateDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
@@ -225,7 +226,7 @@ export function SurveyDetailPage({
   const [localSubmission, setLocalSubmission] = useState<Record<string, unknown> | null>(null);
 
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
-  const isStaff = hasMinRank(effectiveRoles, "Foundry Mentors");
+  const isStaff = hasPermission("staff.surveys", "read", effectiveRoles);
   const listPath = category === "survey" ? "/members/surveys" : "/members/applications";
   const listLabel = category === "survey" ? "Surveys" : "Applications";
 

@@ -5,13 +5,15 @@ import { useAuth, API_URL, getAuthToken } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { highestRole, getDisplayRank, hasMinRank } from "@/lib/ranks";
+import { highestRoleDisplay, getDisplayRank } from "@/lib/ranks";
+import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
 import {
   Gem, TrendingUp, Zap, ScrollText, Map, Swords,
   Heart, BookOpen, FileSearch, Skull, Timer, Flame, KeyRound,
 } from "lucide-react";
 
+// Keyed by role label (display name) for badge styling
 const ROLE_BADGE_CLASS: Record<string, string> = {
   "Co-owner":         "border-amber-500/60  text-amber-600  dark:text-amber-400",
   "Deputy Owner":     "border-amber-500/60  text-amber-600  dark:text-amber-400",
@@ -153,6 +155,7 @@ function timeAgo(iso: string): string {
 
 function DashboardPage() {
   const { user } = useAuth();
+  const { hasPermission } = usePermissions();
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [playerBadges, setPlayerBadges] = useState<PlayerBadge[]>([]);
@@ -203,7 +206,7 @@ function DashboardPage() {
                 Welcome, {user.rsn ?? user.username}!
               </CardTitle>
               {(() => {
-                const top = highestRole(user.effective_roles);
+                const top = highestRoleDisplay(user.effective_roles, user.role_labels);
                 return top && top in ROLE_BADGE_CLASS ? (
                   <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 mt-1", ROLE_BADGE_CLASS[top])}>
                     {top}
@@ -247,10 +250,10 @@ function DashboardPage() {
                 <span className="text-foreground">{getDisplayRank(user.clan_rank)}</span>
               </div>
             )}
-            {hasMinRank(user.effective_roles, "Foundry Mentors") && (
+            {hasPermission("staff.home", "read", user.effective_roles) && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Staff role</span>
-                <span className="text-foreground">{highestRole(user.effective_roles)}</span>
+                <span className="text-foreground">{highestRoleDisplay(user.effective_roles, user.role_labels)}</span>
               </div>
             )}
           </div>

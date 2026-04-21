@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { MarkdownCheatsheet } from "./MarkdownCheatsheet";
 import { AssetPickerDialog } from "./AssetPickerDialog";
-import { hasMinRank } from "@/lib/ranks";
 
 interface EntryEditorProps {
   initialBody: string;
@@ -52,8 +51,8 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
   const effectiveRoles = user?.effective_roles ?? [];
 
   const canEdit = hasPermission(pageId, "edit", effectiveRoles);
-  const canUpload = canEdit && hasMinRank(effectiveRoles, "Foundry Mentors");
-  const canDeleteAny = hasMinRank(effectiveRoles, "Senior Moderator");
+  const canUpload = canEdit && hasPermission(pageId, "create", effectiveRoles);
+  const canDeleteAny = hasPermission(pageId, "delete", effectiveRoles);
 
   function insertAtCursor(text: string) {
     const el = textareaRef.current;

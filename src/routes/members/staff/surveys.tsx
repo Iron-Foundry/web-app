@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
-import { hasMinRank, highestRole, DISCORD_ROLE_ORDER } from "@/lib/ranks";
+import { highestRoleDisplay } from "@/lib/ranks";
 import { registerPage } from "@/lib/permissions";
+import { usePermissions } from "@/context/PermissionsContext";
 
 registerPage({
   id: "staff.surveys",
@@ -48,12 +49,7 @@ interface ResponseEntry {
 
 type CategoryFilter = "all" | "survey" | "application";
 
-const VISIBILITY_OPTIONS = [
-  { value: "Foundry Mentors", label: "Foundry Mentors" },
-  { value: "Event Team", label: "Event Team" },
-  { value: "Moderator", label: "Moderator" },
-  { value: "Senior Moderator", label: "Senior Mod" },
-] as const;
+// VISIBILITY_OPTIONS is derived dynamically in StaffSurveysPage from pagePermissions
 
 function authHeaders(): Record<string, string> {
   const token = getAuthToken();
@@ -77,7 +73,7 @@ function formatAnswer(val: unknown): string {
 
 function ResponseCard({ resp, fields }: { resp: ResponseEntry; fields: Field[] }) {
   const [open, setOpen] = useState(false);
-  const rank = highestRole(resp.discord_roles);
+  const rank = highestRoleDisplay(resp.discord_roles ?? [], {});
   const displayName = resp.rsn ?? resp.discord_username ?? String(resp.discord_user_id);
 
   return (
@@ -139,12 +135,14 @@ function ResponseCard({ resp, fields }: { resp: ResponseEntry; fields: Field[] }
 function TemplateCard({
   entry,
   isSeniorStaff,
+  visibilityOptions,
   onVisibilityChange,
   onOpenChange,
   onEdit,
 }: {
   entry: TemplateEntry;
   isSeniorStaff: boolean;
+  visibilityOptions: { value: string; label: string }[];
   onVisibilityChange: (templateId: string, visibility: string[] | null) => void;
   onOpenChange: (templateId: string, isOpen: boolean) => void;
   onEdit: (templateId: string) => void;
@@ -208,9 +206,7 @@ function TemplateCard({
   }
 
   const presentRanks = responses
-    ? (DISCORD_ROLE_ORDER as readonly string[]).filter((rank) =>
-        responses.some((r) => highestRole(r.discord_roles) === rank)
-      )
+    ? Array.from(new Set(responses.map((r) => r.discord_roles?.[0] ?? "unknown").filter(Boolean)))
     : [];
 
   const filteredResponses =
@@ -218,7 +214,7 @@ function TemplateCard({
       ? []
       : rankFilter === "all"
         ? responses
-        : responses.filter((r) => highestRole(r.discord_roles) === rankFilter);
+        : responses.filter((r) => (r.discord_roles?.[0] ?? "unknown") === rankFilter);
 
   return (
     <Card>
@@ -281,7 +277,7 @@ function TemplateCard({
                 disabled={saving}
                 className="flex-wrap"
               >
-                {VISIBILITY_OPTIONS.map((o) => (
+                {visibilityOptions.map((o) => (
                   <ToggleGroupItem key={o.value} value={o.value} className="h-6 px-2 text-xs">
                     {o.label}
                   </ToggleGroupItem>
@@ -389,6 +385,7 @@ function TemplateCard({
 
 function StaffSurveysPage() {
   const { user } = useAuth();
+  const { hasPermission, pagePermissions } = usePermissions();
   const [templates, setTemplates] = useState<TemplateEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
@@ -396,7 +393,22 @@ function StaffSurveysPage() {
   const [editId, setEditId] = useState<string | null>(null);
 
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
-  const isSeniorStaff = hasMinRank(effectiveRoles, "Senior Moderator");
+  const isSeniorStaff = hasPermission("staff.surveys", "edit", effectiveRoles);
+
+  // Dynamic visibility options: all role IDs/names appearing in any page-permissions config
+  const visibilityOptions = useMemo(() => {
+    const roleSet = new Set<string>();
+    for (const page of Object.values(pagePermissions)) {
+      for (const roles of [page.read, page.create, page.edit, page.delete]) {
+        for (const r of roles) roleSet.add(r);
+      }
+    }
+    const roleLabels = user?.role_labels ?? {};
+    return Array.from(roleSet).map((id) => ({
+      value: id,
+      label: roleLabels[id] ?? id,
+    }));
+  }, [pagePermissions, user?.role_labels]);
 
   useEffect(() => {
     Promise.all([
@@ -510,6 +522,7 @@ function StaffSurveysPage() {
               key={entry.template_id}
               entry={entry}
               isSeniorStaff={isSeniorStaff}
+              visibilityOptions={visibilityOptions}
               onVisibilityChange={handleVisibilityChange}
               onOpenChange={handleOpenChange}
               onEdit={handleEdit}

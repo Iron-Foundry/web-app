@@ -18,6 +18,8 @@ export interface AuthUser {
   clan_rank: string | null;
   discord_roles: string[];
   effective_roles: string[];
+  /** Map of Discord role ID -> human-readable label (from rank-mappings config). */
+  role_labels: Record<string, string>;
   stats_opt_out: boolean;
   hide_presence_notifications: boolean;
 }
@@ -55,6 +57,7 @@ async function fetchMe(token: string): Promise<AuthUser | null> {
     ...data,
     discord_roles: data.discord_roles ?? [],
     effective_roles: data.effective_roles ?? data.discord_roles ?? [],
+    role_labels: data.role_labels ?? {},
     stats_opt_out: data.stats_opt_out ?? false,
     hide_presence_notifications: data.hide_presence_notifications ?? false,
   };

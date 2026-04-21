@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavLinks } from "./NavLinks";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
-import { highestRole } from "@/lib/ranks";
+import { highestRoleDisplay } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
 
 const ROLE_BADGE_CLASS: Record<string, string> = {
@@ -18,8 +18,8 @@ const ROLE_BADGE_CLASS: Record<string, string> = {
   "Foundry Mentors":  "border-blue-400/60    text-blue-600    dark:text-blue-400",
 };
 
-function RoleBadge({ roles }: { roles: string[] }) {
-  const top = highestRole(roles);
+function RoleBadge({ roles, roleLabels }: { roles: string[]; roleLabels: Record<string, string> }) {
+  const top = highestRoleDisplay(roles, roleLabels);
   if (!top || !(top in ROLE_BADGE_CLASS)) return null;
   return (
     <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", ROLE_BADGE_CLASS[top])}>
@@ -84,7 +84,7 @@ export function TopNav() {
               )}
               <div className="flex flex-col items-start leading-none gap-0.5">
                 <span className="text-sm text-foreground">{user.rsn ?? user.username}</span>
-                <RoleBadge roles={user.effective_roles} />
+                <RoleBadge roles={user.effective_roles} roleLabels={user.role_labels} />
               </div>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate({ to: "/members/settings" })}>
                 <Settings className="h-4 w-4" />

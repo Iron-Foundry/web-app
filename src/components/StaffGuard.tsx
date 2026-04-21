@@ -1,25 +1,26 @@
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/context/AuthContext";
+import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
-import { hasMinRank } from "@/lib/ranks";
 
 /**
  * Redirects to /members/staff if the current effective roles (respecting
- * the ViewAs preview selection) do not meet `minRank`.
+ * the ViewAs preview selection) do not have read permission on `pageId`.
  */
-export function StaffGuard({ minRank, children }: { minRank: string; children: React.ReactNode }) {
+export function StaffGuard({ pageId, children }: { pageId: string; children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const { hasPermission } = usePermissions();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const navigate = useNavigate();
 
-  const allowed = !loading && !!user && hasMinRank(effectiveRoles, minRank);
+  const allowed = !loading && !!user && hasPermission(pageId, "read", effectiveRoles);
 
   useEffect(() => {
-    if (!loading && user && !hasMinRank(effectiveRoles, minRank)) {
+    if (!loading && user && !hasPermission(pageId, "read", effectiveRoles)) {
       navigate({ to: "/members/staff" });
     }
-  }, [loading, user, effectiveRoles, minRank, navigate]);
+  }, [loading, user, effectiveRoles, pageId, hasPermission, navigate]);
 
   if (loading || !allowed) return null;
   return <>{children}</>;

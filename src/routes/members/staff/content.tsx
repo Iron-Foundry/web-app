@@ -3,7 +3,7 @@ import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
-import { hasMinRank } from "@/lib/ranks";
+import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Trash2 } from "lucide-react";
 
@@ -38,7 +38,8 @@ function PageTypeBadge({ type }: { type: string }) {
 function StaffContentPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
-  const canSeniorMod = hasMinRank(effectiveRoles, "Senior Moderator");
+  const { hasPermission } = usePermissions();
+  const canSeniorMod = hasPermission("resources", "delete", effectiveRoles);
 
   const [entries, setEntries] = useState<DeprecatedEntry[]>([]);
   const [loading, setLoading] = useState(true);

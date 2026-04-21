@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Pencil, Trash2, Plus, UserPlus, UserMinus, Upload } from "lucide-react";
-import { hasMinRank } from "@/lib/ranks";
+import { usePermissions } from "@/context/PermissionsContext";
+import { useEffectiveRoles } from "@/context/ViewAsContext";
 
 registerPage({
   id: "staff.badges",
@@ -438,6 +439,8 @@ function AssignDialog({
 
 function BadgesPage() {
   const { user } = useAuth();
+  const { hasPermission } = usePermissions();
+  const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const [badges, setBadges] = useState<BadgeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -447,7 +450,7 @@ function BadgesPage() {
   const token = getAuthToken();
   const authHeaders = { Authorization: `Bearer ${token}` };
 
-  const isSeniorMod = user ? hasMinRank(user.effective_roles, "Senior Moderator") : false;
+  const isSeniorMod = hasPermission("staff.badges", "delete", effectiveRoles);
 
   useEffect(() => {
     fetch(`${API_URL}/badges`, { headers: authHeaders })

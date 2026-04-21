@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import DOMPurify from "dompurify";
-import { Check, Copy, Download, History, Pencil, Trash2 } from "lucide-react";
+import { Check, Copy, Download, Heart, History, Pencil, Trash2 } from "lucide-react";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,8 @@ interface EntryDetail {
   author: EntryAuthor | null;
   collaborators: EntryAuthor[];
   last_updated_by: EntryAuthor | null;
+  reaction_count: number;
+  user_has_reacted: boolean;
 }
 
 function AuthorChip({ user }: { user: EntryAuthor }) {
@@ -108,6 +110,10 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   const [entryId, setEntryId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
+  const [reacted, setReacted] = useState(false);
+  const [reactionCount, setReactionCount] = useState(0);
+  const [reacting, setReacting] = useState(false);
+
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
@@ -126,6 +132,8 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         setSlugEdited(false);
         setLoadedUpdatedAt(data.updated_at);
         setConflictDetected(false);
+        setReacted(data.user_has_reacted ?? false);
+        setReactionCount(data.reaction_count ?? 0);
         if (!data.body && canEdit) { latestBodyRef.current = data.body; setEditMode(true); }
       })
       .catch((e: Error) => {
@@ -206,6 +214,35 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
       refreshTree();
       navigate({ to: routeBase });
     } catch {
+    }
+  }
+
+  async function handleReact() {
+    if (!entryId || !user || reacting) return;
+    const token = getAuthToken();
+    const prevReacted = reacted;
+    const prevCount = reactionCount;
+    setReacted(!reacted);
+    setReactionCount(reacted ? reactionCount - 1 : reactionCount + 1);
+    setReacting(true);
+    try {
+      const res = await fetch(`${API_URL}/content/${pageType}/entries/${entryId}/react`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) {
+        setReacted(prevReacted);
+        setReactionCount(prevCount);
+        return;
+      }
+      const data = await res.json() as { reacted: boolean; count: number };
+      setReacted(data.reacted);
+      setReactionCount(data.count);
+    } catch {
+      setReacted(prevReacted);
+      setReactionCount(prevCount);
+    } finally {
+      setReacting(false);
     }
   }
 
@@ -358,6 +395,30 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
       )}
       
 
+
+      {!editMode && (
+        <div className="flex items-center gap-2">
+          {user ? (
+            <button
+              onClick={handleReact}
+              disabled={reacting}
+              title={reacted ? "Remove reaction" : "Mark as useful"}
+              className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+            >
+              <Heart
+                className="h-4 w-4 shrink-0 transition-colors"
+                style={reacted ? { fill: "currentColor", color: "rgb(239 68 68)" } : {}}
+              />
+              <span className="tabular-nums">{reactionCount}</span>
+            </button>
+          ) : (
+            <span title="Log in to react" className="flex items-center gap-1.5 px-2.5 py-1 text-sm text-muted-foreground cursor-default">
+              <Heart className="h-4 w-4 shrink-0" />
+              <span className="tabular-nums">{reactionCount}</span>
+            </span>
+          )}
+        </div>
+      )}
 
       {!editMode && entry.body && (
         <div className="flex items-center gap-2">
