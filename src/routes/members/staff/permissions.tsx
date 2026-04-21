@@ -25,7 +25,6 @@ export const staffPermissionsRoute = createRoute({
   component: () => <StaffGuard pageId="staff.permissions"><PermissionsPage /></StaffGuard>,
 });
 
-const FALLBACK_ROLES: string[] = [];
 
 const ACTIONS = [
   { key: "read",   label: "Read",   hint: "empty = all users" },
@@ -50,7 +49,7 @@ function PageCard({
 }: {
   page: ReturnType<typeof getPageRegistry>[number];
   cfg: PagePermissionConfig;
-  roleOptions: string[];
+  roleOptions: { id: string; label: string }[];
   onSetAction: (action: keyof PagePermissionConfig, roles: string[]) => void;
 }) {
   return (
@@ -79,9 +78,9 @@ function PageCard({
               onValueChange={(v) => onSetAction(key, v)}
               className="flex-wrap justify-start"
             >
-              {roleOptions.map((role) => (
-                <ToggleGroupItem key={role} value={role} className="text-xs h-7 px-2.5">
-                  {role}
+              {roleOptions.map(({ id, label }) => (
+                <ToggleGroupItem key={id} value={id} className="text-xs h-7 px-2.5">
+                  {label}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
@@ -98,7 +97,7 @@ function PermissionsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
-  const [roleOptions, setRoleOptions] = useState<string[]>(FALLBACK_ROLES);
+  const [roleOptions, setRoleOptions] = useState<{ id: string; label: string }[]>([]);
 
   const pages = getPageRegistry();
 
@@ -117,8 +116,17 @@ function PermissionsPage() {
     const rankMappingsReq = fetch(`${API_URL}/config/rank-mappings`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.resolve({ mappings: [] })))
       .then((data: { mappings: { label: string; discord_role_id: string }[] }) => {
-        const roles = [...new Set((data.mappings ?? []).map((m) => m.label).filter(Boolean))];
-        if (roles.length > 0) setRoleOptions(roles);
+        const seen = new Set<string>();
+        const opts = (data.mappings ?? [])
+          .filter((m) => m.discord_role_id && m.label)
+          .reduce<{ id: string; label: string }[]>((acc, m) => {
+            if (!seen.has(m.discord_role_id)) {
+              seen.add(m.discord_role_id);
+              acc.push({ id: m.discord_role_id, label: m.label });
+            }
+            return acc;
+          }, []);
+        if (opts.length > 0) setRoleOptions(opts);
       })
       .catch(() => {});
 
