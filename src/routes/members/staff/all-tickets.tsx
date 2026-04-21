@@ -20,7 +20,7 @@ registerPage({
 export const staffAllTicketsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
   path: "/staff/all-tickets",
-  component: () => <StaffGuard minRank="Moderator"><StaffAllTicketsPage /></StaffGuard>,
+  component: () => <StaffGuard pageId="staff.all-tickets"><StaffAllTicketsPage /></StaffGuard>,
 });
 
 

@@ -5,7 +5,7 @@ import { membersLayoutRoute } from "./_layout";
 import { useAuth, API_URL, getAuthToken } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Button } from "@/components/ui/button";
-import { getDisplayRank, highestRole } from "@/lib/ranks";
+import { getDisplayRank, highestRoleDisplay } from "@/lib/ranks";
 
 export const membersSettingsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
@@ -89,7 +89,7 @@ function ProfileSection() {
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Discord role</span>
-          <span className="text-foreground">{highestRole(user.discord_roles) ?? "-"}</span>
+          <span className="text-foreground">{highestRoleDisplay(user.effective_roles, user.role_labels) ?? "-"}</span>
         </div>
       </div>
 

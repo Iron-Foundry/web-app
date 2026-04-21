@@ -22,10 +22,10 @@ registerPage({
 export const staffPermissionsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
   path: "/staff/permissions",
-  component: () => <StaffGuard minRank="Senior Moderator"><PermissionsPage /></StaffGuard>,
+  component: () => <StaffGuard pageId="staff.permissions"><PermissionsPage /></StaffGuard>,
 });
 
-const FALLBACK_ROLES = ["Foundry Mentors", "Event Team", "Moderator", "Senior Moderator"];
+const FALLBACK_ROLES: string[] = [];
 
 const ACTIONS = [
   { key: "read",   label: "Read",   hint: "empty = all users" },
@@ -116,8 +116,8 @@ function PermissionsPage() {
 
     const rankMappingsReq = fetch(`${API_URL}/config/rank-mappings`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.resolve({ mappings: [] })))
-      .then((data: { mappings: { clan_rank: string; discord_role: string }[] }) => {
-        const roles = [...new Set((data.mappings ?? []).map((m) => m.discord_role).filter(Boolean))];
+      .then((data: { mappings: { label: string; discord_role_id: string }[] }) => {
+        const roles = [...new Set((data.mappings ?? []).map((m) => m.label).filter(Boolean))];
         if (roles.length > 0) setRoleOptions(roles);
       })
       .catch(() => {});

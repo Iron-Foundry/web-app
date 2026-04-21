@@ -4,7 +4,8 @@ import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Badge } from "@/components/ui/badge";
-import { highestRole } from "@/lib/ranks";
+import { highestRoleDisplay } from "@/lib/ranks";
+import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { registerPage } from "@/lib/permissions";
@@ -19,7 +20,7 @@ registerPage({
 export const staffMembersRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
   path: "/staff/members",
-  component: () => <StaffGuard minRank="Moderator"><StaffMembersPage /></StaffGuard>,
+  component: () => <StaffGuard pageId="staff.members"><StaffMembersPage /></StaffGuard>,
 });
 
 interface MemberRow {
@@ -88,7 +89,7 @@ function sortMembers(rows: MemberRow[], key: SortKey, dir: SortDir): MemberRow[]
       case "rsn":             av = a.rsn ?? ""; bv = b.rsn ?? ""; break;
       case "discord_username": av = a.discord_username; bv = b.discord_username; break;
       case "clan_rank":       av = a.clan_rank ?? ""; bv = b.clan_rank ?? ""; break;
-      case "role":            av = highestRole(a.discord_roles) ?? ""; bv = highestRole(b.discord_roles) ?? ""; break;
+      case "role":            av = highestRoleDisplay(a.discord_roles, roleLabels) ?? ""; bv = highestRoleDisplay(b.discord_roles, roleLabels) ?? ""; break;
       case "total_loot_value": av = a.total_loot_value; bv = b.total_loot_value; break;
       case "collection_log_slots": av = a.collection_log_slots; bv = b.collection_log_slots; break;
       case "join_date":       av = a.join_date ?? a.created_at; bv = b.join_date ?? b.created_at; break;
@@ -212,6 +213,8 @@ function RsnCell({ memberId, rsn, onSaved }: RsnCellProps) {
 }
 
 function StaffMembersPage() {
+  const { user } = useAuth();
+  const roleLabels = user?.role_labels ?? {};
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -295,7 +298,7 @@ function StaffMembersPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {sorted.map((m) => {
-                const topRole = highestRole(m.discord_roles ?? []);
+                const topRole = highestRoleDisplay(m.discord_roles ?? [], roleLabels);
                 return (
                   <tr key={m.discord_user_id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-2">
