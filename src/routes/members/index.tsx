@@ -173,141 +173,111 @@ function DashboardPage() {
   if (!user) return null;
 
   return (
-    // 3-col asymmetric layout on large screens, stacked on mobile
-    <div className="flex flex-col gap-4 lg:flex-row lg:h-full">
+    // Auto-placing 12-col bento. Cards declare only their own col-span / row-span.
+    // grid-auto-flow:dense fills gaps when new cards are added. Page scrolls naturally.
+    <div
+      className="grid grid-cols-1 gap-4 lg:grid-cols-12"
+      style={{ gridAutoFlow: "dense", gridAutoRows: "minmax(160px, auto)" }}
+    >
 
-      {/* ── Col 1 (narrow): Profile + Name Changes ─────────────── */}
-      <div className="flex flex-col gap-4 lg:w-[260px] lg:shrink-0 lg:min-h-0">
-
-        {/* Profile card — shrink-to-content */}
-        <Card className="shrink-0">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              {user.avatar
-                ? <img src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=64`} alt="" className="h-12 w-12 rounded-full shrink-0" />
-                : <div className="h-12 w-12 rounded-full bg-muted shrink-0" />
-              }
-              <div className="min-w-0">
-                <CardTitle className="font-rs-bold text-3xl text-primary leading-tight">
-                  Welcome, {user.rsn ?? user.username}!
-                </CardTitle>
-                {(() => {
-                  const top = highestRoleDisplay(user.effective_roles, user.role_labels);
-                  return top && top in ROLE_BADGE_CLASS
-                    ? <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 mt-1", ROLE_BADGE_CLASS[top])}>{top}</Badge>
-                    : null;
-                })()}
-              </div>
+      {/* Profile — 4 cols, content-height (no row-span) */}
+      <Card className="lg:col-span-4">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3">
+            {user.avatar
+              ? <img src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=64`} alt="" className="h-12 w-12 rounded-full shrink-0" />
+              : <div className="h-12 w-12 rounded-full bg-muted shrink-0" />
+            }
+            <div className="min-w-0">
+              <CardTitle className="font-rs-bold text-3xl text-primary leading-tight">
+                Welcome, {user.rsn ?? user.username}!
+              </CardTitle>
+              {(() => {
+                const top = highestRoleDisplay(user.effective_roles, user.role_labels);
+                return top && top in ROLE_BADGE_CLASS
+                  ? <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 mt-1", ROLE_BADGE_CLASS[top])}>{top}</Badge>
+                  : null;
+              })()}
             </div>
-          </CardHeader>
+          </div>
+        </CardHeader>
 
-          <CardContent className="space-y-4">
-            {!user.rsn && (
-              <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                Link your RSN in{" "}
-                <Link to="/members/settings" className="underline font-medium">Settings</Link>{" "}
-                to unlock your activity feed.
-              </p>
-            )}
-            <div className="space-y-2 text-sm">
+        <CardContent className="space-y-4">
+          {!user.rsn && (
+            <p className="text-sm text-yellow-600 dark:text-yellow-400">
+              Link your RSN in{" "}
+              <Link to="/members/settings" className="underline font-medium">Settings</Link>{" "}
+              to unlock your activity feed.
+            </p>
+          )}
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Discord</span>
+              <span className="text-foreground truncate max-w-35 text-right">{user.username}</span>
+            </div>
+            {user.rsn && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Discord</span>
-                <span className="text-foreground truncate max-w-[140px] text-right">{user.username}</span>
+                <span className="text-muted-foreground">RSN</span>
+                <span className="text-foreground">{user.rsn}</span>
               </div>
-              {user.rsn && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">RSN</span>
-                  <span className="text-foreground">{user.rsn}</span>
-                </div>
-              )}
-              {user.clan_rank && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">In-game rank</span>
-                  <span className="text-foreground">{user.clan_rank}</span>
-                </div>
-              )}
-              {user.clan_rank && getDisplayRank(user.clan_rank) !== user.clan_rank && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Community rank</span>
-                  <span className="text-foreground">{getDisplayRank(user.clan_rank)}</span>
-                </div>
-              )}
-              {hasPermission("staff.home", "read", user.effective_roles) && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Staff role</span>
-                  <span className="text-foreground">{highestRoleDisplay(user.effective_roles, user.role_labels)}</span>
-                </div>
-              )}
-            </div>
+            )}
+            {user.clan_rank && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">In-game rank</span>
+                <span className="text-foreground">{user.clan_rank}</span>
+              </div>
+            )}
+            {user.clan_rank && getDisplayRank(user.clan_rank) !== user.clan_rank && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Community rank</span>
+                <span className="text-foreground">{getDisplayRank(user.clan_rank)}</span>
+              </div>
+            )}
+            {hasPermission("staff.home", "read", user.effective_roles) && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Staff role</span>
+                <span className="text-foreground">{highestRoleDisplay(user.effective_roles, user.role_labels)}</span>
+              </div>
+            )}
+          </div>
 
-            <Separator />
+          <Separator />
 
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">Badges</p>
-              {playerBadges.length === 0
-                ? <p className="text-xs text-muted-foreground italic">No badges earned yet.</p>
-                : (
-                  <div className="flex flex-wrap gap-2">
-                    {playerBadges.map((b) => {
-                      const isSvg = b.icon?.trimStart().startsWith("<");
-                      return (
-                        <span key={b.id} title={b.description}
-                          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                          style={{ background: b.color, color: b.text_color }}
-                        >
-                          {b.icon && (isSvg
-                            ? <span className="h-3.5 w-3.5 shrink-0" dangerouslySetInnerHTML={{ __html: b.icon }} style={{ color: b.text_color }} />
-                            : <img src={b.icon} alt="" className="h-3.5 w-3.5 shrink-0 object-contain" />
-                          )}
-                          {b.name}
-                        </span>
-                      );
-                    })}
-                  </div>
-                )
-              }
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Name Changes — fills remaining col height, scrolls internally */}
-        <Card className="flex flex-col min-h-0 lg:flex-1">
-          <CardHeader className="pb-2 shrink-0">
-            <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">
-              <ArrowRight className="h-4 w-4" />
-              Name Changes
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 overflow-y-auto max-h-64 lg:max-h-none lg:flex-1 lg:min-h-0">
-            {nameChangesLoading
-              ? <p className="px-4 py-4 text-sm text-muted-foreground">Loading…</p>
-              : nameChanges.length === 0
-              ? <p className="px-4 py-4 text-sm text-muted-foreground italic">No recent name changes.</p>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">Badges</p>
+            {playerBadges.length === 0
+              ? <p className="text-xs text-muted-foreground italic">No badges earned yet.</p>
               : (
-                <ul className="divide-y divide-border">
-                  {nameChanges.map((nc, i) => (
-                    <li key={i} className="flex items-center gap-2 px-4 py-2 text-sm">
-                      <span className="font-medium text-muted-foreground truncate flex-1 min-w-0">{nc.old_name}</span>
-                      <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground/40" />
-                      <span className="font-medium text-foreground truncate flex-1 min-w-0 text-right">{nc.new_name}</span>
-                      {nc.resolved_at && (
-                        <span className="shrink-0 text-xs text-muted-foreground/70 pl-1">{timeAgo(nc.resolved_at)}</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex flex-wrap gap-2">
+                  {playerBadges.map((b) => {
+                    const isSvg = b.icon?.trimStart().startsWith("<");
+                    return (
+                      <span key={b.id} title={b.description}
+                        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                        style={{ background: b.color, color: b.text_color }}
+                      >
+                        {b.icon && (isSvg
+                          ? <span className="h-3.5 w-3.5 shrink-0" dangerouslySetInnerHTML={{ __html: b.icon }} style={{ color: b.text_color }} />
+                          : <img src={b.icon} alt="" className="h-3.5 w-3.5 shrink-0 object-contain" />
+                        )}
+                        {b.name}
+                      </span>
+                    );
+                  })}
+                </div>
               )
             }
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* ── Col 2 (flex-grow): Activity Feed ──────────────────── */}
-      <Card className="flex flex-col min-h-0 lg:flex-1">
+      {/* Activity Feed — 5 cols, 2 rows tall, scrolls internally */}
+      <Card className="lg:col-span-5 lg:row-span-2">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary">Your Activity Feed</CardTitle>
         </CardHeader>
-        <CardContent className="p-0 overflow-y-auto max-h-96 lg:max-h-none lg:flex-1 lg:min-h-0">
+        {/* 480px = 15 × 32px rows (py-1.5 + text-sm), always lands between rows */}
+        <CardContent className="p-0 overflow-y-auto max-h-120">
           {!user.rsn
             ? <p className="px-4 py-6 text-sm text-muted-foreground">
                 Link your RSN in{" "}
@@ -342,15 +312,16 @@ function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* ── Col 3 (narrow): Competitions ──────────────────────── */}
-      <Card className="flex flex-col min-h-0 lg:w-[280px] lg:shrink-0">
+      {/* Competitions — 3 cols, 2 rows tall, scrolls internally */}
+      <Card className="lg:col-span-3 lg:row-span-2">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">
             <Trophy className="h-4 w-4" />
             Competitions
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0 overflow-y-auto max-h-72 lg:max-h-none lg:flex-1 lg:min-h-0">
+        {/* 448px = 4 × 112px entries (py-3 + 4 lines + gaps), always lands between entries */}
+        <CardContent className="p-0 overflow-y-auto max-h-200">
           {compsLoading
             ? <p className="px-4 py-4 text-sm text-muted-foreground">Loading…</p>
             : competitions.length === 0
@@ -402,6 +373,39 @@ function DashboardPage() {
           }
         </CardContent>
       </Card>
+
+      {/* Name Changes — 4 cols, 1 row (dense-fills the gap left of feed row 2) */}
+      <Card className="lg:col-span-4">
+        <CardHeader className="pb-2 shrink-0">
+          <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">
+            <ArrowRight className="h-4 w-4" />
+            Name Changes
+          </CardTitle>
+        </CardHeader>
+        {/* 360px = 10 × 36px rows (py-2 + text-sm), always lands between rows */}
+        <CardContent className="p-0 overflow-y-auto max-h-[360px]">
+          {nameChangesLoading
+            ? <p className="px-4 py-4 text-sm text-muted-foreground">Loading…</p>
+            : nameChanges.length === 0
+            ? <p className="px-4 py-4 text-sm text-muted-foreground italic">No recent name changes.</p>
+            : (
+              <ul className="divide-y divide-border">
+                {nameChanges.map((nc, i) => (
+                  <li key={i} className="flex items-center gap-2 px-4 py-2 text-sm">
+                    <span className="font-medium text-muted-foreground truncate flex-1 min-w-0">{nc.old_name}</span>
+                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground/40" />
+                    <span className="font-medium text-foreground truncate flex-1 min-w-0 text-right">{nc.new_name}</span>
+                    {nc.resolved_at && (
+                      <span className="shrink-0 text-xs text-muted-foreground/70 pl-1">{timeAgo(nc.resolved_at)}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
