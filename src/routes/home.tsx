@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
-import { API_URL } from "@/context/AuthContext";
+import { API_URL, useAuth } from "@/context/AuthContext";
 import { fetchCached } from "@/lib/cache";
 import clanPhoto from "@/assets/clan-photo.png";
 import bannerLogo from "@/assets/BannerLogo-160x87.png";
@@ -157,17 +157,23 @@ function timeLeft(endsAt: string): string {
 }
 
 function LiveCompetitionBox({ comp, onDismiss }: { comp: Competition; onDismiss: () => void }) {
+  const { user } = useAuth();
+  const isOngoing = comp.status === "ongoing";
+  const accent = isOngoing
+    ? { border: "border-green-500/40", bar: "bg-green-500", text: "text-green-600 dark:text-green-400", icon: "text-green-500" }
+    : { border: "border-blue-500/40",  bar: "bg-blue-500",  text: "text-blue-600 dark:text-blue-400",  icon: "text-blue-500"  };
+
   return (
-    <div className="fixed top-20 left-4 z-40 w-64 animate-in slide-in-from-left-2 duration-300">
-      <Card className="border-green-500/40 bg-card/95 backdrop-blur-sm shadow-lg overflow-hidden">
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500" />
+    <div className={`fixed left-4 z-40 w-64 animate-in slide-in-from-left-2 duration-200 ${user ? "top-27" : "top-17"}`}>
+      <Card className={`${accent.border} bg-card/95 backdrop-blur-sm shadow-lg overflow-hidden`}>
+        <div className={`absolute left-0 top-0 bottom-0 w-1 ${accent.bar}`} />
         <CardContent className="pl-4 pr-3 py-3 space-y-2">
           {/* Header row */}
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-1.5 min-w-0">
-              <Trophy className="h-3.5 w-3.5 shrink-0 text-green-500" />
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-green-600 dark:text-green-400">
-                Live Competition
+              <Trophy className={`h-3.5 w-3.5 shrink-0 ${accent.icon}`} />
+              <span className={`text-[10px] font-semibold uppercase tracking-wider ${accent.text}`}>
+                {isOngoing ? "Live Competition" : "Upcoming Competition"}
               </span>
             </div>
             <button
@@ -189,9 +195,9 @@ function LiveCompetitionBox({ comp, onDismiss }: { comp: Competition; onDismiss:
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
               {fmtMetric(comp.metric)}
             </Badge>
-            <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+            <div className={`flex items-center gap-1 text-xs ${accent.text}`}>
               <Clock className="h-3 w-3 shrink-0" />
-              {timeLeft(comp.endsAt)}
+              {isOngoing ? timeLeft(comp.endsAt) : `starts in ${timeLeft(comp.startsAt).replace(" left", "")}`}
             </div>
           </div>
 
@@ -267,8 +273,8 @@ function HomePage() {
       { cacheKey: "home:competitions", ttl: 5 * 60 * 1000 },
     )
       .then((data) => {
-        const ongoing = data.find((c) => c.status === "ongoing");
-        setActiveComp(ongoing ?? null);
+        const active = data.find((c) => c.status === "ongoing") ?? data.find((c) => c.status === "upcoming") ?? null;
+        setActiveComp(active);
       })
       .catch(() => {});
   }, []);
