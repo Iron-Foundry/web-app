@@ -25,6 +25,7 @@ import { staffRankMappingsRoute } from "./members/staff/rank-mappings";
 import { staffPermissionsRoute } from "./members/staff/permissions";
 import { staffBadgesRoute } from "./members/staff/badges";
 import { staffContentRoute } from "./members/staff/content";
+import { staffAssetsRoute } from "./members/staff/assets";
 import { membersSurveysRoute } from "./members/surveys";
 import { membersApplicationsRoute } from "./members/applications";
 import { surveyDetailRoute } from "./members/surveys.$templateId";
@@ -46,6 +47,7 @@ const membersTree = membersLayoutRoute.addChildren([
   staffPermissionsRoute,
   staffBadgesRoute,
   staffContentRoute,
+  staffAssetsRoute,
 ]);
 
 const pluginsTree = pluginsLayoutRoute.addChildren([pluginsIndexRoute, pluginsEntryRoute]);

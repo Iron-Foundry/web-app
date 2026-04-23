@@ -383,7 +383,7 @@ function DashboardPage() {
           </CardTitle>
         </CardHeader>
         {/* 360px = 10 × 36px rows (py-2 + text-sm), always lands between rows */}
-        <CardContent className="p-0 overflow-y-auto max-h-[360px]">
+        <CardContent className="p-0 overflow-y-auto max-h-90">
           {nameChangesLoading
             ? <p className="px-4 py-4 text-sm text-muted-foreground">Loading…</p>
             : nameChanges.length === 0

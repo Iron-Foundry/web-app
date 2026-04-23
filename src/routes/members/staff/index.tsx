@@ -6,7 +6,7 @@ import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Ticket, ShieldCheck, BookOpen } from "lucide-react";
+import { Users, Ticket, ShieldCheck, BookOpen, Image } from "lucide-react";
 import { registerPage } from "@/lib/permissions";
 
 registerPage({
@@ -49,6 +49,7 @@ function StaffOverviewPage() {
   const canViewMembers = hasPermission("staff.members", "read", effectiveRoles);
   const canViewTickets = hasPermission("staff.all-tickets", "read", effectiveRoles);
   const canViewContent = hasPermission("resources", "delete", effectiveRoles);
+  const canViewAssets = hasPermission("resources", "create", effectiveRoles);
 
   const [overview, setOverview] = useState<Overview | null>(null);
 
@@ -79,7 +80,7 @@ function StaffOverviewPage() {
         <StatCard label="Total Tickets"      value={fmt(overview?.total_tickets)}  icon={ShieldCheck} />
       </div>
 
-      {(canViewMembers || canViewTickets || canViewContent) && (
+      {(canViewMembers || canViewTickets || canViewContent || canViewAssets) && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {canViewMembers && (
             <Link
@@ -119,6 +120,20 @@ function StaffOverviewPage() {
                 <div>
                   <p className="font-medium text-foreground">Content</p>
                   <p className="text-xs text-muted-foreground">Manage deprecated content entries</p>
+                </div>
+              </div>
+            </Link>
+          )}
+          {canViewAssets && (
+            <Link
+              to="/members/staff/assets"
+              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Image className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium text-foreground">Asset Library</p>
+                  <p className="text-xs text-muted-foreground">Upload and manage shared assets</p>
                 </div>
               </div>
             </Link>
