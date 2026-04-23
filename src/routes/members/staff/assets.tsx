@@ -5,12 +5,25 @@ import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { StaffGuard } from "@/components/StaffGuard";
+import { registerPage } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check, Copy, Download, Film, ImageIcon, Trash2, Upload } from "lucide-react";
+
+registerPage({
+  id: "staff.assets",
+  label: "Asset Library",
+  description: "Upload and manage shared assets (images, videos) used across the site.",
+  defaults: {
+    read:   ["Foundry Mentors"],
+    create: ["Foundry Mentors"],
+    edit:   [],
+    delete: ["Senior Moderator"],
+  },
+});
 
 interface Asset {
   id: string;
@@ -106,8 +119,8 @@ function AssetManagerPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const { hasPermission } = usePermissions();
-  const canUpload = hasPermission("resources", "create", effectiveRoles);
-  const canDeleteAny = hasPermission("resources", "delete", effectiveRoles);
+  const canUpload = hasPermission("staff.assets", "create", effectiveRoles);
+  const canDeleteAny = hasPermission("staff.assets", "delete", effectiveRoles);
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);

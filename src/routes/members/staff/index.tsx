@@ -49,7 +49,7 @@ function StaffOverviewPage() {
   const canViewMembers = hasPermission("staff.members", "read", effectiveRoles);
   const canViewTickets = hasPermission("staff.all-tickets", "read", effectiveRoles);
   const canViewContent = hasPermission("resources", "delete", effectiveRoles);
-  const canViewAssets = hasPermission("resources", "create", effectiveRoles);
+  const canViewAssets = hasPermission("staff.assets", "read", effectiveRoles);
 
   const [overview, setOverview] = useState<Overview | null>(null);
 
