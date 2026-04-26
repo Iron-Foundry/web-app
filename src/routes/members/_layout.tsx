@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Award, Image } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Award, Image, Trophy, BookMarked } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { useViewAs, useEffectiveRoles } from "@/context/ViewAsContext";
@@ -31,7 +31,9 @@ const STAFF_NAV = [
   { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings",icon: ArrowRightLeft,pageId: "staff.rank-mappings",exact: false },
   { to: "/members/staff/permissions" as const,    label: "Permissions",  icon: Lock,          pageId: "staff.permissions",  exact: false },
   { to: "/members/staff/badges" as const,         label: "Badges",       icon: Award,         pageId: "staff.badges",       exact: false },
-  { to: "/members/staff/assets" as const,         label: "Asset Library",icon: Image,         pageId: "staff.assets",       exact: false },
+  { to: "/members/staff/assets" as const,         label: "Asset Library",    icon: Image,       pageId: "staff.assets",        exact: false },
+  { to: "/members/staff/competitions" as const,   label: "Competitions",     icon: Trophy,      pageId: "staff.competitions",  exact: false },
+  { to: "/members/staff/resources" as const,      label: "Staff Resources",  icon: BookMarked,  pageId: "staff.resources",     exact: false },
 ];
 
 function navLinkClass(base?: string) {

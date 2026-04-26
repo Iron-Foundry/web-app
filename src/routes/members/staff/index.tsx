@@ -6,7 +6,7 @@ import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Ticket, ShieldCheck, BookOpen, Image } from "lucide-react";
+import { Users, Ticket, ShieldCheck, BookOpen, Image, Trophy, BookMarked } from "lucide-react";
 import { registerPage } from "@/lib/permissions";
 
 registerPage({
@@ -46,10 +46,12 @@ function StaffOverviewPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const { hasPermission } = usePermissions();
-  const canViewMembers = hasPermission("staff.members", "read", effectiveRoles);
-  const canViewTickets = hasPermission("staff.all-tickets", "read", effectiveRoles);
-  const canViewContent = hasPermission("resources", "delete", effectiveRoles);
-  const canViewAssets = hasPermission("staff.assets", "read", effectiveRoles);
+  const canViewMembers      = hasPermission("staff.members",      "read", effectiveRoles);
+  const canViewTickets      = hasPermission("staff.all-tickets",  "read", effectiveRoles);
+  const canViewContent      = hasPermission("resources",          "delete", effectiveRoles);
+  const canViewAssets       = hasPermission("staff.assets",       "read", effectiveRoles);
+  const canViewCompetitions = hasPermission("staff.competitions", "read", effectiveRoles);
+  const canViewResources    = hasPermission("staff.resources",    "read", effectiveRoles);
 
   const [overview, setOverview] = useState<Overview | null>(null);
 
@@ -80,7 +82,7 @@ function StaffOverviewPage() {
         <StatCard label="Total Tickets"      value={fmt(overview?.total_tickets)}  icon={ShieldCheck} />
       </div>
 
-      {(canViewMembers || canViewTickets || canViewContent || canViewAssets) && (
+      {(canViewMembers || canViewTickets || canViewContent || canViewAssets || canViewCompetitions || canViewResources) && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {canViewMembers && (
             <Link
@@ -134,6 +136,34 @@ function StaffOverviewPage() {
                 <div>
                   <p className="font-medium text-foreground">Asset Library</p>
                   <p className="text-xs text-muted-foreground">Upload and manage shared assets</p>
+                </div>
+              </div>
+            </Link>
+          )}
+          {canViewCompetitions && (
+            <Link
+              to="/members/staff/competitions"
+              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Trophy className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium text-foreground">Competitions</p>
+                  <p className="text-xs text-muted-foreground">Configure multi-metric competition tracking</p>
+                </div>
+              </div>
+            </Link>
+          )}
+          {canViewResources && (
+            <Link
+              to="/members/staff/resources"
+              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <BookMarked className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium text-foreground">Staff Resources</p>
+                  <p className="text-xs text-muted-foreground">Internal guides and reference material</p>
                 </div>
               </div>
             </Link>
