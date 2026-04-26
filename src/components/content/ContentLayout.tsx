@@ -735,7 +735,7 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
 
   return (
     <ContentContext.Provider value={contextValue}>
-      <div className="flex flex-1 min-h-0 -m-6">
+      <div className="flex h-full -m-6">
         <aside className="hidden w-64 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">
           <SidebarContent {...sidebarProps} />
         </aside>

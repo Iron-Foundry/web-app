@@ -150,7 +150,7 @@ function ClassicChart({ participations, metric }: { participations: MetricPartic
     name: p.player_name,
     gained: p.gained,
   }));
-  const config = { gained: { label: fmtLabel(metric), color: "hsl(var(--primary))" } };
+  const config = { gained: { label: fmtLabel(metric), color: "var(--primary)" } };
 
   return (
     <ChartContainer config={config} className="h-64 w-full">
@@ -175,7 +175,7 @@ function ClassicChart({ participations, metric }: { participations: MetricPartic
             />
           }
         />
-        <Bar dataKey="gained" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="gained" fill="var(--color-gained)" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ChartContainer>
   );
@@ -211,7 +211,7 @@ function TeamChart({ teams, metric }: { teams: TeamRow[]; metric: string }) {
             />
           }
         />
-        <Bar dataKey="gained" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="gained" fill="var(--color-gained)" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ChartContainer>
   );
