@@ -28,11 +28,11 @@ const tabTrigger = cn(
 function extractYouTubeId(url: string): string | null {
   try {
     const u = new URL(url);
-    if (u.hostname === "youtu.be") return u.pathname.slice(1).split("?")[0];
+    if (u.hostname === "youtu.be") return u.pathname.slice(1).split("?")[0] ?? null;
     if (u.hostname === "youtube.com" || u.hostname === "www.youtube.com") {
       if (u.pathname === "/watch") return u.searchParams.get("v");
       const m = u.pathname.match(/\/embed\/([^/?]+)/);
-      if (m) return m[1];
+      if (m) return m[1] ?? null;
     }
   } catch {}
   return null;

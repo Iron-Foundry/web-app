@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
@@ -46,10 +46,9 @@ function StaffContentPage() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   function load() {
-    const token = getAuthToken();
     setLoading(true);
     fetch(`${API_URL}/content/deprecated-entries`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: getAuthHeaders(),
     })
       .then((r) => r.json() as Promise<DeprecatedEntry[]>)
       .then(setEntries)
@@ -61,10 +60,9 @@ function StaffContentPage() {
 
   async function handleRestore(e: DeprecatedEntry) {
     setActionError(null);
-    const token = getAuthToken();
     const r = await fetch(
       `${API_URL}/content/${e.page_type}/entries/${e.id}/restore`,
-      { method: "POST", headers: token ? { Authorization: `Bearer ${token}` } : {} },
+      { method: "POST", headers: getAuthHeaders() },
     );
     if (!r.ok) { setActionError("Failed to restore entry."); return; }
     load();
@@ -73,10 +71,9 @@ function StaffContentPage() {
   async function handlePermanentDelete(e: DeprecatedEntry) {
     if (!confirm(`Permanently delete "${e.title}"? This cannot be undone.`)) return;
     setActionError(null);
-    const token = getAuthToken();
     const r = await fetch(
       `${API_URL}/content/${e.page_type}/entries/${e.id}/permanent`,
-      { method: "DELETE", headers: token ? { Authorization: `Bearer ${token}` } : {} },
+      { method: "DELETE", headers: getAuthHeaders() },
     );
     if (!r.ok) { setActionError("Failed to delete entry."); return; }
     load();

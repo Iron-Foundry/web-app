@@ -422,7 +422,7 @@ export default function CompetitionsPage() {
         if (auto) {
           setSelectedId(String(auto.id));
           const metrics = map[String(auto.id)] ?? [];
-          if (metrics.length > 0) setActiveMetric(metrics[0]);
+          if (metrics.length > 0) setActiveMetric(metrics[0] ?? "");
         }
       })
       .catch(() => {})
@@ -433,7 +433,7 @@ export default function CompetitionsPage() {
   function handleCompSelect(id: string) {
     setSelectedId(id);
     const metrics = metricMap[id] ?? [];
-    setActiveMetric(metrics.length > 0 ? metrics[0] : "");
+    setActiveMetric(metrics.length > 0 ? (metrics[0] ?? "") : "");
     cacheInvalidate(`comp:${id}:metric:`);
   }
 

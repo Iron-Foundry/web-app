@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import DOMPurify from "dompurify";
 import { Check, Copy, Download, Heart, History, Pencil, Trash2 } from "lucide-react";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -150,7 +150,6 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
     setSaving(true);
     setSaveError(null);
     setConflictDetected(false);
-    const token = getAuthToken();
     try {
       const payload: Record<string, string | null> = { body: newBody };
       const trimmedTitle = editTitle.trim();
@@ -165,7 +164,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(payload),
       });
@@ -205,11 +204,10 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   async function handleDelete() {
     if (!entry || !entryId) return;
     if (!confirm(`Delete "${entry.title}"? This cannot be undone.`)) return;
-    const token = getAuthToken();
     try {
       await fetch(`${API_URL}/content/${pageType}/entries/${entryId}`, {
         method: "DELETE",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: getAuthHeaders(),
       });
       refreshTree();
       navigate({ to: routeBase });
@@ -219,7 +217,6 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
 
   async function handleReact() {
     if (!entryId || !user || reacting) return;
-    const token = getAuthToken();
     const prevReacted = reacted;
     const prevCount = reactionCount;
     setReacted(!reacted);
@@ -228,7 +225,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
     try {
       const res = await fetch(`${API_URL}/content/${pageType}/entries/${entryId}/react`, {
         method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: getAuthHeaders(),
       });
       if (!res.ok) {
         setReacted(prevReacted);

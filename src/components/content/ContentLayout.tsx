@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Menu, Pencil, Plus, Trash2, X } from "lucide-react";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { cacheInvalidate, fetchCached } from "@/lib/cache";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
@@ -108,10 +108,9 @@ function CategoryDialog({
     }
     setSaving(true);
     setError(null);
-    const token = getAuthToken();
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...getAuthHeaders(),
     };
 
     const resolvedParentId = parentId === "__root__" ? null : parentId;
@@ -249,10 +248,9 @@ function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSucc
     }
     setSaving(true);
     setError(null);
-    const token = getAuthToken();
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...getAuthHeaders(),
     };
 
     try {
@@ -347,12 +345,11 @@ async function applyReorder(
   pageType: string,
 ) {
   const reordered = [...siblings];
-  const [moved] = reordered.splice(fromIndex, 1);
+  const moved = reordered.splice(fromIndex, 1)[0]!;
   reordered.splice(toIndex, 0, moved);
-  const token = getAuthToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...getAuthHeaders(),
   };
   await Promise.all(
     reordered.map((c, idx) => {
@@ -373,12 +370,11 @@ async function applyEntryReorder(
   pageType: string,
 ) {
   const reordered = [...entries];
-  const [moved] = reordered.splice(fromIndex, 1);
+  const moved = reordered.splice(fromIndex, 1)[0]!;
   reordered.splice(toIndex, 0, moved);
-  const token = getAuthToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...getAuthHeaders(),
   };
   await Promise.all(
     reordered.map((e, idx) => {
@@ -439,11 +435,10 @@ function CategoryNode({
   async function handleDelete() {
     if (!confirm(`Delete category "${cat.label}" and all its contents? This cannot be undone.`)) return;
     setDeleting(true);
-    const token = getAuthToken();
     try {
       await fetch(`${API_URL}/content/${pageType}/categories/${cat.id}`, {
         method: "DELETE",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: getAuthHeaders(),
       });
       onRefresh();
     } finally {
@@ -539,6 +534,7 @@ function CategoryNode({
               style={{ paddingLeft: `${paddingLeft + 20}px` }}
             >
               <Link
+                // @ts-expect-error -- routeBase is dynamic, TanStack Router cannot validate statically
                 to={`${routeBase}/$slug`}
                 params={{ slug: entry.slug }}
                 className="block text-[13px] leading-snug text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-medium py-1 pr-1"

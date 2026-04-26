@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
@@ -44,10 +44,6 @@ interface TemplateDetail {
 
 
 
-function authHeaders(): Record<string, string> {
-  const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
 
 
@@ -231,7 +227,7 @@ export function SurveyDetailPage({
   const listLabel = category === "survey" ? "Surveys" : "Applications";
 
   useEffect(() => {
-    fetch(`${API_URL}/surveys/${templateId}`, { headers: authHeaders() })
+    fetch(`${API_URL}/surveys/${templateId}`, { headers: getAuthHeaders() })
       .then(async (r) => {
         if (r.status === 403 || r.status === 404) {
           setAccessDenied(true);
@@ -284,7 +280,7 @@ export function SurveyDetailPage({
     try {
       const res = await fetch(`${API_URL}/surveys/${templateId}/responses`, {
         method: "POST",
-        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ answers }),
       });
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -44,10 +44,6 @@ interface FieldDraft {
   max_choices: number;
 }
 
-function authHeaders(): Record<string, string> {
-  const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
 function slugify(label: string): string {
   return (
@@ -287,7 +283,7 @@ export function TemplateEditorDialog({
     }
 
     setLoadingEdit(true);
-    fetch(`${API_URL}/surveys/${editId}`, { headers: authHeaders() })
+    fetch(`${API_URL}/surveys/${editId}`, { headers: getAuthHeaders() })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data) => {
         setTitle(data.title ?? "");
@@ -364,7 +360,7 @@ export function TemplateEditorDialog({
         editId ? `${API_URL}/surveys/${editId}` : `${API_URL}/surveys`,
         {
           method: editId ? "PUT" : "POST",
-          headers: { ...authHeaders(), "Content-Type": "application/json" },
+          headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
           body: JSON.stringify(body),
         }
       );

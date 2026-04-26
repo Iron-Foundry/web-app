@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MarkdownRenderer } from "./MarkdownRenderer";
@@ -43,9 +43,8 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
     setVersions([]);
     setSelected(null);
     setLoading(true);
-    const token = getAuthToken();
     fetch(`${API_URL}/content/${pageType}/entries/${entryId}/versions`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: getAuthHeaders(),
     })
       .then((r) => r.json() as Promise<VersionSummary[]>)
       .then(setVersions)
@@ -56,11 +55,10 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
   async function selectVersion(v: VersionSummary) {
     if (selected?.id === v.id) return;
     setLoadingBody(true);
-    const token = getAuthToken();
     try {
       const r = await fetch(
         `${API_URL}/content/${pageType}/entries/${entryId}/versions/${v.id}`,
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} },
+        { headers: getAuthHeaders() },
       );
       const detail = await r.json() as VersionDetail;
       setSelected(detail);
@@ -73,13 +71,12 @@ export function VersionHistoryDialog({ open, onOpenChange, pageType, entryId, on
   async function handleRevert() {
     if (!selected) return;
     setReverting(true);
-    const token = getAuthToken();
     try {
       await fetch(
         `${API_URL}/content/${pageType}/entries/${entryId}/revert/${selected.id}`,
         {
           method: "POST",
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          headers: getAuthHeaders(),
         },
       );
       onRestored();

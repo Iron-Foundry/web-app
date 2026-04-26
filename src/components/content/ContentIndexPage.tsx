@@ -9,6 +9,7 @@ function countEntries(cats: CategoryTree[]): number {
 function EntryLink({ entry, routeBase }: { entry: ContentEntry; routeBase: string }) {
   return (
     <Link
+      // @ts-expect-error -- routeBase is dynamic, TanStack Router cannot validate statically
       to={`${routeBase}/$slug`}
       params={{ slug: entry.slug }}
       className="block text-sm text-muted-foreground hover:text-primary py-0.5 leading-snug transition-colors truncate"

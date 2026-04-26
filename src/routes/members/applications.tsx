@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
 import { membersLayoutRoute } from "./_layout";
-import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,13 +30,6 @@ interface ApplicationEntry {
   is_open: boolean;
   category: "survey" | "application";
   user_submitted: boolean;
-}
-
-
-
-function authHeaders(): Record<string, string> {
-  const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 
@@ -104,7 +97,7 @@ function ApplicationsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/surveys/applications`, { headers: authHeaders() })
+    fetch(`${API_URL}/surveys/applications`, { headers: getAuthHeaders() })
       .then((r) => (r.ok ? (r.json() as Promise<ApplicationEntry[]>) : Promise.reject()))
       .then(setEntries)
       .catch(() => {})

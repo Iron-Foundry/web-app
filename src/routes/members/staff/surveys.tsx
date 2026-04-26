@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { highestRoleDisplay } from "@/lib/ranks";
 import { registerPage } from "@/lib/permissions";
@@ -51,10 +51,6 @@ type CategoryFilter = "all" | "survey" | "application";
 
 // VISIBILITY_OPTIONS is derived dynamically in StaffSurveysPage from pagePermissions
 
-function authHeaders(): Record<string, string> {
-  const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "—";
@@ -160,10 +156,10 @@ function TemplateCard({
     setLoadingResponses(true);
     Promise.all([
       fetch(`${API_URL}/surveys/${entry.template_id}/responses`, {
-        headers: authHeaders(),
+        headers: getAuthHeaders(),
       }).then((r) => (r.ok ? (r.json() as Promise<ResponseEntry[]>) : Promise.resolve([]))),
       fetch(`${API_URL}/surveys/${entry.template_id}`, {
-        headers: authHeaders(),
+        headers: getAuthHeaders(),
       }).then((r) =>
         r.ok
           ? (r.json() as Promise<{ fields: Field[] }>)
@@ -186,7 +182,7 @@ function TemplateCard({
     const body = { visibility: next.length === 0 ? null : next };
     await fetch(`${API_URL}/surveys/${entry.template_id}/visibility`, {
       method: "PATCH",
-      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     setSaving(false);
@@ -198,7 +194,7 @@ function TemplateCard({
     const next = !entry.is_open;
     await fetch(`${API_URL}/surveys/${entry.template_id}/open`, {
       method: "PATCH",
-      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
       body: JSON.stringify({ is_open: next }),
     });
     setTogglingOpen(false);
@@ -412,10 +408,10 @@ function StaffSurveysPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_URL}/surveys`, { headers: authHeaders() }).then((r) =>
+      fetch(`${API_URL}/surveys`, { headers: getAuthHeaders() }).then((r) =>
         r.ok ? (r.json() as Promise<TemplateEntry[]>) : Promise.resolve([])
       ),
-      fetch(`${API_URL}/surveys/applications`, { headers: authHeaders() }).then((r) =>
+      fetch(`${API_URL}/surveys/applications`, { headers: getAuthHeaders() }).then((r) =>
         r.ok ? (r.json() as Promise<TemplateEntry[]>) : Promise.resolve([])
       ),
     ])

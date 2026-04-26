@@ -46,6 +46,11 @@ export function getAuthToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+export function getAuthHeaders(): Record<string, string> {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function fetchMe(token: string): Promise<AuthUser | null> {
   const r = await fetch(`${API_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },

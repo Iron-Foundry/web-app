@@ -80,7 +80,7 @@ function rowMatchesSearch(m: MemberRow, q: string): boolean {
   );
 }
 
-function sortMembers(rows: MemberRow[], key: SortKey, dir: SortDir): MemberRow[] {
+function sortMembers(rows: MemberRow[], key: SortKey, dir: SortDir, roleLabels: Record<string, string> = {}): MemberRow[] {
   return [...rows].sort((a, b) => {
     let av: string | number | boolean | null;
     let bv: string | number | boolean | null;
@@ -248,7 +248,7 @@ function StaffMembersPage() {
 
   const q = search.toLowerCase().trim();
   const filtered = q ? members.filter((m) => rowMatchesSearch(m, q)) : members;
-  const sorted = sortMembers(filtered, sortKey, sortDir);
+  const sorted = sortMembers(filtered, sortKey, sortDir, roleLabels);
 
   function Th({ label, col, align }: { label: string; col: SortKey; align?: "right" }) {
     return (

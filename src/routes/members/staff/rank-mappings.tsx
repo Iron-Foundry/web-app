@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
-import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,10 +29,6 @@ interface RankMapping {
   order: number;
 }
 
-function authHeaders(): Record<string, string> {
-  const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
 function RankMappingsPage() {
   const [mappings, setMappings] = useState<RankMapping[]>([]);
@@ -43,7 +39,7 @@ function RankMappingsPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/config/rank-mappings`, { headers: authHeaders() })
+    fetch(`${API_URL}/config/rank-mappings`, { headers: getAuthHeaders() })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data) => setMappings(
         (data.mappings ?? []).map((m: Partial<RankMapping>) => ({
@@ -81,7 +77,7 @@ function RankMappingsPage() {
     try {
       const res = await fetch(`${API_URL}/config/rank-mappings`, {
         method: "PUT",
-        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ mappings }),
       });
       if (!res.ok) {

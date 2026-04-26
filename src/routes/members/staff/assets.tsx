@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { membersLayoutRoute } from "../_layout";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { StaffGuard } from "@/components/StaffGuard";
@@ -132,15 +132,11 @@ function AssetManagerPage() {
   const [copied, setCopied] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const authHeaders = (): Record<string, string> => {
-    const token = getAuthToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
 
   async function loadAssets() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/assets`, { headers: authHeaders() });
+      const res = await fetch(`${API_URL}/assets`, { headers: getAuthHeaders() });
       if (res.ok) setAssets(await res.json());
     } catch {
       /* network error — leave list as-is */
@@ -162,7 +158,7 @@ function AssetManagerPage() {
       form.append("file", file);
       const res = await fetch(`${API_URL}/assets/upload`, {
         method: "POST",
-        headers: authHeaders(),
+        headers: getAuthHeaders(),
         body: form,
       });
       if (!res.ok) {
@@ -181,10 +177,9 @@ function AssetManagerPage() {
   async function handleDelete(asset: Asset) {
     if (!confirm(`Delete "${asset.original_name}"? This cannot be undone.`)) return;
     setPreview(null);
-    const token = getAuthToken();
     await fetch(`${API_URL}/assets/${asset.id}`, {
       method: "DELETE",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: getAuthHeaders(),
     });
     setAssets((prev) => prev.filter((a) => a.id !== asset.id));
   }

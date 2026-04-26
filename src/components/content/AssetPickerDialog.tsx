@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Film, ImageIcon, Trash2, Upload } from "lucide-react";
-import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -48,15 +48,11 @@ export function AssetPickerDialog({
   const [search, setSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const authHeaders = () => {
-    const token = getAuthToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
 
   async function loadAssets() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/assets`, { headers: authHeaders() });
+      const res = await fetch(`${API_URL}/assets`, { headers: getAuthHeaders() });
       if (res.ok) setAssets(await res.json());
     } catch {
     } finally {
@@ -83,7 +79,7 @@ export function AssetPickerDialog({
       form.append("file", file);
       const res = await fetch(`${API_URL}/assets/upload`, {
         method: "POST",
-        headers: authHeaders(),
+        headers: getAuthHeaders(),
         body: form,
       });
       if (!res.ok) {
@@ -102,10 +98,9 @@ export function AssetPickerDialog({
   async function handleDelete(asset: Asset, e: React.MouseEvent) {
     e.stopPropagation();
     if (!confirm(`Delete "${asset.original_name}"? This cannot be undone.`)) return;
-    const token = getAuthToken();
     await fetch(`${API_URL}/assets/${asset.id}`, {
       method: "DELETE",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: getAuthHeaders(),
     });
     setAssets((prev) => prev.filter((a) => a.id !== asset.id));
   }

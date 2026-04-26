@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export type PermAction = "read" | "create" | "edit" | "delete";

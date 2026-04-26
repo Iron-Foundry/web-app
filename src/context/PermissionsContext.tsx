@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useViewAs } from "@/context/ViewAsContext";
 import type { PagePermissionConfig, PermAction } from "@/lib/permissions";
 import { fetchCached } from "@/lib/cache";
@@ -66,12 +66,9 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       setLoading(false);
       return;
     }
-    const token = getAuthToken();
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
     fetchCached<{ pages: PagePermissionsMap; admin_bypass_roles: string[] }>(
       `${API_URL}/config/page-permissions`,
-      { headers, cacheKey: "config:page-permissions", ttl: 10 * 60 * 1000 },
+      { headers: getAuthHeaders(), cacheKey: "config:page-permissions", ttl: 10 * 60 * 1000 },
     )
       .then((data) => {
         setPagePermissions(data.pages ?? {});

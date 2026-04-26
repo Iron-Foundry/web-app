@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
 import { membersLayoutRoute } from "../_layout";
-import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { cacheInvalidate } from "@/lib/cache";
 import { getPageRegistry, registerPage, type PagePermissionConfig } from "@/lib/permissions";
@@ -101,8 +101,7 @@ function PermissionsPage() {
 
   const pages = getPageRegistry();
 
-  const token = getAuthToken();
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  const authHeaders = getAuthHeaders();
 
   useEffect(() => {
     const permissionsReq = fetch(`${API_URL}/config/page-permissions`, { headers: authHeaders })

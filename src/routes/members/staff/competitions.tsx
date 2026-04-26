@@ -5,6 +5,7 @@ import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { cacheInvalidate, fetchCached } from "@/lib/cache";
 import { registerPage } from "@/lib/permissions";
 import { StaffGuard } from "@/components/StaffGuard";
+import metricsConfig from "@/competition-metrics.toml";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -49,30 +50,7 @@ interface Competition {
 
 type MetricMap = Record<string, string[]>;
 
-// ---------------------------------------------------------------------------
-// Metric groups
-// ---------------------------------------------------------------------------
-
-const METRIC_GROUPS: Record<string, string[]> = {
-  Skills: [
-    "overall", "attack", "defence", "strength", "hitpoints", "ranged", "prayer",
-    "magic", "cooking", "woodcutting", "fletching", "fishing", "firemaking",
-    "crafting", "smithing", "mining", "herblore", "agility", "thieving", "slayer",
-    "farming", "runecrafting", "hunter", "construction",
-  ],
-  Bosses: [
-    "abyssal_sire", "alchemical_hydra", "cerberus", "chambers_of_xeric",
-    "chambers_of_xeric_challenge_mode", "corporeal_beast", "grotesque_guardians",
-    "kalphite_queen", "king_black_dragon", "kraken", "nex", "the_nightmare",
-    "phosanis_nightmare", "theatre_of_blood", "theatre_of_blood_hard_mode",
-    "tombs_of_amascut", "tombs_of_amascut_expert_mode", "vorkath", "zulrah",
-  ],
-  Activities: [
-    "clue_scrolls_all", "clue_scrolls_easy", "clue_scrolls_medium",
-    "clue_scrolls_hard", "clue_scrolls_elite", "clue_scrolls_master",
-    "league_points", "last_man_standing", "bounty_hunter_hunter",
-  ],
-};
+const METRIC_GROUPS: { name: string; metrics: string[] }[] = metricsConfig.groups;
 
 function fmtLabel(metric: string): string {
   return metric.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -162,8 +140,8 @@ function StaffCompetitionsPage() {
   };
 
   const filterLower = filter.toLowerCase();
-  const filteredGroups = Object.entries(METRIC_GROUPS).map(([group, metrics]) => ({
-    group,
+  const filteredGroups = METRIC_GROUPS.map(({ name, metrics }) => ({
+    group: name,
     metrics: filter
       ? metrics.filter((m) => m.includes(filterLower) || fmtLabel(m).toLowerCase().includes(filterLower))
       : metrics,
