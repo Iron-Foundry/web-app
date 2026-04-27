@@ -25,7 +25,7 @@ metrics = [
   "runecrafting",
   "hunter",
   "construction",
-  "sailing"
+  "sailing",
 ]
 
 [[groups]]
@@ -88,9 +88,9 @@ metrics = [
   "theatre_of_blood_hard_mode",
   "thermonuclear_smoke_devil",
   "tombs_of_amascut",
-  "tombs_of_amascut_expert_mode",
+  "tombs_of_amascut_expert",
   "tzkal_zuk",
-  "tzkal_jad",
+  "tztok_jad",
   "vardorvis",
   "venenatis",
   "vetion",
@@ -110,15 +110,14 @@ metrics = [
   "clue_scrolls_hard",
   "clue_scrolls_elite",
   "clue_scrolls_master",
-  "league_points",
   "last_man_standing",
   "bounty_hunter_hunter",
   "bounty_hunter_rogue",
   "pvp_arena",
   "soul_wars_zeal",
   "guardians_of_the_rift",
-  "coloseum_glory",
-  "collection_logs",
+  "colosseum_glory",
+  "collections_logged",
 ]
 
 [[groups]]

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 const SUBNAV_LINKS = [
   { to: "/leaderboards", label: "Leaderboards" },
   { to: "/competitions", label: "Competitions" },
+  { to: "/bingo", label: "Bingo" },
   { to: "/plugins", label: "Plugins" },
   { to: "/resources", label: "Resources & Guides" },
 ] as const;

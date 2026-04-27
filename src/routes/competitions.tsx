@@ -23,7 +23,7 @@ registerPage({
 export const competitionsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/competitions",
-  component: CompetitionsPage,
+  component: () => <CompetitionsPage />,
 });
 
 // ---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ const SKILL_METRICS = new Set([
   "overall", "attack", "defence", "strength", "hitpoints", "ranged", "prayer",
   "magic", "cooking", "woodcutting", "fletching", "fishing", "firemaking",
   "crafting", "smithing", "mining", "herblore", "agility", "thieving", "slayer",
-  "farming", "runecrafting", "hunter", "construction",
+  "farming", "runecrafting", "hunter", "construction","sailing"
 ]);
 
 function fmtLabel(metric: string): string {
