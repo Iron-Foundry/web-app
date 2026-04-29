@@ -77,6 +77,13 @@ function displayName(user: { username: string; rsn: string | null }) {
   return user.rsn || user.username;
 }
 
+function fmtScheduled(iso: string) {
+  return new Date(iso).toLocaleString(undefined, {
+    weekday: "short", day: "numeric", month: "short",
+    hour: "numeric", minute: "2-digit",
+  });
+}
+
 function relativeTime(iso: string) {
   const diff = new Date(iso).getTime() - Date.now();
   const abs = Math.abs(diff);
@@ -555,13 +562,19 @@ function PartyCard({ party, currentUserId, onJoin, onLeave, onClose, onEdit, onK
           <p className="text-xs text-muted-foreground leading-relaxed">{party.description}</p>
         )}
 
+        {/* Scheduled start time */}
+        {party.scheduled_at && (
+          <div className="flex items-center gap-1.5 text-xs">
+            <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="font-medium">{fmtScheduled(party.scheduled_at)}</span>
+            <span className="text-muted-foreground">· {relativeTime(party.scheduled_at)}</span>
+          </div>
+        )}
+
         {/* Fill bar */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-muted-foreground">
             <span className="flex items-center gap-1"><Users className="h-3 w-3" />{party.member_count} / {party.max_size}</span>
-            {party.scheduled_at && (
-              <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{relativeTime(party.scheduled_at)}</span>
-            )}
             {!party.scheduled_at && party.status !== "closed" && (
               <span className="text-muted-foreground/60">expires {relativeTime(party.expires_at)}</span>
             )}
