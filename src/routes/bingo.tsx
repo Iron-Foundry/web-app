@@ -202,6 +202,25 @@ function CustomTooltip({ active, payload, metric }: { active?: boolean; payload?
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function themedTooltip({ active, payload }: { active?: boolean; payload?: any[] }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded border border-border bg-card px-3 py-2 text-xs shadow-lg">
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {payload.map((p: any, i: number) => (
+        <div key={i} className="flex items-center gap-2">
+          {p.color && <span className="h-2 w-2 rounded-full shrink-0" style={{ background: p.color }} />}
+          <span className="text-muted-foreground">{p.name}</span>
+          <span className="font-mono font-medium">
+            {typeof p.value === "number" ? p.value.toLocaleString() : p.value}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Overview Tab
 // ---------------------------------------------------------------------------
@@ -638,7 +657,7 @@ function CompareTab() {
                       <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-20} textAnchor="end" />
                       <YAxis domain={[0, 'auto']} tickFormatter={v => v >= 1_000_000 ? `${(v/1_000_000).toFixed(0)}M` : v.toLocaleString()} tick={{ fontSize: 10 }} />
                       <Legend wrapperStyle={{ fontSize: 10 }} />
-                      <Tooltip />
+                      <Tooltip content={themedTooltip} />
                       {teamMetrics.map((m, i) => (
                         <Bar key={m} dataKey={m} name={fmtMetric(m)} fill={TEAM_COLORS[i % TEAM_COLORS.length]} radius={[3, 3, 0, 0]} />
                       ))}
@@ -712,7 +731,7 @@ function CompareTab() {
                           <CartesianGrid horizontal={false} strokeDasharray="3 3" />
                           <XAxis type="number" domain={[0, 'auto']} tickFormatter={v => SKILL_METRICS.has(playerMetrics[0]!) ? `${(v/1_000_000).toFixed(1)}M` : v.toLocaleString()} tick={{ fontSize: 10 }} />
                           <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={100} />
-                          <Tooltip />
+                          <Tooltip content={themedTooltip} />
                           <Bar dataKey="gained" name={fmtMetric(playerMetrics[0]!)} radius={[0, 4, 4, 0]}>
                             {(playersChartData as { color: string }[]).map((e, i) => <Cell key={i} fill={e.color} />)}
                           </Bar>
@@ -723,7 +742,7 @@ function CompareTab() {
                           <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-20} textAnchor="end" />
                           <YAxis domain={[0, 'auto']} tickFormatter={v => v >= 1_000_000 ? `${(v/1_000_000).toFixed(0)}M` : v.toLocaleString()} tick={{ fontSize: 10 }} />
                           <Legend wrapperStyle={{ fontSize: 10 }} />
-                          <Tooltip />
+                          <Tooltip content={themedTooltip} />
                           {playerMetrics.map((m, i) => (
                             <Bar key={m} dataKey={m} name={fmtMetric(m)} fill={TEAM_COLORS[i % TEAM_COLORS.length]} radius={[3, 3, 0, 0]} />
                           ))}
@@ -841,7 +860,7 @@ function SubmissionsTab() {
                   <CartesianGrid horizontal={false} strokeDasharray="3 3" />
                   <XAxis type="number" domain={[0, 'auto']} tick={{ fontSize: 9 }} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 9 }} width={130} />
-                  <Tooltip />
+                  <Tooltip content={themedTooltip} />
                   <Bar dataKey="count" fill="var(--primary)" radius={[0, 3, 3, 0]} />
                 </BarChart>
               </ChartContainer>
