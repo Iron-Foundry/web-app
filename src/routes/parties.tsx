@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
-  Users, Plus, X, Send, ChevronDown, ChevronUp,
-  Crown, LogIn, LogOut, Trash2, Pencil, Check, Clock,
+  Users, Plus, X, Send,
+  Crown, LogIn, LogOut, Trash2, Pencil, Check, Clock, Copy,
 } from "lucide-react";
 
 export const partiesRoute = createRoute({
@@ -45,6 +45,7 @@ interface Party {
   created_at: string;
   scheduled_at: string | null;
   expires_at: string;
+  hub_code: string | null;
 }
 
 interface ChatMessage {
@@ -85,6 +86,29 @@ function relativeTime(iso: string) {
   if (hrs < 1) return diff < 0 ? `${mins}m ago` : `in ${mins}m`;
   if (hrs < 24) return diff < 0 ? `${hrs}h ago` : `in ${hrs}h`;
   return new Date(iso).toLocaleDateString();
+}
+
+// ── Time Picker (select-based for cross-browser compat incl. Firefox) ─────────
+
+const _HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+const _MINS  = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, "0"));
+
+function TimePicker({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  const [h, m] = value ? value.split(":") : ["", ""];
+  const sel = "h-9 flex-1 rounded-md border border-input bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed";
+  return (
+    <div className="flex items-center gap-1">
+      <select value={h ?? ""} onChange={e => onChange(e.target.value ? `${e.target.value}:${m || "00"}` : "")} disabled={disabled} className={sel}>
+        <option value="">HH</option>
+        {_HOURS.map(hh => <option key={hh} value={hh}>{hh}</option>)}
+      </select>
+      <span className="text-muted-foreground text-sm shrink-0">:</span>
+      <select value={m ?? ""} onChange={e => onChange(h ? `${h}:${e.target.value}` : "")} disabled={disabled || !h} className={sel}>
+        <option value="">MM</option>
+        {_MINS.map(mm => <option key={mm} value={mm}>{mm}</option>)}
+      </select>
+    </div>
+  );
 }
 
 // ── Create Party Modal ────────────────────────────────────────────────────────
@@ -194,7 +218,7 @@ function CreatePartyModal({ onClose, onCreated, pingRoles }: CreateModalProps) {
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled time (optional)</label>
             <div className="grid grid-cols-2 gap-2">
               <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} className="h-9" />
-              <Input type="time" value={scheduledTime} onChange={e => setScheduledTime(e.target.value)} className="h-9" disabled={!scheduledDate} />
+              <TimePicker value={scheduledTime} onChange={setScheduledTime} disabled={!scheduledDate} />
             </div>
           </div>
 
@@ -258,11 +282,24 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
   const [vibe, setVibe] = useState<Vibe>(party.vibe);
   const [maxSize, setMaxSize] = useState(party.max_size);
   const [[scheduledDate, scheduledTime], setScheduledParts] = useState(() => splitLocalDatetime(party.scheduled_at));
+  const [selectedPings, setSelectedPings] = useState<string[]>(party.ping_role_ids);
+  const [pingRoles, setPingRoles] = useState<PingRole[]>([]);
 
   function setScheduledDate(v: string) { setScheduledParts([v, scheduledTime]); }
   function setScheduledTime(v: string) { setScheduledParts([scheduledDate, v]); }
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/config/party-ping-roles`, { headers: getAuthHeaders() })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then((d: { roles: PingRole[] }) => setPingRoles(d.roles))
+      .catch(() => {});
+  }, []);
+
+  function togglePing(id: string) {
+    setSelectedPings(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  }
 
   async function handleSave() {
     if (!activity.trim()) { setError("Activity is required."); return; }
@@ -278,6 +315,7 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
           vibe,
           max_size: maxSize,
           scheduled_at: scheduledDate ? new Date(`${scheduledDate}T${scheduledTime || "00:00"}`).toISOString() : null,
+          ping_role_ids: selectedPings,
         }),
       });
       if (!res.ok) {
@@ -328,10 +366,33 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled time</label>
               <div className="grid grid-cols-2 gap-2">
                 <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} className="h-9" />
-                <Input type="time" value={scheduledTime} onChange={e => setScheduledTime(e.target.value)} className="h-9" disabled={!scheduledDate} />
+                <TimePicker value={scheduledTime} onChange={setScheduledTime} disabled={!scheduledDate} />
               </div>
             </div>
           </div>
+          {pingRoles.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Ping roles</label>
+              <div className="flex flex-wrap gap-2">
+                {pingRoles.map(r => (
+                  <button
+                    key={r.discord_role_id}
+                    type="button"
+                    onClick={() => togglePing(r.discord_role_id)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-xs font-medium border transition-colors",
+                      selectedPings.includes(r.discord_role_id)
+                        ? "bg-primary/15 text-primary border-primary/30"
+                        : "border-border text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {selectedPings.includes(r.discord_role_id) && <Check className="h-2.5 w-2.5 inline mr-1" />}
+                    @{r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {error && <p className="text-xs text-destructive">{error}</p>}
           <div className="flex gap-2 pt-1">
             <Button variant="ghost" onClick={onClose} className="flex-1" disabled={saving}>Cancel</Button>
@@ -362,7 +423,7 @@ function ChatPanel({ partyId, closed }: { partyId: string; closed: boolean }) {
         .catch(() => {});
     }
     poll();
-    const id = setInterval(poll, 5000);
+    const id = setInterval(poll, 500);
     return () => { cancelled = true; clearInterval(id); };
   }, [partyId, closed]);
 
@@ -524,6 +585,23 @@ function PartyCard({ party, currentUserId, onJoin, onLeave, onClose, onEdit, onK
           ))}
         </div>
 
+        {/* Partyhub code — members only */}
+        {party.hub_code && (
+          <div className="flex items-center justify-between gap-2 rounded-md bg-muted/50 border border-border px-3 py-1.5">
+            <div className="min-w-0">
+              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Partyhub Code</p>
+              <p className="font-mono text-xs font-semibold tracking-wide truncate">{party.hub_code}</p>
+            </div>
+            <button
+              onClick={() => navigator.clipboard.writeText(party.hub_code!)}
+              title="Copy code"
+              className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex gap-2 items-center">
           {currentUserId && party.status !== "closed" && !isLeader && (
@@ -537,12 +615,9 @@ function PartyCard({ party, currentUserId, onJoin, onLeave, onClose, onEdit, onK
               </Button>
             )
           )}
-          <button
-            onClick={() => setChatOpen(v => !v)}
-            className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Chat {chatOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          </button>
+          <Button size="sm" variant="outline" className="ml-auto h-7 text-xs" onClick={() => setChatOpen(v => !v)}>
+            Party Chat
+          </Button>
         </div>
 
         {chatOpen && <ChatPanel partyId={party.id} closed={party.status === "closed"} />}
@@ -571,7 +646,7 @@ export default function PartiesPage() {
         .catch(() => { if (!cancelled) setLoading(false); });
     }
     poll();
-    const id = setInterval(poll, 15000);
+    const id = setInterval(poll, 500);
     return () => { cancelled = true; clearInterval(id); };
   }, []);
 
