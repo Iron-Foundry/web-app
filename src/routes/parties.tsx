@@ -214,10 +214,13 @@ function CreatePartyModal({ onClose, onCreated, pingRoles }: CreateModalProps) {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled time (optional)</label>
-            <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled date</label>
               <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Time</label>
               <TimePicker value={scheduledTime} onChange={setScheduledTime} disabled={!scheduledDate} />
             </div>
           </div>
@@ -357,17 +360,18 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
               ))}
             </div>
           </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Max size</label>
+            <Input type="number" min={2} max={100} value={maxSize} onChange={e => setMaxSize(parseInt(e.target.value, 10) || 2)} className="h-9" />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Max size</label>
-              <Input type="number" min={2} max={100} value={maxSize} onChange={e => setMaxSize(parseInt(e.target.value, 10) || 2)} className="h-9" />
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled date</label>
+              <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} className="h-9" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled time</label>
-              <div className="grid grid-cols-2 gap-2">
-                <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} className="h-9" />
-                <TimePicker value={scheduledTime} onChange={setScheduledTime} disabled={!scheduledDate} />
-              </div>
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Time</label>
+              <TimePicker value={scheduledTime} onChange={setScheduledTime} disabled={!scheduledDate} />
             </div>
           </div>
           {pingRoles.length > 0 && (
@@ -640,7 +644,7 @@ export default function PartiesPage() {
   useEffect(() => {
     let cancelled = false;
     function poll() {
-      fetch(`${API_URL}/parties`)
+      fetch(`${API_URL}/parties`, { headers: getAuthHeaders() })
         .then(r => r.ok ? r.json() : Promise.reject())
         .then((data: Party[]) => { if (!cancelled) { setParties(data); setLoading(false); } })
         .catch(() => { if (!cancelled) setLoading(false); });
