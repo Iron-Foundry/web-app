@@ -100,7 +100,8 @@ function CreatePartyModal({ onClose, onCreated, pingRoles }: CreateModalProps) {
   const [description, setDescription] = useState("");
   const [vibe, setVibe] = useState<Vibe>("chill");
   const [maxSize, setMaxSize] = useState(5);
-  const [scheduledAt, setScheduledAt] = useState("");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
   const [ttlHours, setTtlHours] = useState(4);
   const [selectedPings, setSelectedPings] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -119,7 +120,7 @@ function CreatePartyModal({ onClose, onCreated, pingRoles }: CreateModalProps) {
           description: description.trim() || null,
           vibe,
           max_size: maxSize,
-          scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+          scheduled_at: scheduledDate ? new Date(`${scheduledDate}T${scheduledTime || "00:00"}`).toISOString() : null,
           ttl_hours: ttlHours,
           ping_role_ids: selectedPings,
         }),
@@ -191,7 +192,10 @@ function CreatePartyModal({ onClose, onCreated, pingRoles }: CreateModalProps) {
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled time (optional)</label>
-            <Input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} className="h-9" />
+            <div className="grid grid-cols-2 gap-2">
+              <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} className="h-9" />
+              <Input type="time" value={scheduledTime} onChange={e => setScheduledTime(e.target.value)} className="h-9" disabled={!scheduledDate} />
+            </div>
           </div>
 
           {pingRoles.length > 0 && (
@@ -240,11 +244,12 @@ interface EditModalProps {
   onUpdated: (party: Party) => void;
 }
 
-function toLocalDatetimeInput(iso: string | null): string {
-  if (!iso) return "";
+function splitLocalDatetime(iso: string | null): [string, string] {
+  if (!iso) return ["", ""];
   const d = new Date(iso);
-  // datetime-local format: YYYY-MM-DDTHH:MM
-  return d.toISOString().slice(0, 16);
+  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return [date, time];
 }
 
 function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
@@ -252,7 +257,10 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
   const [description, setDescription] = useState(party.description ?? "");
   const [vibe, setVibe] = useState<Vibe>(party.vibe);
   const [maxSize, setMaxSize] = useState(party.max_size);
-  const [scheduledAt, setScheduledAt] = useState(toLocalDatetimeInput(party.scheduled_at));
+  const [[scheduledDate, scheduledTime], setScheduledParts] = useState(() => splitLocalDatetime(party.scheduled_at));
+
+  function setScheduledDate(v: string) { setScheduledParts([v, scheduledTime]); }
+  function setScheduledTime(v: string) { setScheduledParts([scheduledDate, v]); }
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -269,7 +277,7 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
           description: description.trim() || null,
           vibe,
           max_size: maxSize,
-          scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+          scheduled_at: scheduledDate ? new Date(`${scheduledDate}T${scheduledTime || "00:00"}`).toISOString() : null,
         }),
       });
       if (!res.ok) {
@@ -318,7 +326,10 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled time</label>
-              <Input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} className="h-9" />
+              <div className="grid grid-cols-2 gap-2">
+                <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} className="h-9" />
+                <Input type="time" value={scheduledTime} onChange={e => setScheduledTime(e.target.value)} className="h-9" disabled={!scheduledDate} />
+              </div>
             </div>
           </div>
           {error && <p className="text-xs text-destructive">{error}</p>}
