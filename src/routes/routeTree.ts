@@ -7,6 +7,7 @@ import { eventsRoute } from "./events";
 import { authCallbackRoute } from "./auth-callback";
 import { loginRoute } from "./login";
 import { leaderboardsRoute } from "./leaderboards";
+import { partiesRoute } from "./parties";
 import { competitionsRoute } from "./competitions";
 import { bingoRoute } from "./bingo";
 import { pluginsLayoutRoute } from "./plugins/_layout";
@@ -75,6 +76,7 @@ export const routeTree = rootRoute.addChildren([
   authCallbackRoute,
   loginRoute,
   leaderboardsRoute,
+  partiesRoute,
   competitionsRoute,
   bingoRoute,
   pluginsTree,
