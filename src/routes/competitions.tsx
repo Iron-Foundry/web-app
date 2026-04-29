@@ -500,7 +500,7 @@ export default function CompetitionsPage() {
                   {fmtDate(selected.startsAt)} - {fmtDate(selected.endsAt)}
                 </p>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <Badge className={statusColor(selected.status)}>
                   {selected.status.charAt(0).toUpperCase() + selected.status.slice(1)}
                 </Badge>

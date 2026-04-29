@@ -213,7 +213,7 @@ function CreatePartyModal({ onClose, onCreated, pingRoles }: CreateModalProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Max size</label>
-              <Input type="number" min={2} max={100} value={maxSize} onChange={e => setMaxSize(parseInt(e.target.value, 10) || 2)} className="h-9" />
+              <Input type="number" min={1} max={100} value={maxSize} onChange={e => setMaxSize(Math.max(1, parseInt(e.target.value, 10) || 1))} className="h-9" />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Expires after (hours)</label>
@@ -369,7 +369,7 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Max size</label>
-            <Input type="number" min={2} max={100} value={maxSize} onChange={e => setMaxSize(parseInt(e.target.value, 10) || 2)} className="h-9" />
+            <Input type="number" min={1} max={100} value={maxSize} onChange={e => setMaxSize(Math.max(1, parseInt(e.target.value, 10) || 1))} className="h-9" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
