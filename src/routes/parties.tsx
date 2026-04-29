@@ -63,7 +63,6 @@ interface PingRole {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const VIBE_EMOJI: Record<Vibe, string> = { learning: "🎓", chill: "😌", sweat: "💪" };
 const VIBE_LABEL: Record<Vibe, string> = { learning: "Learning", chill: "Chill", sweat: "Sweat" };
 const VIBE_CLASS: Record<Vibe, string> = {
   learning: "bg-blue-500/15 text-blue-400 border-blue-500/20",
@@ -173,7 +172,7 @@ function CreatePartyModal({ onClose, onCreated, pingRoles }: CreateModalProps) {
                     vibe === v ? VIBE_CLASS[v] : "border-border text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {VIBE_EMOJI[v]} {VIBE_LABEL[v]}
+                  {VIBE_LABEL[v]}
                 </button>
               ))}
             </div>
@@ -241,11 +240,19 @@ interface EditModalProps {
   onUpdated: (party: Party) => void;
 }
 
+function toLocalDatetimeInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  // datetime-local format: YYYY-MM-DDTHH:MM
+  return d.toISOString().slice(0, 16);
+}
+
 function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
   const [activity, setActivity] = useState(party.activity);
   const [description, setDescription] = useState(party.description ?? "");
   const [vibe, setVibe] = useState<Vibe>(party.vibe);
   const [maxSize, setMaxSize] = useState(party.max_size);
+  const [scheduledAt, setScheduledAt] = useState(toLocalDatetimeInput(party.scheduled_at));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -262,6 +269,7 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
           description: description.trim() || null,
           vibe,
           max_size: maxSize,
+          scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
         }),
       });
       if (!res.ok) {
@@ -298,14 +306,20 @@ function EditPartyModal({ party, onClose, onUpdated }: EditModalProps) {
             <div className="flex gap-2">
               {(["learning", "chill", "sweat"] as Vibe[]).map(v => (
                 <button key={v} type="button" onClick={() => setVibe(v)} className={cn("flex-1 py-1.5 rounded-md border text-sm font-medium transition-colors", vibe === v ? VIBE_CLASS[v] : "border-border text-muted-foreground hover:text-foreground")}>
-                  {VIBE_EMOJI[v]} {VIBE_LABEL[v]}
+                  {VIBE_LABEL[v]}
                 </button>
               ))}
             </div>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Max size</label>
-            <Input type="number" min={2} max={100} value={maxSize} onChange={e => setMaxSize(parseInt(e.target.value, 10) || 2)} className="h-9" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Max size</label>
+              <Input type="number" min={2} max={100} value={maxSize} onChange={e => setMaxSize(parseInt(e.target.value, 10) || 2)} className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled time</label>
+              <Input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} className="h-9" />
+            </div>
           </div>
           {error && <p className="text-xs text-destructive">{error}</p>}
           <div className="flex gap-2 pt-1">
@@ -437,7 +451,7 @@ function PartyCard({ party, currentUserId, onJoin, onLeave, onClose, onEdit, onK
             <div className="flex items-center gap-2 flex-wrap">
               <p className="font-semibold text-sm truncate">{party.activity}</p>
               <Badge variant="outline" className={cn("text-xs shrink-0", VIBE_CLASS[party.vibe])}>
-                {VIBE_EMOJI[party.vibe]} {VIBE_LABEL[party.vibe]}
+                {VIBE_LABEL[party.vibe]}
               </Badge>
               {statusBadge}
             </div>
