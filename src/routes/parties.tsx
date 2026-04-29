@@ -602,7 +602,7 @@ function PartyCard({ party, currentUserId, onJoin, onLeave, onClose, onEdit, onK
           ))}
         </div>
 
-        {/* Partyhub code — members only */}
+        {/* Partyhub code - members only */}
         {party.hub_code && (
           <div className="flex items-center justify-between gap-2 rounded-md bg-muted/50 border border-border px-3 py-1.5">
             <div className="min-w-0">
