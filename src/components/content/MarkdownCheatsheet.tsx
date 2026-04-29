@@ -109,17 +109,17 @@ const SECTIONS: Section[] = [
       {
         label: "Tip box",
         syntax:
-          '<div style="background:#1e3a2f;border-left:4px solid #4ade80;padding:12px;border-radius:4px;margin:8px 0">\n\n💡 **Tip:** Enable the GPU plugin for significantly better performance on most machines.\n\n</div>',
+          '<div class="callout-tip">\n\n💡 **Tip:** Enable the GPU plugin for significantly better performance on most machines.\n\n</div>',
       },
       {
         label: "Warning box",
         syntax:
-          '<div style="background:#3b1e1e;border-left:4px solid #f87171;padding:12px;border-radius:4px;margin:8px 0">\n\n⚠️ **Warning:** Disabling this plugin mid-raid may cause a client crash.\n\n</div>',
+          '<div class="callout-warning">\n\n⚠️ **Warning:** Disabling this plugin mid-raid may cause a client crash.\n\n</div>',
       },
       {
         label: "Info box",
         syntax:
-          '<div style="background:#1e2a3b;border-left:4px solid #60a5fa;padding:12px;border-radius:4px;margin:8px 0">\n\nℹ️ **Info:** This setting is reset on each client restart.\n\n</div>',
+          '<div class="callout-info">\n\nℹ️ **Info:** This setting is reset on each client restart.\n\n</div>',
       },
     ],
   },
@@ -159,7 +159,7 @@ function ExampleCard({ example }: { example: Example }) {
     <div className="space-y-2">
       <p className="text-xs text-muted-foreground/70">{example.label}</p>
 
-      <div className="rounded-md border border-border/60 bg-background px-3 py-2 text-sm min-h-[2rem]">
+      <div className="rounded-md border border-border/60 bg-background px-3 py-2 text-sm min-h-8">
         <MarkdownRenderer body={example.syntax} />
       </div>
 

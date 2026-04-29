@@ -186,7 +186,7 @@ function RankMappingsPage() {
               <div className="space-y-1">
                 {Object.entries(byRole).map(([role, ranks]) => (
                   <div key={role} className="flex items-baseline gap-2 text-sm">
-                    <span className="font-medium text-foreground min-w-[10rem]">{role}</span>
+                    <span className="font-medium text-foreground min-w-40">{role}</span>
                     <span className="text-muted-foreground">{ranks.join(", ")}</span>
                   </div>
                 ))}

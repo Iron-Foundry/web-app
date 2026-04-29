@@ -102,7 +102,7 @@ function TranscriptView({ transcript }: { transcript: Transcript | null }) {
   }
 
   return (
-    <div className="max-h-[28rem] overflow-y-auto divide-y divide-border">
+    <div className="max-h-112 overflow-y-auto divide-y divide-border">
       {transcript.entries.map((entry) => (
         <div
           key={entry.message_id}

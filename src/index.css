@@ -5,7 +5,7 @@
     scrollbar-gutter: stable;
   }
   body {
-    @apply min-w-[320px] min-h-screen bg-background text-foreground;
+    @apply min-w-80 min-h-screen bg-background text-foreground;
   }
 }
 

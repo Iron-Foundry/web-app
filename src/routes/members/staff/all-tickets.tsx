@@ -91,7 +91,7 @@ function TranscriptView({ transcript }: { transcript: Transcript | null }) {
     return <p className="px-4 py-3 text-sm text-muted-foreground">Transcript is empty.</p>;
   }
   return (
-    <div className="max-h-[28rem] overflow-y-auto divide-y divide-border">
+    <div className="max-h-112 overflow-y-auto divide-y divide-border">
       {transcript.staff_note && (
         <div className="px-4 py-2 bg-yellow-500/10 border-b border-border">
           <p className="text-xs font-medium text-yellow-600 dark:text-yellow-400 mb-0.5">Staff note</p>

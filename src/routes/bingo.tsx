@@ -259,7 +259,7 @@ function OverviewTab() {
           <p className="font-semibold text-sm">Team XP Ranking — Overall Gained</p>
         </CardHeader>
         <CardContent className="px-4 pb-4">
-          <ChartContainer config={{}} className="h-[260px] w-full">
+          <ChartContainer config={{}} className="h-65 w-full">
             <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 40, top: 4, bottom: 4 }}>
               <CartesianGrid horizontal={false} strokeDasharray="3 3" />
               <XAxis type="number" domain={[0, 'auto']} tickFormatter={v => `${(v / 1_000_000).toFixed(0)}M`} tick={{ fontSize: 11 }} />
@@ -309,7 +309,7 @@ function OverviewTab() {
                 </div>
                 <div>
                   <p className="text-xs font-mono font-semibold">{t.totalSubs}</p>
-                  <p className="text-[9px] text-muted-foreground">tiles</p>
+                  <p className="text-[9px] text-muted-foreground">submissions</p>
                 </div>
               </div>
 
@@ -373,7 +373,7 @@ function LeaderboardTab() {
   }));
 
   return (
-    <div className="flex gap-4 min-h-[600px]">
+    <div className="flex gap-4 min-h-150">
       {/* Sidebar metric list */}
       <div className="w-48 shrink-0 flex flex-col gap-2">
         <ToggleGroup type="single" value={cat} onValueChange={v => { if (v) { setCat(v as typeof cat); setSelectedMetric(ACTIVE_BY_CAT[v as typeof cat][0] ?? ""); } }} className="flex-col">
@@ -382,7 +382,7 @@ function LeaderboardTab() {
           ))}
         </ToggleGroup>
         <Separator />
-        <div className="flex-1 overflow-y-auto space-y-0.5 pr-1 max-h-[520px]">
+        <div className="flex-1 overflow-y-auto space-y-0.5 pr-1 max-h-130">
           {catMetrics.map(m => (
             <button
               key={m}
@@ -617,7 +617,7 @@ function CompareTab() {
           <div className="lg:col-span-3">
             <Card>
               <CardContent className="px-2 pt-4 pb-2">
-                <ChartContainer config={{}} className="h-[350px] w-full">
+                <ChartContainer config={{}} className="h-88 w-full">
                   {teamMetrics.length === 1 ? (
                     <BarChart data={teamsChartData as { name: string; value: number; color: string }[]} layout="vertical" margin={{ left: 8, right: 60, top: 4, bottom: 4 }}>
                       <CartesianGrid horizontal={false} strokeDasharray="3 3" />
@@ -842,7 +842,7 @@ function SubmissionsTab() {
                   <XAxis type="number" domain={[0, 'auto']} tick={{ fontSize: 9 }} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 9 }} width={130} />
                   <Tooltip />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 3, 3, 0]} />
+                  <Bar dataKey="count" fill="var(--primary)" radius={[0, 3, 3, 0]} />
                 </BarChart>
               </ChartContainer>
             </div>
@@ -860,7 +860,7 @@ function SubmissionsTab() {
                   </button>
                 ))}
               </div>
-              <div className="overflow-y-auto max-h-[520px]">
+              <div className="overflow-y-auto max-h-130">
                 {filtered.slice(0, 500).map((s, i) => (
                   <div key={i} className="grid grid-cols-[7rem_6rem_7rem_4rem_1fr] gap-x-2 px-3 py-1.5 text-xs border-b border-border/30 hover:bg-muted/30 items-center">
                     <span className="text-muted-foreground text-[10px] font-mono">{fmtDate(s.submitted_at)}</span>

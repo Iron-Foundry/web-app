@@ -61,7 +61,7 @@ function AssetHoverPreview({ asset, x, y }: { asset: Asset; x: number; y: number
 
   return (
     <div className="fixed z-50 pointer-events-none" style={{ left, top }}>
-      <Card className="w-[280px] shadow-xl overflow-hidden">
+      <Card className="w-70 shadow-xl overflow-hidden">
         <div className="flex items-center justify-center h-44 bg-muted/60">
           {isImage ? (
             <img

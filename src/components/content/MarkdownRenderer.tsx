@@ -2,6 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import type { Components } from "react-markdown";
+import type { CSSProperties } from "react";
 
 function extractYouTubeId(url: string): string | null {
   try {
@@ -64,6 +65,17 @@ const components: Components = {
   ),
   th: ({ children }) => <th className="text-left p-2 border-b border-border font-semibold bg-muted/50">{children}</th>,
   td: ({ children }) => <td className="p-2 border-b border-border">{children}</td>,
+  div: ({ style, className, children, ...props }) => {
+    const s = style as CSSProperties | undefined;
+    const border = s?.borderLeft as string | undefined;
+    if (border?.includes("#4ade80") || className?.includes("callout-tip"))
+      return <div className="callout-tip">{children}</div>;
+    if (border?.includes("#f87171") || className?.includes("callout-warning"))
+      return <div className="callout-warning">{children}</div>;
+    if (border?.includes("#60a5fa") || className?.includes("callout-info"))
+      return <div className="callout-info">{children}</div>;
+    return <div style={s} className={className} {...props}>{children}</div>;
+  },
   img: ({ src, alt }) => <img src={src} alt={alt ?? ""} className="max-w-full rounded-md my-2" />,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   video: ({ src, ...props }: any) => (
@@ -77,6 +89,21 @@ const components: Components = {
   ),
 };
 
+function preprocessMarkdown(body: string): string {
+  return body
+    // Fix unclosed inline code tags: <code>text<code> → <code>text</code>
+    // A missing slash on the closing tag leaves an open <code> that makes
+    // everything after render in monospace.
+    .replace(/<code>([^<]*)<code>/g, "<code>$1</code>")
+    // CommonMark ends type-6 HTML blocks (div, section, etc.) at the first
+    // blank line. A blank line immediately inside a <div> causes remark to
+    // close the HTML block there, leaving the div empty and its content as
+    // separate sibling paragraphs. Collapsing those boundary blank lines
+    // keeps the whole block together so rehype-raw can reconstruct it.
+    .replace(/(<div\b[^>]*>)\n\n/g, "$1\n")
+    .replace(/\n\n(<\/div>)/g, "\n$1");
+}
+
 export function MarkdownRenderer({ body }: { body: string }) {
   return (
     <div className="text-foreground">
@@ -85,7 +112,7 @@ export function MarkdownRenderer({ body }: { body: string }) {
         rehypePlugins={[rehypeRaw]}
         components={components}
       >
-        {body}
+        {preprocessMarkdown(body)}
       </ReactMarkdown>
     </div>
   );

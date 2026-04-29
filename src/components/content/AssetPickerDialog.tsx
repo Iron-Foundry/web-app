@@ -153,7 +153,7 @@ export function AssetPickerDialog({
           <p className="text-xs text-destructive -mt-1">{uploadError}</p>
         )}
 
-        <div className="h-[420px] overflow-y-auto">
+        <div className="h-105 overflow-y-auto">
           {loading ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
           ) : filtered.length === 0 ? (

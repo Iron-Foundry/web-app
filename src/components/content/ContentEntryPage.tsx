@@ -353,7 +353,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
           />
         </div>
       ) : (
-        <div className="min-h-[100px]">
+        <div className="min-h-25">
           {entry.body ? (
             <MarkdownRenderer body={entry.body} />
           ) : (

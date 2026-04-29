@@ -85,39 +85,39 @@
 }
 
 .light {
-  /* Base — warm parchment, no white */
-  --background:           hsl(36,  22%, 86%);
-  --foreground:           hsl(220, 15%, 20%);
+  /* Base — warm parchment */
+  --background:           hsl(36,  22%, 87%);
+  --foreground:           hsl(220, 18%, 18%);
 
-  /* Card / Popover — slightly darker than background */
-  --card:                 hsl(36,  18%, 81%);
-  --card-foreground:      hsl(220, 15%, 20%);
-  --popover:              hsl(36,  18%, 81%);
-  --popover-foreground:   hsl(220, 15%, 20%);
+  /* Card / Popover */
+  --card:                 hsl(36,  16%, 82%);
+  --card-foreground:      hsl(220, 18%, 18%);
+  --popover:              hsl(36,  16%, 82%);
+  --popover-foreground:   hsl(220, 18%, 18%);
 
   /* Primary - Gold */
   --primary:              hsl(42,  58%, 42%);
   --primary-foreground:   hsl(36,  22%, 86%);
 
-  /* Secondary */
-  --secondary:            hsl(36,  14%, 74%);
-  --secondary-foreground: hsl(220, 15%, 20%);
+  /* Secondary - soft slate blue */
+  --secondary:            hsl(208, 30%, 75%);
+  --secondary-foreground: hsl(220, 18%, 18%);
 
-  /* Muted */
-  --muted:                hsl(36,  14%, 77%);
-  --muted-foreground:     hsl(220, 10%, 44%);
+  /* Muted - soft blue-gray */
+  --muted:                hsl(205, 20%, 80%);
+  --muted-foreground:     hsl(210, 15%, 38%);
 
-  /* Accent */
-  --accent:               hsl(42,  58%, 42%);
-  --accent-foreground:    hsl(36,  22%, 86%);
+  /* Accent - soft sage green */
+  --accent:               hsl(42, 88%, 81%);
+  --accent-foreground:    hsl(148, 25%, 10%);
 
   /* Destructive */
   --destructive:          hsl(0,   50%, 44%);
-  --destructive-foreground: hsl(36, 22%, 86%);
+  --destructive-foreground: hsl(36, 22%, 88%);
 
-  /* Functional */
-  --border:               hsl(36,  14%, 70%);
-  --input:                hsl(36,  14%, 70%);
+  /* Functional - blue-tinted */
+  --border:               hsl(205, 22%, 70%);
+  --input:                hsl(205, 22%, 70%);
   --ring:                 hsl(42,  58%, 42%);
 }
 
@@ -126,3 +126,22 @@
     @apply border-border outline-ring/50;
   }
 }
+
+/* Callout boxes — theme-aware, replaces old hardcoded inline styles */
+.callout-tip,
+.callout-warning,
+.callout-info {
+  padding: 12px;
+  border-radius: 4px;
+  margin: 8px 0;
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+
+.callout-tip     { background: #1e3a2f; border-left-color: #4ade80; }
+.callout-warning { background: #3b1e1e; border-left-color: #f87171; }
+.callout-info    { background: #1e2a3b; border-left-color: #60a5fa; }
+
+.light .callout-tip     { background: hsl(148, 35%, 88%); border-left-color: hsl(148, 45%, 38%); }
+.light .callout-warning { background: hsl(0,   35%, 91%); border-left-color: hsl(0,   55%, 46%); }
+.light .callout-info    { background: hsl(210, 40%, 88%); border-left-color: hsl(210, 55%, 44%); }
