@@ -12,7 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ChevronUp, ChevronDown, Crown, Users, Swords, ScrollText, Trophy } from "lucide-react";
 import type { BingoMappedData } from "@/types/bingo";
 import {
-  BOSS_METRICS,
+  BOSS_METRICS, TEAM_COLORS, SKILL_METRICS,
   buildTeamColor, buildAllPlayers, buildActiveMetrics, buildActiveByCategory,
   fmtBingoMetric as fmtMetric, fmtBingoGained as fmtGained,
   fmtBingoDate as fmtDate, getMetricCat, getMetricVal, rankLabel,
