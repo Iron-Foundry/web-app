@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Menu, Pencil, Plus, Trash2, X } from "lucide-react";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
-import { cacheInvalidate, fetchCached } from "@/lib/cache";
+import { apiFetch } from "@/api/client";
 import { usePermissions } from "@/context/PermissionsContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -699,18 +699,14 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    fetchCached<CategoryTree[]>(
-      `${API_URL}/content/${pageType}/categories`,
-      { cacheKey: `content:cats:${pageType}` },
-    )
+    apiFetch<CategoryTree[]>(`/content/${pageType}/categories`)
       .then(setCategories)
       .catch(() => {});
   }, [pageType, refreshKey]);
 
   const refreshTree = useCallback(() => {
-    cacheInvalidate(`content:cats:${pageType}`);
     setRefreshKey((k) => k + 1);
-  }, [pageType]);
+  }, []);
 
   const sidebarProps: SidebarContentProps = {
     categories,

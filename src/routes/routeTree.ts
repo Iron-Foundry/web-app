@@ -30,6 +30,7 @@ import { staffBadgesRoute } from "./members/staff/badges";
 import { staffContentRoute } from "./members/staff/content";
 import { staffAssetsRoute } from "./members/staff/assets";
 import { staffCompetitionsRoute } from "./members/staff/competitions";
+import { staffRankingRoute } from "./members/staff/ranking";
 import { staffResourcesLayoutRoute } from "./members/staff/resources/_layout";
 import { staffResourcesIndexRoute } from "./members/staff/resources/index";
 import { staffResourcesEntryRoute } from "./members/staff/resources/$slug";
@@ -61,6 +62,7 @@ const membersTree = membersLayoutRoute.addChildren([
   staffContentRoute,
   staffAssetsRoute,
   staffCompetitionsRoute,
+  staffRankingRoute,
   staffResourcesTree,
 ]);
 

@@ -4,7 +4,8 @@ import { Tabs } from "radix-ui";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
-import { cacheInvalidate } from "@/lib/cache";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 import { getPageRegistry, registerPage, type PagePermissionConfig } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -92,6 +93,7 @@ function PageCard({
 }
 
 function PermissionsPage() {
+  const queryClient = useQueryClient();
   const [saved, setSaved] = useState<PagePermissionsMap>({});
   const [local, setLocal] = useState<PagePermissionsMap>({});
   const [loading, setLoading] = useState(true);
@@ -165,7 +167,7 @@ function PermissionsPage() {
       });
       if (r.ok) {
         const data = (await r.json()) as { pages: PagePermissionsMap };
-        cacheInvalidate("config:page-permissions");
+        void queryClient.invalidateQueries({ queryKey: queryKeys.permissions.config() });
         setSaved(data.pages);
         setLocal(data.pages);
         setFeedback({ ok: true, msg: "Saved." });

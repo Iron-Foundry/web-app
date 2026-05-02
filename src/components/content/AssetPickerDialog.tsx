@@ -5,17 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
-interface Asset {
-  id: string;
-  filename: string;
-  original_name: string;
-  content_type: string;
-  size_bytes: number;
-  url: string;
-  created_at: string | null;
-  uploaded_by: { rsn: string | null; discord_username: string } | null;
-}
+import type { Asset } from "@/types/assets";
 
 function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;

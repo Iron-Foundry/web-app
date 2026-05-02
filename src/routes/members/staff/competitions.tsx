@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
-import { cacheInvalidate, fetchCached } from "@/lib/cache";
 import { registerPage } from "@/lib/permissions";
 import { StaffGuard } from "@/components/StaffGuard";
+import { queryKeys } from "@/lib/queryKeys";
+import { useCompetitionList, useCompetitionMetricMap } from "@/hooks/useCompetitions";
 import metricsConfig from "@/competition-metrics.toml";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { X } from "lucide-react";
+import type { MetricMap } from "@/types/competitions";
 
 registerPage({
   id: "staff.competitions",
@@ -36,19 +39,6 @@ export const staffCompetitionsRoute = createRoute({
   ),
 });
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface Competition {
-  id: number;
-  title: string;
-  metric: string;
-  type: string;
-  status: "upcoming" | "ongoing" | "finished";
-}
-
-type MetricMap = Record<string, string[]>;
 
 const METRIC_GROUPS: { name: string; metrics: string[] }[] = metricsConfig.groups;
 
@@ -61,39 +51,17 @@ function fmtLabel(metric: string): string {
 // ---------------------------------------------------------------------------
 
 function StaffCompetitionsPage() {
-  const { user } = useAuth();
+  useAuth();
+  const queryClient = useQueryClient();
 
-  const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [metricMap, setMetricMap] = useState<MetricMap>({});
-  const [loading, setLoading] = useState(true);
+  const { data: competitions = [], isLoading: loading } = useCompetitionList();
+  const { data: metricMap = {} } = useCompetitionMetricMap();
 
   const [selectedId, setSelectedId] = useState("");
   const [pending, setPending] = useState<string[]>([]);
   const [filter, setFilter] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    if (!user) return;
-    const token = getAuthToken();
-    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-    Promise.all([
-      fetchCached<Competition[]>(`${API_URL}/clan/competitions`, {
-        cacheKey: "competitions:list",
-        ttl: 5 * 60 * 1000,
-      }),
-      fetchCached<MetricMap>(`${API_URL}/clan/competitions/metric-map`, {
-        headers,
-        cacheKey: "competitions:metric-map",
-      }),
-    ])
-      .then(([comps, map]) => {
-        setCompetitions(comps);
-        setMetricMap(map);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [user]);
 
   function handleCompSelect(id: string) {
     setSelectedId(id);
@@ -122,9 +90,8 @@ function StaffCompetitionsPage() {
         body: JSON.stringify({ competition_id: parseInt(selectedId), metrics: pending }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const updated: MetricMap = await res.json();
-      setMetricMap(updated);
-      cacheInvalidate("competitions:metric-map");
+      await res.json();
+      void queryClient.invalidateQueries({ queryKey: queryKeys.competitions.metricMap() });
       setSaved(true);
     } catch {
       // keep current state on error

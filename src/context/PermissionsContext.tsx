@@ -1,8 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
+import { createContext, useContext } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/context/AuthContext";
 import { useViewAs } from "@/context/ViewAsContext";
-import type { PagePermissionConfig, PermAction } from "@/lib/permissions";
-import { fetchCached } from "@/lib/cache";
+import { permissionsApi } from "@/api/permissions";
+import { queryKeys } from "@/lib/queryKeys";
+import type { PagePermissionConfig, PermAction } from "@/types/permissions";
 
 type PagePermissionsMap = Record<string, PagePermissionConfig>;
 
@@ -57,35 +59,25 @@ function checkPermission(
 export function PermissionsProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { overrideRoles } = useViewAs();
-  const [pagePermissions, setPagePermissions] = useState<PagePermissionsMap>({});
-  const [adminBypassRoles, setAdminBypassRoles] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    fetchCached<{ pages: PagePermissionsMap; admin_bypass_roles: string[] }>(
-      `${API_URL}/config/page-permissions`,
-      { headers: getAuthHeaders(), cacheKey: "config:page-permissions", ttl: 10 * 60 * 1000 },
-    )
-      .then((data) => {
-        setPagePermissions(data.pages ?? {});
-        setAdminBypassRoles(data.admin_bypass_roles ?? []);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [user]);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.permissions.config(),
+    queryFn: permissionsApi.getPagePermissions,
+    enabled: !!user,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+
+  const pagePermissions: PagePermissionsMap = data?.pages ?? {};
+  const adminBypassRoles: string[] = data?.admin_bypass_roles ?? [];
 
   const hasPermission = (pageId: string, action: PermAction, effectiveRoles: string[]) => {
-    // Use view-as override roles if active
     const roles = overrideRoles ?? effectiveRoles;
     return checkPermission(pageId, action, roles, pagePermissions, adminBypassRoles);
   };
 
   return (
-    <PermissionsContext.Provider value={{ pagePermissions, adminBypassRoles, hasPermission, loading }}>
+    <PermissionsContext.Provider value={{ pagePermissions, adminBypassRoles, hasPermission, loading: isLoading }}>
       {children}
     </PermissionsContext.Provider>
   );

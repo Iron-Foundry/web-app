@@ -1,36 +1,52 @@
-import { useEffect } from "react";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "sonner";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { LinkRsnModal } from "@/components/layout/LinkRsnModal";
-import { AuthProvider, API_URL } from "@/context/AuthContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { PermissionsProvider } from "@/context/PermissionsContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ViewAsProvider } from "@/context/ViewAsContext";
-import { fetchCached } from "@/lib/cache";
+import { ApiRequestError } from "@/api/client";
+import { getErrorMessage } from "@/lib/errors";
+import { toast } from "sonner";
 
-function PrefetchLeaderboards() {
-  useEffect(() => {
-    fetchCached(`${API_URL}/clan/leaderboards/killcounts`, { cacheKey: "leaderboards:kc" }).catch(() => {});
-    fetchCached(`${API_URL}/clan/leaderboards/leagues`, { cacheKey: "leaderboards:leagues" }).catch(() => {});
-  }, []);
-  return null;
-}
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2,
+      retry: (failureCount, error) => {
+        if (error instanceof ApiRequestError && error.status < 500) return false;
+        return failureCount < 2;
+      },
+    },
+    mutations: {
+      onError: (error) => {
+        toast.error(getErrorMessage(error));
+      },
+    },
+  },
+});
 
 function Root() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <ViewAsProvider>
-          <PermissionsProvider>
-            <PrefetchLeaderboards />
-            <RootLayout>
-              <Outlet />
-            </RootLayout>
-            <LinkRsnModal />
-          </PermissionsProvider>
-        </ViewAsProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthProvider>
+          <ViewAsProvider>
+            <PermissionsProvider>
+              <Toaster position="bottom-right" richColors />
+              <RootLayout>
+                <Outlet />
+              </RootLayout>
+              <LinkRsnModal />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </PermissionsProvider>
+          </ViewAsProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

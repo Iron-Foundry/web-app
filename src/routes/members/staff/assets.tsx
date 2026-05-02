@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check, Copy, Download, Film, ImageIcon, Trash2, Upload } from "lucide-react";
+import type { Asset } from "@/types/assets";
 
 registerPage({
   id: "staff.assets",
@@ -25,20 +26,6 @@ registerPage({
   },
 });
 
-interface Asset {
-  id: string;
-  filename: string;
-  original_name: string;
-  content_type: string;
-  size_bytes: number;
-  url: string;
-  created_at: string | null;
-  uploaded_by: {
-    rsn: string | null;
-    discord_username: string;
-    discord_user_id: number;
-  } | null;
-}
 
 function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;

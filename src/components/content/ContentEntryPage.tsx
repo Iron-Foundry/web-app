@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { EntryEditor } from "./EntryEditor";
 import { useContentContext } from "./ContentLayout";
-import { cacheInvalidate, fetchCached } from "@/lib/cache";
+import { apiFetch } from "@/api/client";
 import { VersionHistoryDialog } from "./VersionHistoryDialog";
+import type { EntryAuthor, EntryDetail } from "@/types/content";
 
 function slugify(s: string): string {
   return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
@@ -34,26 +35,6 @@ function downloadMd(title: string, body: string): void {
   URL.revokeObjectURL(url);
 }
 
-interface EntryAuthor {
-  discord_user_id: number | null;
-  discord_username: string | null;
-  rsn: string | null;
-  avatar: string | null;
-}
-
-interface EntryDetail {
-  id: string;
-  title: string;
-  slug: string;
-  body: string;
-  created_at: string | null;
-  updated_at: string | null;
-  author: EntryAuthor | null;
-  collaborators: EntryAuthor[];
-  last_updated_by: EntryAuthor | null;
-  reaction_count: number;
-  user_has_reacted: boolean;
-}
 
 function AuthorChip({ user }: { user: EntryAuthor }) {
   return (
@@ -120,9 +101,9 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
     setError(null);
     setEditMode(false);
     setEntryId(null);
-    fetchCached<EntryDetail>(
-      `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
-      { signal: controller.signal, cacheKey: `content:entry:${pageType}:${slug}` },
+    apiFetch<EntryDetail>(
+      `/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
+      { signal: controller.signal },
     )
       .then((data) => {
         setEntry(data);
@@ -178,15 +159,13 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
         return;
       }
       const saved = await res.json() as { slug: string; updated_at: string | null };
-      cacheInvalidate(`content:entry:${pageType}:`);
       setEditMode(false);
       refreshTree();
       if (saved.slug !== slug) {
         navigate({ to: `${routeBase}/$slug`, params: { slug: saved.slug } });
       } else {
-        const updated = await fetchCached<EntryDetail>(
-          `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(saved.slug)}`,
-          { cacheKey: `content:entry:${pageType}:${saved.slug}` },
+        const updated = await apiFetch<EntryDetail>(
+          `/content/${pageType}/entries/by-slug/${encodeURIComponent(saved.slug)}`,
         );
         setEntry(updated);
         setEditTitle(updated.title);
@@ -330,10 +309,8 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
                 <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground"
                   onClick={async () => {
                     setConflictDetected(false); setSaveError(null); setEditMode(false);
-                    cacheInvalidate(`content:entry:${pageType}:`);
-                    const fresh = await fetchCached<EntryDetail>(
-                      `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
-                      { cacheKey: `content:entry:${pageType}:${slug}` },
+                    const fresh = await apiFetch<EntryDetail>(
+                      `/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
                     );
                     setEntry(fresh); setEditTitle(fresh.title); setEditSlug(fresh.slug);
                     setSlugEdited(false); setLoadedUpdatedAt(fresh.updated_at);
@@ -441,10 +418,8 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
           pageType={pageType}
           entryId={entryId}
           onRestored={async () => {
-            cacheInvalidate(`content:entry:${pageType}:`);
-            const updated = await fetchCached<EntryDetail>(
-              `${API_URL}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
-              { cacheKey: `content:entry:${pageType}:${slug}` },
+            const updated = await apiFetch<EntryDetail>(
+              `/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
             );
             setEntry(updated);
             setEntryId(updated.id);

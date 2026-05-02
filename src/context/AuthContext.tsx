@@ -5,24 +5,13 @@ import {
   useEffect,
   useState,
 } from "react";
+import type { AuthUser } from "@/types/auth";
+
+export type { AuthUser } from "@/types/auth";
 
 export const API_URL: string =
   (window as unknown as { __API_URL__?: string }).__API_URL__ ??
   "http://localhost:8000";
-
-export interface AuthUser {
-  discord_user_id: string;
-  username: string;
-  avatar: string | null;
-  rsn: string | null;
-  clan_rank: string | null;
-  discord_roles: string[];
-  effective_roles: string[];
-  /** Map of Discord role ID -> human-readable label (from rank-mappings config). */
-  role_labels: Record<string, string>;
-  stats_opt_out: boolean;
-  hide_presence_notifications: boolean;
-}
 
 interface AuthContextValue {
   user: AuthUser | null;

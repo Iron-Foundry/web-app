@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createRoute, useNavigate } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
-import { fetchCached } from "@/lib/cache";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { registerPage } from "@/lib/permissions";
+import { LeaderboardSkeleton } from "@/components/skeletons/LeaderboardSkeleton";
+import {
+  usePbLeaderboard,
+  useClogLeaderboard,
+  useKillcountLeaderboard,
+  useLeagueLeaderboard,
+} from "@/hooks/useLeaderboards";
+import type { PbEntry, ClogEntry, KcBoss, LeaguesEntry, LeaderboardTab } from "@/types/leaderboard";
 
 registerPage({
   id: "leaderboards",
@@ -21,37 +28,6 @@ export const leaderboardsRoute = createRoute({
   path: "/leaderboards",
   component: LeaderboardsPage,
 });
-
-interface PbEntry {
-  player_name: string;
-  activity: string;
-  variant: string;
-  time_seconds: number;
-}
-
-interface ClogEntry {
-  player_name: string;
-  slots: number;
-  slots_max: number;
-}
-
-interface KcEntry {
-  player_name: string;
-  kills: number;
-}
-
-interface KcBoss {
-  metric: string;
-  display_name: string;
-  entries: KcEntry[];
-}
-
-interface LeaguesEntry {
-  player_name: string;
-  score: number;
-}
-
-type Tab = "pb" | "clog" | "kc" | "leagues";
 
 function formatTime(s: number): string {
   const h = Math.floor(s / 3600);
@@ -102,15 +78,13 @@ function RankHeader({ valueLabel }: { valueLabel: string }) {
   );
 }
 
-function PbTab({ entries, loading }: { entries: PbEntry[]; loading: boolean }) {
-  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
-
+function PbLeaderboardTab() {
+  const { data: entries = [], isLoading } = usePbLeaderboard();
+  if (isLoading) return <LeaderboardSkeleton />;
   const grouped = groupPbs(entries);
   const activities = Object.keys(grouped).sort();
-
   if (activities.length === 0)
     return <p className="text-sm text-muted-foreground">No times recorded yet.</p>;
-
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       {activities.map((activity) => {
@@ -157,14 +131,14 @@ function PbTab({ entries, loading }: { entries: PbEntry[]; loading: boolean }) {
   );
 }
 
-function KcTab({ bosses, loading }: { bosses: KcBoss[]; loading: boolean }) {
-  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+function KcLeaderboardTab() {
+  const { data: bosses = [], isLoading } = useKillcountLeaderboard();
+  if (isLoading) return <LeaderboardSkeleton />;
   if (bosses.length === 0)
     return <p className="text-sm text-muted-foreground">No killcount data yet.</p>;
-
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-      {bosses.map((boss) => (
+      {bosses.map((boss: KcBoss) => (
         <Card key={boss.metric}>
           <CardHeader className="pb-2">
             <h2 className="font-rs-bold text-xl text-primary">{boss.display_name}</h2>
@@ -192,17 +166,17 @@ function KcTab({ bosses, loading }: { bosses: KcBoss[]; loading: boolean }) {
   );
 }
 
-function LeaguesTab({ entries, loading }: { entries: LeaguesEntry[]; loading: boolean }) {
-  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+function LeaguesLeaderboardTab() {
+  const { data: entries = [], isLoading } = useLeagueLeaderboard();
+  if (isLoading) return <LeaderboardSkeleton />;
   if (entries.length === 0)
     return <p className="text-sm text-muted-foreground">No cluescroll data yet.</p>;
-
   return (
     <Card>
       <CardContent className="pt-4">
         <div className="w-full text-sm">
           <RankHeader valueLabel="Clues" />
-          {entries.map((entry, i) => (
+          {(entries as LeaguesEntry[]).map((entry, i) => (
             <RankRow
               key={entry.player_name}
               rank={i + 1}
@@ -220,17 +194,17 @@ function LeaguesTab({ entries, loading }: { entries: LeaguesEntry[]; loading: bo
   );
 }
 
-function ClogTab({ entries, loading }: { entries: ClogEntry[]; loading: boolean }) {
-  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+function ClogLeaderboardTab() {
+  const { data: entries = [], isLoading } = useClogLeaderboard();
+  if (isLoading) return <LeaderboardSkeleton />;
   if (entries.length === 0)
     return <p className="text-sm text-muted-foreground">No collection log data yet.</p>;
-
   return (
     <Card>
       <CardContent className="pt-4">
         <div className="w-full text-sm">
           <RankHeader valueLabel="Slots" />
-          {entries.map((entry, i) => (
+          {(entries as ClogEntry[]).map((entry, i) => (
             <RankRow
               key={entry.player_name}
               rank={i + 1}
@@ -256,51 +230,13 @@ function ClogTab({ entries, loading }: { entries: ClogEntry[]; loading: boolean 
 function LeaderboardsPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("pb");
+  const [tab, setTab] = useState<LeaderboardTab>("pb");
 
-  const [pbEntries, setPbEntries] = useState<PbEntry[]>([]);
-  const [pbLoading, setPbLoading] = useState(true);
-
-  const [clogEntries, setClogEntries] = useState<ClogEntry[]>([]);
-  const [clogLoading, setClogLoading] = useState(true);
-
-  const [kcBosses, setKcBosses] = useState<KcBoss[]>([]);
-  const [kcLoading, setKcLoading] = useState(true);
-
-  const [leaguesEntries, setLeaguesEntries] = useState<LeaguesEntry[]>([]);
-  const [leaguesLoading, setLeaguesLoading] = useState(true);
-
-  useEffect(() => {
-    if (!loading && !user) navigate({ to: "/login" });
-  }, [loading, user, navigate]);
-
-  useEffect(() => {
-    if (!user) return;
-    const token = getAuthToken();
-    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-
-    fetchCached<PbEntry[]>(`${API_URL}/clan/leaderboards`, { headers, cacheKey: "leaderboards:pb" })
-      .then(setPbEntries)
-      .catch(() => {})
-      .finally(() => setPbLoading(false));
-
-    fetchCached<ClogEntry[]>(`${API_URL}/clan/leaderboards/collection-log`, { headers, cacheKey: "leaderboards:clog" })
-      .then(setClogEntries)
-      .catch(() => {})
-      .finally(() => setClogLoading(false));
-
-    fetchCached<KcBoss[]>(`${API_URL}/clan/leaderboards/killcounts`, { headers, cacheKey: "leaderboards:kc" })
-      .then(setKcBosses)
-      .catch(() => {})
-      .finally(() => setKcLoading(false));
-
-    fetchCached<LeaguesEntry[]>(`${API_URL}/clan/leaderboards/leagues`, { headers, cacheKey: "leaderboards:leagues" })
-      .then(setLeaguesEntries)
-      .catch(() => {})
-      .finally(() => setLeaguesLoading(false));
-  }, [user]);
-
-  if (loading || !user) return null;
+  if (loading) return <LeaderboardSkeleton />;
+  if (!user) {
+    void navigate({ to: "/login" });
+    return null;
+  }
 
   return (
     <div className="mx-auto max-w-7xl w-full space-y-6 py-6">
@@ -313,7 +249,7 @@ function LeaderboardsPage() {
           type="single"
           variant="outline"
           value={tab}
-          onValueChange={(v) => { if (v) setTab(v as Tab); }}
+          onValueChange={(v) => { if (v) setTab(v as LeaderboardTab); }}
         >
           <ToggleGroupItem value="pb">Personal Bests</ToggleGroupItem>
           <ToggleGroupItem value="clog">Collection Logs</ToggleGroupItem>
@@ -324,10 +260,10 @@ function LeaderboardsPage() {
 
       <Separator />
 
-      {tab === "pb" && <PbTab entries={pbEntries} loading={pbLoading} />}
-      {tab === "clog" && <ClogTab entries={clogEntries} loading={clogLoading} />}
-      {tab === "kc" && <KcTab bosses={kcBosses} loading={kcLoading} />}
-      {tab === "leagues" && <LeaguesTab entries={leaguesEntries} loading={leaguesLoading} />}
+      {tab === "pb" && <PbLeaderboardTab />}
+      {tab === "clog" && <ClogLeaderboardTab />}
+      {tab === "kc" && <KcLeaderboardTab />}
+      {tab === "leagues" && <LeaguesLeaderboardTab />}
     </div>
   );
 }

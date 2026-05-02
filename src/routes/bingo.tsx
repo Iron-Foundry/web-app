@@ -10,42 +10,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ChevronUp, ChevronDown, Crown, Users, Swords, ScrollText, Trophy } from "lucide-react";
+import type { BingoMappedData } from "@/types/bingo";
+import {
+  buildTeamColor, buildAllPlayers, buildActiveMetrics, buildActiveByCategory,
+  fmtBingoMetric as fmtMetric, fmtBingoGained as fmtGained,
+  fmtBingoDate as fmtDate, getMetricCat, getMetricVal, rankLabel,
+  type FlatPlayer,
+} from "@/lib/bingo";
 import rawData from "../bingo_comp_mapped.json";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface BingoSubmission {
-  tile_key: string;
-  item_label: string | null;
-  submitted_at: string;
-  _note?: string;
-}
-
-interface Player {
-  discord_user_id: string;
-  is_captain: boolean;
-  bingo_submissions: BingoSubmission[];
-  wom_metrics: Record<string, number> | null;
-}
-
-interface Team {
-  team_id: number;
-  players: Record<string, Player>;
-}
-
-interface MappedData {
-  generated_at: string;
-  teams: Record<string, Team>;
-  unmapped: {
-    submissions_discord_id_not_matched: { tile_key: string; item_label: string | null; submitted_at: string; submitted_by_raw: number; team_id: number }[];
-    wom_players_not_in_bingo_roster: { rsn: string; wom_team: string }[];
-    bingo_members_not_in_wom: { rsn: string; team: string }[];
-  };
-}
-
-const data = rawData as unknown as MappedData;
+const data = rawData as unknown as BingoMappedData;
 
 // ---------------------------------------------------------------------------
 // Route
@@ -58,130 +32,14 @@ export const bingoRoute = createRoute({
 });
 
 // ---------------------------------------------------------------------------
-// Constants
+// Module-level derived data (static JSON, computed once)
 // ---------------------------------------------------------------------------
-
-const SKILL_METRICS = new Set([
-  "overall","attack","defence","strength","hitpoints","ranged","prayer","magic",
-  "cooking","woodcutting","fletching","fishing","firemaking","crafting","smithing",
-  "mining","herblore","agility","thieving","slayer","farming","runecrafting",
-  "hunter","construction","sailing",
-]);
-
-const BOSS_METRICS = new Set([
-  "abyssal_sire","alchemical_hydra","amoxliatl","araxxor","artio","barrows_chests",
-  "brutus","bryophyta","callisto","calvarion","cerberus","chambers_of_xeric",
-  "chambers_of_xeric_challenge_mode","chaos_elemental","chaos_fanatic","commander_zilyana",
-  "corporeal_beast","crazy_archaeologist","dagannoth_prime","dagannoth_rex","dagannoth_supreme",
-  "deranged_archaeologist","doom_of_mokhaiotl","duke_sucellus","general_graardor","giant_mole",
-  "grotesque_guardians","hespori","kalphite_queen","king_black_dragon","kraken","kreearra",
-  "kril_tsutsaroth","lunar_chests","nex","nightmare","obor","phantom_muspah","phosanis_nightmare",
-  "sarachnis","scorpia","scurrius","shellbane_gryphon","skotizo","sol_heredit","spindel",
-  "tempoross","the_corrupted_gauntlet","the_gauntlet","the_hueycoatl","the_leviathan",
-  "the_royal_titans","the_whisperer","theatre_of_blood","theatre_of_blood_hard_mode",
-  "thermonuclear_smoke_devil","tombs_of_amascut","tombs_of_amascut_expert","tzkal_zuk",
-  "tztok_jad","vardorvis","venenatis","vetion","vorkath","wintertodt","yama","zalcano","zulrah",
-]);
-
-const ACTIVITY_METRICS = new Set([
-  "clue_scrolls_all","clue_scrolls_beginner","clue_scrolls_easy","clue_scrolls_medium",
-  "clue_scrolls_hard","clue_scrolls_elite","clue_scrolls_master","collections_logged",
-  "colosseum_glory","guardians_of_the_rift","last_man_standing","pvp_arena","soul_wars_zeal",
-]);
-
-const COMPUTED_METRICS = new Set(["ehp","ehb"]);
-
-const TEAM_COLORS = [
-  "hsl(220,70%,55%)","hsl(140,60%,45%)","hsl(280,65%,60%)","hsl(30,80%,55%)",
-  "hsl(0,65%,55%)","hsl(180,55%,45%)","hsl(55,75%,50%)","hsl(320,65%,60%)",
-];
 
 const TEAM_NAMES = Object.keys(data.teams).sort();
-const TEAM_COLOR: Record<string, string> = Object.fromEntries(
-  TEAM_NAMES.map((n, i) => [n, TEAM_COLORS[i % TEAM_COLORS.length] ?? "#888"])
-);
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function fmtMetric(m: string) {
-  return m.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-}
-
-function fmtGained(v: number, metric: string): string {
-  if (SKILL_METRICS.has(metric)) {
-    if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M xp`;
-    if (v >= 1_000) return `${Math.round(v / 1_000)}K xp`;
-    return `${v} xp`;
-  }
-  return v.toLocaleString();
-}
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" });
-}
-
-function getMetricCat(m: string): "skill" | "boss" | "activity" | "computed" {
-  if (SKILL_METRICS.has(m)) return "skill";
-  if (BOSS_METRICS.has(m)) return "boss";
-  if (ACTIVITY_METRICS.has(m)) return "activity";
-  return "computed";
-}
-
-// Pre-flatten all players for quick lookups
-interface FlatPlayer {
-  rsn: string;
-  teamName: string;
-  teamColor: string;
-  is_captain: boolean;
-  wom_metrics: Record<string, number> | null;
-  submissions: BingoSubmission[];
-}
-
-const ALL_PLAYERS: FlatPlayer[] = [];
-for (const [teamName, team] of Object.entries(data.teams)) {
-  for (const [rsn, player] of Object.entries(team.players)) {
-    ALL_PLAYERS.push({
-      rsn,
-      teamName,
-      teamColor: TEAM_COLOR[teamName] ?? "#888",
-      is_captain: player.is_captain,
-      wom_metrics: player.wom_metrics,
-      submissions: player.bingo_submissions,
-    });
-  }
-}
-
-// Collect all metrics that have at least one nonzero value
-const ACTIVE_METRICS = (() => {
-  const sums: Record<string, number> = {};
-  for (const p of ALL_PLAYERS) {
-    if (!p.wom_metrics) continue;
-    for (const [k, v] of Object.entries(p.wom_metrics)) {
-      sums[k] = (sums[k] ?? 0) + v;
-    }
-  }
-  return Object.keys(sums).filter(k => (sums[k] ?? 0) > 0);
-})();
-
-const ACTIVE_BY_CAT = {
-  skill: ACTIVE_METRICS.filter(m => SKILL_METRICS.has(m)).sort(),
-  boss: ACTIVE_METRICS.filter(m => BOSS_METRICS.has(m)).sort(),
-  activity: ACTIVE_METRICS.filter(m => ACTIVITY_METRICS.has(m)).sort(),
-  computed: ACTIVE_METRICS.filter(m => COMPUTED_METRICS.has(m)).sort(),
-};
-
-function getMetricVal(p: FlatPlayer, metric: string): number {
-  return p.wom_metrics?.[metric] ?? 0;
-}
-
-function rankLabel(r: number) {
-  if (r === 1) return "🥇";
-  if (r === 2) return "🥈";
-  if (r === 3) return "🥉";
-  return `#${r}`;
-}
+const TEAM_COLOR = buildTeamColor(TEAM_NAMES);
+const ALL_PLAYERS = buildAllPlayers(data, TEAM_COLOR);
+const ACTIVE_METRICS = buildActiveMetrics(ALL_PLAYERS);
+const ACTIVE_BY_CAT = buildActiveByCategory(ACTIVE_METRICS);
 
 // ---------------------------------------------------------------------------
 // Shared chart tooltip

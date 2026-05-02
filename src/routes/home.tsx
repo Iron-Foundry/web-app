@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
-import { API_URL, useAuth } from "@/context/AuthContext";
-import { fetchCached } from "@/lib/cache";
+import { useAuth } from "@/context/AuthContext";
+import { useWomStats, useClanStats, useRecentAchievements, useHomeCompetitions } from "@/hooks/useHome";
+import type { Achievement, AchievementType } from "@/types/members";
 import clanPhoto from "@/assets/clan-photo.png";
 import bannerLogo from "@/assets/BannerLogo-160x87.png";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,37 +18,6 @@ export const homeRoute = createRoute({
   component: HomePage,
 });
 
-interface WomStatsResponse {
-  member_count: number;
-  total_xp: number;
-  total_ehb: number;
-  cox_kc: number;
-  tob_kc: number;
-  toa_kc: number;
-}
-
-type AchievementType = "drop" | "level" | "xp_milestone";
-
-interface Achievement {
-  type: AchievementType;
-  player: string;
-  label: string;
-  detail?: string;
-  value: number;
-}
-
-interface Competition {
-  id: number;
-  title: string;
-  metric: string;
-  type: string;
-  startsAt: string;
-  endsAt: string;
-  status: "upcoming" | "ongoing" | "finished";
-  competition_url: string;
-  metric_url: string;
-  participantCount: number;
-}
 
 const ACHIEVEMENT_META: Record<
   AchievementType,
@@ -225,59 +195,21 @@ function LiveCompetitionBox({ comp, onDismiss }: { comp: Competition; onDismiss:
 }
 
 function HomePage() {
-  const [memberCount, setMemberCount] = useState<number | null>(null);
-  const [clanXp, setClanXp] = useState<number | null>(null);
-  const [clanEhb, setClanEhb] = useState<number | null>(null);
-  const [coxKc, setCoxKc] = useState<number | null>(null);
-  const [tobKc, setTobKc] = useState<number | null>(null);
-  const [toaKc, setToaKc] = useState<number | null>(null);
-  const [totalGp, setTotalGp] = useState<number | null>(null);
-  const [totalLogSlots, setTotalLogSlots] = useState<number | null>(null);
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [achievementsLoading, setAchievementsLoading] = useState(true);
-  const [activeComp, setActiveComp] = useState<Competition | null>(null);
+  const { data: womStats } = useWomStats();
+  const { data: clanStats } = useClanStats();
+  const { data: achievements = [], isLoading: achievementsLoading } = useRecentAchievements();
+  const { data: competitions = [] } = useHomeCompetitions();
   const [compDismissed, setCompDismissed] = useState(false);
 
-  useEffect(() => {
-    fetchCached<WomStatsResponse>(`${API_URL}/clan/wom-stats`, { cacheKey: "home:wom-stats" })
-      .then((data) => {
-        setMemberCount(data.member_count ?? null);
-        setClanXp(data.total_xp > 0 ? data.total_xp : null);
-        setClanEhb(data.total_ehb > 0 ? data.total_ehb : null);
-        setCoxKc(data.cox_kc > 0 ? data.cox_kc : null);
-        setTobKc(data.tob_kc > 0 ? data.tob_kc : null);
-        setToaKc(data.toa_kc > 0 ? data.toa_kc : null);
-      })
-      .catch(() => {});
-
-    fetchCached<{ total_gp: number; collection_log_items: number }>(
-      `${API_URL}/clan/stats`,
-      { cacheKey: "home:stats" },
-    )
-      .then((data) => {
-        setTotalGp(data.total_gp ?? null);
-        setTotalLogSlots(data.collection_log_items ?? null);
-      })
-      .catch(() => {});
-
-    fetchCached<Achievement[]>(
-      `${API_URL}/clan/recent-achievements?limit=20`,
-      { cacheKey: "home:recent-achievements" },
-    )
-      .then(setAchievements)
-      .catch(() => {})
-      .finally(() => setAchievementsLoading(false));
-
-    fetchCached<Competition[]>(
-      `${API_URL}/clan/competitions`,
-      { cacheKey: "home:competitions", ttl: 5 * 60 * 1000 },
-    )
-      .then((data) => {
-        const active = data.find((c) => c.status === "ongoing") ?? data.find((c) => c.status === "upcoming") ?? null;
-        setActiveComp(active);
-      })
-      .catch(() => {});
-  }, []);
+  const memberCount = womStats?.member_count ?? null;
+  const clanXp = womStats && womStats.total_xp > 0 ? womStats.total_xp : null;
+  const clanEhb = womStats && womStats.total_ehb > 0 ? womStats.total_ehb : null;
+  const coxKc = womStats && womStats.cox_kc > 0 ? womStats.cox_kc : null;
+  const tobKc = womStats && womStats.tob_kc > 0 ? womStats.tob_kc : null;
+  const toaKc = womStats && womStats.toa_kc > 0 ? womStats.toa_kc : null;
+  const totalGp = clanStats?.total_gp ?? null;
+  const totalLogSlots = clanStats?.collection_log_items ?? null;
+  const activeComp = competitions.find((c) => c.status === "ongoing") ?? competitions.find((c) => c.status === "upcoming") ?? null;
 
   return (
     <>

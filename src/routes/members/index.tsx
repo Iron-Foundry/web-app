@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
 import { membersLayoutRoute } from "./_layout";
-import { useAuth, API_URL, getAuthToken } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { highestRoleDisplay, getDisplayRank } from "@/lib/ranks";
 import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
-import { fetchCached } from "@/lib/cache";
+import { useMyBadges, useMyFeed, useNameChanges, useDashboardCompetitions } from "@/hooks/useMemberDashboard";
+import { MemberDashboardSkeleton } from "@/components/skeletons/MemberDashboardSkeleton";
 import {
   Gem, TrendingUp, Zap, ScrollText, Map, Swords,
   Heart, BookOpen, FileSearch, Skull, Timer, Flame, KeyRound,
@@ -53,15 +53,6 @@ export const membersDashboardRoute = createRoute({
   component: DashboardPage,
 });
 
-interface PlayerBadge { id: string; name: string; description: string; icon: string | null; color: string; text_color: string; }
-interface FeedItem { type: string; timestamp: string; label: string; detail: string | null; value: number | null; }
-interface NameChange { old_name: string; new_name: string; resolved_at: string | null; }
-interface Competition {
-  id: number; title: string; metric: string; type: string;
-  startsAt: string; endsAt: string; groupId: number; participantCount: number;
-  score?: number; status: "upcoming" | "ongoing" | "finished";
-  competition_url: string; metric_url: string;
-}
 
 const FEED_META: Record<string, { icon: React.ElementType; color: string; badge: string }> = {
   drop:               { icon: Gem,        color: "text-yellow-400", badge: "Drop"       },
@@ -128,48 +119,14 @@ function timeLeft(endsAt: string): string {
 }
 
 function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { hasPermission } = usePermissions();
-  const [feed, setFeed]                       = useState<FeedItem[]>([]);
-  const [feedLoading, setFeedLoading]         = useState(true);
-  const [playerBadges, setPlayerBadges]       = useState<PlayerBadge[]>([]);
-  const [nameChanges, setNameChanges]         = useState<NameChange[]>([]);
-  const [nameChangesLoading, setNcLoading]    = useState(true);
-  const [competitions, setCompetitions]       = useState<Competition[]>([]);
-  const [compsLoading, setCompsLoading]       = useState(true);
+  const { data: playerBadges = [] } = useMyBadges(user?.discord_user_id);
+  const { data: feed = [], isLoading: feedLoading } = useMyFeed(user?.rsn);
+  const { data: nameChanges = [], isLoading: nameChangesLoading } = useNameChanges();
+  const { data: competitions = [], isLoading: compsLoading } = useDashboardCompetitions();
 
-  useEffect(() => {
-    const token = getAuthToken();
-    if (!token) return;
-    fetch(`${API_URL}/badges/me`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.ok ? r.json() as Promise<PlayerBadge[]> : Promise.resolve([]))
-      .then(setPlayerBadges)
-      .catch(() => {});
-  }, [user?.discord_user_id]);
-
-  useEffect(() => {
-    const token = getAuthToken();
-    if (!token || !user?.rsn) { setFeedLoading(false); return; }
-    fetch(`${API_URL}/members/me/feed?limit=50`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json() as Promise<FeedItem[]>)
-      .then(setFeed)
-      .catch(() => {})
-      .finally(() => setFeedLoading(false));
-  }, [user?.rsn]);
-
-  useEffect(() => {
-    fetchCached<NameChange[]>(`${API_URL}/clan/name-changes`, { cacheKey: "members:name-changes", ttl: 15 * 60 * 1000 })
-      .then(setNameChanges).catch(() => {}).finally(() => setNcLoading(false));
-
-    fetchCached<Competition[]>(`${API_URL}/clan/competitions`, { cacheKey: "members:competitions", ttl: 5 * 60 * 1000 })
-      .then((data) => setCompetitions([...data].sort((a, b) => {
-        const o = { ongoing: 0, upcoming: 1, finished: 2 };
-        return o[a.status] - o[b.status];
-      })))
-      .catch(() => {})
-      .finally(() => setCompsLoading(false));
-  }, []);
-
+  if (loading) return <MemberDashboardSkeleton />;
   if (!user) return null;
 
   return (

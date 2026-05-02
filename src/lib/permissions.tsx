@@ -1,22 +1,8 @@
 import type { JSX, ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
+import type { RegisteredPage } from "@/types/permissions";
 
-export type PermAction = "read" | "create" | "edit" | "delete";
-
-export interface PagePermissionConfig {
-  read: string[];
-  create: string[];
-  edit: string[];
-  delete: string[];
-}
-
-export interface RegisteredPage {
-  id: string;
-  label: string;
-  description?: string;
-  /** Defaults used when no DB config exists for this page. */
-  defaults: PagePermissionConfig;
-}
+export type { PermAction, PagePermissionConfig, RegisteredPage } from "@/types/permissions";
 
 const _registry = new Map<string, RegisteredPage>();
 
