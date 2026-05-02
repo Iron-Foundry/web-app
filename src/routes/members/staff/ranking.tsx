@@ -201,7 +201,7 @@ function StatusCard() {
           <span className="text-xs text-muted-foreground animate-pulse">Ranking in progress…</span>
         )}
         {!running && status?.last_error && (
-          <span className="text-destructive text-xs truncate max-w-xs">Error: {status.last_error}</span>
+          <span className="text-destructive text-xs break-all">Error: {status.last_error}</span>
         )}
       </div>
       <Button size="sm" variant="outline" onClick={triggerRun} disabled={running} className="gap-2">
