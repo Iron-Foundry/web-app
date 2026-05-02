@@ -152,35 +152,36 @@ interface StatusInfo {
   player_count: number;
   last_error: string | null;
   service_active: boolean;
+  is_running: boolean;
 }
 
 function StatusCard() {
   const [status, setStatus] = useState<StatusInfo | null>(null);
-  const [running, setRunning] = useState(false);
 
-  useEffect(() => {
-    fetch(`${API_URL}/ranking/status`, { headers: getAuthHeaders() })
+  function fetchStatus() {
+    return fetch(`${API_URL}/ranking/status`, { headers: getAuthHeaders() })
       .then((r) => r.json())
       .then(setStatus)
       .catch(() => null);
+  }
+
+  useEffect(() => {
+    fetchStatus();
   }, []);
 
+  // Poll every 3s while a run is in progress
+  useEffect(() => {
+    if (!status?.is_running) return;
+    const id = setInterval(fetchStatus, 3000);
+    return () => clearInterval(id);
+  }, [status?.is_running]);
+
   async function triggerRun() {
-    setRunning(true);
-    try {
-      await fetch(`${API_URL}/ranking/run`, { method: "POST", headers: getAuthHeaders() });
-      // Re-fetch status after a short delay
-      setTimeout(() => {
-        fetch(`${API_URL}/ranking/status`, { headers: getAuthHeaders() })
-          .then((r) => r.json())
-          .then(setStatus)
-          .catch(() => null)
-          .finally(() => setRunning(false));
-      }, 2000);
-    } catch {
-      setRunning(false);
-    }
+    await fetch(`${API_URL}/ranking/run`, { method: "POST", headers: getAuthHeaders() });
+    await fetchStatus();
   }
+
+  const running = status?.is_running ?? false;
 
   return (
     <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
@@ -196,7 +197,10 @@ function StatusCard() {
             {status?.last_run_at ? new Date(status.last_run_at).toLocaleString() : "Never"}
           </span>
         </span>
-        {status?.last_error && (
+        {running && (
+          <span className="text-xs text-muted-foreground animate-pulse">Ranking in progress…</span>
+        )}
+        {!running && status?.last_error && (
           <span className="text-destructive text-xs truncate max-w-xs">Error: {status.last_error}</span>
         )}
       </div>

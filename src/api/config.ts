@@ -12,8 +12,11 @@ interface RankingConfig {
 }
 
 interface RankingStatus {
-  running: boolean;
+  is_running: boolean;
   last_run_at: string | null;
+  player_count: number;
+  last_error: string | null;
+  service_active: boolean;
 }
 
 interface RankingResult {
