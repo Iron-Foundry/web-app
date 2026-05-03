@@ -49,6 +49,7 @@ async function fetchMe(token: string): Promise<AuthUser | null> {
   const data = await r.json() as AuthUser;
   return {
     ...data,
+    alts_count: data.alts_count ?? 0,
     discord_roles: data.discord_roles ?? [],
     effective_roles: data.effective_roles ?? data.discord_roles ?? [],
     role_labels: data.role_labels ?? {},

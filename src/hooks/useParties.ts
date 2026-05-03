@@ -78,7 +78,8 @@ export function useDeleteParty() {
 export function useJoinParty() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => partiesApi.join(id),
+    mutationFn: ({ id, rsn_override }: { id: string; rsn_override?: string | null }) =>
+      partiesApi.join(id, rsn_override),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
   });
 }

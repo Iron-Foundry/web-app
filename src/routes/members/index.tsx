@@ -173,9 +173,16 @@ function DashboardPage() {
               <span className="text-foreground truncate max-w-35 text-right">{user.username}</span>
             </div>
             {user.rsn && (
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">RSN</span>
-                <span className="text-foreground">{user.rsn}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-foreground">{user.rsn}</span>
+                  {user.alts_count > 0 && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                      +{user.alts_count} alt{user.alts_count > 1 ? "s" : ""}
+                    </Badge>
+                  )}
+                </div>
               </div>
             )}
             {user.clan_rank && (

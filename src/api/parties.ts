@@ -9,6 +9,7 @@ interface CreatePartyPayload {
   ttl_hours: number;
   scheduled_at: string | null;
   ping_role_ids: string[];
+  rsn_override?: string | null;
 }
 
 interface UpdatePartyPayload {
@@ -31,7 +32,11 @@ export const partiesApi = {
 
   delete: (id: string) => apiFetch<void>(`/parties/${id}`, { method: "DELETE" }),
 
-  join: (id: string) => apiFetch<void>(`/parties/${id}/join`, { method: "POST" }),
+  join: (id: string, rsn_override?: string | null) =>
+    apiFetch<void>(`/parties/${id}/join`, {
+      method: "POST",
+      body: rsn_override ? JSON.stringify({ rsn_override }) : undefined,
+    }),
 
   leave: (id: string) => apiFetch<void>(`/parties/${id}/leave`, { method: "DELETE" }),
 

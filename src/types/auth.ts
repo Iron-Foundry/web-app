@@ -3,6 +3,7 @@ export interface AuthUser {
   username: string;
   avatar: string | null;
   rsn: string | null;
+  alts_count: number;
   clan_rank: string | null;
   discord_roles: string[];
   effective_roles: string[];

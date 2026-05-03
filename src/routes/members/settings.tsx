@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
-import { Copy, Eye, EyeOff, RefreshCw } from "lucide-react";
+import { Copy, Eye, EyeOff, RefreshCw, Trash2 } from "lucide-react";
 import { membersLayoutRoute } from "./_layout";
 import { useAuth, API_URL, getAuthToken } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getDisplayRank, highestRoleDisplay } from "@/lib/ranks";
+import {
+  type LinkedAccount,
+  getAccounts,
+  addAccount,
+  setPrimaryAccount,
+  removeAccount,
+} from "@/api/accounts";
 
 export const membersSettingsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
@@ -119,6 +127,171 @@ function ProfileSection() {
         {error && <p className="text-xs text-destructive">{error}</p>}
         {success && <p className="text-xs text-green-500">RSN updated.</p>}
       </div>
+    </div>
+  );
+}
+
+const ACCOUNT_CAP = 5;
+
+function AccountsSection() {
+  const { user, refresh } = useAuth();
+  const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newRsn, setNewRsn] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+
+  async function reload() {
+    const data = await getAccounts();
+    setAccounts(data);
+  }
+
+  useEffect(() => {
+    if (!user) return;
+    reload().finally(() => setLoading(false));
+  }, [user]);
+
+  async function handleAdd() {
+    if (!newRsn.trim()) return;
+    setAdding(true);
+    setAddError(null);
+    try {
+      await addAccount(newRsn.trim());
+      setNewRsn("");
+      await reload();
+      await refresh();
+    } catch (err) {
+      setAddError(err instanceof Error ? err.message : "Failed to add account.");
+    } finally {
+      setAdding(false);
+    }
+  }
+
+  async function handleSetPrimary(id: number) {
+    setActionError(null);
+    try {
+      await setPrimaryAccount(id);
+      await reload();
+      await refresh();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Failed to set primary.");
+    }
+  }
+
+  async function handleRemove(id: number) {
+    if (pendingDeleteId !== id) {
+      setPendingDeleteId(id);
+      return;
+    }
+    setPendingDeleteId(null);
+    setActionError(null);
+    try {
+      await removeAccount(id);
+      await reload();
+      await refresh();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Failed to remove account.");
+    }
+  }
+
+  if (!user) return null;
+
+  const atCap = accounts.length >= ACCOUNT_CAP;
+
+  return (
+    <div className="rounded-md border border-border bg-card p-6 space-y-4">
+      <div>
+        <h2 className="text-sm font-semibold text-foreground">Linked Accounts</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Up to {ACCOUNT_CAP} RSNs. Your primary account is used by default.
+        </p>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      ) : accounts.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No accounts linked yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {accounts.map((acc) => (
+            <div
+              key={acc.id}
+              className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-sm text-foreground truncate">{acc.rsn}</span>
+                {acc.is_primary && (
+                  <Badge variant="outline" className="text-xs shrink-0">
+                    primary
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                {!acc.is_primary && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={() => handleSetPrimary(acc.id)}
+                  >
+                    Set primary
+                  </Button>
+                )}
+                <button
+                  title={
+                    acc.is_primary && accounts.length > 1
+                      ? "Set another primary first"
+                      : "Remove"
+                  }
+                  disabled={acc.is_primary && accounts.length > 1}
+                  onClick={() => handleRemove(acc.id)}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+                {pendingDeleteId === acc.id && (
+                  <span className="text-xs text-destructive ml-1">
+                    Click again to confirm
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {actionError && <p className="text-xs text-destructive">{actionError}</p>}
+
+      {atCap ? (
+        <p className="text-xs text-muted-foreground">
+          Account limit reached ({ACCOUNT_CAP}/{ACCOUNT_CAP}).
+        </p>
+      ) : (
+        <div className="space-y-2 pt-2 border-t border-border">
+          <p className="text-xs font-medium text-foreground">Add alt RSN</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newRsn}
+              onChange={(e) => { setNewRsn(e.target.value); setAddError(null); }}
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              maxLength={12}
+              placeholder="Alt RSN"
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <Button
+              size="sm"
+              onClick={handleAdd}
+              disabled={adding || !newRsn.trim()}
+            >
+              {adding ? "Adding…" : "Add"}
+            </Button>
+          </div>
+          {addError && <p className="text-xs text-destructive">{addError}</p>}
+        </div>
+      )}
     </div>
   );
 }
@@ -390,6 +563,7 @@ function SettingsPage() {
     <div className="max-w-lg space-y-6">
       <h1 className="font-rs-bold text-3xl text-primary">Settings</h1>
       <ProfileSection />
+      <AccountsSection />
       <ApiKeySection />
       <PrivacySection />
       <AppearanceSection />

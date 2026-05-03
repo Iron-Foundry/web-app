@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { useAuth } from "@/context/AuthContext";
+import { getAccounts, type LinkedAccount } from "@/api/accounts";
 import {
   useParties, usePartyChat, usePartyPingRoles,
   useCreateParty, useUpdateParty, useDeleteParty,
@@ -237,6 +238,9 @@ interface PartyCardProps {
 
 function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
   const [chatOpen, setChatOpen] = useState(false);
+  const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
+  const [selectedRsn, setSelectedRsn] = useState<string>("");
+  const { user } = useAuth();
   const joinParty = useJoinParty();
   const leaveParty = useLeaveParty();
   const deleteParty = useDeleteParty();
@@ -246,6 +250,11 @@ function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
   const isMember = party.members.some(m => m.user_id === currentUserId);
   const fillPct = Math.round((party.member_count / party.max_size) * 100);
   const anyPending = joinParty.isPending || leaveParty.isPending || deleteParty.isPending || kickMember.isPending;
+
+  useEffect(() => {
+    if (!currentUserId || !user || user.alts_count === 0) return;
+    getAccounts().then(setAccounts).catch(() => {});
+  }, [currentUserId, user]);
 
   const statusBadge =
     party.status === "full"   ? <Badge className="bg-muted text-muted-foreground border-border">Full</Badge> :
@@ -330,9 +339,28 @@ function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
                 <LogOut className="h-3 w-3" />Leave
               </Button>
             ) : (
-              <Button size="sm" className="h-7 text-xs gap-1" disabled={anyPending || party.status === "full"} onClick={() => joinParty.mutate(party.id)}>
-                <LogIn className="h-3 w-3" />{party.status === "full" ? "Full" : "Join"}
-              </Button>
+              <>
+                {accounts.length > 1 && (
+                  <select
+                    value={selectedRsn}
+                    onChange={(e) => setSelectedRsn(e.target.value)}
+                    className="h-7 rounded-md border border-input bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  >
+                    <option value="">Primary RSN</option>
+                    {accounts.filter(a => !a.is_primary).map(a => (
+                      <option key={a.id} value={a.rsn}>{a.rsn}</option>
+                    ))}
+                  </select>
+                )}
+                <Button
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  disabled={anyPending || party.status === "full"}
+                  onClick={() => joinParty.mutate({ id: party.id, rsn_override: selectedRsn || null })}
+                >
+                  <LogIn className="h-3 w-3" />{party.status === "full" ? "Full" : "Join"}
+                </Button>
+              </>
             )
           )}
           <Button size="sm" variant="outline" className="ml-auto h-7 text-xs" onClick={() => setChatOpen(v => !v)}>Party Chat</Button>
