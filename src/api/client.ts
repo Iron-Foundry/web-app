@@ -12,6 +12,20 @@ export class ApiRequestError extends Error {
   }
 }
 
+function extractMessage(body: unknown, fallback: string): string {
+  if (body && typeof body === "object") {
+    const b = body as Record<string, unknown>;
+    // FastAPI HTTP exception: { detail: "string" }
+    if (typeof b.detail === "string" && b.detail) return b.detail;
+    // FastAPI validation error: { detail: [{ msg: "...", ... }] }
+    if (Array.isArray(b.detail) && b.detail.length > 0) {
+      const first = b.detail[0] as Record<string, unknown> | undefined;
+      if (first && typeof first.msg === "string") return first.msg;
+    }
+  }
+  return fallback;
+}
+
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const defaultHeaders: Record<string, string> = {
     "Content-Type": "application/json",
@@ -34,7 +48,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     throw new ApiRequestError(
       res.status,
       (body as { code?: string } | null)?.code ?? "UNKNOWN",
-      (body as { message?: string } | null)?.message ?? res.statusText,
+      extractMessage(body, res.statusText || `HTTP ${res.status}`),
       body,
     );
   }
