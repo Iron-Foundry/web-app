@@ -42,7 +42,11 @@ export function useCreateCompetition() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateCompetitionInput) => competitionsApi.create(data),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.competitions.list() }),
+    onSuccess: () =>
+      void qc.invalidateQueries({
+        queryKey: queryKeys.competitions.list(),
+        refetchType: "all",
+      }),
   });
 }
 
@@ -51,7 +55,11 @@ export function useUpdateCompetition() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: EditCompetitionInput }) =>
       competitionsApi.update(id, data),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.competitions.list() }),
+    onSuccess: () =>
+      void qc.invalidateQueries({
+        queryKey: queryKeys.competitions.list(),
+        refetchType: "all",
+      }),
   });
 }
 
@@ -59,6 +67,10 @@ export function useDeleteCompetition() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => competitionsApi.delete(id),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.competitions.list() }),
+    onSuccess: () =>
+      void qc.invalidateQueries({
+        queryKey: queryKeys.competitions.list(),
+        refetchType: "all",
+      }),
   });
 }

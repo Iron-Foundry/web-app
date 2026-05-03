@@ -6,11 +6,16 @@ import { RootLayout } from "@/components/layout/RootLayout";
 import { LinkRsnModal } from "@/components/layout/LinkRsnModal";
 import { AuthProvider } from "@/context/AuthContext";
 import { PermissionsProvider } from "@/context/PermissionsContext";
-import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { ViewAsProvider } from "@/context/ViewAsContext";
 import { ApiRequestError } from "@/api/client";
 import { getErrorMessage } from "@/lib/errors";
 import { toast } from "sonner";
+
+function ThemedToaster() {
+  const { theme } = useTheme();
+  return <Toaster position="bottom-right" richColors theme={theme} />;
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,7 +41,7 @@ function Root() {
         <AuthProvider>
           <ViewAsProvider>
             <PermissionsProvider>
-              <Toaster position="bottom-right" richColors />
+              <ThemedToaster />
               <RootLayout>
                 <Outlet />
               </RootLayout>
