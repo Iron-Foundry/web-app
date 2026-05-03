@@ -173,7 +173,7 @@ function CategoryDialog({
                 <SelectValue placeholder="No parent (root)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__root__">— No parent (root) —</SelectItem>
+                <SelectItem value="__root__">- No parent (root) -</SelectItem>
                 {flat
                   .filter((c) => c.id !== editing?.id)
                   .map(({ id, label: catLabel, depth }) => (

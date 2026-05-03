@@ -71,7 +71,7 @@ function rankColor(rank: string | null) {
 }
 
 function fmt(n: number | null | undefined) {
-  if (n == null) return "—";
+  if (n == null) return "-";
   return n.toLocaleString();
 }
 
@@ -189,7 +189,7 @@ function StatusCard() {
         <span className="flex items-center gap-2">
           <BarChart2 className="h-4 w-4 text-muted-foreground" />
           <span className="text-muted-foreground">Players ranked:</span>
-          <span className="font-medium">{status?.player_count ?? "—"}</span>
+          <span className="font-medium">{status?.player_count ?? "-"}</span>
         </span>
         <span className="text-muted-foreground">
           Last run:{" "}
@@ -352,7 +352,7 @@ function ResultsTab() {
                       {fmt(p.skill_points)}
                       <span className="ml-1 text-muted-foreground/60">({100 - bossPct}%)</span>
                     </td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground">{p.username ?? "—"}</td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground">{p.username ?? "-"}</td>
                   </tr>
                 );
               })}
@@ -636,7 +636,7 @@ function ConfigTab() {
             </div>
           </div>
 
-          {/* Diff table — only changed rows */}
+          {/* Diff table - only changed rows */}
           <div className="rounded-lg border border-border overflow-hidden">
             <div className="px-3 py-2 bg-muted/50 border-b border-border">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Rank Changes</p>
@@ -668,7 +668,7 @@ function ConfigTab() {
                           </td>
                           <td className={cn("px-3 py-1.5 text-right tabular-nums",
                             (p.points_delta ?? 0) > 0 ? "text-green-600" : (p.points_delta ?? 0) < 0 ? "text-red-600" : "")}>
-                            {p.points_delta != null ? `${p.points_delta > 0 ? "+" : ""}${p.points_delta.toLocaleString()}` : "—"}
+                            {p.points_delta != null ? `${p.points_delta > 0 ? "+" : ""}${p.points_delta.toLocaleString()}` : "-"}
                           </td>
                         </tr>
                       );
@@ -697,7 +697,7 @@ function RankingPage() {
         <div>
           <h1 className="text-xl font-semibold">Ranking</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Daily WOM-based clan ranking — boss KC and skill XP.
+            Daily WOM-based clan ranking - boss KC and skill XP.
           </p>
         </div>
       </div>

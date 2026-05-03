@@ -137,7 +137,7 @@ function DashboardPage() {
       style={{ gridAutoFlow: "dense", gridAutoRows: "minmax(160px, auto)" }}
     >
 
-      {/* Profile — 4 cols, content-height (no row-span) */}
+      {/* Profile - 4 cols, content-height (no row-span) */}
       <Card className="lg:col-span-4">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
@@ -228,7 +228,7 @@ function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Activity Feed — 5 cols, 2 rows tall, scrolls internally */}
+      {/* Activity Feed - 5 cols, 2 rows tall, scrolls internally */}
       <Card className="lg:col-span-5 lg:row-span-2">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary">Your Activity Feed</CardTitle>
@@ -269,7 +269,7 @@ function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Competitions — 3 cols, 2 rows tall, scrolls internally */}
+      {/* Competitions - 3 cols, 2 rows tall, scrolls internally */}
       <Card className="lg:col-span-3 lg:row-span-2">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">
@@ -331,7 +331,7 @@ function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Name Changes — 4 cols, 1 row (dense-fills the gap left of feed row 2) */}
+      {/* Name Changes - 4 cols, 1 row (dense-fills the gap left of feed row 2) */}
       <Card className="lg:col-span-4">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">

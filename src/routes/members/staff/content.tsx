@@ -118,7 +118,7 @@ function StaffContentPage() {
                   <td className="px-3 py-2 font-medium">{e.title}</td>
                   <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{e.slug}</td>
                   <td className="px-3 py-2 text-xs text-muted-foreground">
-                    {e.deprecated_at ? new Date(e.deprecated_at).toLocaleDateString() : "—"}
+                    {e.deprecated_at ? new Date(e.deprecated_at).toLocaleDateString() : "-"}
                   </td>
                   <td className="px-3 py-2">
                     {e.deprecated_by ? (
@@ -128,7 +128,7 @@ function StaffContentPage() {
                         )}
                         {e.deprecated_by.rsn ?? e.deprecated_by.discord_username ?? "Unknown"}
                       </span>
-                    ) : "—"}
+                    ) : "-"}
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex items-center justify-end gap-2">

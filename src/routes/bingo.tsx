@@ -95,7 +95,7 @@ function OverviewTab() {
         return s + [...BOSS_METRICS].reduce((b, m) => b + (p.wom_metrics![m] ?? 0), 0);
       }, 0);
       const totalSubs = players.reduce((s, [, p]) => s + p.bingo_submissions.length, 0);
-      const captain = players.find(([, p]) => p.is_captain)?.[0] ?? "—";
+      const captain = players.find(([, p]) => p.is_captain)?.[0] ?? "-";
       const topPlayers = players
         .map(([rsn, p]) => ({ rsn, xp: p.wom_metrics?.overall ?? 0 }))
         .sort((a, b) => b.xp - a.xp)
@@ -134,7 +134,7 @@ function OverviewTab() {
       {/* Team XP chart */}
       <Card>
         <CardHeader className="pb-2 pt-4 px-4">
-          <p className="font-semibold text-sm">Team XP Ranking — Overall Gained</p>
+          <p className="font-semibold text-sm">Team XP Ranking - Overall Gained</p>
         </CardHeader>
         <CardContent className="px-4 pb-4">
           <ChartContainer config={{}} className="h-65 w-full">
@@ -503,7 +503,7 @@ function CompareTab() {
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={110} />
                       <Tooltip content={({ active, payload }) => active && payload?.[0] ? (
                         <div className="rounded border border-border bg-card px-3 py-2 text-xs shadow">
-                          <p>{fmtGained(payload[0].value as number, singleMetric)} — {fmtMetric(singleMetric)}</p>
+                          <p>{fmtGained(payload[0].value as number, singleMetric)} - {fmtMetric(singleMetric)}</p>
                         </div>
                       ) : null} />
                       <Bar dataKey="value" radius={[0, 4, 4, 0]}>
@@ -745,12 +745,12 @@ function SubmissionsTab() {
                     <span className="truncate font-medium">{s.rsn}</span>
                     <span className="truncate text-[10px]" style={{ color: s.teamColor }}>{s.teamName.split(" ")[0]}</span>
                     <Badge variant="outline" className="text-[9px] w-fit">{s.tile_key}</Badge>
-                    <span className="truncate text-muted-foreground">{s.item_label ?? "—"}</span>
+                    <span className="truncate text-muted-foreground">{s.item_label ?? "-"}</span>
                   </div>
                 ))}
                 {filtered.length > 500 && (
                   <div className="px-3 py-2 text-xs text-muted-foreground text-center">
-                    Showing 500 of {filtered.length} — narrow filters to see more
+                    Showing 500 of {filtered.length} - narrow filters to see more
                   </div>
                 )}
               </div>

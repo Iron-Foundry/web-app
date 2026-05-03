@@ -117,7 +117,7 @@ function RankMappingsTab() {
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         Link in-game clan ranks to Discord roles. Enter the Discord role ID (snowflake) for
-        stability against renames — copy it from Discord Developer Mode or Server Settings.
+        stability against renames - copy it from Discord Developer Mode or Server Settings.
       </p>
 
       <div className="space-y-4">

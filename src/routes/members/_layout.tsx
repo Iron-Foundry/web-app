@@ -140,7 +140,7 @@ function SidebarNav({ onNavigate, realRoles }: { onNavigate?: () => void; realRo
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* View As selector — bypass roles only */}
+      {/* View As selector - bypass roles only */}
       <ViewAsSelector realRoles={realRoles} />
 
       {/* Bottom: settings */}

@@ -9,7 +9,7 @@ import { usePermissions } from "@/context/PermissionsContext";
 
 registerPage({
   id: "staff.surveys",
-  label: "Staff — Surveys",
+  label: "Staff - Surveys",
   description: "Manage survey and application templates, view responses.",
   defaults: { read: ["Foundry Mentors"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
 });
@@ -53,7 +53,7 @@ type CategoryFilter = "all" | "survey" | "application";
 
 
 function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   return new Date(iso).toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
@@ -62,7 +62,7 @@ function fmtDate(iso: string | null): string {
 }
 
 function formatAnswer(val: unknown): string {
-  if (val === undefined || val === null || val === "") return "—";
+  if (val === undefined || val === null || val === "") return "-";
   if (Array.isArray(val)) return (val as string[]).join(", ");
   return String(val);
 }

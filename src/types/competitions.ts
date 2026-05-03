@@ -46,3 +46,25 @@ export interface TeamRow {
 }
 
 export type MetricMap = Record<string, string[]>;
+
+export interface CreateCompetitionInput {
+  title: string;
+  metric: string;
+  starts_at: string;
+  ends_at: string;
+  type?: "classic" | "team";
+  participants?: string[];
+  teams?: { name: string; participants: string[] }[];
+}
+
+export interface EditCompetitionInput {
+  title?: string;
+  metric?: string;
+  starts_at?: string;
+  ends_at?: string;
+}
+
+export interface ParticipantSuggestion {
+  rsn: string;
+  discord_username: string;
+}

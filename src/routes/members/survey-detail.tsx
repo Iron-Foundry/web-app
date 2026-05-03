@@ -49,7 +49,7 @@ interface TemplateDetail {
 
 function ReadOnlyField({ field, value }: { field: Field; value: unknown }) {
   const display = (() => {
-    if (value === undefined || value === null || value === "") return "—";
+    if (value === undefined || value === null || value === "") return "-";
     if (Array.isArray(value)) return (value as string[]).join(", ");
     return String(value);
   })();
@@ -364,7 +364,7 @@ export function SurveyDetailPage({
         <p className="text-sm text-muted-foreground">No questions defined.</p>
       )}
 
-      {/* Already submitted — read-only */}
+      {/* Already submitted - read-only */}
       {alreadySubmitted && (
         <div className="space-y-4">
           <p className="text-sm font-medium text-muted-foreground">
@@ -380,7 +380,7 @@ export function SurveyDetailPage({
         </div>
       )}
 
-      {/* Open + not submitted — editable form */}
+      {/* Open + not submitted - editable form */}
       {!alreadySubmitted && isOpen && template.fields.length > 0 && (
         <div className="space-y-6">
           {template.fields.map((field) => (
@@ -408,7 +408,7 @@ export function SurveyDetailPage({
             {isStaff && template.fields.length > 0 ? (
               <div className="space-y-4">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Questions (closed — view only)
+                  Questions (closed - view only)
                 </p>
                 {template.fields.map((field) => (
                   <div key={field.id} className="space-y-0.5">

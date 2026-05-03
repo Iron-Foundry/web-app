@@ -94,7 +94,7 @@ const SECTIONS: Section[] = [
     examples: [{ label: "Horizontal rule", syntax: "---" }],
   },
   {
-    title: "HTML — Coloured Text",
+    title: "HTML - Coloured Text",
     examples: [
       {
         label: "Custom colour with <span>",
@@ -104,7 +104,7 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    title: "HTML — Callout Boxes",
+    title: "HTML - Callout Boxes",
     examples: [
       {
         label: "Tip box",
@@ -124,7 +124,7 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    title: "HTML — Keyboard Keys",
+    title: "HTML - Keyboard Keys",
     examples: [
       {
         label: "Hotkey combination",
@@ -134,7 +134,7 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    title: "HTML — Collapsible Section",
+    title: "HTML - Collapsible Section",
     examples: [
       {
         label: "Expandable block",

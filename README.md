@@ -1,4 +1,4 @@
-# Iron Foundry — Web App
+# Iron Foundry - Web App
 
 Community web frontend for the Iron Foundry OSRS clan. Built with React 19, TanStack Router,
 Shadcn/ui components, and Tailwind CSS 4. Served by Bun with hot-module replacement in development.
@@ -57,21 +57,21 @@ bun run build.ts
 
 ```
 src/
-  index.tsx          — Bun server entry point (serves HTML + HMR in dev)
-  frontend.tsx       — Client hydration entry point
-  App.tsx            — Root React component
-  index.css          — Global styles
-  routes/            — TanStack Router pages
-    __root.tsx       — Root layout
-    home.tsx         — Home page
-    about.tsx        — About page
-    rules.tsx        — Rules page
+  index.tsx          - Bun server entry point (serves HTML + HMR in dev)
+  frontend.tsx       - Client hydration entry point
+  App.tsx            - Root React component
+  index.css          - Global styles
+  routes/            - TanStack Router pages
+    __root.tsx       - Root layout
+    home.tsx         - Home page
+    about.tsx        - About page
+    rules.tsx        - Rules page
   components/
-    layout/          — RootLayout, TopNav, SideNav, NavLinks, LayoutSwitcher
-    ui/              — Shadcn component library (button, card, dialog, table, chart, …)
-  context/           — React context providers (LayoutContext)
-  lib/               — Shared utilities (navigation.ts, utils.ts)
-  assets/            — Images, logos, gem icons, fonts
+    layout/          - RootLayout, TopNav, SideNav, NavLinks, LayoutSwitcher
+    ui/              - Shadcn component library (button, card, dialog, table, chart, …)
+  context/           - React context providers (LayoutContext)
+  lib/               - Shared utilities (navigation.ts, utils.ts)
+  assets/            - Images, logos, gem icons, fonts
 ```
 
 The layout supports two modes (top nav and side nav) switchable at runtime via `LayoutContext`.

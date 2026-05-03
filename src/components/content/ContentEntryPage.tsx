@@ -298,7 +298,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
           {conflictDetected && (
             <div className="flex items-start gap-3 rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm">
               <span className="flex-1 text-foreground">
-                <span className="font-semibold text-destructive">Edit conflict — </span>
+                <span className="font-semibold text-destructive">Edit conflict - </span>
                 this entry was modified by someone else while you were editing.
               </span>
               <div className="flex gap-2 shrink-0">

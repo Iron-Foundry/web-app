@@ -126,7 +126,7 @@ function AssetManagerPage() {
       const res = await fetch(`${API_URL}/assets`, { headers: getAuthHeaders() });
       if (res.ok) setAssets(await res.json());
     } catch {
-      /* network error — leave list as-is */
+      /* network error - leave list as-is */
     } finally {
       setLoading(false);
     }
@@ -196,7 +196,7 @@ function AssetManagerPage() {
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Asset Library</h1>
         <p className="text-sm text-muted-foreground">
-          {assets.length} asset{assets.length !== 1 ? "s" : ""} — hover for preview, click to copy URL
+          {assets.length} asset{assets.length !== 1 ? "s" : ""} - hover for preview, click to copy URL
         </p>
       </div>
 

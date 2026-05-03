@@ -12,7 +12,7 @@ import { registerPage } from "@/lib/permissions";
 
 registerPage({
   id: "staff.members",
-  label: "Staff — Members",
+  label: "Staff - Members",
   description: "View and manage clan member roster.",
   defaults: { read: ["Moderator"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
 });

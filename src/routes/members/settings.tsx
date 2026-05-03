@@ -317,7 +317,7 @@ function ApiKeySection() {
             <div className="space-y-2">
               {justRotated && (
                 <div className="rounded-md bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
-                  New key generated. Copy it now — rotate again to replace it.
+                  New key generated. Copy it now - rotate again to replace it.
                 </div>
               )}
               <div className="flex items-center gap-2">

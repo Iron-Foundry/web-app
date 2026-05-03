@@ -85,7 +85,7 @@
 }
 
 .light {
-  /* Base — warm parchment */
+  /* Base - warm parchment */
   --background:           hsl(36,  22%, 87%);
   --foreground:           hsl(220, 18%, 18%);
 
@@ -127,7 +127,7 @@
   }
 }
 
-/* Callout boxes — theme-aware, replaces old hardcoded inline styles */
+/* Callout boxes - theme-aware, replaces old hardcoded inline styles */
 .callout-tip,
 .callout-warning,
 .callout-info {

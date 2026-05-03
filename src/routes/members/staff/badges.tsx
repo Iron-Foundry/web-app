@@ -14,7 +14,7 @@ import { useEffectiveRoles } from "@/context/ViewAsContext";
 
 registerPage({
   id: "staff.badges",
-  label: "Staff — Badges",
+  label: "Staff - Badges",
   description: "Create and assign profile badges to members.",
   defaults: { read: ["Foundry Mentors"], create: ["Foundry Mentors"], edit: ["Foundry Mentors"], delete: ["Senior Moderator"] },
 });
@@ -366,7 +366,7 @@ function AssignDialog({
       <DialogContent className="max-w-md space-y-4">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            Assign — <BadgePreview badge={badge} size="sm" />
+            Assign - <BadgePreview badge={badge} size="sm" />
           </DialogTitle>
         </DialogHeader>
 

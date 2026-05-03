@@ -42,7 +42,7 @@ function checkPermission(
   pagePermissions: PagePermissionsMap,
   adminBypassRoles: string[],
 ): boolean {
-  // Bypass roles override ALL actions — bypass users can never be locked out.
+  // Bypass roles override ALL actions - bypass users can never be locked out.
   if (adminBypassRoles.length > 0 && effectiveRoles.some((r) => adminBypassRoles.includes(r))) {
     return true;
   }

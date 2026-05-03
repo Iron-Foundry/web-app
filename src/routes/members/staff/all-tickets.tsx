@@ -12,7 +12,7 @@ import { registerPage } from "@/lib/permissions";
 
 registerPage({
   id: "staff.all-tickets",
-  label: "Staff — All Tickets",
+  label: "Staff - All Tickets",
   description: "View all support tickets across all members.",
   defaults: { read: ["Moderator"], create: ["Moderator"], edit: ["Moderator"], delete: ["Senior Moderator"] },
 });
