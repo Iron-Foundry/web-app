@@ -39,6 +39,8 @@ interface TicketSummary {
 interface Attachment {
   filename: string;
   url: string;
+  size?: number;
+  content_type?: string | null;
 }
 
 interface TranscriptEntry {
@@ -58,6 +60,14 @@ interface Transcript {
 }
 
 
+
+const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".bmp"]);
+
+function isImageAttachment(att: Attachment): boolean {
+  if (att.content_type?.startsWith("image/")) return true;
+  const ext = att.filename.slice(att.filename.lastIndexOf(".")).toLowerCase();
+  return IMAGE_EXTENSIONS.has(ext);
+}
 
 function fmtType(t: string) {
   return t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -120,18 +130,28 @@ function TranscriptView({ transcript }: { transcript: Transcript | null }) {
             {entry.content && (
               <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words">{entry.content}</p>
             )}
-            {entry.attachments.map((att) => (
-              <a
-                key={att.filename}
-                href={att.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 flex items-center gap-1 text-xs text-primary hover:underline"
-              >
-                <Paperclip className="h-3 w-3" />
-                {att.filename}
-              </a>
-            ))}
+            {entry.attachments.map((att) =>
+              isImageAttachment(att) ? (
+                <a key={att.filename} href={att.url} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={att.url}
+                    alt={att.filename}
+                    className="mt-1 max-h-48 max-w-full rounded border border-border object-contain"
+                  />
+                </a>
+              ) : (
+                <a
+                  key={att.filename}
+                  href={att.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 flex items-center gap-1 text-xs text-primary hover:underline"
+                >
+                  <Paperclip className="h-3 w-3" />
+                  {att.filename}
+                </a>
+              )
+            )}
           </div>
         </div>
       ))}

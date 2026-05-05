@@ -7,6 +7,9 @@ RUN bun install --frozen-lockfile 2>/dev/null || bun install
 
 COPY . .
 
+ARG BUN_PUBLIC_API_URL
+ENV BUN_PUBLIC_API_URL=$BUN_PUBLIC_API_URL
+
 RUN bun run build.ts
 
 
