@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
+import { Footer } from "@/components/layout/Footer";
+import { useLayout } from "@/context/LayoutContext";
 import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Award, Image, Trophy, BookMarked, BarChart2 } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
@@ -185,9 +187,15 @@ function ViewAsBanner() {
 
 function MembersShell({ user }: { user: AuthUser }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { setHasSidebar } = useLayout();
+
+  useEffect(() => {
+    setHasSidebar(true);
+    return () => setHasSidebar(false);
+  }, [setHasSidebar]);
 
   return (
-    <div className="flex flex-1 min-h-0 -m-6">
+    <div className="flex flex-1 min-h-0">
       {/* Desktop sidebar */}
       <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-border px-4 py-3 shrink-0">
@@ -234,8 +242,11 @@ function MembersShell({ user }: { user: AuthUser }) {
       {/* Page content */}
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <ViewAsBanner />
-        <div className="flex-1 min-h-0 p-6 overflow-auto">
-          <Outlet />
+        <div className="flex flex-col flex-1 min-h-0 overflow-auto">
+          <div className="flex flex-col flex-1 px-6 pt-6 pb-6">
+            <Outlet />
+          </div>
+          <Footer />
         </div>
       </div>
     </div>

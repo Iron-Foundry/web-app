@@ -3,6 +3,8 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import type { Components } from "react-markdown";
 import type { CSSProperties } from "react";
+import { slugify, headingText } from "@/lib/utils";
+import { EntryRef } from "./EntryRef";
 
 function extractYouTubeId(url: string): string | null {
   try {
@@ -18,10 +20,22 @@ function extractYouTubeId(url: string): string | null {
 }
 
 const components: Components = {
-  h1: ({ children }) => <h1 className="text-2xl font-bold mb-4 mt-6 first:mt-0">{children}</h1>,
-  h2: ({ children }) => <h2 className="text-xl font-bold mb-3 mt-5 first:mt-0">{children}</h2>,
-  h3: ({ children }) => <h3 className="text-lg font-semibold mb-2 mt-4 first:mt-0">{children}</h3>,
-  h4: ({ children }) => <h4 className="text-base font-semibold mb-2 mt-3 first:mt-0">{children}</h4>,
+  h1: ({ children }) => {
+    const id = slugify(headingText(children)) || undefined;
+    return <h1 id={id} className="text-2xl font-bold mb-4 mt-6 first:mt-0">{children}</h1>;
+  },
+  h2: ({ children }) => {
+    const id = slugify(headingText(children)) || undefined;
+    return <h2 id={id} className="text-xl font-bold mb-3 mt-5 first:mt-0">{children}</h2>;
+  },
+  h3: ({ children }) => {
+    const id = slugify(headingText(children)) || undefined;
+    return <h3 id={id} className="text-lg font-semibold mb-2 mt-4 first:mt-0">{children}</h3>;
+  },
+  h4: ({ children }) => {
+    const id = slugify(headingText(children)) || undefined;
+    return <h4 id={id} className="text-base font-semibold mb-2 mt-3 first:mt-0">{children}</h4>;
+  },
   p: ({ children }) => <p className="mb-4 text-sm leading-relaxed last:mb-0">{children}</p>,
   ul: ({ children }) => <ul className="list-disc pl-6 mb-4 text-sm space-y-1">{children}</ul>,
   ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 text-sm space-y-1">{children}</ol>,
@@ -37,7 +51,15 @@ const components: Components = {
   blockquote: ({ children }) => (
     <blockquote className="border-l-4 border-border pl-4 italic text-muted-foreground mb-4">{children}</blockquote>
   ),
-  a: ({ href, children }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  a: ({ href, children, ...props }: any) => {
+    if (props["data-entry-ref"] === "true") {
+      return (
+        <EntryRef type={props["data-type"]} slug={props["data-slug"]} section={props["data-section"]}>
+          {children}
+        </EntryRef>
+      );
+    }
     if (href) {
       const ytId = extractYouTubeId(href);
       if (ytId) {
@@ -55,7 +77,7 @@ const components: Components = {
     }
     return <a href={href} className="text-primary underline hover:no-underline" target="_blank" rel="noreferrer">{children}</a>;
   },
-  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+  strong: ({ children }) => <strong className="font-bold">{children}</strong>,
   em: ({ children }) => <em className="italic">{children}</em>,
   hr: () => <hr className="border-border my-6" />,
   table: ({ children }) => (
@@ -91,15 +113,19 @@ const components: Components = {
 
 function preprocessMarkdown(body: string): string {
   return body
-    // Fix unclosed inline code tags: <code>text<code> → <code>text</code>
-    // A missing slash on the closing tag leaves an open <code> that makes
-    // everything after render in monospace.
-    .replace(/<code>([^<]*)<code>/g, "<code>$1</code>")
-    // CommonMark ends type-6 HTML blocks (div, section, etc.) at the first
-    // blank line. A blank line immediately inside a <div> causes remark to
-    // close the HTML block there, leaving the div empty and its content as
-    // separate sibling paragraphs. Collapsing those boundary blank lines
-    // keeps the whole block together so rehype-raw can reconstruct it.
+    // Convert [[type:slug#section|display]] wiki-links to data-attribute anchors
+    // so the `a` component override can render them as EntryRef hover cards.
+    .replace(
+      /\[\[(\w+):([a-z0-9-]+)(?:#([a-z0-9-]+))?(?:\|([^\]]+))?\]\]/g,
+      (_, type, slug, section, display) => {
+        const text = (display as string | undefined) || (slug as string);
+        const sec = section ? ` data-section="${section as string}"` : "";
+        return `<a data-entry-ref="true" data-type="${type as string}" data-slug="${slug as string}"${sec}>${text}</a>`;
+      },
+    )
+    // Fix missing slash on closing inline tags: <tag>text<tag> → <tag>text</tag>
+    .replace(/<(code|strong|em|b|i|u|s|kbd|mark|sub|sup)>([^<]*)<\1>/g, "<$1>$2</$1>")
+    // Keep div blocks together so rehype-raw can reconstruct them
     .replace(/(<div\b[^>]*>)\n\n/g, "$1\n")
     .replace(/\n\n(<\/div>)/g, "\n$1");
 }

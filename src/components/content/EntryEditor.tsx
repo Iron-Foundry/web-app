@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Tabs } from "radix-ui";
 import {
-  HelpCircle, ImageIcon, Video,
+  HelpCircle, ImageIcon, Video, Link2, Eraser,
   Bold, Italic, Strikethrough, Code, FileCode, Heading2, Heading3, Quote,
   Undo2, Redo2,
 } from "lucide-react";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { MarkdownCheatsheet } from "./MarkdownCheatsheet";
 import { AssetPickerDialog } from "./AssetPickerDialog";
+import { EntryRefPickerDialog } from "./EntryRefPickerDialog";
 
 interface EntryEditorProps {
   initialBody: string;
@@ -65,6 +66,7 @@ function extractYouTubeId(url: string): string | null {
 export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChange }: EntryEditorProps) {
   const [body, setBody] = useState(initialBody);
   const [assetPickerOpen, setAssetPickerOpen] = useState(false);
+  const [refPickerOpen, setRefPickerOpen] = useState(false);
   const [embedUrlOpen, setEmbedUrlOpen] = useState(false);
   const [embedUrlValue, setEmbedUrlValue] = useState("");
   const [canUndo, setCanUndo] = useState(false);
@@ -150,6 +152,15 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
     requestAnimationFrame(() => { el.focus(); el.setSelectionRange(s + prefix.length, s + prefix.length); });
   }
 
+  function stripWhitespace() {
+    const stripped = body
+      .split("\n")
+      .map((line) => line.trim())
+      .join("\n")
+      .trim();
+    updateBody(stripped);
+  }
+
   function insertCodeBlock() {
     const el = textareaRef.current;
     if (!el) return;
@@ -221,6 +232,13 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
           <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEmbedUrlOpen(v => !v)} title="Embed YouTube or video URL" type="button">
             <Video className="h-3.5 w-3.5 mr-1" />Embed
           </Button>
+          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setRefPickerOpen(true)} title="Insert entry reference" type="button">
+            <Link2 className="h-3.5 w-3.5 mr-1" />Reference
+          </Button>
+          <Sep />
+          <ToolbarBtn title="Strip leading/trailing whitespace from all lines" onClick={stripWhitespace}>
+            <Eraser className="h-3.5 w-3.5" />
+          </ToolbarBtn>
         </div>
 
         {embedUrlOpen && (
@@ -285,6 +303,12 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
         onSelect={handleAssetSelect}
         canUpload={canUpload}
         canDeleteAny={canDeleteAny}
+      />
+
+      <EntryRefPickerDialog
+        open={refPickerOpen}
+        onClose={() => setRefPickerOpen(false)}
+        onSelect={insertAtCursor}
       />
     </div>
   );

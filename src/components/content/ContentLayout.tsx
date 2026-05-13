@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Outlet, Link, useNavigate } from "@tanstack/react-router";
+import { Footer } from "@/components/layout/Footer";
+import { useLayout } from "@/context/LayoutContext";
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Menu, Pencil, Plus, Trash2, X } from "lucide-react";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/api/client";
@@ -689,6 +691,7 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   const { user } = useAuth();
   const { hasPermission } = usePermissions();
   const effectiveRoles = user?.effective_roles ?? [];
+  const { setHasSidebar } = useLayout();
 
   const canCreate = hasPermission(pageId, "create", effectiveRoles);
   const canEdit = hasPermission(pageId, "edit", effectiveRoles);
@@ -697,6 +700,11 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   const [categories, setCategories] = useState<CategoryTree[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setHasSidebar(true);
+    return () => setHasSidebar(false);
+  }, [setHasSidebar]);
 
   useEffect(() => {
     apiFetch<CategoryTree[]>(`/content/${pageType}/categories`)
@@ -727,7 +735,7 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
 
   return (
     <ContentContext.Provider value={contextValue}>
-      <div className="flex h-full -m-6">
+      <div className="flex flex-1 min-h-0">
         <aside className="hidden w-64 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">
           <SidebarContent {...sidebarProps} />
         </aside>
@@ -745,8 +753,11 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
           </Sheet>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-auto p-6">
-          <Outlet />
+        <div className="flex flex-col flex-1 min-h-0 overflow-auto">
+          <div className="flex flex-col flex-1 px-6 pt-6 pb-6">
+            <Outlet />
+          </div>
+          <Footer />
         </div>
       </div>
     </ContentContext.Provider>

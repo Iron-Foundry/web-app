@@ -15,6 +15,7 @@ import {
   useUpdateCompetition,
 } from "@/hooks/useCompetitions";
 import metricsConfig from "@/competition-metrics.toml";
+import { RAID_GROUPS, raidSplitSentinel } from "@/lib/competitions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -574,7 +575,7 @@ function StaffCompetitionsPage() {
           <CardContent className="px-4 pb-4 space-y-4">
             {pending.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
-                {pending.map((m) => (
+                {pending.filter((m) => !m.startsWith("__split:")).map((m) => (
                   <Badge
                     key={m}
                     variant="secondary"
@@ -589,6 +590,42 @@ function StaffCompetitionsPage() {
             ) : (
               <p className="text-xs text-muted-foreground">No metrics selected. Pick from the list below.</p>
             )}
+
+            {/* Raid combine toggles — shown when both variants of a raid are selected */}
+            {Object.entries(RAID_GROUPS).some(([, g]) => g.variants.every((v) => pending.includes(v))) && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-muted-foreground">Raid Display</p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(RAID_GROUPS)
+                    .filter(([, g]) => g.variants.every((v) => pending.includes(v)))
+                    .map(([groupKey, g]) => {
+                      const sentinel = raidSplitSentinel(groupKey);
+                      const combined = !pending.includes(sentinel);
+                      return (
+                        <button
+                          key={groupKey}
+                          onClick={() => {
+                            setPending((prev) =>
+                              combined
+                                ? [...prev, sentinel]
+                                : prev.filter((m) => m !== sentinel),
+                            );
+                            setSaved(false);
+                          }}
+                          className={`text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+                            combined
+                              ? "bg-primary/15 border-primary/40 text-primary font-medium"
+                              : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          {g.label} - {combined ? "Combined" : "Split"}
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
             <Separator />
             <Input
               placeholder="Filter metrics..."

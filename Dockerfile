@@ -1,3 +1,17 @@
+FROM oven/bun:alpine AS dev
+
+WORKDIR /app
+
+COPY package.json bun.lockb* ./
+RUN bun install --frozen-lockfile 2>/dev/null || bun install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["bun", "--hot", "src/index.tsx"]
+
+
 FROM oven/bun:alpine AS builder
 
 WORKDIR /app

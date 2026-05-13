@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { RootLayout } from "@/components/layout/RootLayout";
+import { LayoutProvider } from "@/context/LayoutContext";
 import { LinkRsnModal } from "@/components/layout/LinkRsnModal";
 import { AuthProvider } from "@/context/AuthContext";
 import { PermissionsProvider } from "@/context/PermissionsContext";
@@ -42,9 +43,11 @@ function Root() {
           <ViewAsProvider>
             <PermissionsProvider>
               <ThemedToaster />
-              <RootLayout>
-                <Outlet />
-              </RootLayout>
+              <LayoutProvider>
+                <RootLayout>
+                  <Outlet />
+                </RootLayout>
+              </LayoutProvider>
               <LinkRsnModal />
               <ReactQueryDevtools initialIsOpen={false} />
             </PermissionsProvider>

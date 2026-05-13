@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createRoute, useNavigate } from "@tanstack/react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { rootRoute } from "./__root";
 import { useAuth } from "@/context/AuthContext";
 import { registerPage } from "@/lib/permissions";
 import {
-  fmtCompetitionLabel, fmtGained, fmtCompDate, rankEmoji, statusColor, buildTeamRows,
+  fmtCompetitionLabel, fmtGained, fmtCompDate, rankEmoji, statusColor,
+  buildTeamRows, sanitizeParticipations, buildMetricTabs, buildRaidRows,
+  buildRaidTeamRows, VARIANT_LABELS,
 } from "@/lib/competitions";
+import type { TabDescriptor, RaidPlayerRow, RaidTeamRow } from "@/lib/competitions";
 import {
   useCompetitionList, useCompetitionMetricMap, useMetricDetail,
 } from "@/hooks/useCompetitions";
@@ -34,7 +37,62 @@ export const competitionsRoute = createRoute({
 });
 
 // ---------------------------------------------------------------------------
-// Sub-components
+// Palette for raid variant segments
+// ---------------------------------------------------------------------------
+
+const VARIANT_COLORS = [
+  "var(--primary)",
+  "hsl(var(--chart-2, 200 70% 55%))",
+];
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Countdown
+// ---------------------------------------------------------------------------
+
+function useCountdown(targetIso: string): string {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const diff = new Date(targetIso).getTime() - now;
+  if (diff <= 0) return "0s";
+  const d = Math.floor(diff / 86_400_000);
+  const h = Math.floor((diff % 86_400_000) / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  const s = Math.floor((diff % 60_000) / 1_000);
+  if (d > 0) return `${d}d ${h}h ${m}m ${s}s`;
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function CompetitionCountdownBanner({ comp }: { comp: Competition }) {
+  const startCountdown = useCountdown(comp.startsAt);
+  const endCountdown = useCountdown(comp.endsAt);
+
+  if (comp.status === "upcoming") {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-md bg-blue-500/10 border border-blue-500/20 px-3 py-2 text-sm text-blue-400">
+        <span className="font-medium shrink-0">Starting in:</span>
+        <span className="font-mono">{startCountdown}</span>
+      </div>
+    );
+  }
+  if (comp.status === "ongoing") {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-md bg-green-500/10 border border-green-500/20 px-3 py-2 text-sm text-green-400">
+        <span className="font-medium shrink-0">Ending in:</span>
+        <span className="font-mono">{endCountdown}</span>
+      </div>
+    );
+  }
+  return null;
+}
+
+// Single-metric sub-components (unchanged behaviour)
 // ---------------------------------------------------------------------------
 
 function ClassicChart({ participations, metric }: { participations: MetricParticipation[]; metric: string }) {
@@ -140,8 +198,9 @@ function MetricTabContent({ comp, metric }: { comp: Competition; metric: string 
     </p>
   );
 
+  const sanitized = sanitizeParticipations(detail.participations);
   const isTeam = detail.type === "team";
-  const teams = isTeam ? buildTeamRows(detail.participations) : [];
+  const teams = isTeam ? buildTeamRows(sanitized) : [];
 
   return (
     <div className="space-y-4">
@@ -150,17 +209,244 @@ function MetricTabContent({ comp, metric }: { comp: Competition; metric: string 
           <p className="text-sm font-medium text-muted-foreground">Top 10 by Gained</p>
         </CardHeader>
         <CardContent className="px-2 pb-4">
-          {isTeam ? <TeamChart teams={teams} metric={metric} /> : <ClassicChart participations={detail.participations} metric={metric} />}
+          {isTeam ? <TeamChart teams={teams} metric={metric} /> : <ClassicChart participations={sanitized} metric={metric} />}
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="pb-2 pt-4 px-4">
           <p className="text-sm font-medium text-muted-foreground">
-            {isTeam ? "Team Standings" : `All Participants (${detail.participations.length})`}
+            {isTeam ? "Team Standings" : `All Participants (${sanitized.length})`}
           </p>
         </CardHeader>
         <CardContent className="p-0 pb-2">
-          {isTeam ? <TeamTable teams={teams} metric={metric} /> : <ClassicTable participations={detail.participations} metric={metric} />}
+          {isTeam ? <TeamTable teams={teams} metric={metric} /> : <ClassicTable participations={sanitized} metric={metric} />}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Raid group sub-components
+// ---------------------------------------------------------------------------
+
+function RaidStackedChart({ rows, variants }: { rows: RaidPlayerRow[]; variants: string[] }) {
+  const top10 = rows.slice(0, 10);
+  const chartData = top10.map((r) => ({
+    name: r.player_name,
+    ...Object.fromEntries(variants.map((v) => [v, r.variants[v] ?? 0])),
+  }));
+  const config = Object.fromEntries(
+    variants.map((v, i) => [v, { label: VARIANT_LABELS[v] ?? fmtCompetitionLabel(v), color: VARIANT_COLORS[i] ?? VARIANT_COLORS[0] }]),
+  );
+  return (
+    <ChartContainer config={config} className="h-64 w-full">
+      <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 48, left: 8 }}>
+        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
+        <YAxis tickFormatter={(v: number) => v.toLocaleString()} tick={{ fontSize: 11 }} width={56} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        {variants.map((v, i) => (
+          <Bar
+            key={v}
+            dataKey={v}
+            name={VARIANT_LABELS[v] ?? fmtCompetitionLabel(v)}
+            stackId="raid"
+            fill={VARIANT_COLORS[i] ?? VARIANT_COLORS[0]}
+            radius={i === variants.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+          />
+        ))}
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
+function RaidTeamStackedChart({ teams, variants }: { teams: RaidTeamRow[]; variants: string[] }) {
+  const chartData = teams.map((t) => ({
+    name: t.team_name,
+    ...Object.fromEntries(variants.map((v) => [v, t.variants[v] ?? 0])),
+  }));
+  const config = Object.fromEntries(
+    variants.map((v, i) => [v, { label: VARIANT_LABELS[v] ?? fmtCompetitionLabel(v), color: VARIANT_COLORS[i] ?? VARIANT_COLORS[0] }]),
+  );
+  return (
+    <ChartContainer config={config} className="h-64 w-full">
+      <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 48, left: 8 }}>
+        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
+        <YAxis tickFormatter={(v: number) => v.toLocaleString()} tick={{ fontSize: 11 }} width={56} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        {variants.map((v, i) => (
+          <Bar
+            key={v}
+            dataKey={v}
+            name={VARIANT_LABELS[v] ?? fmtCompetitionLabel(v)}
+            stackId="raid"
+            fill={VARIANT_COLORS[i] ?? VARIANT_COLORS[0]}
+            radius={i === variants.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+          />
+        ))}
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
+function RaidClassicTable({ rows, variants }: { rows: RaidPlayerRow[]; variants: string[] }) {
+  const extraCols = variants.length + 1; // one per variant + Total
+  const gridCols = `2.5rem 1fr ${Array(extraCols).fill("auto").join(" ")}`;
+  return (
+    <div>
+      <div
+        className="gap-x-4 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border"
+        style={{ display: "grid", gridTemplateColumns: gridCols }}
+      >
+        <span>Rank</span>
+        <span>Player</span>
+        {variants.map((v) => <span key={v} className="text-right">{VARIANT_LABELS[v] ?? fmtCompetitionLabel(v)}</span>)}
+        <span className="text-right">Total</span>
+      </div>
+      {rows.map((r) => (
+        <div
+          key={r.player_name}
+          className="gap-x-4 px-3 py-2 items-center text-sm border-b border-border/50 last:border-0 hover:bg-muted/30"
+          style={{ display: "grid", gridTemplateColumns: gridCols }}
+        >
+          <span className="font-medium text-muted-foreground">{rankEmoji(r.rank)}</span>
+          <span className="truncate font-medium">{r.player_name}</span>
+          {variants.map((v) => (
+            <span key={v} className="text-right text-muted-foreground text-xs">
+              {(r.variants[v] ?? 0).toLocaleString()}
+            </span>
+          ))}
+          <span className="text-right">
+            <Badge variant="outline" className="font-mono text-xs">+{r.total.toLocaleString()}</Badge>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RaidTeamTable({ teams, variants }: { teams: RaidTeamRow[]; variants: string[] }) {
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  function toggle(name: string) {
+    setExpanded((prev) => { const next = new Set(prev); next.has(name) ? next.delete(name) : next.add(name); return next; });
+  }
+  const extraCols = variants.length + 1;
+  const gridCols = `2.5rem 1fr auto ${Array(extraCols).fill("auto").join(" ")}`;
+  const memberGridCols = `2.5rem 1fr ${Array(extraCols).fill("auto").join(" ")}`;
+
+  return (
+    <div>
+      <div
+        className="gap-x-4 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border"
+        style={{ display: "grid", gridTemplateColumns: gridCols }}
+      >
+        <span>Rank</span>
+        <span>Team</span>
+        <span className="text-right">Members</span>
+        {variants.map((v) => <span key={v} className="text-right">{VARIANT_LABELS[v] ?? fmtCompetitionLabel(v)}</span>)}
+        <span className="text-right">Total</span>
+      </div>
+      {teams.map((team) => {
+        const open = expanded.has(team.team_name);
+        return (
+          <div key={team.team_name}>
+            <button
+              onClick={() => toggle(team.team_name)}
+              className="w-full gap-x-4 px-3 py-2 items-center text-sm border-b border-border/50 hover:bg-muted/30 text-left"
+              style={{ display: "grid", gridTemplateColumns: gridCols }}
+            >
+              <span className="font-medium text-muted-foreground">{rankEmoji(team.rank)}</span>
+              <span className="flex items-center gap-1.5 font-semibold">
+                {open ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
+                {team.team_name}
+              </span>
+              <span className="text-right text-xs text-muted-foreground">{team.members.length}</span>
+              {variants.map((v) => (
+                <span key={v} className="text-right text-muted-foreground text-xs">
+                  {(team.variants[v] ?? 0).toLocaleString()}
+                </span>
+              ))}
+              <span className="text-right">
+                <Badge variant="outline" className="font-mono text-xs">+{team.total.toLocaleString()}</Badge>
+              </span>
+            </button>
+            {open && (
+              <div className="bg-muted/20 border-b border-border/50">
+                {team.members.map((m) => (
+                  <div
+                    key={m.player_name}
+                    className="gap-x-4 pl-10 pr-3 py-1.5 items-center text-xs text-muted-foreground"
+                    style={{ display: "grid", gridTemplateColumns: memberGridCols }}
+                  >
+                    <span />
+                    <span>{m.player_name}</span>
+                    {variants.map((v) => (
+                      <span key={v} className="text-right font-mono">
+                        {(m.variants[v] ?? 0).toLocaleString()}
+                      </span>
+                    ))}
+                    <span className="text-right font-mono font-semibold">+{m.total.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function RaidGroupContent({ comp, tab }: { comp: Competition; tab: Extract<TabDescriptor, { kind: "raid" }> }) {
+  const results = tab.variants.map((v) => ({
+    metric: v,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    query: useMetricDetail(comp.id, v),
+  }));
+
+  const isLoading = results.some((r) => r.query.isLoading);
+  if (isLoading) return <CompetitionSkeleton />;
+
+  const anyFailed = results.some((r) => !r.query.data);
+  if (anyFailed) return (
+    <p className="py-8 text-center text-sm text-muted-foreground">
+      Failed to load data. Try again shortly.
+    </p>
+  );
+
+  const variantData = results.map((r) => ({
+    metric: r.metric,
+    participations: r.query.data!.participations,
+  }));
+
+  const isTeam = results[0]?.query.data?.type === "team";
+  const rows = buildRaidRows(variantData);
+  const teams = isTeam ? buildRaidTeamRows(rows) : [];
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="pb-2 pt-4 px-4">
+          <p className="text-sm font-medium text-muted-foreground">Top 10 by Total KC</p>
+        </CardHeader>
+        <CardContent className="px-2 pb-4">
+          {isTeam
+            ? <RaidTeamStackedChart teams={teams} variants={tab.variants} />
+            : <RaidStackedChart rows={rows} variants={tab.variants} />}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="pb-2 pt-4 px-4">
+          <p className="text-sm font-medium text-muted-foreground">
+            {isTeam ? "Team Standings" : `All Participants (${rows.length})`}
+          </p>
+        </CardHeader>
+        <CardContent className="p-0 pb-2">
+          {isTeam
+            ? <RaidTeamTable teams={teams} variants={tab.variants} />
+            : <RaidClassicTable rows={rows} variants={tab.variants} />}
         </CardContent>
       </Card>
     </div>
@@ -179,26 +465,33 @@ export default function CompetitionsPage() {
   const { data: metricMap = {} } = useCompetitionMetricMap();
 
   const [selectedId, setSelectedId] = useState<string>("");
-  const [activeMetric, setActiveMetric] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string>("");
 
-  // Auto-select first ongoing/upcoming when data loads and nothing selected
   const effectiveSelectedId = selectedId || (() => {
     const auto = competitions.find((c) => c.status === "ongoing") ?? competitions.find((c) => c.status === "upcoming");
     return auto ? String(auto.id) : "";
   })();
 
-  const effectiveMetric = activeMetric || (metricMap[effectiveSelectedId]?.[0] ?? "");
+  const metrics = effectiveSelectedId ? (metricMap[effectiveSelectedId] ?? []) : [];
+  const tabs = buildMetricTabs(metrics);
+  const firstTabKey = tabs[0] ? (tabs[0].kind === "raid" ? tabs[0].groupKey : tabs[0].metric) : "";
+  const effectiveTab = activeTab || firstTabKey;
 
   if (loading) return <CompetitionSkeleton />;
   if (!user) { void navigate({ to: "/login" }); return null; }
 
   function handleCompSelect(id: string) {
     setSelectedId(id);
-    setActiveMetric(metricMap[id]?.[0] ?? "");
+    const newMetrics = metricMap[id] ?? [];
+    const newTabs = buildMetricTabs(newMetrics);
+    const first = newTabs[0];
+    setActiveTab(first ? (first.kind === "raid" ? first.groupKey : first.metric) : "");
   }
 
   const selected = competitions.find((c) => String(c.id) === effectiveSelectedId);
-  const metrics = effectiveSelectedId ? (metricMap[effectiveSelectedId] ?? []) : [];
+  const activeTabDescriptor = tabs.find(
+    (t) => (t.kind === "raid" ? t.groupKey : t.metric) === effectiveTab,
+  );
 
   const grouped = {
     ongoing: competitions.filter((c) => c.status === "ongoing"),
@@ -258,6 +551,9 @@ export default function CompetitionsPage() {
                 <Badge variant="outline">{selected.participantCount} participants</Badge>
               </div>
             </div>
+            <div className="mt-2">
+              <CompetitionCountdownBanner comp={selected} />
+            </div>
           </CardContent>
         </Card>
       )}
@@ -271,13 +567,30 @@ export default function CompetitionsPage() {
         </Card>
       )}
 
-      {selected && metrics.length > 0 && (
+      {selected && tabs.length > 0 && (
         <div className="space-y-4">
-          <ToggleGroup type="single" variant="outline" value={effectiveMetric} onValueChange={(v) => { if (v) setActiveMetric(v); }}>
-            {metrics.map((m) => <ToggleGroupItem key={m} value={m}>{fmtCompetitionLabel(m)}</ToggleGroupItem>)}
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={effectiveTab}
+            onValueChange={(v) => { if (v) setActiveTab(v); }}
+          >
+            {tabs.map((t) => (
+              <ToggleGroupItem
+                key={t.kind === "raid" ? t.groupKey : t.metric}
+                value={t.kind === "raid" ? t.groupKey : t.metric}
+              >
+                {t.label}
+              </ToggleGroupItem>
+            ))}
           </ToggleGroup>
 
-          {effectiveMetric && <MetricTabContent comp={selected} metric={effectiveMetric} />}
+          {activeTabDescriptor?.kind === "single" && (
+            <MetricTabContent comp={selected} metric={activeTabDescriptor.metric} />
+          )}
+          {activeTabDescriptor?.kind === "raid" && (
+            <RaidGroupContent comp={selected} tab={activeTabDescriptor} />
+          )}
         </div>
       )}
 

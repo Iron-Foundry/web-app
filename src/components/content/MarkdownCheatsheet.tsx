@@ -143,6 +143,23 @@ const SECTIONS: Section[] = [
       },
     ],
   },
+  {
+    title: "Entry References",
+    examples: [
+      {
+        label: "Link to another entry (hover for preview)",
+        syntax: "See [[resource:getting-started|Getting Started]] for setup instructions.",
+      },
+      {
+        label: "Link to a specific section",
+        syntax: "Follow the [[plugin:gpu-plugin#installation|GPU plugin installation]] steps.",
+      },
+      {
+        label: "Cross-type reference",
+        syntax: "Check the [[staff_resource:onboarding|Staff Onboarding]] guide.",
+      },
+    ],
+  },
 ];
 
 function ExampleCard({ example }: { example: Example }) {

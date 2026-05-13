@@ -17,6 +17,10 @@
   font-display: swap;
 }
 
+@theme {
+  --font-sans: "Segoe UI", system-ui, sans-serif;
+}
+
 @theme inline {
     --font-rs-bold: "RuneScape Bold", serif;
     --font-rs-quill: "RuneScape Quill", serif;
