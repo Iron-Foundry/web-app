@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { createRoute, useNavigate } from "@tanstack/react-router";
+import { createRoute } from "@tanstack/react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { rootRoute } from "./__root";
-import { useAuth } from "@/context/AuthContext";
 import { registerPage } from "@/lib/permissions";
 import {
   fmtCompetitionLabel, fmtGained, fmtCompDate, rankEmoji, statusColor,
@@ -458,9 +457,6 @@ function RaidGroupContent({ comp, tab }: { comp: Competition; tab: Extract<TabDe
 // ---------------------------------------------------------------------------
 
 export default function CompetitionsPage() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
   const { data: competitions = [], isLoading: compsLoading } = useCompetitionList();
   const { data: metricMap = {} } = useCompetitionMetricMap();
 
@@ -477,8 +473,6 @@ export default function CompetitionsPage() {
   const firstTabKey = tabs[0] ? (tabs[0].kind === "raid" ? tabs[0].groupKey : tabs[0].metric) : "";
   const effectiveTab = activeTab || firstTabKey;
 
-  if (loading) return <CompetitionSkeleton />;
-  if (!user) { void navigate({ to: "/login" }); return null; }
 
   function handleCompSelect(id: string) {
     setSelectedId(id);
