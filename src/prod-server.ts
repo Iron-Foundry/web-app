@@ -58,6 +58,7 @@ const PAGE_META: Record<string, PageMeta> = {
 
 function getMeta(pathname: string): PageMeta {
   if (pathname.startsWith("/members")) return PAGE_META["/members"]!;
+  if (pathname.startsWith("/competitions")) return PAGE_META["/competitions"]!;
   return PAGE_META[pathname] ?? PAGE_META["/"]!;
 }
 
