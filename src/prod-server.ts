@@ -184,7 +184,6 @@ serve({
     // --- Dev preview page ---
 
     if (pathname === "/embed/_preview") {
-      if (!IS_DEV) return new Response("Not Found", { status: 404 });
       return new Response(buildPreviewHtml(), { headers: { "Content-Type": "text/html" } });
     }
 
