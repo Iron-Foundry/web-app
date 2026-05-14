@@ -29,16 +29,22 @@ export async function serveCompetition(apiUrl: string): Promise<Buffer> {
   let competition: CompetitionFixture | null = null;
   try {
     const all = await fetchJson<CompetitionFixture[]>(`${apiUrl}/clan/competitions`);
+    console.log(`[embed] competitions fetched: ${all.length}, statuses: ${[...new Set(all.map(c => c.status))].join(", ")}`);
     competition =
       all.find((c) => c.status === "ongoing") ??
       all.find((c) => c.status === "upcoming") ??
       null;
-    // Defensive: ensure required fields exist (API returns camelCase)
-    if (competition && (!competition.startsAt || !competition.endsAt)) {
-      competition = null;
+    if (competition) {
+      console.log(`[embed] selected competition: "${competition.title}" (${competition.status}) startsAt=${competition.startsAt} endsAt=${competition.endsAt}`);
+      if (!competition.startsAt || !competition.endsAt) {
+        console.warn(`[embed] competition missing startsAt/endsAt - falling back to null`);
+        competition = null;
+      }
+    } else {
+      console.log(`[embed] no ongoing/upcoming competition found`);
     }
-  } catch {
-    // fall through to null (renders fallback card)
+  } catch (err) {
+    console.error(`[embed] competition fetch failed:`, err);
   }
 
   const png = await renderCard(CompetitionCard({ competition }));
@@ -54,8 +60,8 @@ export async function serveMember(rsn: string, apiUrl: string): Promise<Buffer> 
   let player: PlayerPublic | null = null;
   try {
     player = await fetchJson<PlayerPublic>(`${apiUrl}/ranking/player/${encodeURIComponent(rsn)}`);
-  } catch {
-    // 404 or network error → not-found card
+  } catch (err) {
+    console.error(`[embed] member fetch failed for "${rsn}":`, err);
   }
 
   const png = await renderCard(MemberCard({ player }));

@@ -7,7 +7,7 @@ import { CompetitionCard } from "./embed/competition";
 import { MemberCard } from "./embed/member";
 import { FIXTURES } from "./embed/fixtures";
 
-const API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_URL = process.env.INTERNAL_API_URL ?? process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
 const SITE_URL = (process.env.SITE_URL ?? "https://ironfoundry.cc").replace(/\/$/, "");
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
 const IS_DEV = process.env.NODE_ENV !== "production";
