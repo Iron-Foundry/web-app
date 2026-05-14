@@ -87,6 +87,7 @@ function buildOgTags(pathname: string): string {
     `<meta property="og:description" content="${description}">`,
     `<meta property="og:image" content="${ogImage}">`,
     `<meta property="og:url" content="${url}">`,
+    `<meta property="og:logo" content="${OG_IMAGE}">`,
     `<meta name="twitter:card" content="${twitterCard}">`,
     `<meta name="twitter:title" content="${title}">`,
     `<meta name="twitter:description" content="${description}">`,
@@ -149,18 +150,18 @@ serve({
 
     if (pathname === "/embed/clan-stats.png") {
       const png = await serveClanStats(INTERNAL_API_URL);
-      return pngResponse(png, 600);
+      return pngResponse(png, 60);
     }
 
     if (pathname === "/embed/competition.png") {
       const png = await serveCompetition(INTERNAL_API_URL);
-      return pngResponse(png, 300);
+      return pngResponse(png, 60);
     }
 
     if (pathname.startsWith("/embed/member/") && pathname.endsWith(".png")) {
       const rsn = decodeURIComponent(pathname.slice("/embed/member/".length, -4));
       const png = await serveMember(rsn, INTERNAL_API_URL);
-      return pngResponse(png, 900);
+      return pngResponse(png, 60);
     }
 
     // --- Fixture routes (preview only, never cached by CDN) ---

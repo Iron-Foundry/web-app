@@ -4,9 +4,9 @@ import { CompetitionCard } from "./competition";
 import { MemberCard } from "./member";
 import type { WomStats, ClanStats, CompetitionFixture, PlayerPublic } from "./types";
 
-const TTL_CLAN = 10 * 60 * 1000;
-const TTL_COMP = 5 * 60 * 1000;
-const TTL_MEMBER = 15 * 60 * 1000;
+const TTL_CLAN = 60 * 1000;
+const TTL_COMP = 60 * 1000;
+const TTL_MEMBER = 60 * 1000;
 
 export async function serveClanStats(apiUrl: string): Promise<Buffer> {
   const cached = getCached("clan-stats");
