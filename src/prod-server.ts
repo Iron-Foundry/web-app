@@ -99,7 +99,7 @@ function pngResponse(png: Buffer, maxAgeSeconds: number): Response {
   return new Response(png as unknown as BodyInit, {
     headers: {
       "Content-Type": "image/png",
-      "Cache-Control": `public, max-age=${maxAgeSeconds}`,
+      "Cache-Control": `public, max-age=${maxAgeSeconds}, s-maxage=0`,
     },
   });
 }
