@@ -20,7 +20,7 @@ export interface CompetitionFixture {
   status: "ongoing" | "upcoming" | "finished";
   startsAt: string;
   endsAt: string;
-  participantCount: number;
+  participantCount?: number;
 }
 
 export interface PlayerPublic {

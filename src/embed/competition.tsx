@@ -89,9 +89,11 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
         <div style={{ fontSize: 24, color: "#8a7d65", textTransform: "uppercase", letterSpacing: 2 }}>
           {competition.metric.replace(/_/g, " ")}
         </div>
-        <div style={{ fontSize: 22, color: "#6b6452" }}>
-          {`${competition.participantCount} participant${competition.participantCount !== 1 ? "s" : ""}`}
-        </div>
+        {competition.participantCount != null && (
+          <div style={{ display: "flex", fontSize: 22, color: "#6b6452" }}>
+            {`${competition.participantCount} participant${competition.participantCount !== 1 ? "s" : ""}`}
+          </div>
+        )}
       </div>
 
       {/* Footer */}
