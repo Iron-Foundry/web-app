@@ -1,9 +1,16 @@
 import { serve } from "bun";
 import { join } from "path";
+import { serveClanStats, serveCompetition, serveMember } from "./embed/handlers";
+import { renderCard } from "./embed/utils";
+import { ClanStatsCard } from "./embed/clan-stats";
+import { CompetitionCard } from "./embed/competition";
+import { MemberCard } from "./embed/member";
+import { FIXTURES } from "./embed/fixtures";
 
 const API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
 const SITE_URL = (process.env.SITE_URL ?? "https://ironfoundry.cc").replace(/\/$/, "");
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
+const IS_DEV = process.env.NODE_ENV !== "production";
 
 const DIST = join(import.meta.dir, "..", "dist");
 
@@ -39,6 +46,14 @@ const PAGE_META: Record<string, PageMeta> = {
     title: "Members Area | Iron Foundry",
     description: "Your Iron Foundry member dashboard.",
   },
+  "/competitions": {
+    title: "Competitions | Iron Foundry",
+    description: "Active and upcoming clan competitions for Iron Foundry members.",
+  },
+  "/leaderboards": {
+    title: "Leaderboards | Iron Foundry",
+    description: "Iron Foundry clan leaderboards - boss kills, collection log, and more.",
+  },
 };
 
 function getMeta(pathname: string): PageMeta {
@@ -46,9 +61,23 @@ function getMeta(pathname: string): PageMeta {
   return PAGE_META[pathname] ?? PAGE_META["/"]!;
 }
 
+function getOgImage(pathname: string): string {
+  if (pathname === "/" || pathname === "/leaderboards")
+    return `${SITE_URL}/embed/clan-stats.png`;
+  if (pathname.startsWith("/competitions"))
+    return `${SITE_URL}/embed/competition.png`;
+  return OG_IMAGE;
+}
+
+function isDynamicOg(pathname: string): boolean {
+  return pathname === "/" || pathname === "/leaderboards" || pathname.startsWith("/competitions");
+}
+
 function buildOgTags(pathname: string): string {
   const { title, description } = getMeta(pathname);
   const url = `${SITE_URL}${pathname === "/" ? "" : pathname}`;
+  const ogImage = getOgImage(pathname);
+  const twitterCard = isDynamicOg(pathname) ? "summary_large_image" : "summary";
   return [
     `<title>${title}</title>`,
     `<meta name="description" content="${description}">`,
@@ -56,13 +85,53 @@ function buildOgTags(pathname: string): string {
     `<meta property="og:type" content="website">`,
     `<meta property="og:title" content="${title}">`,
     `<meta property="og:description" content="${description}">`,
-    `<meta property="og:image" content="${OG_IMAGE}">`,
+    `<meta property="og:image" content="${ogImage}">`,
     `<meta property="og:url" content="${url}">`,
-    `<meta name="twitter:card" content="summary">`,
+    `<meta name="twitter:card" content="${twitterCard}">`,
     `<meta name="twitter:title" content="${title}">`,
     `<meta name="twitter:description" content="${description}">`,
-    `<meta name="twitter:image" content="${OG_IMAGE}">`,
+    `<meta name="twitter:image" content="${ogImage}">`,
   ].join("\n    ");
+}
+
+function pngResponse(png: Buffer, maxAgeSeconds: number): Response {
+  return new Response(png as unknown as BodyInit, {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": `public, max-age=${maxAgeSeconds}`,
+    },
+  });
+}
+
+function buildPreviewHtml(): string {
+  const cards = [
+    ["/embed/clan-stats.png", "Clan Stats (live)"],
+    ["/embed/competition.png", "Competition (live)"],
+    ["/embed/competition.png?fixture=upcoming", "Competition - Upcoming"],
+    ["/embed/competition.png?fixture=none", "Competition - None"],
+    ["/embed/member/Zezima.png", "Member (live)"],
+    ["/embed/member/X.png?fixture=opted-out", "Member - Opted Out"],
+    ["/embed/member/X.png?fixture=unlinked", "Member - Unlinked"],
+    ["/embed/member/X.png?fixture=not-found", "Member - Not Found"],
+  ];
+
+  const items = cards
+    .map(
+      ([src, label]) => `
+    <div style="margin-bottom:24px">
+      <div style="font:14px monospace;margin-bottom:6px;color:#888">${label}</div>
+      <img src="${src}" style="width:100%;border:1px solid #333;display:block">
+    </div>`
+    )
+    .join("");
+
+  return `<!DOCTYPE html>
+<html>
+<head><title>Embed Preview</title>
+<style>body{background:#0a0a0a;margin:0;padding:32px;box-sizing:border-box;max-width:900px}</style>
+</head>
+<body>${items}</body>
+</html>`;
 }
 
 const rawHtml = await Bun.file(join(DIST, "index.html")).text();
@@ -74,7 +143,51 @@ const baseHtml = rawHtml.replace(
 serve({
   port: 3000,
   async fetch(req) {
-    const { pathname } = new URL(req.url);
+    const url = new URL(req.url);
+    const { pathname } = url;
+    const fixture = IS_DEV ? url.searchParams.get("fixture") : null;
+
+    // --- Embed image routes ---
+
+    if (pathname === "/embed/clan-stats.png") {
+      const png = await serveClanStats(API_URL);
+      return pngResponse(png, 600);
+    }
+
+    if (pathname === "/embed/competition.png") {
+      if (fixture === "upcoming") {
+        return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionUpcoming })), 0);
+      }
+      if (fixture === "none") {
+        return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionNone })), 0);
+      }
+      const png = await serveCompetition(API_URL);
+      return pngResponse(png, 300);
+    }
+
+    if (pathname.startsWith("/embed/member/") && pathname.endsWith(".png")) {
+      const rsn = decodeURIComponent(pathname.slice("/embed/member/".length, -4));
+      if (fixture === "opted-out") {
+        return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberOptedOut })), 0);
+      }
+      if (fixture === "unlinked") {
+        return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberUnlinked })), 0);
+      }
+      if (fixture === "not-found") {
+        return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberNotFound })), 0);
+      }
+      const png = await serveMember(rsn, API_URL);
+      return pngResponse(png, 900);
+    }
+
+    // --- Dev preview page ---
+
+    if (pathname === "/embed/_preview") {
+      if (!IS_DEV) return new Response("Not Found", { status: 404 });
+      return new Response(buildPreviewHtml(), { headers: { "Content-Type": "text/html" } });
+    }
+
+    // --- Static assets ---
 
     if (pathname !== "/" && pathname.includes(".")) {
       const file = Bun.file(join(DIST, pathname));
@@ -87,6 +200,8 @@ serve({
         return new Response(file, { headers: { "Cache-Control": cacheControl } });
       }
     }
+
+    // --- SPA fallback ---
 
     const html = baseHtml.replace(/<title>[^<]*<\/title>/, buildOgTags(pathname));
     return new Response(html, {

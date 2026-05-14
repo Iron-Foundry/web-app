@@ -1,0 +1,118 @@
+import type { CompetitionFixture } from "./types";
+
+export interface CompetitionCardProps {
+  competition: CompetitionFixture | null;
+}
+
+function timeLeft(iso: string): string {
+  const diff = new Date(iso).getTime() - Date.now();
+  if (diff <= 0) return "Ended";
+  const days = Math.floor(diff / 86_400_000);
+  const hours = Math.floor((diff % 86_400_000) / 3_600_000);
+  if (days > 0) return `${days}d ${hours}h`;
+  const mins = Math.floor((diff % 3_600_000) / 60_000);
+  return `${hours}h ${mins}m`;
+}
+
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+export function CompetitionCard({ competition }: CompetitionCardProps) {
+  if (!competition) {
+    return (
+      <div
+        style={{
+          width: 1200,
+          height: 630,
+          background: "#111111",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          fontFamily: "RuneScape",
+          color: "#6b6452",
+          gap: 16,
+        }}
+      >
+        <div style={{ fontSize: 28, color: "#c6a44b", letterSpacing: 4, textTransform: "uppercase" }}>
+          Iron Foundry
+        </div>
+        <div style={{ fontSize: 22 }}>No active competitions</div>
+        <div style={{ fontSize: 18, color: "#4a4035" }}>ironfoundry.cc</div>
+      </div>
+    );
+  }
+
+  const isOngoing = competition.status === "ongoing";
+  const timeLabel = isOngoing
+    ? `Ends in ${timeLeft(competition.ends_at)}`
+    : `Starts in ${timeLeft(competition.starts_at)}`;
+
+  const statusColor = isOngoing ? "#4ade80" : "#60a5fa";
+  const statusText = isOngoing ? "LIVE" : "UPCOMING";
+
+  const top3 = competition.participants.slice(0, 3);
+
+  return (
+    <div
+      style={{
+        width: 1200,
+        height: 630,
+        background: "#111111",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "60px 72px",
+        fontFamily: "RuneScape",
+        color: "#f5f0e8",
+      }}
+    >
+      {/* Header row */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontSize: 22, color: "#c6a44b", letterSpacing: 4, textTransform: "uppercase" }}>
+          Iron Foundry · Competition
+        </div>
+        <div
+          style={{
+            fontSize: 16,
+            color: statusColor,
+            border: `1px solid ${statusColor}`,
+            padding: "4px 14px",
+            letterSpacing: 3,
+          }}
+        >
+          {statusText}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ width: "100%", height: 2, background: "linear-gradient(to right, #c6a44b, transparent)" }} />
+
+      {/* Title + metric */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ fontSize: 58, color: "#f5f0e8", lineHeight: 1 }}>{competition.title}</div>
+        <div style={{ fontSize: 22, color: "#8a7d65", textTransform: "uppercase", letterSpacing: 2 }}>
+          {competition.metric.replace(/_/g, " ")}
+        </div>
+      </div>
+
+      {/* Participants */}
+      {top3.length > 0 && (
+        <div style={{ display: "flex", gap: 56 }}>
+          {top3.map((p, i) => (
+            <div key={p.rsn} style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+              <span style={{ fontSize: 28 }}>{MEDALS[i]}</span>
+              <span style={{ fontSize: 28, color: "#f5f0e8" }}>{p.rsn}</span>
+              <span style={{ fontSize: 22, color: "#8a7d65" }}>{p.gained.toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Footer */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontSize: 20, color: "#6b6452" }}>{timeLabel}</div>
+        <div style={{ fontSize: 18, color: "#6b6452" }}>ironfoundry.cc</div>
+      </div>
+    </div>
+  );
+}
