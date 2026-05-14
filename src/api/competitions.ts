@@ -1,6 +1,7 @@
 import { apiFetch } from "./client";
 import type {
   Competition,
+  CompetitionOvertime,
   CreateCompetitionInput,
   EditCompetitionInput,
   MetricDetail,
@@ -13,6 +14,9 @@ export const competitionsApi = {
 
   getMetricDetail: (competitionId: number, metric: string) =>
     apiFetch<MetricDetail>(`/clan/competitions/${competitionId}/metric-detail?metric=${metric}`),
+
+  getOvertime: (competitionId: number, metric: string) =>
+    apiFetch<CompetitionOvertime>(`/clan/competitions/${competitionId}/overtime?metric=${metric}`),
 
   getMetricMap: () => apiFetch<MetricMap>("/clan/competitions/metric-map"),
 

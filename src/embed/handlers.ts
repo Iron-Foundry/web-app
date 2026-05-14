@@ -1,8 +1,19 @@
 import { renderCard, fetchJson, getCached, setCached } from "./utils";
 import { ClanStatsCard } from "./clan-stats";
 import { CompetitionCard } from "./competition";
+import { CompetitionTop5Card } from "./competition-top5";
 import { MemberCard } from "./member";
 import type { WomStats, ClanStats, CompetitionFixture, PlayerPublic } from "./types";
+
+interface Participation {
+  rank: number;
+  player_name: string;
+  gained: number;
+}
+
+interface MetricDetailResponse {
+  participations: Participation[];
+}
 
 const TTL_CLAN = 60 * 1000;
 const TTL_COMP = 60 * 1000;
@@ -54,6 +65,46 @@ export async function serveCompetition(apiUrl: string): Promise<Buffer> {
 
   const png = await renderCard(CompetitionCard({ competition }));
   setCached("competition", png, TTL_COMP);
+  return png;
+}
+
+export async function serveCompetitionTop5(
+  id: string,
+  metric: string,
+  apiUrl: string,
+): Promise<Buffer> {
+  const key = `competition-top5:${id}:${metric}`;
+  const cached = getCached(key);
+  if (cached) return cached;
+
+  const [all, detail] = await Promise.all([
+    fetchJson<CompetitionFixture[]>(`${apiUrl}/clan/competitions`),
+    fetchJson<MetricDetailResponse>(
+      `${apiUrl}/clan/competitions/${encodeURIComponent(id)}/metric-detail?metric=${encodeURIComponent(metric)}`,
+    ),
+  ]);
+
+  const comp = all.find((c) => String(c.id) === id);
+  if (!comp) throw new Error(`Competition ${id} not found`);
+
+  const top5 = detail.participations.slice(0, 5).map((p) => ({
+    rank: p.rank,
+    player_name: p.player_name,
+    gained: Math.max(0, p.gained),
+  }));
+
+  const png = await renderCard(
+    CompetitionTop5Card({
+      title: comp.title,
+      status: comp.status as "ongoing" | "upcoming" | "finished",
+      startsAt: comp.startsAt,
+      endsAt: comp.endsAt,
+      metric,
+      top5,
+    }),
+  );
+
+  setCached(key, png, 60 * 1000);
   return png;
 }
 

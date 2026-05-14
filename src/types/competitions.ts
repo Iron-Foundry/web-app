@@ -68,3 +68,19 @@ export interface ParticipantSuggestion {
   rsn: string;
   discord_username: string;
 }
+
+export interface OvertimeHistoryPoint {
+  date: string;
+  value: number;
+}
+
+export interface OvertimePlayerSeries {
+  player_name: string;
+  history: OvertimeHistoryPoint[];
+}
+
+export interface CompetitionOvertime {
+  comp_id: number;
+  metric: string;
+  series: OvertimePlayerSeries[];
+}

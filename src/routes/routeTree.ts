@@ -9,6 +9,7 @@ import { loginRoute } from "./login";
 import { leaderboardsRoute } from "./leaderboards";
 import { partiesRoute } from "./parties";
 import { competitionsRoute } from "./competitions";
+import { competitionDetailRoute } from "./competitions.$compId";
 import { bingoRoute } from "./bingo";
 import { pluginsLayoutRoute } from "./plugins/_layout";
 import { pluginsIndexRoute } from "./plugins/index";
@@ -80,6 +81,7 @@ export const routeTree = rootRoute.addChildren([
   leaderboardsRoute,
   partiesRoute,
   competitionsRoute,
+  competitionDetailRoute,
   bingoRoute,
   pluginsTree,
   resourcesTree,

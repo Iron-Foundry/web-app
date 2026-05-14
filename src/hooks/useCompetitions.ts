@@ -3,6 +3,7 @@ import { competitionsApi } from "@/api/competitions";
 import type { CreateCompetitionInput, EditCompetitionInput } from "@/types/competitions";
 import { queryKeys } from "@/lib/queryKeys";
 
+
 const STALE = 1000 * 60 * 5;
 
 export function useCompetitionList() {
@@ -25,6 +26,18 @@ export function useMetricDetail(competitionId: number | undefined, metric: strin
   return useQuery({
     queryKey: queryKeys.competitions.metricDetail(competitionId ?? 0, metric ?? ""),
     queryFn: () => competitionsApi.getMetricDetail(competitionId!, metric!),
+    enabled: !!competitionId && !!metric,
+    staleTime: STALE,
+  });
+}
+
+export function useCompetitionOvertime(
+  competitionId: number | undefined,
+  metric: string | undefined,
+) {
+  return useQuery({
+    queryKey: queryKeys.competitions.overtime(competitionId ?? 0, metric ?? ""),
+    queryFn: () => competitionsApi.getOvertime(competitionId!, metric!),
     enabled: !!competitionId && !!metric,
     staleTime: STALE,
   });

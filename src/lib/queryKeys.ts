@@ -15,6 +15,7 @@ export const queryKeys = {
     list: () => ["competitions"] as const,
     metricDetail: (id: number, metric: string) => ["competitions", id, "metric", metric] as const,
     metricMap: () => ["competitions", "metric-map"] as const,
+    overtime: (id: number, metric: string) => ["competitions", id, "overtime", metric] as const,
   },
   parties: {
     list: () => ["parties"] as const,

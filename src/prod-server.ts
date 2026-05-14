@@ -1,6 +1,6 @@
 import { serve } from "bun";
 import { join } from "path";
-import { serveClanStats, serveCompetition, serveMember } from "./embed/handlers";
+import { serveClanStats, serveCompetition, serveCompetitionTop5, serveMember } from "./embed/handlers";
 import { renderCard } from "./embed/utils";
 import { ClanStatsCard } from "./embed/clan-stats";
 import { CompetitionCard } from "./embed/competition";
@@ -156,6 +156,25 @@ serve({
     if (pathname === "/embed/competition.png") {
       const png = await serveCompetition(INTERNAL_API_URL);
       return pngResponse(png, 60);
+    }
+
+    if (pathname === "/embed/competition-top5.png") {
+      const id = url.searchParams.get("id") ?? "";
+      const metric = url.searchParams.get("metric") ?? "";
+      if (!id || !metric) return new Response("Missing id or metric", { status: 400 });
+      try {
+        const png = await serveCompetitionTop5(id, metric, INTERNAL_API_URL);
+        return new Response(png as unknown as BodyInit, {
+          headers: {
+            "Content-Type": "image/png",
+            "Content-Disposition": `attachment; filename="competition-top5.png"`,
+            "Cache-Control": "no-store",
+          },
+        });
+      } catch (err) {
+        console.error("[embed] competition-top5 failed:", err);
+        return new Response("Failed to render", { status: 500 });
+      }
     }
 
     if (pathname.startsWith("/embed/member/") && pathname.endsWith(".png")) {
