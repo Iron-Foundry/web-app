@@ -42,7 +42,7 @@ export async function serveCompetition(apiUrl: string): Promise<Buffer> {
       if (!selected.startsAt || !selected.endsAt) {
         console.warn(`[embed] competition missing startsAt/endsAt - falling back to null`);
       } else {
-        const metrics = metricMap[String(selected.id)] ?? [selected.metric];
+        const metrics: string[] = metricMap[String(selected.id)] ?? [];
         competition = { ...selected, metrics };
       }
     } else {
