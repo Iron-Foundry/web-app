@@ -1,7 +1,8 @@
 import { serve } from "bun";
 import { join } from "path";
-import { serveClanStats, serveCompetition, serveCompetitionTop5, serveMember } from "./embed/handlers";
-import { renderCard } from "./embed/utils";
+import { serveClanStats, serveCompetition, serveCompetitionById, serveCompetitionTop5, serveMember } from "./embed/handlers";
+import { renderCard, fetchJson } from "./embed/utils";
+import type { CompetitionFixture } from "./embed/types";
 import { ClanStatsCard } from "./embed/clan-stats";
 import { CompetitionCard } from "./embed/competition";
 import { MemberCard } from "./embed/member";
@@ -62,11 +63,13 @@ function getMeta(pathname: string): PageMeta {
   return PAGE_META[pathname] ?? PAGE_META["/"]!;
 }
 
-function getOgImage(pathname: string): string {
+function getOgImage(pathname: string, epoch: number, compId?: string): string {
   if (pathname === "/" || pathname === "/leaderboards")
-    return `${SITE_URL}/embed/clan-stats.png`;
+    return `${SITE_URL}/embed/clan-stats.png?t=${epoch}`;
+  if (compId)
+    return `${SITE_URL}/embed/competition/${compId}.png?t=${epoch}`;
   if (pathname.startsWith("/competitions"))
-    return `${SITE_URL}/embed/competition.png`;
+    return `${SITE_URL}/embed/competition.png?t=${epoch}`;
   return OG_IMAGE;
 }
 
@@ -74,10 +77,25 @@ function isDynamicOg(pathname: string): boolean {
   return pathname === "/" || pathname === "/leaderboards" || pathname.startsWith("/competitions");
 }
 
-function buildOgTags(pathname: string): string {
-  const { title, description } = getMeta(pathname);
+function buildOgTags(
+  pathname: string,
+  epoch: number,
+  comp?: CompetitionFixture,
+): string {
+  let { title, description } = getMeta(pathname);
+  const compId = comp ? String(comp.id) : undefined;
+
+  if (comp) {
+    const statusLabel =
+      comp.status === "ongoing" ? "Ongoing" :
+      comp.status === "upcoming" ? "Upcoming" :
+      "Finished";
+    title = `${comp.title} | Iron Foundry`;
+    description = `${statusLabel} Iron Foundry competition — ${comp.participantCount ?? 0} participants.`;
+  }
+
   const url = `${SITE_URL}${pathname === "/" ? "" : pathname}`;
-  const ogImage = getOgImage(pathname);
+  const ogImage = getOgImage(pathname, epoch, compId);
   const twitterCard = isDynamicOg(pathname) ? "summary_large_image" : "summary";
   return [
     `<title>${title}</title>`,
@@ -178,6 +196,18 @@ serve({
       }
     }
 
+    const compEmbedMatch = pathname.match(/^\/embed\/competition\/(\d+)\.png$/);
+    if (compEmbedMatch) {
+      const id = compEmbedMatch[1]!;
+      try {
+        const png = await serveCompetitionById(id, INTERNAL_API_URL);
+        return pngResponse(png, 60);
+      } catch (err) {
+        console.error(`[embed] competition/${id} failed:`, err);
+        return new Response("Not found", { status: 404 });
+      }
+    }
+
     if (pathname.startsWith("/embed/member/") && pathname.endsWith(".png")) {
       const rsn = decodeURIComponent(pathname.slice("/embed/member/".length, -4));
       const png = await serveMember(rsn, INTERNAL_API_URL);
@@ -224,7 +254,17 @@ serve({
 
     // --- SPA fallback ---
 
-    const html = baseHtml.replace(/<title>[^<]*<\/title>/, buildOgTags(pathname));
+    const epoch = Math.floor(Date.now() / 1000);
+    let comp: CompetitionFixture | undefined;
+    const compIdMatch = pathname.match(/^\/competitions\/(\d+)$/);
+    if (compIdMatch) {
+      try {
+        const all = await fetchJson<CompetitionFixture[]>(`${INTERNAL_API_URL}/clan/competitions`);
+        comp = all.find((c) => String(c.id) === compIdMatch[1]);
+      } catch { /* fall back to generic meta */ }
+    }
+
+    const html = baseHtml.replace(/<title>[^<]*<\/title>/, buildOgTags(pathname, epoch, comp));
     return new Response(html, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",

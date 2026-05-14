@@ -68,6 +68,27 @@ export async function serveCompetition(apiUrl: string): Promise<Buffer> {
   return png;
 }
 
+export async function serveCompetitionById(id: string, apiUrl: string): Promise<Buffer> {
+  const key = `competition-by-id:${id}`;
+  const cached = getCached(key);
+  if (cached) return cached;
+
+  const [all, metricMap] = await Promise.all([
+    fetchJson<CompetitionFixture[]>(`${apiUrl}/clan/competitions`),
+    fetchJson<Record<string, string[]>>(`${apiUrl}/clan/competitions/metric-map`).catch(
+      () => ({} as Record<string, string[]>),
+    ),
+  ]);
+
+  const comp = all.find((c) => String(c.id) === id);
+  if (!comp) throw new Error(`Competition ${id} not found`);
+
+  const metrics: string[] = metricMap[id] ?? [];
+  const png = await renderCard(CompetitionCard({ competition: { ...comp, metrics } }));
+  setCached(key, png, TTL_COMP);
+  return png;
+}
+
 export async function serveCompetitionTop5(
   id: string,
   metric: string,
