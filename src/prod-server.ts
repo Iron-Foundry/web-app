@@ -7,7 +7,8 @@ import { CompetitionCard } from "./embed/competition";
 import { MemberCard } from "./embed/member";
 import { FIXTURES } from "./embed/fixtures";
 
-const API_URL = process.env.INTERNAL_API_URL ?? process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
+const PUBLIC_API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
+const INTERNAL_API_URL = process.env.INTERNAL_API_URL ?? PUBLIC_API_URL;
 const SITE_URL = (process.env.SITE_URL ?? "https://ironfoundry.cc").replace(/\/$/, "");
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
 const IS_DEV = process.env.NODE_ENV !== "production";
@@ -137,7 +138,7 @@ function buildPreviewHtml(): string {
 const rawHtml = await Bun.file(join(DIST, "index.html")).text();
 const baseHtml = rawHtml.replace(
   "<head>",
-  `<head><script>window.__API_URL__=${JSON.stringify(API_URL)};</script>`,
+  `<head><script>window.__API_URL__=${JSON.stringify(PUBLIC_API_URL)};</script>`,
 );
 
 serve({
@@ -150,7 +151,7 @@ serve({
     // --- Embed image routes ---
 
     if (pathname === "/embed/clan-stats.png") {
-      const png = await serveClanStats(API_URL);
+      const png = await serveClanStats(INTERNAL_API_URL);
       return pngResponse(png, 600);
     }
 
@@ -161,7 +162,7 @@ serve({
       if (fixture === "none") {
         return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionNone })), 0);
       }
-      const png = await serveCompetition(API_URL);
+      const png = await serveCompetition(INTERNAL_API_URL);
       return pngResponse(png, 300);
     }
 
@@ -176,7 +177,7 @@ serve({
       if (fixture === "not-found") {
         return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberNotFound })), 0);
       }
-      const png = await serveMember(rsn, API_URL);
+      const png = await serveMember(rsn, INTERNAL_API_URL);
       return pngResponse(png, 900);
     }
 
