@@ -31,8 +31,14 @@ FROM oven/bun:alpine
 
 WORKDIR /app
 
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/bun.lock* ./
+RUN bun install --production --frozen-lockfile 2>/dev/null || bun install --production
+
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/prod-server.ts ./src/
+COPY --from=builder /app/src/embed ./src/embed
+COPY --from=builder /app/src/assets/fonts ./src/assets/fonts
 
 EXPOSE 3000
 
