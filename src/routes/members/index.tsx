@@ -12,7 +12,7 @@ import { MemberDashboardSkeleton } from "@/components/skeletons/MemberDashboardS
 import {
   Gem, TrendingUp, Zap, ScrollText, Map, Swords,
   Heart, BookOpen, FileSearch, Skull, Timer, Flame, KeyRound,
-  ArrowRight, Trophy, Users, ExternalLink, Clock,
+  ArrowRight, Trophy, Users, ExternalLink, Clock, UserPen,
 } from "lucide-react";
 
 const ROLE_BADGE_CLASS: Record<string, string> = {
@@ -68,6 +68,8 @@ const FEED_META: Record<string, { icon: React.ElementType; color: string; badge:
   personal_best:      { icon: Timer,      color: "text-cyan-400",   badge: "PB"         },
   hcim_death:         { icon: Flame,      color: "text-red-600",    badge: "HCIM Death" },
   loot_key:           { icon: KeyRound,   color: "text-yellow-500", badge: "Loot Key"   },
+  unknown:            { icon: Gem,        color: "text-muted-foreground", badge: "Unknown"    },
+  name_change:        { icon: UserPen,    color: "text-sky-400",    badge: "Name Change" },
 };
 const FALLBACK_META = { icon: Gem, color: "text-muted-foreground", badge: "Event" };
 
