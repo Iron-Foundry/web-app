@@ -22,7 +22,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { ChevronDown, ChevronRight, Download, Eye, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Download, Eye, Link, X } from "lucide-react";
 
 const METRIC_GROUPS: { name: string; metrics: string[] }[] = metricsConfig.groups;
 
@@ -702,6 +702,7 @@ export default function CompetitionsPage() {
   const { tab } = competitionDetailRoute.useSearch();
   const router = useRouter();
   const [exporting, setExporting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const { data: competitions = [], isLoading: compsLoading } = useCompetitionList();
   const { data: metricMap = {}, isLoading: metricMapLoading } = useCompetitionMetricMap();
@@ -770,6 +771,16 @@ export default function CompetitionsPage() {
     } finally {
       setExporting(false);
     }
+  }
+
+  function copyShareLink() {
+    if (!resolvedId) return;
+    const epoch = Math.floor(Date.now() / 1000);
+    const url = `${window.location.origin}/competitions/${resolvedId}?t=${epoch}`;
+    void navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   }
 
   function exitPreview() {
@@ -857,6 +868,15 @@ export default function CompetitionsPage() {
                 </Badge>
                 <Badge variant="outline">{selected.type === "team" ? "Team" : "Classic"}</Badge>
                 <Badge variant="outline">{selected.participantCount} participants</Badge>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                  onClick={copyShareLink}
+                  title="Copy share link (busts Discord cache)"
+                >
+                  {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Link className="h-3.5 w-3.5" />}
+                </Button>
               </div>
             </div>
             <div className="mt-2">
