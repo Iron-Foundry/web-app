@@ -13,6 +13,7 @@ import {
   Gem, TrendingUp, Zap, ScrollText, Map, Swords,
   Heart, BookOpen, FileSearch, Skull, Timer, Flame, KeyRound,
   ArrowRight, Trophy, Users, ExternalLink, Clock, UserPen,
+  Shield, Award, Compass,
 } from "lucide-react";
 
 const ROLE_BADGE_CLASS: Record<string, string> = {
@@ -70,6 +71,9 @@ const FEED_META: Record<string, { icon: React.ElementType; color: string; badge:
   loot_key:           { icon: KeyRound,   color: "text-yellow-500", badge: "Loot Key"   },
   unknown:            { icon: Gem,        color: "text-muted-foreground", badge: "Unknown"    },
   name_change:        { icon: UserPen,    color: "text-sky-400",    badge: "Name Change" },
+  league_relic:       { icon: Shield,     color: "text-amber-400",  badge: "Relic"       },
+  league_rank:        { icon: Award,      color: "text-violet-400", badge: "League Rank" },
+  league_area:        { icon: Compass,    color: "text-emerald-400",badge: "League Area" },
 };
 const FALLBACK_META = { icon: Gem, color: "text-muted-foreground", badge: "Event" };
 
