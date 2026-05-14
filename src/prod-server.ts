@@ -109,7 +109,7 @@ function buildPreviewHtml(): string {
     ["/embed/competition.png", "Competition (live)"],
     ["/embed/competition.png?fixture=upcoming", "Competition - Upcoming"],
     ["/embed/competition.png?fixture=none", "Competition - None"],
-    ["/embed/member/Zezima.png", "Member (live)"],
+    ["/embed/member/LD salt.png", "Member (live)"],
     ["/embed/member/X.png?fixture=opted-out", "Member - Opted Out"],
     ["/embed/member/X.png?fixture=unlinked", "Member - Unlinked"],
     ["/embed/member/X.png?fixture=not-found", "Member - Not Found"],

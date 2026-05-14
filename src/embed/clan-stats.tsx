@@ -35,7 +35,7 @@ function GridTexture() {
 function CornerAccents() {
   const color = "rgba(198,164,75,0.6)";
   return (
-    <div style={{ position: "absolute", top: 0, left: 0, width: 1200, height: 630 }}>
+    <div style={{ display: "flex", position: "absolute", top: 0, left: 0, width: 1200, height: 630 }}>
       <div style={{ position: "absolute", top: 20, left: 20, width: 28, height: 2, background: color }} />
       <div style={{ position: "absolute", top: 20, left: 20, width: 2, height: 28, background: color }} />
       <div style={{ position: "absolute", top: 20, right: 20, width: 28, height: 2, background: color }} />
@@ -138,7 +138,7 @@ export function ClanStatsCard({ wom, stats }: ClanStatsData) {
             label="Raid KC"
             value={fmt((wom.cox_kc ?? 0) + (wom.tob_kc ?? 0) + (wom.toa_kc ?? 0))}
           />
-          <StatBlock label="Collection Logs" value={fmt(stats.total_clogs)} />
+          <StatBlock label="Collection Logs" value={fmt(stats.collection_log_items)} />
         </div>
       </div>
 

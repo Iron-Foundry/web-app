@@ -40,7 +40,7 @@ export const FIXTURES = {
   competitionNone: null as CompetitionFixture | null,
 
   memberNormal: {
-    rsn: "Zezima",
+    rsn: "LD salt",
     rank: "Sergeant",
     points: 1450,
     boss_points: 980,
