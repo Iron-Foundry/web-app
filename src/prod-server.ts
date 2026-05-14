@@ -11,7 +11,6 @@ const PUBLIC_API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000"
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL ?? PUBLIC_API_URL;
 const SITE_URL = (process.env.SITE_URL ?? "https://ironfoundry.cc").replace(/\/$/, "");
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
-const IS_DEV = process.env.NODE_ENV !== "production";
 
 const DIST = join(import.meta.dir, "..", "dist");
 
@@ -146,7 +145,7 @@ serve({
   async fetch(req) {
     const url = new URL(req.url);
     const { pathname } = url;
-    const fixture = IS_DEV ? url.searchParams.get("fixture") : null;
+    const fixture = url.searchParams.get("fixture");
 
     // --- Embed image routes ---
 
