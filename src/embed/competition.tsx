@@ -14,8 +14,6 @@ function timeLeft(iso: string): string {
   return `${hours}h ${mins}m`;
 }
 
-const MEDALS = ["🥇", "🥈", "🥉"];
-
 export function CompetitionCard({ competition }: CompetitionCardProps) {
   if (!competition) {
     return (
@@ -44,13 +42,11 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
 
   const isOngoing = competition.status === "ongoing";
   const timeLabel = isOngoing
-    ? `Ends in ${timeLeft(competition.ends_at)}`
-    : `Starts in ${timeLeft(competition.starts_at)}`;
+    ? `Ends in ${timeLeft(competition.endsAt)}`
+    : `Starts in ${timeLeft(competition.startsAt)}`;
 
   const statusColor = isOngoing ? "#4ade80" : "#60a5fa";
   const statusText = isOngoing ? "LIVE" : "UPCOMING";
-
-  const top3 = competition.participants.slice(0, 3);
 
   return (
     <div
@@ -88,30 +84,20 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
       <div style={{ width: "100%", height: 2, background: "linear-gradient(to right, #c6a44b, transparent)" }} />
 
       {/* Title + metric */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <div style={{ fontSize: 58, color: "#f5f0e8", lineHeight: 1 }}>{competition.title}</div>
-        <div style={{ fontSize: 22, color: "#8a7d65", textTransform: "uppercase", letterSpacing: 2 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, justifyContent: "center" }}>
+        <div style={{ fontSize: 64, color: "#f5f0e8", lineHeight: 1 }}>{competition.title}</div>
+        <div style={{ fontSize: 24, color: "#8a7d65", textTransform: "uppercase", letterSpacing: 2 }}>
           {competition.metric.replace(/_/g, " ")}
+        </div>
+        <div style={{ fontSize: 22, color: "#6b6452" }}>
+          {`${competition.participantCount} participant${competition.participantCount !== 1 ? "s" : ""}`}
         </div>
       </div>
 
-      {/* Participants */}
-      {top3.length > 0 && (
-        <div style={{ display: "flex", gap: 56 }}>
-          {top3.map((p, i) => (
-            <div key={p.rsn} style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-              <span style={{ fontSize: 28 }}>{MEDALS[i]}</span>
-              <span style={{ fontSize: 28, color: "#f5f0e8" }}>{p.rsn}</span>
-              <span style={{ fontSize: 22, color: "#8a7d65" }}>{p.gained.toLocaleString()}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Footer */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontSize: 20, color: "#6b6452" }}>{timeLabel}</div>
-        <div style={{ fontSize: 18, color: "#6b6452" }}>ironfoundry.cc</div>
+        <div style={{ fontSize: 22, color: "#8a7d65" }}>{timeLabel}</div>
+        <div style={{ fontSize: 18, color: "#4a4035" }}>ironfoundry.cc</div>
       </div>
     </div>
   );

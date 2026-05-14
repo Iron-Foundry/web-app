@@ -33,6 +33,10 @@ export async function serveCompetition(apiUrl: string): Promise<Buffer> {
       all.find((c) => c.status === "ongoing") ??
       all.find((c) => c.status === "upcoming") ??
       null;
+    // Defensive: ensure required fields exist (API returns camelCase)
+    if (competition && (!competition.startsAt || !competition.endsAt)) {
+      competition = null;
+    }
   } catch {
     // fall through to null (renders fallback card)
   }

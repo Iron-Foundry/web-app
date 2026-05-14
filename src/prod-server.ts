@@ -203,7 +203,7 @@ serve({
 
     // --- SPA fallback ---
 
-    const html = baseHtml.replace(/<title>[^<]*<\/title>/, buildOgTags(pathname));
+    const html = baseHtml.replace(/<!--\s*OG:START\s*-->[\s\S]*?<!--\s*OG:END\s*-->/, buildOgTags(pathname));
     return new Response(html, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",

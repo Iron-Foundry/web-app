@@ -22,13 +22,9 @@ export const FIXTURES = {
     title: "Zulrah Kills",
     metric: "zulrah",
     status: "ongoing",
-    starts_at: new Date(Date.now() - 86_400_000).toISOString(),
-    ends_at: new Date(Date.now() + 2.5 * 86_400_000).toISOString(),
-    participants: [
-      { rsn: "Zezima", gained: 1204 },
-      { rsn: "B0aty", gained: 987 },
-      { rsn: "Lynx Titan", gained: 801 },
-    ],
+    startsAt: new Date(Date.now() - 86_400_000).toISOString(),
+    endsAt: new Date(Date.now() + 2.5 * 86_400_000).toISOString(),
+    participantCount: 24,
   } satisfies CompetitionFixture,
 
   competitionUpcoming: {
@@ -36,9 +32,9 @@ export const FIXTURES = {
     title: "Barrows Chests",
     metric: "barrows_chests",
     status: "upcoming",
-    starts_at: new Date(Date.now() + 1.2 * 86_400_000).toISOString(),
-    ends_at: new Date(Date.now() + 8 * 86_400_000).toISOString(),
-    participants: [],
+    startsAt: new Date(Date.now() + 1.2 * 86_400_000).toISOString(),
+    endsAt: new Date(Date.now() + 8 * 86_400_000).toISOString(),
+    participantCount: 0,
   } satisfies CompetitionFixture,
 
   competitionNone: null as CompetitionFixture | null,

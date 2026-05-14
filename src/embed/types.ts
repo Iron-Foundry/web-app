@@ -13,19 +13,14 @@ export interface ClanStats {
   total_clogs: number;
 }
 
-export interface CompetitionParticipant {
-  rsn: string;
-  gained: number;
-}
-
 export interface CompetitionFixture {
   id: number;
   title: string;
   metric: string;
   status: "ongoing" | "upcoming" | "finished";
-  starts_at: string;
-  ends_at: string;
-  participants: CompetitionParticipant[];
+  startsAt: string;
+  endsAt: string;
+  participantCount: number;
 }
 
 export interface PlayerPublic {
