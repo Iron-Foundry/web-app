@@ -28,17 +28,22 @@ export async function serveCompetition(apiUrl: string): Promise<Buffer> {
 
   let competition: CompetitionFixture | null = null;
   try {
-    const all = await fetchJson<CompetitionFixture[]>(`${apiUrl}/clan/competitions`);
+    const [all, metricMap] = await Promise.all([
+      fetchJson<CompetitionFixture[]>(`${apiUrl}/clan/competitions`),
+      fetchJson<Record<string, string[]>>(`${apiUrl}/clan/competitions/metric-map`).catch(() => ({} as Record<string, string[]>)),
+    ]);
     console.log(`[embed] competitions fetched: ${all.length}, statuses: ${[...new Set(all.map(c => c.status))].join(", ")}`);
-    competition =
+    const selected =
       all.find((c) => c.status === "ongoing") ??
       all.find((c) => c.status === "upcoming") ??
       null;
-    if (competition) {
-      console.log(`[embed] selected competition: "${competition.title}" (${competition.status}) startsAt=${competition.startsAt} endsAt=${competition.endsAt}`);
-      if (!competition.startsAt || !competition.endsAt) {
+    if (selected) {
+      console.log(`[embed] selected competition: "${selected.title}" (${selected.status}) startsAt=${selected.startsAt} endsAt=${selected.endsAt}`);
+      if (!selected.startsAt || !selected.endsAt) {
         console.warn(`[embed] competition missing startsAt/endsAt - falling back to null`);
-        competition = null;
+      } else {
+        const metrics = metricMap[String(selected.id)] ?? [selected.metric];
+        competition = { ...selected, metrics };
       }
     } else {
       console.log(`[embed] no ongoing/upcoming competition found`);

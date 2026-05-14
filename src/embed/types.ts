@@ -17,6 +17,7 @@ export interface CompetitionFixture {
   id: number;
   title: string;
   metric: string;
+  metrics: string[];
   status: "ongoing" | "upcoming" | "finished";
   startsAt: string;
   endsAt: string;

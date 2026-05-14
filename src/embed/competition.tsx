@@ -1,3 +1,4 @@
+import { buildMetricTabs, RAID_GROUPS } from "../lib/competitions";
 import type { CompetitionFixture } from "./types";
 
 export interface CompetitionCardProps {
@@ -19,13 +20,13 @@ function GridTexture() {
     <svg
       width="1200"
       height="630"
-      style={{ position: "absolute", top: 0, left: 0, opacity: 0.025 }}
+      style={{ position: "absolute", top: 0, left: 0, opacity: 0.05 }}
     >
       {vLines.map((x) => (
-        <line key={`v${x}`} x1={x} y1={0} x2={x} y2={630} stroke="#c6a44b" strokeWidth={1} />
+        <line key={`v${x}`} x1={x} y1={0} x2={x} y2={630} stroke="#d4b86a" strokeWidth={1} />
       ))}
       {hLines.map((y) => (
-        <line key={`h${y}`} x1={0} y1={y} x2={1200} y2={y} stroke="#c6a44b" strokeWidth={1} />
+        <line key={`h${y}`} x1={0} y1={y} x2={1200} y2={y} stroke="#d4b86a" strokeWidth={1} />
       ))}
     </svg>
   );
@@ -148,18 +149,22 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
       {/* Title + metric */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, justifyContent: "center" }}>
         <div style={{ fontSize: 68, color: "#f5f0e8", lineHeight: 1 }}>{competition.title}</div>
-        <div
-          style={{
-            alignSelf: "flex-start",
-            fontSize: 22,
-            color: "#8a7d65",
-            textTransform: "uppercase",
-            letterSpacing: 2,
-            background: "rgba(255,255,255,0.04)",
-            padding: "3px 10px",
-          }}
-        >
-          {competition.metric.replace(/_/g, " ")}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {buildMetricTabs(competition.metrics).map((tab) => (
+            <div
+              key={tab.kind === "raid" ? tab.groupKey : tab.metric}
+              style={{
+                fontSize: 20,
+                color: "#8a7d65",
+                textTransform: "uppercase",
+                letterSpacing: 2,
+                background: "rgba(255,255,255,0.04)",
+                padding: "3px 10px",
+              }}
+            >
+              {tab.kind === "raid" ? RAID_GROUPS[tab.groupKey]?.label ?? tab.label : tab.label}
+            </div>
+          ))}
         </div>
         {competition.participantCount != null && (
           <div style={{ display: "flex", fontSize: 22, color: "#6b6452" }}>

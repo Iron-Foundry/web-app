@@ -107,12 +107,12 @@ function buildPreviewHtml(): string {
   const cards = [
     ["/embed/clan-stats.png", "Clan Stats (live)"],
     ["/embed/competition.png", "Competition (live)"],
-    ["/embed/competition.png?fixture=upcoming", "Competition - Upcoming"],
-    ["/embed/competition.png?fixture=none", "Competition - None"],
+    ["/embed/_fixtures/competition-upcoming.png", "Competition - Upcoming"],
+    ["/embed/_fixtures/competition-none.png", "Competition - None"],
     ["/embed/member/LD salt.png", "Member (live)"],
-    ["/embed/member/X.png?fixture=opted-out", "Member - Opted Out"],
-    ["/embed/member/X.png?fixture=unlinked", "Member - Unlinked"],
-    ["/embed/member/X.png?fixture=not-found", "Member - Not Found"],
+    ["/embed/_fixtures/member-opted-out.png", "Member - Opted Out"],
+    ["/embed/_fixtures/member-unlinked.png", "Member - Unlinked"],
+    ["/embed/_fixtures/member-not-found.png", "Member - Not Found"],
   ];
 
   const items = cards
@@ -145,8 +145,6 @@ serve({
   async fetch(req) {
     const url = new URL(req.url);
     const { pathname } = url;
-    const fixture = url.searchParams.get("fixture");
-
     // --- Embed image routes ---
 
     if (pathname === "/embed/clan-stats.png") {
@@ -155,29 +153,32 @@ serve({
     }
 
     if (pathname === "/embed/competition.png") {
-      if (fixture === "upcoming") {
-        return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionUpcoming })), 0);
-      }
-      if (fixture === "none") {
-        return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionNone })), 0);
-      }
       const png = await serveCompetition(INTERNAL_API_URL);
       return pngResponse(png, 300);
     }
 
     if (pathname.startsWith("/embed/member/") && pathname.endsWith(".png")) {
       const rsn = decodeURIComponent(pathname.slice("/embed/member/".length, -4));
-      if (fixture === "opted-out") {
-        return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberOptedOut })), 0);
-      }
-      if (fixture === "unlinked") {
-        return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberUnlinked })), 0);
-      }
-      if (fixture === "not-found") {
-        return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberNotFound })), 0);
-      }
       const png = await serveMember(rsn, INTERNAL_API_URL);
       return pngResponse(png, 900);
+    }
+
+    // --- Fixture routes (preview only, never cached by CDN) ---
+
+    if (pathname === "/embed/_fixtures/competition-upcoming.png") {
+      return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionUpcoming })), 0);
+    }
+    if (pathname === "/embed/_fixtures/competition-none.png") {
+      return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionNone })), 0);
+    }
+    if (pathname === "/embed/_fixtures/member-opted-out.png") {
+      return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberOptedOut })), 0);
+    }
+    if (pathname === "/embed/_fixtures/member-unlinked.png") {
+      return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberUnlinked })), 0);
+    }
+    if (pathname === "/embed/_fixtures/member-not-found.png") {
+      return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberNotFound })), 0);
     }
 
     // --- Dev preview page ---

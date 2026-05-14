@@ -20,13 +20,13 @@ function GridTexture() {
     <svg
       width="1200"
       height="630"
-      style={{ position: "absolute", top: 0, left: 0, opacity: 0.025 }}
+      style={{ position: "absolute", top: 0, left: 0, opacity: 0.05 }}
     >
       {vLines.map((x) => (
-        <line key={`v${x}`} x1={x} y1={0} x2={x} y2={630} stroke="#c6a44b" strokeWidth={1} />
+        <line key={`v${x}`} x1={x} y1={0} x2={x} y2={630} stroke="#d4b86a" strokeWidth={1} />
       ))}
       {hLines.map((y) => (
-        <line key={`h${y}`} x1={0} y1={y} x2={1200} y2={y} stroke="#c6a44b" strokeWidth={1} />
+        <line key={`h${y}`} x1={0} y1={y} x2={1200} y2={y} stroke="#d4b86a" strokeWidth={1} />
       ))}
     </svg>
   );

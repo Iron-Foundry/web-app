@@ -21,6 +21,7 @@ export const FIXTURES = {
     id: 1,
     title: "Zulrah Kills",
     metric: "zulrah",
+    metrics: ["zulrah"],
     status: "ongoing",
     startsAt: new Date(Date.now() - 86_400_000).toISOString(),
     endsAt: new Date(Date.now() + 2.5 * 86_400_000).toISOString(),
@@ -29,8 +30,9 @@ export const FIXTURES = {
 
   competitionUpcoming: {
     id: 2,
-    title: "Barrows Chests",
-    metric: "barrows_chests",
+    title: "Botw | Rotw Yama ToB CoX",
+    metric: "theatre_of_blood",
+    metrics: ["theatre_of_blood", "theatre_of_blood_hard_mode", "chambers_of_xeric", "chambers_of_xeric_challenge_mode"],
     status: "upcoming",
     startsAt: new Date(Date.now() + 1.2 * 86_400_000).toISOString(),
     endsAt: new Date(Date.now() + 8 * 86_400_000).toISOString(),
