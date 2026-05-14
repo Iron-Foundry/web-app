@@ -1,5 +1,35 @@
-import { buildMetricTabs, RAID_GROUPS } from "../lib/competitions";
 import type { CompetitionFixture } from "./types";
+
+const RAID_GROUPS: Record<string, { label: string; variants: string[] }> = {
+  chambers_of_xeric: { label: "Chambers of Xeric", variants: ["chambers_of_xeric", "chambers_of_xeric_challenge_mode"] },
+  theatre_of_blood: { label: "Theatre of Blood", variants: ["theatre_of_blood", "theatre_of_blood_hard_mode"] },
+  tombs_of_amascut: { label: "Tombs of Amascut", variants: ["tombs_of_amascut", "tombs_of_amascut_expert_mode"] },
+};
+
+const METRIC_TO_RAID_GROUP: Record<string, string> = Object.fromEntries(
+  Object.entries(RAID_GROUPS).flatMap(([key, { variants }]) => variants.map((v) => [v, key])),
+);
+
+function metricPills(metrics: string[]): string[] {
+  const labels: string[] = [];
+  const seen = new Set<string>();
+  for (const metric of metrics) {
+    if (seen.has(metric)) continue;
+    const groupKey = METRIC_TO_RAID_GROUP[metric];
+    if (groupKey) {
+      const group = RAID_GROUPS[groupKey]!;
+      const present = group.variants.filter((v) => metrics.includes(v));
+      if (present.length >= 2) {
+        present.forEach((v) => seen.add(v));
+        labels.push(group.label);
+        continue;
+      }
+    }
+    seen.add(metric);
+    labels.push(metric.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()));
+  }
+  return labels;
+}
 
 export interface CompetitionCardProps {
   competition: CompetitionFixture | null;
@@ -149,10 +179,10 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
       {/* Title + metric */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, justifyContent: "center" }}>
         <div style={{ fontSize: 68, color: "#f5f0e8", lineHeight: 1 }}>{competition.title}</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {buildMetricTabs(competition.metrics).map((tab) => (
+        <div style={{ display: "flex", gap: 8 }}>
+          {metricPills(competition.metrics).map((label) => (
             <div
-              key={tab.kind === "raid" ? tab.groupKey : tab.metric}
+              key={label}
               style={{
                 fontSize: 20,
                 color: "#8a7d65",
@@ -162,7 +192,7 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
                 padding: "3px 10px",
               }}
             >
-              {tab.kind === "raid" ? RAID_GROUPS[tab.groupKey]?.label ?? tab.label : tab.label}
+              {label}
             </div>
           ))}
         </div>
