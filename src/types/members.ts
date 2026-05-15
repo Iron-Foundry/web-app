@@ -30,6 +30,13 @@ export interface WomStatsResponse {
   toa_kc: number;
 }
 
+export interface MeStats {
+  collection_log_slots: number;
+  collection_log_slots_max: number;
+  total_loot_value: number;
+  rank_tier: string | null;
+}
+
 export type AchievementType = "drop" | "level" | "xp_milestone";
 
 export interface Achievement {

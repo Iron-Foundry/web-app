@@ -187,7 +187,7 @@ function ViewAsBanner() {
 
 function MembersShell({ user }: { user: AuthUser }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { setHasSidebar } = useLayout();
+  const { setHasSidebar, hasNestedLayout } = useLayout();
 
   useEffect(() => {
     setHasSidebar(true);
@@ -243,10 +243,16 @@ function MembersShell({ user }: { user: AuthUser }) {
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <ViewAsBanner />
         <div className="flex flex-col flex-1 min-h-0 overflow-auto">
-          <div className="flex flex-col flex-1 px-6 pt-6 pb-6">
+          {hasNestedLayout ? (
             <Outlet />
-          </div>
-          <Footer />
+          ) : (
+            <>
+              <div className="flex flex-col flex-1 px-6 pt-6 pb-6">
+                <Outlet />
+              </div>
+              <Footer />
+            </>
+          )}
         </div>
       </div>
     </div>

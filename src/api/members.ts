@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { PlayerBadge, FeedItem, NameChange, WomStatsResponse, Achievement } from "@/types/members";
+import type { PlayerBadge, FeedItem, MeStats, NameChange, WomStatsResponse, Achievement } from "@/types/members";
 import type { Competition } from "@/types/competitions";
 
 interface ClanVaultStats {
@@ -16,6 +16,8 @@ export const membersApi = {
   getMyBadges: () => apiFetch<PlayerBadge[]>("/badges/me"),
 
   getFeed: (limit = 50) => apiFetch<FeedItem[]>(`/members/me/feed?limit=${limit}`),
+
+  getMeStats: () => apiFetch<MeStats>("/members/me/stats"),
 
   getNameChanges: () => apiFetch<NameChange[]>("/clan/name-changes"),
 

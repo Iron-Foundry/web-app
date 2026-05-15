@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { highestRoleDisplay, getDisplayRank } from "@/lib/ranks";
 import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
-import { useMyBadges, useMyFeed, useNameChanges, useDashboardCompetitions } from "@/hooks/useMemberDashboard";
+import { useMyBadges, useMyFeed, useNameChanges, useDashboardCompetitions, useMeStats } from "@/hooks/useMemberDashboard";
 import { MemberDashboardSkeleton } from "@/components/skeletons/MemberDashboardSkeleton";
 import {
   Gem, TrendingUp, Zap, ScrollText, Map, Swords,
@@ -130,6 +130,7 @@ function DashboardPage() {
   const { hasPermission } = usePermissions();
   const { data: playerBadges = [] } = useMyBadges(user?.discord_user_id);
   const { data: feed = [], isLoading: feedLoading } = useMyFeed(user?.rsn);
+  const { data: meStats } = useMeStats(user?.rsn);
   const { data: nameChanges = [], isLoading: nameChangesLoading } = useNameChanges();
   const { data: competitions = [], isLoading: compsLoading } = useDashboardCompetitions();
 
@@ -210,6 +211,33 @@ function DashboardPage() {
                 <span className="text-foreground">{highestRoleDisplay(user.effective_roles, user.role_labels)}</span>
               </div>
             )}
+            {meStats && (
+              <>
+                {meStats.rank_tier && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Rank tier</span>
+                    <span className="text-foreground">{meStats.rank_tier}</span>
+                  </div>
+                )}
+                {meStats.collection_log_slots > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Collection log</span>
+                    <span className="text-foreground">
+                      {meStats.collection_log_slots.toLocaleString()}
+                      {meStats.collection_log_slots_max > 0 && (
+                        <span className="text-muted-foreground"> / {meStats.collection_log_slots_max.toLocaleString()}</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+                {meStats.total_loot_value > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Personal loot</span>
+                    <span className="text-foreground">{formatGp(meStats.total_loot_value)}</span>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           <Separator />
@@ -243,12 +271,11 @@ function DashboardPage() {
       </Card>
 
       {/* Activity Feed - 5 cols, 2 rows tall, scrolls internally */}
-      <Card className="lg:col-span-5 lg:row-span-2">
+      <Card className="lg:col-span-5 lg:row-span-2 flex flex-col">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary">Your Activity Feed</CardTitle>
         </CardHeader>
-        {/* 480px = 15 × 32px rows (py-1.5 + text-sm), always lands between rows */}
-        <CardContent className="p-0 overflow-y-auto max-h-120">
+        <CardContent className="p-0 flex-1 min-h-0 overflow-y-auto">
           {!user.rsn
             ? <p className="px-4 py-6 text-sm text-muted-foreground">
                 Link your RSN in{" "}
@@ -269,9 +296,9 @@ function DashboardPage() {
                     <li key={i} className="flex items-center gap-3 px-4 py-1.5">
                       <FeedIcon type={item.type} label={item.label} Fallback={Icon}
                         className={`h-4 w-4 shrink-0 ${meta.color}`} />
+                      <Badge variant="secondary" className="shrink-0 text-xs w-24 justify-center">{meta.badge}</Badge>
                       <span className="text-sm font-medium text-foreground truncate flex-1 min-w-0">{item.label}</span>
                       {item.detail && <span className="text-xs text-muted-foreground shrink-0">{item.detail}</span>}
-                      <Badge variant="secondary" className="shrink-0 text-xs">{meta.badge}</Badge>
                       {value && <span className={`shrink-0 font-rs-bold text-sm ${meta.color}`}>{value}</span>}
                       <span className="shrink-0 text-xs text-muted-foreground w-14 text-right">{timeAgo(item.timestamp)}</span>
                     </li>

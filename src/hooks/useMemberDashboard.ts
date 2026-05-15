@@ -14,9 +14,18 @@ export function useMyBadges(userId: string | undefined) {
 export function useMyFeed(rsn: string | null | undefined) {
   return useQuery({
     queryKey: queryKeys.members.feed(),
-    queryFn: () => membersApi.getFeed(50),
+    queryFn: () => membersApi.getFeed(250),
     enabled: !!rsn,
     staleTime: 1000 * 60 * 2,
+  });
+}
+
+export function useMeStats(rsn: string | null | undefined) {
+  return useQuery({
+    queryKey: queryKeys.members.stats(),
+    queryFn: membersApi.getMeStats,
+    enabled: !!rsn,
+    staleTime: 1000 * 60 * 5,
   });
 }
 

@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { Footer } from "@/components/layout/Footer";
 import { useLayout } from "@/context/LayoutContext";
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Menu, Pencil, Plus, Trash2, X } from "lucide-react";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
@@ -691,7 +690,7 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   const { user } = useAuth();
   const { hasPermission } = usePermissions();
   const effectiveRoles = user?.effective_roles ?? [];
-  const { setHasSidebar } = useLayout();
+  const { setHasSidebar, setHasNestedLayout } = useLayout();
 
   const canCreate = hasPermission(pageId, "create", effectiveRoles);
   const canEdit = hasPermission(pageId, "edit", effectiveRoles);
@@ -703,8 +702,12 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
 
   useEffect(() => {
     setHasSidebar(true);
-    return () => setHasSidebar(false);
-  }, [setHasSidebar]);
+    setHasNestedLayout(true);
+    return () => {
+      setHasSidebar(false);
+      setHasNestedLayout(false);
+    };
+  }, [setHasSidebar, setHasNestedLayout]);
 
   useEffect(() => {
     apiFetch<CategoryTree[]>(`/content/${pageType}/categories`)
@@ -757,7 +760,6 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
           <div className="flex flex-col flex-1 px-6 pt-6 pb-6">
             <Outlet />
           </div>
-          <Footer />
         </div>
       </div>
     </ContentContext.Provider>

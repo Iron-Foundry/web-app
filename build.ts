@@ -130,7 +130,7 @@ const result = await Bun.build({
   target: "browser",
   sourcemap: "none",
   publicPath: "/",
-  conditions: ["browser", "module"],
+  conditions: ["browser", "import", "module"],
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
   },

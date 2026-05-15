@@ -29,6 +29,7 @@ export const queryKeys = {
   members: {
     badges: () => ["members", "badges"] as const,
     feed: () => ["members", "feed"] as const,
+    stats: () => ["members", "stats"] as const,
     nameChanges: () => ["members", "name-changes"] as const,
     apiKey: () => ["members", "api-key"] as const,
   },
