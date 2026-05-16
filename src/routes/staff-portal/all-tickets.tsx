@@ -101,13 +101,12 @@ function fmtTime(iso: string) {
 }
 
 function avgResolutionTime(tickets: TicketSummary[]): string {
-  const closed = tickets.filter((t) => t.status === "closed" && t.closed_at);
-  if (!closed.length) return "-";
-  const avgMs =
-    closed.reduce(
-      (sum, t) => sum + (new Date(t.closed_at!).getTime() - new Date(t.created_at).getTime()),
-      0,
-    ) / closed.length;
+  const durations = tickets
+    .filter((t) => t.status === "closed" && t.closed_at)
+    .map((t) => new Date(t.closed_at!).getTime() - new Date(t.created_at).getTime())
+    .filter((ms) => ms > 0);
+  if (!durations.length) return "-";
+  const avgMs = durations.reduce((sum, ms) => sum + ms, 0) / durations.length;
   const hours = avgMs / 3_600_000;
   if (hours >= 48) return `${(hours / 24).toFixed(1)}d`;
   return `${hours.toFixed(1)}h`;
@@ -147,6 +146,7 @@ function buildResolutionData(tickets: TicketSummary[]) {
   for (const t of tickets) {
     if (t.status !== "closed" || !t.closed_at) continue;
     const ms = new Date(t.closed_at).getTime() - new Date(t.created_at).getTime();
+    if (ms <= 0) continue;
     const idx = RESOLUTION_BUCKETS.findIndex((b) => ms <= b.maxMs);
     if (idx >= 0) counts[idx] = (counts[idx] ?? 0) + 1;
   }
