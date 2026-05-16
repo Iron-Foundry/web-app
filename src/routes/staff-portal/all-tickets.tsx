@@ -319,7 +319,6 @@ function StaffAllTicketsPage() {
 
   function openSheet(ticket: TicketSummary) {
     setSelectedTicket(ticket);
-    if (ticket.ticket_type === "sensitive") return;
     if (transcripts.has(ticket.ticket_id)) return;
     setTranscriptLoading(true);
     const token = getAuthToken();
