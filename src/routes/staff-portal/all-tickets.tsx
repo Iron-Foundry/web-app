@@ -235,6 +235,8 @@ function StaffAllTicketsPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "ticket_id", dir: "desc" });
   const [selectedTicket, setSelectedTicket] = useState<TicketSummary | null>(null);
   const [transcripts, setTranscripts] = useState<Map<number, Transcript | null>>(new Map());
@@ -257,15 +259,26 @@ function StaffAllTicketsPage() {
   }, [statusFilter]);
 
   const filtered = useMemo(() => {
+    let result = tickets;
     const q = search.toLowerCase();
-    if (!q) return tickets;
-    return tickets.filter(
-      (t) =>
-        t.creator.display_name.toLowerCase().includes(q) ||
-        t.ticket_type.toLowerCase().includes(q) ||
-        String(t.ticket_id).includes(q),
-    );
-  }, [tickets, search]);
+    if (q) {
+      result = result.filter(
+        (t) =>
+          t.creator.display_name.toLowerCase().includes(q) ||
+          t.ticket_type.toLowerCase().includes(q) ||
+          String(t.ticket_id).includes(q),
+      );
+    }
+    if (dateFrom) {
+      const from = new Date(dateFrom).getTime();
+      result = result.filter((t) => new Date(t.created_at).getTime() >= from);
+    }
+    if (dateTo) {
+      const to = new Date(dateTo).getTime() + 86_400_000 - 1;
+      result = result.filter((t) => new Date(t.created_at).getTime() <= to);
+    }
+    return result;
+  }, [tickets, search, dateFrom, dateTo]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -487,6 +500,22 @@ function StaffAllTicketsPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm"
         />
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">From</span>
+          <Input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-36 text-xs"
+          />
+          <span className="text-xs text-muted-foreground">To</span>
+          <Input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="w-36 text-xs"
+          />
+        </div>
         <div className="flex gap-1">
           {STATUS_OPTIONS.map((s) => (
             <button

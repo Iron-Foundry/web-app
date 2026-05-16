@@ -224,7 +224,7 @@ function StaffMembersPage() {
   useEffect(() => {
     const token = getAuthToken();
     if (!token) { setLoading(false); return; }
-    fetch(`${API_URL}/staff/members`, {
+    fetch(`${API_URL}/staff/members?limit=1000`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json() as Promise<MemberRow[]>)
