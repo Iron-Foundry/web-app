@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
+import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -16,10 +16,10 @@ registerPage({
   defaults: { read: ["Foundry Mentors"], create: [], edit: [], delete: [] },
 });
 
-export const staffIndexRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/staff",
-  component: () => <StaffGuard pageId="staff.home"><StaffOverviewPage /></StaffGuard>,
+export const staffPortalIndexRoute = createRoute({
+  getParentRoute: () => staffPortalLayoutRoute,
+  path: "/",
+  component: () => <StaffGuard pageId="staff.home" redirectTo="/staff-portal"><StaffOverviewPage /></StaffGuard>,
 });
 
 interface Overview {
@@ -86,7 +86,7 @@ function StaffOverviewPage() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {canViewMembers && (
             <Link
-              to="/members/staff/members"
+              to="/staff-portal/members"
               className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ function StaffOverviewPage() {
           )}
           {canViewTickets && (
             <Link
-              to="/members/staff/all-tickets"
+              to="/staff-portal/all-tickets"
               className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -128,7 +128,7 @@ function StaffOverviewPage() {
           )}
           {canViewAssets && (
             <Link
-              to="/members/staff/assets"
+              to="/staff-portal/assets"
               className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -156,7 +156,7 @@ function StaffOverviewPage() {
           )}
           {canViewResources && (
             <Link
-              to="/members/staff/resources"
+              to="/staff-portal/resources"
               className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">

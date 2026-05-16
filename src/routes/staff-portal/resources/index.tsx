@@ -1,14 +1,14 @@
 import { createRoute } from "@tanstack/react-router";
-import { staffResourcesLayoutRoute } from "./_layout";
+import { staffPortalResourcesLayoutRoute } from "./_layout";
 import { ContentIndexPage } from "@/components/content/ContentIndexPage";
 
-export const staffResourcesIndexRoute = createRoute({
-  getParentRoute: () => staffResourcesLayoutRoute,
+export const staffPortalResourcesIndexRoute = createRoute({
+  getParentRoute: () => staffPortalResourcesLayoutRoute,
   path: "/",
-  component: StaffResourcesIndex,
+  component: StaffPortalResourcesIndex,
 });
 
-function StaffResourcesIndex() {
+function StaffPortalResourcesIndex() {
   return (
     <ContentIndexPage description="Internal guides and reference material for staff members." />
   );

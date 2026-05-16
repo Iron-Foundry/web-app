@@ -1,5 +1,5 @@
 import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../../_layout";
+import { staffPortalLayoutRoute } from "../_layout";
 import { registerPage } from "@/lib/permissions";
 import { ContentLayout } from "@/components/content/ContentLayout";
 
@@ -15,19 +15,19 @@ registerPage({
   },
 });
 
-export const staffResourcesLayoutRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/staff/resources",
-  component: StaffResourcesLayout,
+export const staffPortalResourcesLayoutRoute = createRoute({
+  getParentRoute: () => staffPortalLayoutRoute,
+  path: "/resources",
+  component: StaffPortalResourcesLayout,
 });
 
-function StaffResourcesLayout() {
+function StaffPortalResourcesLayout() {
   return (
     <ContentLayout
       pageType="staff_resource"
       pageName="Staff Resources"
       pageId="staff.resources"
-      routeBase="/members/staff/resources"
+      routeBase="/staff-portal/resources"
     />
   );
 }

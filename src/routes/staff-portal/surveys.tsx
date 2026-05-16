@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
+import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { highestRoleDisplay } from "@/lib/ranks";
@@ -20,11 +20,11 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ChevronDown, ChevronRight, Pencil, Plus } from "lucide-react";
-import { TemplateEditorDialog, type TemplateEntry } from "./survey-editor";
+import { TemplateEditorDialog, type TemplateEntry } from "../members/staff/survey-editor";
 
-export const staffSurveysRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/staff/surveys",
+export const staffPortalSurveysRoute = createRoute({
+  getParentRoute: () => staffPortalLayoutRoute,
+  path: "/surveys",
   component: StaffSurveysPage,
 });
 
@@ -48,8 +48,6 @@ interface ResponseEntry {
 }
 
 type CategoryFilter = "all" | "survey" | "application";
-
-// VISIBILITY_OPTIONS is derived dynamically in StaffSurveysPage from pagePermissions
 
 
 function fmtDate(iso: string | null): string {
@@ -391,7 +389,6 @@ function StaffSurveysPage() {
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const isSeniorStaff = hasPermission("staff.surveys", "edit", effectiveRoles);
 
-  // Dynamic visibility options: all role IDs/names appearing in any page-permissions config
   const visibilityOptions = useMemo(() => {
     const roleSet = new Set<string>();
     for (const page of Object.values(pagePermissions)) {

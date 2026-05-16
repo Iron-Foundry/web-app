@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
+import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -90,11 +90,11 @@ function AssetHoverPreview({ asset, x, y }: { asset: Asset; x: number; y: number
   );
 }
 
-export const staffAssetsRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/staff/assets",
+export const staffPortalAssetsRoute = createRoute({
+  getParentRoute: () => staffPortalLayoutRoute,
+  path: "/assets",
   component: () => (
-    <StaffGuard pageId="staff.home">
+    <StaffGuard pageId="staff.assets" redirectTo="/staff-portal">
       <AssetManagerPage />
     </StaffGuard>
   ),

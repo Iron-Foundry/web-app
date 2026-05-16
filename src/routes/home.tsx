@@ -104,9 +104,9 @@ function StatCard({
           style={{ opacity: backdropOpacity }}
         />
       )}
-      <CardContent className="relative flex flex-col items-center justify-center">
+      <CardContent className="relative flex flex-col items-center justify-center py-5">
         <span className="text-2xl font-rs-bold text-primary">{value}</span>
-        <span className="mt-1 text-xs text-muted-foreground">{label}</span>
+        <span className="mt-1 text-2xl font-rs-quill text-foreground/60">{label}</span>
       </CardContent>
     </Card>
   );
@@ -220,12 +220,17 @@ function HomePage() {
       <div className="mx-auto max-w-5xl space-y-10 py-6">
         {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="flex flex-col items-center gap-6 text-center">
-          <img src={bannerLogo} alt="Iron Foundry" className="h-auto w-40" />
-          <div className="space-y-2">
-            <h1 className="font-rs-bold text-6xl text-primary leading-tight">
+          <div className="relative space-y-2">
+            <img
+              src={bannerLogo}
+              alt=""
+              aria-hidden
+              className="pointer-events-none absolute inset-0 mx-auto h-[1600%] w-[1600%] object-contain opacity-15 top-[calc(50%-8px)] -translate-y-1/2 left-1/2 -translate-x-1/2"
+            />
+            <h1 className="relative font-rs-bold text-6xl text-primary leading-tight">
               Iron Foundry
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="relative text-lg text-foreground/60">
               An Ironman focused Mixed PvM Clan
             </p>
           </div>

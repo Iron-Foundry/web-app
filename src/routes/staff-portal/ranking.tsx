@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
-import { membersLayoutRoute } from "../_layout";
+import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,10 @@ registerPage({
   defaults: { read: ["Foundry Mentors"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: [] },
 });
 
-export const staffRankingRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/staff/ranking",
-  component: () => <StaffGuard pageId="staff.ranking"><RankingPage /></StaffGuard>,
+export const staffPortalRankingRoute = createRoute({
+  getParentRoute: () => staffPortalLayoutRoute,
+  path: "/ranking",
+  component: () => <StaffGuard pageId="staff.ranking" redirectTo="/staff-portal"><RankingPage /></StaffGuard>,
 });
 
 // ── Default config (mirrors backend _DEFAULT_CONFIG) ─────────────────────────
@@ -281,7 +281,6 @@ function ResultsTab() {
         </div>
       )}
 
-      {/* Rank distribution bar */}
       {breakdown && (
         <div className="flex gap-1 h-2 rounded-full overflow-hidden">
           {ALL_RANKS.map((r) => {
@@ -297,7 +296,6 @@ function ResultsTab() {
         </div>
       )}
 
-      {/* Rank filter chips */}
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => { setRankFilter(null); setPage(0); }}

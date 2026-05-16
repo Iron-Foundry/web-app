@@ -21,28 +21,40 @@ import { membersLayoutRoute } from "./members/_layout";
 import { membersDashboardRoute } from "./members/index";
 import { membersSettingsRoute } from "./members/settings";
 import { membersTicketsRoute } from "./members/tickets";
-import { staffIndexRoute } from "./members/staff/index";
-import { staffMembersRoute } from "./members/staff/members";
-import { staffAllTicketsRoute } from "./members/staff/all-tickets";
-import { staffSurveysRoute } from "./members/staff/surveys";
 import { staffRankMappingsRoute } from "./members/staff/rank-mappings";
 import { staffPermissionsRoute } from "./members/staff/permissions";
-import { staffBadgesRoute } from "./members/staff/badges";
 import { staffContentRoute } from "./members/staff/content";
-import { staffAssetsRoute } from "./members/staff/assets";
 import { staffCompetitionsRoute } from "./members/staff/competitions";
-import { staffRankingRoute } from "./members/staff/ranking";
-import { staffResourcesLayoutRoute } from "./members/staff/resources/_layout";
-import { staffResourcesIndexRoute } from "./members/staff/resources/index";
-import { staffResourcesEntryRoute } from "./members/staff/resources/$slug";
 import { membersSurveysRoute } from "./members/surveys";
 import { membersApplicationsRoute } from "./members/applications";
 import { surveyDetailRoute } from "./members/surveys.$templateId";
 import { applicationDetailRoute } from "./members/applications.$templateId";
+import { staffPortalLayoutRoute } from "./staff-portal/_layout";
+import { staffPortalIndexRoute } from "./staff-portal/index";
+import { staffPortalMembersRoute } from "./staff-portal/members";
+import { staffPortalAllTicketsRoute } from "./staff-portal/all-tickets";
+import { staffPortalSurveysRoute } from "./staff-portal/surveys";
+import { staffPortalBadgesRoute } from "./staff-portal/badges";
+import { staffPortalAssetsRoute } from "./staff-portal/assets";
+import { staffPortalResourcesLayoutRoute } from "./staff-portal/resources/_layout";
+import { staffPortalResourcesIndexRoute } from "./staff-portal/resources/index";
+import { staffPortalResourcesEntryRoute } from "./staff-portal/resources/$slug";
+import { staffPortalRankingRoute } from "./staff-portal/ranking";
 
-const staffResourcesTree = staffResourcesLayoutRoute.addChildren([
-  staffResourcesIndexRoute,
-  staffResourcesEntryRoute,
+const staffPortalResourcesTree = staffPortalResourcesLayoutRoute.addChildren([
+  staffPortalResourcesIndexRoute,
+  staffPortalResourcesEntryRoute,
+]);
+
+const staffPortalTree = staffPortalLayoutRoute.addChildren([
+  staffPortalIndexRoute,
+  staffPortalMembersRoute,
+  staffPortalAllTicketsRoute,
+  staffPortalSurveysRoute,
+  staffPortalBadgesRoute,
+  staffPortalAssetsRoute,
+  staffPortalResourcesTree,
+  staffPortalRankingRoute,
 ]);
 
 const membersTree = membersLayoutRoute.addChildren([
@@ -53,18 +65,10 @@ const membersTree = membersLayoutRoute.addChildren([
   surveyDetailRoute,
   membersApplicationsRoute,
   applicationDetailRoute,
-  staffIndexRoute,
-  staffMembersRoute,
-  staffAllTicketsRoute,
-  staffSurveysRoute,
   staffRankMappingsRoute,
   staffPermissionsRoute,
-  staffBadgesRoute,
   staffContentRoute,
-  staffAssetsRoute,
   staffCompetitionsRoute,
-  staffRankingRoute,
-  staffResourcesTree,
 ]);
 
 const pluginsTree = pluginsLayoutRoute.addChildren([pluginsIndexRoute, pluginsEntryRoute]);
@@ -86,4 +90,5 @@ export const routeTree = rootRoute.addChildren([
   pluginsTree,
   resourcesTree,
   membersTree,
+  staffPortalTree,
 ]);

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { Footer } from "@/components/layout/Footer";
 import { useLayout } from "@/context/LayoutContext";
-import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, Users, Inbox, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Award, Image, Trophy, BookMarked, BarChart2 } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { useViewAs, useEffectiveRoles } from "@/context/ViewAsContext";
@@ -26,18 +26,15 @@ const NAV_LINKS = [
 ];
 
 const STAFF_NAV = [
-  { to: "/members/staff" as const,                label: "Staff Home",   icon: ShieldCheck,   pageId: "staff.home",         exact: true },
-  { to: "/members/staff/members" as const,        label: "Members",      icon: Users,         pageId: "staff.members",      exact: false },
-  { to: "/members/staff/all-tickets" as const,    label: "All Tickets",  icon: Inbox,         pageId: "staff.all-tickets",  exact: false },
-  { to: "/members/staff/surveys" as const,        label: "Surveys",      icon: ClipboardList, pageId: "staff.surveys",      exact: false },
-  { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings",icon: ArrowRightLeft,pageId: "staff.rank-mappings",exact: false },
-  { to: "/members/staff/permissions" as const,    label: "Permissions",  icon: Lock,          pageId: "staff.permissions",  exact: false },
-  { to: "/members/staff/badges" as const,         label: "Badges",       icon: Award,         pageId: "staff.badges",       exact: false },
-  { to: "/members/staff/assets" as const,         label: "Asset Library",    icon: Image,       pageId: "staff.assets",        exact: false },
-  { to: "/members/staff/competitions" as const,   label: "Competitions",     icon: Trophy,      pageId: "staff.competitions",  exact: false },
-  { to: "/members/staff/ranking" as const,        label: "Ranking",          icon: BarChart2,   pageId: "staff.ranking",       exact: false },
-  { to: "/members/staff/resources" as const,      label: "Staff Resources",  icon: BookMarked,  pageId: "staff.resources",     exact: false },
+  { to: "/members/staff/rank-mappings" as const,  label: "Rank Mappings", icon: ArrowRightLeft, pageId: "staff.rank-mappings", exact: false },
+  { to: "/members/staff/permissions" as const,    label: "Permissions",   icon: Lock,           pageId: "staff.permissions",   exact: false },
+  { to: "/members/staff/competitions" as const,   label: "Competitions",  icon: Trophy,         pageId: "staff.competitions",  exact: false },
 ];
+
+const PORTAL_PAGE_IDS = [
+  "staff.home", "staff.members", "staff.all-tickets",
+  "staff.surveys", "staff.badges", "staff.assets", "staff.resources", "staff.ranking",
+] as const;
 
 function navLinkClass(base?: string) {
   return cn(
@@ -100,6 +97,10 @@ function SidebarNav({ onNavigate, realRoles }: { onNavigate?: () => void; realRo
     hasPermission(pageId, "read", effectiveRoles)
   );
 
+  const hasPortalAccess = PORTAL_PAGE_IDS.some((id) =>
+    hasPermission(id, "read", effectiveRoles)
+  );
+
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* Top nav links */}
@@ -119,11 +120,22 @@ function SidebarNav({ onNavigate, realRoles }: { onNavigate?: () => void; realRo
       </nav>
 
       {/* Staff section */}
-      {visibleStaff.length > 0 && (
+      {(hasPortalAccess || visibleStaff.length > 0) && (
         <div className="px-2 pb-1 shrink-0">
           <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
             Staff
           </p>
+          {hasPortalAccess && (
+            <Link
+              to="/staff-portal"
+              onClick={onNavigate}
+              activeOptions={{ exact: false }}
+              className={navLinkClass()}
+            >
+              <ShieldCheck className="h-4 w-4 shrink-0" />
+              Staff Portal
+            </Link>
+          )}
           {visibleStaff.map(({ to, label, icon: Icon, exact }) => (
             <Link
               key={to}

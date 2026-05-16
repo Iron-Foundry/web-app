@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
+import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { registerPage } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,9 @@ registerPage({
   defaults: { read: ["Foundry Mentors"], create: ["Foundry Mentors"], edit: ["Foundry Mentors"], delete: ["Senior Moderator"] },
 });
 
-export const staffBadgesRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/staff/badges",
+export const staffPortalBadgesRoute = createRoute({
+  getParentRoute: () => staffPortalLayoutRoute,
+  path: "/badges",
   component: BadgesPage,
 });
 

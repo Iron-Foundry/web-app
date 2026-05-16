@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavLinks } from "./NavLinks";
-import { NAV_SECTIONS, MEMBERS_TAB, getSectionForPath } from "@/lib/navigation";
+import { NAV_SECTIONS, MEMBERS_TAB, STAFF_SECTION, getSectionForPath } from "@/lib/navigation";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { usePermissions } from "@/context/PermissionsContext";
+import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { highestRoleDisplay } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
 
@@ -34,13 +36,22 @@ const TAB_CLASS = cn(
   "hover:bg-muted hover:text-foreground",
 );
 
+const STAFF_PAGE_IDS = [
+  "staff.home", "staff.members", "staff.all-tickets",
+  "staff.surveys", "staff.badges", "staff.assets", "staff.resources",
+] as const;
+
 export function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { hasPermission } = usePermissions();
+  const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
   const { pathname } = useLocation();
   const activeTab = getSectionForPath(pathname);
   const navigate = useNavigate();
+
+  const hasStaffAccess = !!user && STAFF_PAGE_IDS.some((id) => hasPermission(id, "read", effectiveRoles));
 
   useEffect(() => {
     if (!user || user.avatar) { setFetchedAvatarUrl(null); return; }
@@ -96,6 +107,19 @@ export function TopNav() {
               >
                 {MEMBERS_TAB.label}
               </Link>
+            )}
+            {hasStaffAccess && (
+              <button
+                onClick={() => navigate({ to: STAFF_SECTION.links[0].to })}
+                className={cn(
+                  TAB_CLASS,
+                  activeTab === STAFF_SECTION.tab
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground",
+                )}
+              >
+                {STAFF_SECTION.label}
+              </button>
             )}
           </nav>
 
@@ -165,6 +189,18 @@ export function TopNav() {
                     >
                       {MEMBERS_TAB.label}
                     </Link>
+                  </div>
+                )}
+                {hasStaffAccess && (
+                  <div>
+                    <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+                      {STAFF_SECTION.label}
+                    </p>
+                    <NavLinks
+                      links={STAFF_SECTION.links}
+                      orientation="vertical"
+                      onNavigate={() => setMobileOpen(false)}
+                    />
                   </div>
                 )}
               </div>

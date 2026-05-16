@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
+import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +17,10 @@ registerPage({
   defaults: { read: ["Moderator"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
 });
 
-export const staffMembersRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/staff/members",
-  component: () => <StaffGuard pageId="staff.members"><StaffMembersPage /></StaffGuard>,
+export const staffPortalMembersRoute = createRoute({
+  getParentRoute: () => staffPortalLayoutRoute,
+  path: "/members",
+  component: () => <StaffGuard pageId="staff.members" redirectTo="/staff-portal"><StaffMembersPage /></StaffGuard>,
 });
 
 interface MemberRow {
