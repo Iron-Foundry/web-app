@@ -3,7 +3,7 @@ import { createRoute } from "@tanstack/react-router";
 import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
-import { highestRoleDisplay } from "@/lib/ranks";
+import { highestRole, highestRoleDisplay, DISCORD_ROLE_ORDER } from "@/lib/ranks";
 import { registerPage } from "@/lib/permissions";
 import { usePermissions } from "@/context/PermissionsContext";
 
@@ -199,8 +199,16 @@ function TemplateCard({
     onOpenChange(entry.template_id, next);
   }
 
+  const CLAN_RANK_SET = new Set(DISCORD_ROLE_ORDER.filter((r) => r !== "Guest"));
+
   const presentRanks = responses
-    ? Array.from(new Set(responses.map((r) => r.discord_roles?.[0] ?? "unknown").filter(Boolean)))
+    ? Array.from(
+        new Set(
+          responses
+            .map((r) => highestRole(r.discord_roles ?? []))
+            .filter((r): r is string => r !== null && CLAN_RANK_SET.has(r))
+        )
+      )
     : [];
 
   const filteredResponses =
@@ -208,7 +216,7 @@ function TemplateCard({
       ? []
       : rankFilter === "all"
         ? responses
-        : responses.filter((r) => (r.discord_roles?.[0] ?? "unknown") === rankFilter);
+        : responses.filter((r) => highestRole(r.discord_roles ?? []) === rankFilter);
 
   return (
     <Card>
