@@ -1,26 +1,22 @@
-import { Link } from "@tanstack/react-router";
-import { useAuth } from "@/context/AuthContext";
+import { Link, useLocation } from "@tanstack/react-router";
+import { NAV_SECTIONS, getSectionForPath } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
-const SUBNAV_LINKS = [
-  { to: "/leaderboards", label: "Leaderboards" },
-  { to: "/bingo", label: "Bingo" },
-  { to: "/plugins", label: "Plugins" },
-  { to: "/resources", label: "Resources & Guides" },
-] as const;
-
 export function SubNav() {
-  const { user, loading } = useAuth();
-  if (loading || !user) return null;
+  const { pathname } = useLocation();
+  const activeTab = getSectionForPath(pathname);
+  const section = NAV_SECTIONS.find((s) => s.tab === activeTab);
+
+  if (!section) return null;
 
   return (
     <nav className="border-b border-border bg-card/60">
       <div className="mx-auto flex h-9 max-w-7xl items-center gap-1 px-4">
-        {SUBNAV_LINKS.map(({ to, label }) => (
+        {section.links.map(({ to, label }) => (
           <Link
             key={to}
             to={to}
-            activeOptions={{ exact: false }}
+            activeOptions={{ exact: to === "/" }}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium text-muted-foreground",
               "transition-colors hover:bg-muted hover:text-foreground",

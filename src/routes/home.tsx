@@ -319,49 +319,35 @@ function HomePage() {
 
         <Separator />
 
-        {/* ── About + Discord ──────────────────────────────────── */}
-        <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            <div className="space-y-3">
-              <h2 className="font-rs-bold text-3xl text-primary">Who we are</h2>
-              <p className="leading-relaxed text-muted-foreground">
-                Iron Foundry is a community of like-minded Ironmen/Ironwomen in
-                Old School Runescape. We pride ourselves on the varying skill
-                levels and progression levels of our players. Our focus is always
-                creating a fun environment for everyone to relax and enjoy their
-                time in-game.
-              </p>
-              <p className="leading-relaxed text-muted-foreground">
-                We have a progression system based on your achievements ingame, a
-                mentorship program to help take any next steps for your account, a
-                dedicated event team, and even just a nice place to bank stand and
-                chat if thats more your style!
-              </p>
-              <p className="leading-relaxed text-muted-foreground">
-                No requirements to join! We have a spot for you even if you are
-                just coming off Tutorial Island or rocking Blorva. If you are
-                looking for community to grow with, learn new skills, and make
-                friends join our ranks!
-              </p>
-            </div>
-            <div className="overflow-hidden rounded-md border border-border">
-              <img
-                src={clanPhoto}
-                alt="Iron Foundry clan photograph"
-                className="h-auto w-full object-cover"
-              />
-            </div>
+        {/* ── About ────────────────────────────────────────────── */}
+        <section className="space-y-6">
+          <div className="space-y-3">
+            <h2 className="font-rs-bold text-3xl text-primary">Who we are</h2>
+            <p className="leading-relaxed text-muted-foreground">
+              Iron Foundry is a community of like-minded Ironmen/Ironwomen in
+              Old School Runescape. We pride ourselves on the varying skill
+              levels and progression levels of our players. Our focus is always
+              creating a fun environment for everyone to relax and enjoy their
+              time in-game.
+            </p>
+            <p className="leading-relaxed text-muted-foreground">
+              We have a progression system based on your achievements ingame, a
+              mentorship program to help take any next steps for your account, a
+              dedicated event team, and even just a nice place to bank stand and
+              chat if thats more your style!
+            </p>
+            <p className="leading-relaxed text-muted-foreground">
+              No requirements to join! We have a spot for you even if you are
+              just coming off Tutorial Island or rocking Blorva. If you are
+              looking for community to grow with, learn new skills, and make
+              friends join our ranks!
+            </p>
           </div>
-
-          <div className="flex flex-col gap-3">
-            <h2 className="font-rs-bold text-3xl text-primary">Jump on Voice!</h2>
-            <iframe
-              src="https://discord.com/widget?id=945052365327839254&theme=dark"
-              width="100%"
-              height="550"
-              frameBorder="0"
-              sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-              className="rounded-sm border border-border"
+          <div className="overflow-hidden rounded-md border border-border">
+            <img
+              src={clanPhoto}
+              alt="Iron Foundry clan photograph"
+              className="h-auto w-full object-cover"
             />
           </div>
         </section>

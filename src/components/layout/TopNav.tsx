@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { Menu, X, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavLinks } from "./NavLinks";
+import { NAV_SECTIONS, MEMBERS_TAB, getSectionForPath } from "@/lib/navigation";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { highestRoleDisplay } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
@@ -28,10 +29,18 @@ function RoleBadge({ roles, roleLabels }: { roles: string[]; roleLabels: Record<
   );
 }
 
+const TAB_CLASS = cn(
+  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+  "hover:bg-muted hover:text-foreground",
+);
+
 export function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
   const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
+  const { pathname } = useLocation();
+  const activeTab = getSectionForPath(pathname);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user || user.avatar) { setFetchedAvatarUrl(null); return; }
@@ -50,7 +59,6 @@ export function TopNav() {
   const avatarUrl = user?.avatar
     ? `https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`
     : fetchedAvatarUrl;
-  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card">
@@ -59,34 +67,53 @@ export function TopNav() {
           Iron Foundry
         </span>
 
+        {/* Desktop nav */}
         <div className="hidden items-center gap-4 md:flex">
-          <NavLinks orientation="horizontal" />
-          {user && (
-            <Link
-              to="/members"
-              className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
-                "transition-colors hover:bg-muted hover:text-foreground",
-                "[&.active]:bg-muted [&.active]:text-primary"
-              )}
-            >
-              Members
-            </Link>
-          )}
+          <nav className="flex items-center gap-1">
+            {NAV_SECTIONS.map((section) => (
+              <button
+                key={section.tab}
+                onClick={() => navigate({ to: section.links[0].to })}
+                className={cn(
+                  TAB_CLASS,
+                  activeTab === section.tab
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground",
+                )}
+              >
+                {section.label}
+              </button>
+            ))}
+            {user && (
+              <Link
+                to={MEMBERS_TAB.to}
+                className={cn(
+                  TAB_CLASS,
+                  activeTab === MEMBERS_TAB.tab
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground",
+                )}
+              >
+                {MEMBERS_TAB.label}
+              </Link>
+            )}
+          </nav>
+
           {user ? (
             <div className="flex items-center gap-2">
               {avatarUrl && (
-                <img
-                  src={avatarUrl}
-                  alt=""
-                  className="h-7 w-7 rounded-full"
-                />
+                <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full" />
               )}
               <div className="flex flex-col items-start leading-none gap-0.5">
                 <span className="text-sm text-foreground">{user.rsn ?? user.username}</span>
                 <RoleBadge roles={user.effective_roles} roleLabels={user.role_labels} />
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate({ to: "/members/settings" })}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => navigate({ to: "/members/settings" })}
+              >
                 <Settings className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="sm" onClick={logout}>
@@ -100,32 +127,48 @@ export function TopNav() {
           )}
         </div>
 
+        {/* Mobile hamburger */}
         <div className="flex items-center md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
-                {mobileOpen ? (
-                  <X className="h-4 w-4" />
-                ) : (
-                  <Menu className="h-4 w-4" />
-                )}
+                {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-56 border-border bg-card pt-12">
-              <NavLinks orientation="vertical" onNavigate={() => setMobileOpen(false)} />
-              {user && (
-                <Link
-                  to="/members"
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "flex w-full rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
-                    "transition-colors hover:bg-muted hover:text-foreground",
-                    "[&.active]:bg-muted [&.active]:text-primary"
-                  )}
-                >
-                  Members
-                </Link>
-              )}
+            <SheetContent side="right" className="w-64 border-border bg-card pt-12 overflow-y-auto">
+              <div className="flex flex-col gap-4">
+                {NAV_SECTIONS.map((section) => (
+                  <div key={section.tab}>
+                    <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+                      {section.label}
+                    </p>
+                    <NavLinks
+                      links={section.links}
+                      orientation="vertical"
+                      onNavigate={() => setMobileOpen(false)}
+                    />
+                  </div>
+                ))}
+                {user && (
+                  <div>
+                    <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+                      Account
+                    </p>
+                    <Link
+                      to={MEMBERS_TAB.to}
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        "flex w-full rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
+                        "transition-colors hover:bg-muted hover:text-foreground",
+                        "[&.active]:bg-muted [&.active]:text-primary",
+                      )}
+                    >
+                      {MEMBERS_TAB.label}
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               <div className="mt-4 border-t border-border pt-4 px-2">
                 {user ? (
                   <div className="space-y-2">
@@ -139,12 +182,21 @@ export function TopNav() {
                       )}
                       <span className="truncate text-sm text-foreground">{user.rsn ?? user.username}</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { logout(); setMobileOpen(false); }}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => { logout(); setMobileOpen(false); }}
+                    >
                       Logout
                     </Button>
                   </div>
                 ) : (
-                  <Button size="sm" className="w-full" onClick={() => { navigate({ to: "/login" }); setMobileOpen(false); }}>
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    onClick={() => { navigate({ to: "/login" }); setMobileOpen(false); }}
+                  >
                     Login
                   </Button>
                 )}

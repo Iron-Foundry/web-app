@@ -1,26 +1,26 @@
 import { Link } from "@tanstack/react-router";
-import { NAV_LINKS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
+interface NavLink {
+  to: string;
+  label: string;
+}
+
 interface NavLinksProps {
+  links: readonly NavLink[];
   orientation?: "horizontal" | "vertical";
   onNavigate?: () => void;
 }
 
-export function NavLinks({
-  orientation = "horizontal",
-  onNavigate,
-}: NavLinksProps) {
+export function NavLinks({ links, orientation = "horizontal", onNavigate }: NavLinksProps) {
   return (
     <nav
       className={cn(
         "flex gap-1",
-        orientation === "vertical"
-          ? "flex-col"
-          : "flex-row items-center"
+        orientation === "vertical" ? "flex-col" : "flex-row items-center",
       )}
     >
-      {NAV_LINKS.map((link) => (
+      {links.map((link) => (
         <Link
           key={link.to}
           to={link.to}
@@ -29,7 +29,7 @@ export function NavLinks({
           className={cn(
             "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
             "transition-colors hover:bg-muted hover:text-foreground",
-            "[&.active]:bg-muted [&.active]:text-primary"
+            "[&.active]:bg-muted [&.active]:text-primary",
           )}
         >
           {link.label}

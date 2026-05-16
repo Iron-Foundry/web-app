@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { NAV_LINKS } from "@/lib/navigation";
+import { NAV_SECTIONS } from "@/lib/navigation";
 
 // ---------------------------------------------------------------------------
 // Primitives
@@ -79,15 +79,15 @@ export function FooterIconButton({
       href={href}
       aria-label={label}
       className={cn(
-        "inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5",
-        "text-sm text-muted-foreground transition-colors",
+        "flex w-full min-w-0 items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5",
+        "text-xs text-muted-foreground transition-colors",
         "hover:border-border/80 hover:bg-muted hover:text-foreground",
         className,
       )}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >
       <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">{icon}</span>
-      <span className="hidden sm:inline">{label}</span>
+      <span className="hidden sm:inline truncate">{label}</span>
     </a>
   );
 }
@@ -149,7 +149,7 @@ export function Footer() {
   return (
     <footer className="w-full border-t border-border bg-card">
       <div className="px-6 py-5">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-5">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-6">
 
           {/* Brand */}
           <div className="flex flex-col gap-2">
@@ -159,12 +159,17 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Navigate */}
-          <div className="flex flex-col gap-2 sm:col-span-2">
+          {/* Navigate — one column per section */}
+          <div className="flex flex-col gap-2 sm:col-span-3">
             <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Navigate</span>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              {NAV_LINKS.map((link) => (
-                <FooterLink key={link.to} to={link.to}>{link.label}</FooterLink>
+            <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+              {NAV_SECTIONS.map((section) => (
+                <div key={section.tab} className="flex flex-col gap-2">
+                  <span className="text-xs font-medium text-muted-foreground/60">{section.label}</span>
+                  {section.links.map((link) => (
+                    <FooterLink key={link.to} to={link.to}>{link.label}</FooterLink>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
@@ -173,6 +178,7 @@ export function Footer() {
           <FooterSection title="Community">
             <FooterLink href="https://discord.gg/ironfoundry" external>Join our Discord</FooterLink>
             <FooterLink href="https://github.com/Iron-Foundry" external>GitHub</FooterLink>
+            <FooterLink href="https://buymeacoffee.com/saltrs" external>Support Server Costs</FooterLink>
           </FooterSection>
 
           {/* Social buttons */}
