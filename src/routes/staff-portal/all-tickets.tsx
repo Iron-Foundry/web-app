@@ -33,7 +33,7 @@ export const staffPortalAllTicketsRoute = createRoute({
 interface TicketSummary {
   ticket_id: number;
   ticket_type: string;
-  status: "open" | "closed" | "archived";
+  status: "open" | "closed";
   created_at: string;
   closed_at: string | null;
   close_reason: string | null;
@@ -107,15 +107,13 @@ function avgResolutionTime(tickets: TicketSummary[]): string {
 }
 
 const STATUS_BADGE: Record<string, string> = {
-  open:     "bg-green-500/15 text-green-600 dark:text-green-400",
-  closed:   "bg-muted text-muted-foreground",
-  archived: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+  open:   "bg-green-500/15 text-green-600 dark:text-green-400",
+  closed: "bg-muted text-muted-foreground",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open:     "hsl(142 71% 45%)",
-  closed:   "hsl(215 16% 47%)",
-  archived: "hsl(217 91% 60%)",
+  open:   "hsl(142 71% 45%)",
+  closed: "hsl(215 16% 47%)",
 };
 
 const TYPE_CHART_CONFIG: ChartConfig = {
@@ -259,10 +257,9 @@ function StaffAllTicketsPage() {
   }), [filtered]);
 
   const statusChartData = useMemo(() => [
-    { name: "Open",     status: "open",     value: filtered.filter((t) => t.status === "open").length },
-    { name: "Closed",   status: "closed",   value: stats.closed },
-    { name: "Archived", status: "archived", value: filtered.filter((t) => t.status === "archived").length },
-  ].filter((d) => d.value > 0), [filtered, stats.closed]);
+    { name: "Open",   status: "open",   value: stats.open },
+    { name: "Closed", status: "closed", value: stats.closed },
+  ].filter((d) => d.value > 0), [stats.open, stats.closed]);
 
   const typeChartData = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -298,7 +295,7 @@ function StaffAllTicketsPage() {
       .finally(() => setTranscriptLoading(false));
   }
 
-  const STATUS_OPTIONS = ["", "open", "closed", "archived"] as const;
+  const STATUS_OPTIONS = ["", "open", "closed"] as const;
 
   const COLUMNS: [SortKey, string][] = [
     ["ticket_id",   "#"],
