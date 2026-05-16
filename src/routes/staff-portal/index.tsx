@@ -70,7 +70,7 @@ function StaffOverviewPage() {
     n !== undefined ? n.toLocaleString() : "-";
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Staff Portal</h1>
         <p className="text-muted-foreground text-sm">Internal tools for Iron Foundry staff.</p>

@@ -192,7 +192,7 @@ function AssetManagerPage() {
   const isVideo = (a: Asset) => a.content_type.startsWith("video/");
 
   return (
-    <div className="space-y-4 max-w-6xl">
+    <div className="w-full max-w-7xl mx-auto space-y-4">
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Asset Library</h1>
         <p className="text-sm text-muted-foreground">

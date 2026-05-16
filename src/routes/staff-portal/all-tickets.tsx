@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import type { ChartConfig } from "@/components/ui/chart";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { Paperclip, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { registerPage } from "@/lib/permissions";
@@ -38,7 +38,7 @@ interface TicketSummary {
   closed_at: string | null;
   close_reason: string | null;
   staff_note: string | null;
-  creator: { id: number; display_name: string; avatar_url: string | null };
+  creator: { id: number; display_name: string; avatar_url: string | null; rsn: string | null };
 }
 
 interface Attachment {
@@ -87,6 +87,13 @@ function fmtDate(iso: string) {
   });
 }
 
+function fmtDateTime(iso: string) {
+  return new Date(iso).toLocaleString(undefined, {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString(undefined, {
     hour: "2-digit", minute: "2-digit",
@@ -119,6 +126,32 @@ const STATUS_COLORS: Record<string, string> = {
 const TYPE_CHART_CONFIG: ChartConfig = {
   count: { label: "Tickets", color: "var(--primary)" },
 };
+
+const RESOLUTION_CHART_CONFIG: ChartConfig = {
+  count: { label: "Tickets", color: "var(--primary)" },
+};
+
+const RESOLUTION_BUCKETS: { label: string; maxMs: number }[] = [
+  { label: "≤10m",  maxMs: 10 * 60_000 },
+  { label: "≤30m",  maxMs: 30 * 60_000 },
+  { label: "≤1h",   maxMs:  1 * 3_600_000 },
+  { label: "≤3h",   maxMs:  3 * 3_600_000 },
+  { label: "≤6h",   maxMs:  6 * 3_600_000 },
+  { label: "≤12h",  maxMs: 12 * 3_600_000 },
+  { label: "≤24h",  maxMs: 24 * 3_600_000 },
+  { label: ">24h",  maxMs: Infinity },
+];
+
+function buildResolutionData(tickets: TicketSummary[]) {
+  const counts = new Array<number>(RESOLUTION_BUCKETS.length).fill(0);
+  for (const t of tickets) {
+    if (t.status !== "closed" || !t.closed_at) continue;
+    const ms = new Date(t.closed_at).getTime() - new Date(t.created_at).getTime();
+    const idx = RESOLUTION_BUCKETS.findIndex((b) => ms <= b.maxMs);
+    if (idx >= 0) counts[idx] = (counts[idx] ?? 0) + 1;
+  }
+  return RESOLUTION_BUCKETS.map((b, i) => ({ bucket: b.label, count: counts[i] }));
+}
 
 
 
@@ -273,6 +306,9 @@ function StaffAllTicketsPage() {
       .slice(0, 8);
   }, [filtered]);
 
+  const resolutionChartData = useMemo(() => buildResolutionData(filtered), [filtered]);
+  const hasResolutionData = resolutionChartData.some((d) => (d.count ?? 0) > 0);
+
   function toggleSort(key: SortKey) {
     setSort((prev) =>
       prev.key === key
@@ -311,7 +347,7 @@ function StaffAllTicketsPage() {
     : null;
 
   return (
-    <div className="max-w-6xl space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">All Tickets</h1>
         <p className="text-muted-foreground text-sm">
@@ -350,7 +386,7 @@ function StaffAllTicketsPage() {
 
       {/* Charts */}
       {!loading && filtered.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">By Status</CardTitle>
@@ -420,6 +456,25 @@ function StaffAllTicketsPage() {
               </ChartContainer>
             </CardContent>
           </Card>
+
+          {hasResolutionData && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Resolved In</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={RESOLUTION_CHART_CONFIG} className="h-44 w-full">
+                  <BarChart data={resolutionChartData} margin={{ top: 0, right: 8, bottom: 0, left: -16 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="bucket" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 
@@ -484,18 +539,32 @@ function StaffAllTicketsPage() {
                       #{String(ticket.ticket_id).padStart(4, "0")}
                     </span>
                   </TableCell>
-                  <TableCell className="text-sm">{fmtType(ticket.ticket_type)}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {ticket.creator.display_name}
+                  <TableCell>
+                    <div className="text-sm">{fmtType(ticket.ticket_type)}</div>
+                    {ticket.staff_note && (
+                      <div className="text-xs text-yellow-600 dark:text-yellow-400 truncate max-w-48" title={ticket.staff_note}>
+                        {ticket.staff_note}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {ticket.creator.rsn ? (
+                      <>
+                        <div className="text-sm font-medium">{ticket.creator.rsn}</div>
+                        <div className="text-xs text-muted-foreground">{ticket.creator.display_name}</div>
+                      </>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">{ticket.creator.display_name}</div>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge className={cn("text-xs border-0", STATUS_BADGE[ticket.status] ?? STATUS_BADGE.closed)}>
                       {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">{fmtDate(ticket.created_at)}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{fmtDateTime(ticket.created_at)}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {ticket.closed_at ? fmtDate(ticket.closed_at) : "-"}
+                    {ticket.closed_at ? fmtDateTime(ticket.closed_at) : "-"}
                   </TableCell>
                 </TableRow>
               ))}
@@ -520,16 +589,29 @@ function StaffAllTicketsPage() {
                   <Badge className={cn("text-xs border-0", STATUS_BADGE[selectedTicket.status] ?? STATUS_BADGE.closed)}>
                     {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">{selectedTicket.creator.display_name}</span>
+                  {selectedTicket.creator.rsn ? (
+                    <>
+                      <span className="text-xs font-medium text-foreground">{selectedTicket.creator.rsn}</span>
+                      <span className="text-xs text-muted-foreground">({selectedTicket.creator.display_name})</span>
+                    </>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">{selectedTicket.creator.display_name}</span>
+                  )}
                   <span className="text-xs text-muted-foreground">·</span>
-                  <span className="text-xs text-muted-foreground">{fmtDate(selectedTicket.created_at)}</span>
+                  <span className="text-xs text-muted-foreground">{fmtDateTime(selectedTicket.created_at)}</span>
                   {selectedTicket.closed_at && (
                     <>
                       <span className="text-xs text-muted-foreground">→</span>
-                      <span className="text-xs text-muted-foreground">{fmtDate(selectedTicket.closed_at)}</span>
+                      <span className="text-xs text-muted-foreground">{fmtDateTime(selectedTicket.closed_at)}</span>
                     </>
                   )}
                 </div>
+                {selectedTicket.staff_note && (
+                  <p className="text-xs mt-1 bg-yellow-500/10 rounded px-2 py-1 text-yellow-600 dark:text-yellow-400">
+                    <span className="font-medium">Note:</span>{" "}
+                    {selectedTicket.staff_note}
+                  </p>
+                )}
                 {selectedTicket.close_reason && (
                   <p className="text-xs text-muted-foreground mt-1">
                     <span className="font-medium text-foreground">Close reason:</span>{" "}

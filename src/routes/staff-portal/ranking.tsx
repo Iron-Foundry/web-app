@@ -690,7 +690,7 @@ function ConfigTab() {
 
 function RankingPage() {
   return (
-    <div className="space-y-4">
+    <div className="w-full max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Ranking</h1>

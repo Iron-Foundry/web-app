@@ -263,7 +263,7 @@ function StaffMembersPage() {
   }
 
   return (
-    <div className="max-w-6xl space-y-4">
+    <div className="w-full max-w-7xl mx-auto space-y-4">
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Member List</h1>
         <p className="text-muted-foreground text-sm">{members.length} registered accounts</p>
