@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { Footer } from "@/components/layout/Footer";
-import { ReferralModal } from "@/components/layout/ReferralModal";
 import { useLayout } from "@/context/LayoutContext";
 import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy } from "lucide-react";
 import { rootRoute } from "../__root";
@@ -292,10 +291,5 @@ function MembersLayout() {
 
   if (!user) return null;
 
-  return (
-    <>
-      <ReferralModal />
-      <MembersShell user={user} />
-    </>
-  );
+  return <MembersShell user={user} />;
 }

@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { LayoutProvider } from "@/context/LayoutContext";
 import { LinkRsnModal } from "@/components/layout/LinkRsnModal";
+import { ReferralModal } from "@/components/layout/ReferralModal";
 import { AuthProvider } from "@/context/AuthContext";
 import { PermissionsProvider } from "@/context/PermissionsContext";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
@@ -49,6 +50,7 @@ function Root() {
                 </RootLayout>
               </LayoutProvider>
               <LinkRsnModal />
+              <ReferralModal />
               <ReactQueryDevtools initialIsOpen={false} />
             </PermissionsProvider>
           </ViewAsProvider>

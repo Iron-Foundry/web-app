@@ -120,15 +120,17 @@ export function ReferralModal() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const open = !!user && user.referral_source === null;
+  const shouldShow = !!user && !!user.rsn && user.referral_source == null;
 
-  useEffect(() => {
-    if (!open) {
+useEffect(() => {
+    if (!shouldShow) {
       setSelected(null);
       setDetail("");
       setError(null);
     }
-  }, [open]);
+  }, [shouldShow]);
+
+  if (!shouldShow) return null;
 
   async function handleSubmit() {
     if (!selected) return;
@@ -166,7 +168,7 @@ export function ReferralModal() {
     !!selected && (!needsDetail || !!detail.trim()) && !saving;
 
   return (
-    <Dialog open={open}>
+    <Dialog open>
       <DialogContent
         showCloseButton={false}
         onInteractOutside={(e) => e.preventDefault()}
