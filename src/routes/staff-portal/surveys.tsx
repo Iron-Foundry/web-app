@@ -387,7 +387,7 @@ function TemplateCard({
 
 function StaffSurveysPage() {
   const { user } = useAuth();
-  const { hasPermission, pagePermissions } = usePermissions();
+  const { hasPermission } = usePermissions();
   const [templates, setTemplates] = useState<TemplateEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
@@ -398,18 +398,15 @@ function StaffSurveysPage() {
   const isSeniorStaff = hasPermission("staff.surveys", "edit", effectiveRoles);
 
   const visibilityOptions = useMemo(() => {
-    const roleSet = new Set<string>();
-    for (const page of Object.values(pagePermissions)) {
-      for (const roles of [page.read, page.create, page.edit, page.delete]) {
-        for (const r of roles) roleSet.add(r);
-      }
-    }
     const roleLabels = user?.role_labels ?? {};
-    return Array.from(roleSet).map((id) => ({
-      value: id,
-      label: roleLabels[id] ?? id,
-    }));
-  }, [pagePermissions, user?.role_labels]);
+    return Object.entries(roleLabels)
+      .map(([id, label]) => ({ value: id, label }))
+      .sort((a, b) => {
+        const ai = DISCORD_ROLE_ORDER.indexOf(a.label as (typeof DISCORD_ROLE_ORDER)[number]);
+        const bi = DISCORD_ROLE_ORDER.indexOf(b.label as (typeof DISCORD_ROLE_ORDER)[number]);
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      });
+  }, [user?.role_labels]);
 
   useEffect(() => {
     Promise.all([

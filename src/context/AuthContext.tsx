@@ -55,6 +55,7 @@ async function fetchMe(token: string): Promise<AuthUser | null> {
     role_labels: data.role_labels ?? {},
     stats_opt_out: data.stats_opt_out ?? false,
     hide_presence_notifications: data.hide_presence_notifications ?? false,
+    referral_source: data.referral_source ?? null,
   };
 }
 

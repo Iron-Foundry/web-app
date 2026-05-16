@@ -1,3 +1,11 @@
+export type ReferralSource =
+  | "reddit"
+  | "osrs_discord"
+  | "website"
+  | "recruited_by"
+  | "instagram"
+  | "other";
+
 export interface AuthUser {
   discord_user_id: string;
   username: string;
@@ -11,4 +19,5 @@ export interface AuthUser {
   role_labels: Record<string, string>;
   stats_opt_out: boolean;
   hide_presence_notifications: boolean;
+  referral_source: ReferralSource | null;
 }
