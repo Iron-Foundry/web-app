@@ -319,6 +319,7 @@ function StaffAllTicketsPage() {
 
   function openSheet(ticket: TicketSummary) {
     setSelectedTicket(ticket);
+    if (ticket.ticket_type === "sensitive") return;
     if (transcripts.has(ticket.ticket_id)) return;
     setTranscriptLoading(true);
     const token = getAuthToken();
@@ -435,7 +436,7 @@ function StaffAllTicketsPage() {
               <CardTitle className="text-sm font-medium">By Type</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={TYPE_CHART_CONFIG} className="h-44 w-full">
+              <ChartContainer config={TYPE_CHART_CONFIG} className="w-full" style={{ height: Math.max(120, typeChartData.length * 32) }}>
                 <BarChart
                   data={typeChartData}
                   layout="vertical"
@@ -449,6 +450,7 @@ function StaffAllTicketsPage() {
                     width={110}
                     axisLine={false}
                     tickLine={false}
+                    interval={0}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="count" fill="var(--color-count)" radius={[0, 4, 4, 0]} />
@@ -541,7 +543,7 @@ function StaffAllTicketsPage() {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">{fmtType(ticket.ticket_type)}</div>
-                    {ticket.staff_note && (
+                    {ticket.staff_note && ticket.ticket_type !== "sensitive" && (
                       <div className="text-xs text-yellow-600 dark:text-yellow-400 truncate max-w-48" title={ticket.staff_note}>
                         {ticket.staff_note}
                       </div>
@@ -606,20 +608,22 @@ function StaffAllTicketsPage() {
                     </>
                   )}
                 </div>
-                {selectedTicket.staff_note && (
+                {selectedTicket.staff_note && selectedTicket.ticket_type !== "sensitive" && (
                   <p className="text-xs mt-1 bg-yellow-500/10 rounded px-2 py-1 text-yellow-600 dark:text-yellow-400">
                     <span className="font-medium">Note:</span>{" "}
                     {selectedTicket.staff_note}
                   </p>
                 )}
-                {selectedTicket.close_reason && (
+                {selectedTicket.close_reason && selectedTicket.ticket_type !== "sensitive" && (
                   <p className="text-xs text-muted-foreground mt-1">
                     <span className="font-medium text-foreground">Close reason:</span>{" "}
                     {selectedTicket.close_reason}
                   </p>
                 )}
               </SheetHeader>
-              {transcriptLoading && !transcripts.has(selectedTicket.ticket_id) ? (
+              {selectedTicket.ticket_type === "sensitive" ? (
+                <p className="px-4 py-3 text-sm text-muted-foreground">Transcript hidden for sensitive tickets.</p>
+              ) : transcriptLoading && !transcripts.has(selectedTicket.ticket_id) ? (
                 <p className="px-4 py-3 text-sm text-muted-foreground">Loading transcript…</p>
               ) : (
                 <TranscriptView transcript={activeTranscript} />
