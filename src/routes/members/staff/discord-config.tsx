@@ -665,7 +665,7 @@ function RolePanelEditor({
   }
 
   return (
-    <div className="border border-border rounded-md overflow-hidden">
+    <div className="border border-border rounded-md">
       <button
         className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors"
         onClick={() => setExpanded((v) => !v)}
@@ -846,7 +846,7 @@ function DiscordConfigPage() {
   if (!pageData) return <p className="text-sm text-muted-foreground">Loading...</p>;
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="mx-auto max-w-3xl w-full space-y-6 py-6">
       <div className="space-y-1">
         <h1 className="font-rs-bold text-4xl text-primary">Discord Config</h1>
       </div>

@@ -193,7 +193,7 @@ function PermissionsPage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="mx-auto max-w-3xl w-full space-y-5 py-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold">Page Permissions</h1>
