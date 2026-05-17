@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell, PieChart, Pie, ResponsiveContainer, Legend } from "recharts";
 import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { StaffGuard } from "@/components/StaffGuard";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Ticket, ShieldCheck, BookOpen, Image, Trophy, BookMarked } from "lucide-react";
 import { registerPage } from "@/lib/permissions";
 
@@ -27,6 +28,20 @@ interface Overview {
   open_tickets: number;
   total_tickets: number;
 }
+
+interface SourceEntry { source: string | null; label: string; count: number; }
+interface RecruiterEntry { name: string; count: number; }
+interface ReferralStats { sources: SourceEntry[]; recruiters: RecruiterEntry[]; }
+
+const SOURCE_COLORS: Record<string, string> = {
+  reddit:       "#ff4500",
+  osrs_discord: "#5865f2",
+  website:      "#22c55e",
+  recruited_by: "#f59e0b",
+  instagram:    "#e1306c",
+  other:        "#8b5cf6",
+  Unanswered:   "#6b7280",
+};
 
 function StatCard({ label, value, icon: Icon }: { label: string; value: string; icon: React.ElementType }) {
   return (
@@ -54,15 +69,18 @@ function StaffOverviewPage() {
   const canViewResources    = hasPermission("staff.resources",    "read", effectiveRoles);
 
   const [overview, setOverview] = useState<Overview | null>(null);
+  const [referral, setReferral] = useState<ReferralStats | null>(null);
 
   useEffect(() => {
     const token = getAuthToken();
     if (!token) return;
-    fetch(`${API_URL}/staff/overview`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetch(`${API_URL}/staff/overview`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json() as Promise<Overview>)
       .then(setOverview)
+      .catch(() => {});
+    fetch(`${API_URL}/staff/referral-stats`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json() as Promise<ReferralStats>)
+      .then(setReferral)
       .catch(() => {});
   }, []);
 
@@ -81,6 +99,84 @@ function StaffOverviewPage() {
         <StatCard label="Open Tickets"       value={fmt(overview?.open_tickets)}   icon={Ticket} />
         <StatCard label="Total Tickets"      value={fmt(overview?.total_tickets)}  icon={ShieldCheck} />
       </div>
+
+      {referral && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">How did you find us?</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={referral.sources.map(s => ({ ...s, key: s.source ?? "Unanswered" }))}
+                    dataKey="count"
+                    nameKey="label"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={2}
+                  >
+                    {referral.sources.map((s) => (
+                      <Cell
+                        key={s.source ?? "null"}
+                        fill={SOURCE_COLORS[s.source ?? "Unanswered"] ?? "#6b7280"}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ payload }) => {
+                      const item = payload?.[0];
+                      if (!item) return null;
+                      return (
+                        <div className="rounded-md border border-border bg-popover px-3 py-1.5 text-xs shadow">
+                          <span className="font-medium">{item.name}</span>: {item.value}
+                        </div>
+                      );
+                    }}
+                  />
+                  <Legend
+                    iconType="circle"
+                    iconSize={8}
+                    formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Recruited by</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {referral.recruiters.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-8 text-center">No recruitment data yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={referral.recruiters} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/40" />
+                    <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={90} />
+                    <Tooltip
+                      content={({ payload }) => {
+                        const item = payload?.[0];
+                        if (!item) return null;
+                        return (
+                          <div className="rounded-md border border-border bg-popover px-3 py-1.5 text-xs shadow">
+                            <span className="font-medium">{item.payload.name}</span>: {item.value} recruited
+                          </div>
+                        );
+                      }}
+                    />
+                    <Bar dataKey="count" fill="#f59e0b" radius={[0, 3, 3, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {(canViewMembers || canViewTickets || canViewContent || canViewAssets || canViewCompetitions || canViewResources) && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

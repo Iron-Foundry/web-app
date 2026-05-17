@@ -178,7 +178,7 @@ useEffect(() => {
         <DialogHeader>
           <DialogTitle>How did you find us?</DialogTitle>
           <DialogDescription>
-            Let us know how you discovered the Iron Foundry.
+            Let us know how you discovered Iron Foundry.
           </DialogDescription>
         </DialogHeader>
 
