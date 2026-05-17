@@ -4,6 +4,7 @@ import { Tabs } from "radix-ui";
 import { membersLayoutRoute } from "../_layout";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -14,11 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRef } from "react";
+import { Plus, Trash2, ChevronDown, ChevronRight, SmilePlus } from "lucide-react";
 import { registerPage } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import { discordApi } from "@/api/discord";
 import { configApi } from "@/api/config";
-import type { DiscordRole, DiscordChannelsResponse } from "@/api/discord";
+import type { DiscordRole, DiscordChannelsResponse, GuildEmoji, RolePanel, SelectableRole } from "@/api/discord";
 import type {
   DiscordRolesConfig,
   ActionLogFeatureConfig,
@@ -55,11 +58,13 @@ const tabTrigger = cn(
 interface PageData {
   roles: DiscordRole[];
   channels: DiscordChannelsResponse;
+  guildEmojis: GuildEmoji[];
   discordRoles: DiscordRolesConfig;
   actionLog: ActionLogFeatureConfig;
   broadcast: BroadcastFeatureConfig;
   joinRoles: JoinRolesFeatureConfig;
   partyPanel: PartyPanelFeatureConfig;
+  rolePanels: RolePanel[];
 }
 
 // ── Helper components ─────────────────────────────────────────────────────────
@@ -438,6 +443,353 @@ function FeatureChannelsTab({ data, roles, channels }: { data: PageData; roles: 
   );
 }
 
+// ── Emoji Picker ──────────────────────────────────────────────────────────────
+
+function emojiCdnUrl(emoji: GuildEmoji) {
+  return `https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? "gif" : "png"}`;
+}
+
+function emojiString(emoji: GuildEmoji) {
+  return emoji.animated ? `<a:${emoji.name}:${emoji.id}>` : `<:${emoji.name}:${emoji.id}>`;
+}
+
+function EmojiPicker({
+  value,
+  guildEmojis,
+  onChange,
+}: {
+  value: string | null;
+  guildEmojis: GuildEmoji[];
+  onChange: (val: string | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const filtered = guildEmojis.filter((e) =>
+    search === "" || e.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  function selectEmoji(val: string) {
+    onChange(val);
+    setOpen(false);
+    setSearch("");
+  }
+
+  function clearEmoji() {
+    onChange(null);
+    setOpen(false);
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          "flex items-center gap-1.5 h-8 px-2 rounded-md border text-sm transition-colors",
+          "border-input bg-transparent hover:bg-muted",
+          open && "border-ring ring-ring/50 ring-[3px]",
+        )}
+        title="Pick emoji"
+      >
+        {value ? (
+          value.startsWith("<") ? (
+            // Custom emoji - show image
+            (() => {
+              const match = value.match(/<a?:(\w+):(\d+)>/);
+              const isAnimated = value.startsWith("<a:");
+              return match ? (
+                <img
+                  src={`https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? "gif" : "png"}`}
+                  alt={match[1]}
+                  className="h-4 w-4 object-contain"
+                />
+              ) : <span className="text-base leading-none">{value}</span>;
+            })()
+          ) : (
+            <span className="text-base leading-none">{value}</span>
+          )
+        ) : (
+          <SmilePlus className="h-4 w-4 text-muted-foreground" />
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-9 z-50 w-72 rounded-md border border-border bg-popover shadow-md">
+          <div className="p-2 border-b border-border space-y-2">
+            <div className="flex items-center gap-2">
+              <Input
+                value={value && !value.startsWith("<") ? value : ""}
+                onChange={(e) => { onChange(e.target.value || null); }}
+                placeholder="Type or paste emoji…"
+                className="h-7 text-sm flex-1"
+                autoFocus
+              />
+              {value && (
+                <button
+                  type="button"
+                  onClick={clearEmoji}
+                  className="text-xs text-muted-foreground hover:text-foreground shrink-0"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            {guildEmojis.length > 0 && (
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search server emojis…"
+                className="h-7 text-sm"
+              />
+            )}
+          </div>
+
+          {guildEmojis.length > 0 && (
+            <div className="p-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Server emojis</p>
+              {filtered.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-1">No matches.</p>
+              ) : (
+                <div className="grid grid-cols-8 gap-1 max-h-48 overflow-y-auto">
+                  {filtered.map((e) => (
+                    <button
+                      key={e.id}
+                      type="button"
+                      title={e.name}
+                      onClick={() => selectEmoji(emojiString(e))}
+                      className={cn(
+                        "flex items-center justify-center rounded p-0.5 hover:bg-muted transition-colors",
+                        value === emojiString(e) && "bg-muted ring-1 ring-primary",
+                      )}
+                    >
+                      <img src={emojiCdnUrl(e)} alt={e.name} className="h-6 w-6 object-contain" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Role Panels Tab ───────────────────────────────────────────────────────────
+
+function RolePanelEditor({
+  panel,
+  roles,
+  guildEmojis,
+  onSaved,
+  onDeleted,
+}: {
+  panel: RolePanel;
+  roles: DiscordRole[];
+  guildEmojis: GuildEmoji[];
+  onSaved: (updated: RolePanel) => void;
+  onDeleted: (panelId: string) => void;
+}) {
+  const [title, setTitle] = useState(panel.title);
+  const [description, setDescription] = useState(panel.description);
+  const [maxSelectable, setMaxSelectable] = useState<string>(
+    panel.max_selectable != null ? String(panel.max_selectable) : ""
+  );
+  const [panelRoles, setPanelRoles] = useState<SelectableRole[]>(panel.roles);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  function markDirty() { setDirty(true); setSaved(false); }
+
+  function updateRole(idx: number, field: keyof SelectableRole, val: string | null) {
+    setPanelRoles((prev) => prev.map((r, i) => i === idx ? { ...r, [field]: val } : r));
+    markDirty();
+  }
+
+  function addRole() {
+    setPanelRoles((prev) => [...prev, { role_id: "", label: "", description: "", emoji: null }]);
+    markDirty();
+  }
+
+  function removeRole(idx: number) {
+    setPanelRoles((prev) => prev.filter((_, i) => i !== idx));
+    markDirty();
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await discordApi.updateRolePanel(panel.panel_id, {
+        title,
+        description,
+        max_selectable: maxSelectable !== "" ? parseInt(maxSelectable, 10) : null,
+        roles: panelRoles,
+      });
+      setDirty(false);
+      setSaved(true);
+      onSaved(updated);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Save failed.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirm(`Delete panel "${title}"? The Discord message will become orphaned.`)) return;
+    setDeleting(true);
+    try {
+      await discordApi.deleteRolePanel(panel.panel_id);
+      onDeleted(panel.panel_id);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Delete failed.");
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <div className="border border-border rounded-md overflow-hidden">
+      <button
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <div className="flex items-center gap-2">
+          {expanded ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+          <span className="text-sm font-medium">{title || "(untitled)"}</span>
+          <span className="text-xs text-muted-foreground font-mono">{panel.channel_id}</span>
+        </div>
+        <span className="text-xs text-muted-foreground">{panelRoles.length} role{panelRoles.length !== 1 ? "s" : ""}</span>
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 space-y-4 border-t border-border">
+          <div className="grid grid-cols-[10rem_1fr] gap-x-4 gap-y-3 items-center max-w-lg pt-4">
+            <label className="text-sm font-medium">Title</label>
+            <Input value={title} onChange={(e) => { setTitle(e.target.value); markDirty(); }} className="h-8 text-sm" />
+
+            <label className="text-sm font-medium">Description</label>
+            <Input value={description} onChange={(e) => { setDescription(e.target.value); markDirty(); }} className="h-8 text-sm" placeholder="Optional embed description" />
+
+            <label className="text-sm font-medium">Max selectable</label>
+            <Input
+              type="number"
+              min={1}
+              max={25}
+              value={maxSelectable}
+              onChange={(e) => { setMaxSelectable(e.target.value); markDirty(); }}
+              className="h-8 text-sm w-24"
+              placeholder="No limit"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Roles</p>
+            {panelRoles.length > 0 && (
+              <div className="grid grid-cols-[1fr_1fr_1fr_5rem_2rem] gap-2 px-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Discord Role</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Label</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Description</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Emoji</p>
+                <span />
+              </div>
+            )}
+            <div className="space-y-2">
+              {panelRoles.map((r, i) => (
+                <div key={i} className="grid grid-cols-[1fr_1fr_1fr_5rem_2rem] gap-2 items-center">
+                  <RoleSelect
+                    value={r.role_id}
+                    roles={roles}
+                    onChange={(v) => updateRole(i, "role_id", v)}
+                    placeholder="Select role"
+                  />
+                  <Input value={r.label} onChange={(e) => updateRole(i, "label", e.target.value)} placeholder="Label" className="h-8 text-sm" />
+                  <Input value={r.description} onChange={(e) => updateRole(i, "description", e.target.value)} placeholder="Short description" className="h-8 text-sm" />
+                  <EmojiPicker value={r.emoji} guildEmojis={guildEmojis} onChange={(v) => updateRole(i, "emoji", v)} />
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive" onClick={() => removeRole(i)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            {panelRoles.length === 0 && <p className="text-sm text-muted-foreground">No roles configured.</p>}
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={addRole} disabled={panelRoles.length >= 25}>
+              <Plus className="h-3.5 w-3.5" />Add role
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            After saving, run <code className="bg-muted px-1 rounded">/rolepanel refresh {panel.panel_id}</code> in Discord to sync the embed.
+          </p>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {saved && !dirty && <p className="text-sm text-green-600 dark:text-green-400">Saved.</p>}
+
+          <div className="flex gap-2">
+            <Button onClick={handleSave} disabled={saving || !dirty}>
+              {saving ? "Saving..." : "Save changes"}
+            </Button>
+            <Button variant="outline" size="default" className="text-destructive hover:text-destructive" onClick={handleDelete} disabled={deleting}>
+              {deleting ? "Deleting..." : "Delete panel"}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RolePanelsTab({ initialPanels, roles, guildEmojis }: { initialPanels: RolePanel[]; roles: DiscordRole[]; guildEmojis: GuildEmoji[] }) {
+  const [panels, setPanels] = useState<RolePanel[]>(initialPanels);
+
+  function handleSaved(updated: RolePanel) {
+    setPanels((prev) => prev.map((p) => p.panel_id === updated.panel_id ? updated : p));
+  }
+
+  function handleDeleted(panelId: string) {
+    setPanels((prev) => prev.filter((p) => p.panel_id !== panelId));
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Edit existing role panels. To create a new panel, use <code className="bg-muted px-1 rounded">/rolepanel create</code> in Discord.
+      </p>
+      {panels.length === 0 && (
+        <p className="text-sm text-muted-foreground">No role panels found. Create one with <code className="bg-muted px-1 rounded">/rolepanel create</code>.</p>
+      )}
+      <div className="space-y-2">
+        {panels.map((panel) => (
+          <RolePanelEditor
+            key={panel.panel_id}
+            panel={panel}
+            roles={roles}
+            guildEmojis={guildEmojis}
+            onSaved={handleSaved}
+            onDeleted={handleDeleted}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 const EMPTY_CHANNELS: DiscordChannelsResponse = { categories: [], uncategorized: [] };
@@ -460,12 +812,14 @@ function DiscordConfigPage() {
     Promise.allSettled([
       discordApi.getRoles(),
       discordApi.getChannels(),
+      discordApi.getEmojis(),
       configApi.getDiscordRoles(),
       configApi.getActionLogConfig(),
       configApi.getBroadcastConfig(),
       configApi.getJoinRolesConfig(),
       configApi.getPartyPanelConfig(),
-    ]).then(([rolesRes, channelsRes, discordRoles, actionLog, broadcast, joinRoles, partyPanel]) => {
+      discordApi.listRolePanels(),
+    ]).then(([rolesRes, channelsRes, emojisRes, discordRoles, actionLog, broadcast, joinRoles, partyPanel, rolePanelsRes]) => {
       // Config endpoints are required - fail hard if they reject
       if (discordRoles.status === "rejected" || actionLog.status === "rejected") {
         setError("Failed to load config. Check that the API is running and you have permission.");
@@ -477,11 +831,13 @@ function DiscordConfigPage() {
       setPageData({
         roles: rolesRes.status === "fulfilled" ? rolesRes.value.roles : [],
         channels: unwrap(channelsRes, EMPTY_CHANNELS),
+        guildEmojis: emojisRes.status === "fulfilled" ? emojisRes.value.emojis : [],
         discordRoles: unwrap(discordRoles, EMPTY_DISCORD_ROLES),
         actionLog: unwrap(actionLog, EMPTY_ACTION_LOG),
         broadcast: unwrap(broadcast, EMPTY_BROADCAST),
         joinRoles: unwrap(joinRoles, EMPTY_JOIN_ROLES),
         partyPanel: unwrap(partyPanel, EMPTY_PARTY_PANEL),
+        rolePanels: rolePanelsRes.status === "fulfilled" ? rolePanelsRes.value.panels : [],
       });
     });
   }, []);
@@ -504,12 +860,16 @@ function DiscordConfigPage() {
         <Tabs.List className="flex border-b border-border mb-6">
           <Tabs.Trigger value="staff-roles" className={tabTrigger}>Staff Roles</Tabs.Trigger>
           <Tabs.Trigger value="feature-channels" className={tabTrigger}>Feature Channels</Tabs.Trigger>
+          <Tabs.Trigger value="role-panels" className={tabTrigger}>Role Panels</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="staff-roles">
           <StaffRolesTab data={pageData.discordRoles} roles={pageData.roles} />
         </Tabs.Content>
         <Tabs.Content value="feature-channels">
           <FeatureChannelsTab data={pageData} roles={pageData.roles} channels={pageData.channels} />
+        </Tabs.Content>
+        <Tabs.Content value="role-panels">
+          <RolePanelsTab initialPanels={pageData.rolePanels} roles={pageData.roles} guildEmojis={pageData.guildEmojis} />
         </Tabs.Content>
       </Tabs.Root>
     </div>
