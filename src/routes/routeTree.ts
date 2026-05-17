@@ -23,6 +23,7 @@ import { membersSettingsRoute } from "./members/settings";
 import { membersTicketsRoute } from "./members/tickets";
 import { staffRankMappingsRoute } from "./members/staff/rank-mappings";
 import { staffPermissionsRoute } from "./members/staff/permissions";
+import { staffDiscordConfigRoute } from "./members/staff/discord-config";
 import { staffContentRoute } from "./members/staff/content";
 import { staffCompetitionsRoute } from "./members/staff/competitions";
 import { membersSurveysRoute } from "./members/surveys";
@@ -67,6 +68,7 @@ const membersTree = membersLayoutRoute.addChildren([
   applicationDetailRoute,
   staffRankMappingsRoute,
   staffPermissionsRoute,
+  staffDiscordConfigRoute,
   staffContentRoute,
   staffCompetitionsRoute,
 ]);

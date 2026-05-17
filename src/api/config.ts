@@ -23,6 +23,31 @@ interface RankingResult {
   [key: string]: unknown;
 }
 
+export interface DiscordRolesConfig {
+  staff_role_id: string;
+  senior_staff_role_id: string;
+  owner_role_id: string;
+  mentor_role_id: string;
+}
+
+export interface ActionLogFeatureConfig {
+  forum_channel_id: string;
+  enabled: boolean;
+}
+
+export interface BroadcastFeatureConfig {
+  role_id: string;
+}
+
+export interface JoinRolesFeatureConfig {
+  role_ids: string[];
+}
+
+export interface PartyPanelFeatureConfig {
+  channel_id: string;
+  message_id: string;
+}
+
 export const configApi = {
   getRankMappings: () => apiFetch<RankMapping[]>("/config/rank-mappings"),
 
@@ -60,4 +85,38 @@ export const configApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  getDiscordRoles: () => apiFetch<DiscordRolesConfig>("/config/discord-roles"),
+
+  updateDiscordRoles: (data: DiscordRolesConfig) =>
+    apiFetch<DiscordRolesConfig>("/config/discord-roles", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  getActionLogConfig: () => apiFetch<ActionLogFeatureConfig>("/config/discord-feature/action-log"),
+
+  updateActionLogConfig: (data: ActionLogFeatureConfig) =>
+    apiFetch<ActionLogFeatureConfig>("/config/discord-feature/action-log", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  getBroadcastConfig: () => apiFetch<BroadcastFeatureConfig>("/config/discord-feature/broadcast"),
+
+  updateBroadcastConfig: (data: BroadcastFeatureConfig) =>
+    apiFetch<BroadcastFeatureConfig>("/config/discord-feature/broadcast", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  getJoinRolesConfig: () => apiFetch<JoinRolesFeatureConfig>("/config/discord-feature/join-roles"),
+
+  updateJoinRolesConfig: (data: JoinRolesFeatureConfig) =>
+    apiFetch<JoinRolesFeatureConfig>("/config/discord-feature/join-roles", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  getPartyPanelConfig: () => apiFetch<PartyPanelFeatureConfig>("/config/discord-feature/party-panel"),
 };
