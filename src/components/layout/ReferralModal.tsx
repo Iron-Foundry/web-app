@@ -26,6 +26,7 @@ const OPTIONS: { value: ReferralSource; label: string }[] = [
   { value: "recruited_by", label: "Recruited by a member" },
   { value: "instagram", label: "Instagram" },
   { value: "other", label: "Other..." },
+  { value: "prefer_not_to_say", label: "Don't Remember / Don't Want to Answer" },
 ];
 
 function avatarUrl(member: DiscordMember): string | null {
@@ -178,7 +179,8 @@ useEffect(() => {
         <DialogHeader>
           <DialogTitle>How did you find us?</DialogTitle>
           <DialogDescription>
-            Let us know how you discovered Iron Foundry.
+            Let us know how you discovered Iron Foundry. This helps us focus
+            recruitment efforts on the right platforms.
           </DialogDescription>
         </DialogHeader>
 
