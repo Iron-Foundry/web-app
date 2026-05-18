@@ -5,6 +5,7 @@ import { membersLayoutRoute } from "../_layout";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -684,8 +685,8 @@ function RolePanelEditor({
             <label className="text-sm font-medium">Title</label>
             <Input value={title} onChange={(e) => { setTitle(e.target.value); markDirty(); }} className="h-8 text-sm" />
 
-            <label className="text-sm font-medium">Description</label>
-            <Input value={description} onChange={(e) => { setDescription(e.target.value); markDirty(); }} className="h-8 text-sm" placeholder="Optional embed description" />
+            <label className="text-sm font-medium self-start pt-1">Description</label>
+            <Textarea value={description} onChange={(e) => { setDescription(e.target.value); markDirty(); }} className="text-sm resize-y min-h-20" placeholder="Optional embed description" />
 
             <label className="text-sm font-medium">Max selectable</label>
             <Input
