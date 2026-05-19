@@ -40,6 +40,22 @@ export function useCompetitionOvertime(
     queryFn: () => competitionsApi.getOvertime(competitionId!, metric!),
     enabled: !!competitionId && !!metric,
     staleTime: STALE,
+    select: (data) => ({
+      ...data,
+      series: data.series.map((player) => {
+        const clamped = player.history.map((point, i) => ({
+          ...point,
+          value: i === 0 ? 0 : point.value,
+        }));
+        // Drop middle points in runs of identical values.
+        // Keep first + last of each run so flat segments still draw correctly.
+        const deduped = clamped.filter((point, i, arr) => {
+          if (i === 0 || i === arr.length - 1) return true;
+          return point.value !== arr[i - 1].value || point.value !== arr[i + 1].value;
+        });
+        return { ...player, history: deduped };
+      }),
+    }),
   });
 }
 

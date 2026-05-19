@@ -53,11 +53,17 @@ const VARIANT_COLORS = [
 
 const TIMELINE_COLORS = [
   "var(--primary)",
-  "hsl(var(--chart-2, 200 70% 55%))",
+  "hsl(200 70% 55%)",
   "hsl(40 90% 55%)",
   "hsl(340 80% 60%)",
   "hsl(160 70% 50%)",
 ];
+
+function timelineColor(index: number): string {
+  if (index < TIMELINE_COLORS.length) return TIMELINE_COLORS[index];
+  const hue = Math.round((index * 137.508) % 360);
+  return `hsl(${hue} 65% 55%)`;
+}
 
 // ---------------------------------------------------------------------------
 // Countdown
@@ -142,6 +148,43 @@ function TeamChart({ teams, metric }: { teams: TeamRow[]; metric: string }) {
   );
 }
 
+function OvertimeTooltip({
+  active,
+  payload,
+  label,
+  metric,
+}: {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; color: string }>;
+  label?: string;
+  metric: string;
+}) {
+  if (!active || !payload?.length) return null;
+  const visible = payload.filter((p) => p.value != null);
+  if (!visible.length) return null;
+  return (
+    <div className="rounded-lg border border-border bg-background px-3 py-2 shadow-sm text-xs min-w-[160px]">
+      {label && (
+        <p className="mb-1.5 font-medium text-muted-foreground">
+          {new Date(label).toLocaleString(undefined, {
+            month: "short", day: "numeric",
+            hour: "2-digit", minute: "2-digit",
+          })}
+        </p>
+      )}
+      {visible.map((item) => (
+        <div key={item.name} className="flex items-center gap-2 py-0.5">
+          <span className="h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} />
+          <span className="font-medium text-foreground">{item.name}</span>
+          <span className="ml-auto pl-3 tabular-nums text-muted-foreground">
+            {fmtGained(item.value, metric)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function TimelineChart({
   series,
   metric,
@@ -167,7 +210,7 @@ function TimelineChart({
   const config = Object.fromEntries(
     series.map((s, i) => [
       s.player_name,
-      { label: s.player_name, color: TIMELINE_COLORS[i] ?? TIMELINE_COLORS[0] },
+      { label: s.player_name, color: timelineColor(i) },
     ]),
   );
 
@@ -197,26 +240,14 @@ function TimelineChart({
           width={56}
         />
         <ChartTooltip
-          content={
-            <ChartTooltipContent
-              formatter={(v) => fmtGained(v as number, metric)}
-              labelFormatter={(label: string) =>
-                new Date(label).toLocaleString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              }
-            />
-          }
+          content={(props) => <OvertimeTooltip {...props} metric={metric} />}
         />
         {series.map((s, i) =>
           activePlayers.has(s.player_name) ? (
             <Line
               key={s.player_name}
               dataKey={s.player_name}
-              stroke={TIMELINE_COLORS[i] ?? TIMELINE_COLORS[0]}
+              stroke={timelineColor(i)}
               strokeWidth={2}
               dot={false}
               connectNulls
@@ -249,7 +280,7 @@ function PlayerFilterStrip({
           />
           <span
             className="inline-block h-2.5 w-2.5 rounded-sm shrink-0 opacity-80"
-            style={{ backgroundColor: TIMELINE_COLORS[i] ?? TIMELINE_COLORS[0] }}
+            style={{ backgroundColor: timelineColor(i) }}
           />
           <span className={activePlayers.has(s.player_name) ? "text-foreground" : "line-through opacity-50"}>
             {s.player_name}

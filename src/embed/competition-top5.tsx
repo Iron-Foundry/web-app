@@ -193,21 +193,21 @@ export function CompetitionTop5Card(props: CompetitionTop5Props) {
             <div key={entry.player_name} style={{ display: "flex", flexDirection: "column" }}>
               <div style={{
                 display: "flex",
-                justifyContent: "space-between",
                 alignItems: "center",
                 padding: isFirst ? "10px 14px" : "10px 0",
                 background: isFirst ? "rgba(198,164,75,0.06)" : "transparent",
                 borderLeft: isFirst ? "3px solid rgba(198,164,75,0.5)" : "3px solid transparent",
               }}>
-                <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
-                  <span style={{
-                    width: 44,
-                    fontSize: 22,
-                    color: rankColor(entry.rank),
-                    letterSpacing: 1,
-                  }}>
-                    {rankLabel(entry.rank)}
-                  </span>
+                <span style={{
+                  width: 44,
+                  flexShrink: 0,
+                  fontSize: 22,
+                  color: rankColor(entry.rank),
+                  letterSpacing: 1,
+                }}>
+                  {rankLabel(entry.rank)}
+                </span>
+                <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
                   <span style={{
                     fontSize: isFirst ? 34 : 30,
                     color: isFirst ? "#f5f0e8" : "#c8bfa8",
@@ -216,6 +216,7 @@ export function CompetitionTop5Card(props: CompetitionTop5Props) {
                   </span>
                 </div>
                 <span style={{
+                  flexShrink: 0,
                   fontSize: isFirst ? 30 : 26,
                   color: isFirst ? "#c6a44b" : "#8a7d65",
                   letterSpacing: 1,
