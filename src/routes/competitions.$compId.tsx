@@ -200,7 +200,7 @@ function TimelineChart({
 
   // 0.4% of max value so the nudge is always proportionally tiny.
   const maxValue = Math.max(1, ...series.flatMap((s) => s.history.map((h) => h.value)));
-  const tieOffset = maxValue * 0.004;
+  const tieOffset = maxValue * 0.04;
 
   const chartData = allDates.map((date) => {
     const point: Record<string, string | number | null> = { date };
