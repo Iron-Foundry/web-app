@@ -205,11 +205,17 @@ function TimelineChart({
   const maxValue = Math.max(1, ...series.flatMap((s) => s.history.map((h) => h.value)));
   const tieOffset = maxValue * 0.04;
 
+  // Track last known value per player so every snapshot shows all players in tooltip.
+  const lastKnown = new Map<string, number | null>(
+    series.map((s) => [s.player_name, null]),
+  );
+
   const chartData = allDates.map((date) => {
     const point: Record<string, string | number | null> = { date };
     for (const s of series) {
       const h = s.history.find((h) => h.date === date);
-      point[s.player_name] = h ? h.value : null;
+      if (h !== undefined) lastKnown.set(s.player_name, h.value);
+      point[s.player_name] = lastKnown.get(s.player_name) ?? null;
     }
 
     // Snapshot originals before nudging - tooltip reads these back via payload.payload.
