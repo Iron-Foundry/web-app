@@ -194,11 +194,8 @@ export function CompetitionTop5Card(props: CompetitionTop5Props) {
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: isFirst ? "10px 14px" : "10px 0",
-                marginLeft: isFirst ? -14 : 0,
-                marginRight: isFirst ? -14 : 0,
                 background: isFirst ? "rgba(198,164,75,0.06)" : "transparent",
                 borderLeft: isFirst ? "3px solid rgba(198,164,75,0.5)" : "3px solid transparent",
-                paddingLeft: isFirst ? 14 : 0,
               }}>
                 <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
                   <span style={{

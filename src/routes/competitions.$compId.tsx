@@ -702,6 +702,7 @@ export default function CompetitionsPage() {
   const { tab } = competitionDetailRoute.useSearch();
   const router = useRouter();
   const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const { data: competitions = [], isLoading: compsLoading } = useCompetitionList();
@@ -768,6 +769,8 @@ export default function CompetitionsPage() {
       URL.revokeObjectURL(a.href);
     } catch (err) {
       console.error("Export failed:", err);
+      setExportError(true);
+      setTimeout(() => setExportError(false), 3000);
     } finally {
       setExporting(false);
     }
@@ -933,7 +936,7 @@ export default function CompetitionsPage() {
               disabled={!exportMetric || exporting}
             >
               <Download className="h-3.5 w-3.5" />
-              {exporting ? "Exporting..." : "Export Top 5"}
+              {exporting ? "Exporting..." : exportError ? "Export failed" : "Export Top 5"}
             </Button>
 
             {isPreviewMode && activeTabDescriptor && (

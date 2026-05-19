@@ -391,7 +391,7 @@ export default function PartiesPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-rs-bold text-4xl text-primary">Active Parties</h1>
-          <p className="text-sm text-muted-foreground mt-1">Find a group or start your own. Parties reset when the server restarts.</p>
+          <p className="text-sm text-muted-foreground mt-1">Set up a group for when you get off work, schedule some niche content or just send tob with the boys.</p>
         </div>
         {user ? (
           <Button className="gap-1.5" onClick={() => setShowCreate(true)}>
