@@ -48,15 +48,15 @@ export const competitionDetailRoute = createRoute({
 
 const VARIANT_COLORS = [
   "var(--primary)",
-  "hsl(var(--chart-2, 200 70% 55%))",
+  "hsl(0 82% 38%)",   // hardmode - blood red
 ];
 
 const TIMELINE_COLORS = [
-  "var(--primary)",
-  "hsl(200 70% 55%)",
-  "hsl(40 90% 55%)",
-  "hsl(340 80% 60%)",
-  "hsl(160 70% 50%)",
+  "hsl(44 72% 52%)",   // 1st - gold
+  "hsl(160 70% 50%)",  // 2nd - green
+  "hsl(340 80% 60%)",  // 3rd - reddish-magenta
+  "hsl(220 82% 45%)",  // 4th - deep blue
+  "hsl(35 40% 78%)",   // 5th - parchment
 ];
 
 function timelineColor(index: number): string {
@@ -444,6 +444,13 @@ function RaidStackedChart({ rows, variants }: { rows: RaidPlayerRow[]; variants:
   return (
     <ChartContainer config={config} className="h-64 w-full">
       <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 48, left: 8 }}>
+        <defs>
+          <linearGradient id="raidHardmodeGradient" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="30%" stopColor="hsl(0 82% 38%)" />
+            <stop offset="100%" stopColor="hsl(0 82% 38%)" />
+          </linearGradient>
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
         <YAxis tickFormatter={(v: number) => v.toLocaleString()} tick={{ fontSize: 11 }} width={56} />
@@ -454,7 +461,7 @@ function RaidStackedChart({ rows, variants }: { rows: RaidPlayerRow[]; variants:
             dataKey={v}
             name={VARIANT_LABELS[v] ?? fmtCompetitionLabel(v)}
             stackId="raid"
-            fill={VARIANT_COLORS[i] ?? VARIANT_COLORS[0]}
+            fill={i === 1 ? "url(#raidHardmodeGradient)" : (VARIANT_COLORS[i] ?? VARIANT_COLORS[0])}
             radius={i === variants.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
           />
         ))}
@@ -474,6 +481,13 @@ function RaidTeamStackedChart({ teams, variants }: { teams: RaidTeamRow[]; varia
   return (
     <ChartContainer config={config} className="h-64 w-full">
       <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 48, left: 8 }}>
+        <defs>
+          <linearGradient id="raidHardmodeGradient" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="30%" stopColor="hsl(0 82% 38%)" />
+            <stop offset="100%" stopColor="hsl(0 82% 38%)" />
+          </linearGradient>
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
         <YAxis tickFormatter={(v: number) => v.toLocaleString()} tick={{ fontSize: 11 }} width={56} />
@@ -484,7 +498,7 @@ function RaidTeamStackedChart({ teams, variants }: { teams: RaidTeamRow[]; varia
             dataKey={v}
             name={VARIANT_LABELS[v] ?? fmtCompetitionLabel(v)}
             stackId="raid"
-            fill={VARIANT_COLORS[i] ?? VARIANT_COLORS[0]}
+            fill={i === 1 ? "url(#raidHardmodeGradient)" : (VARIANT_COLORS[i] ?? VARIANT_COLORS[0])}
             radius={i === variants.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
           />
         ))}
