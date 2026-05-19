@@ -2,8 +2,9 @@ FROM oven/bun:alpine AS dev
 
 WORKDIR /app
 
-COPY package.json bun.lockb* ./
-RUN bun install --frozen-lockfile 2>/dev/null || bun install
+COPY package.json bun.lock ./
+RUN --mount=type=cache,target=/root/.cache/bun \
+    bun install --frozen-lockfile
 
 COPY . .
 
@@ -16,8 +17,9 @@ FROM oven/bun:alpine AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lockb* ./
-RUN bun install --frozen-lockfile 2>/dev/null || bun install
+COPY package.json bun.lock ./
+RUN --mount=type=cache,target=/root/.cache/bun \
+    bun install --frozen-lockfile
 
 COPY . .
 
@@ -27,14 +29,20 @@ ENV BUN_PUBLIC_API_URL=$BUN_PUBLIC_API_URL
 RUN bun run build.ts
 
 
+FROM oven/bun:alpine AS prod-deps
+
+WORKDIR /app
+
+COPY package.json bun.lock ./
+RUN --mount=type=cache,target=/root/.cache/bun \
+    bun install --production --frozen-lockfile
+
+
 FROM oven/bun:alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/bun.lock* ./
-RUN bun install --production --frozen-lockfile 2>/dev/null || bun install --production
-
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/prod-server.ts ./src/
 COPY --from=builder /app/src/embed ./src/embed
