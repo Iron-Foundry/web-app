@@ -21,7 +21,7 @@ export async function renderCard(node: ReactNode, width = 1200, height = 630): P
   });
 
   const { Resvg } = await import("@resvg/resvg-js");
-  const resvg = new Resvg(svg, { fitTo: { mode: "width", value: width } });
+  const resvg = new Resvg(svg, { fitTo: { mode: "width", value: width * 2 } });
   return Buffer.from(resvg.render().asPng());
 }
 
