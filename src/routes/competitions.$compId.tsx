@@ -198,12 +198,37 @@ function TimelineChart({
     new Set(series.flatMap((s) => s.history.map((h) => h.date))),
   ).sort();
 
+  // 0.4% of max value so the nudge is always proportionally tiny.
+  const maxValue = Math.max(1, ...series.flatMap((s) => s.history.map((h) => h.value)));
+  const tieOffset = maxValue * 0.004;
+
   const chartData = allDates.map((date) => {
     const point: Record<string, string | number | null> = { date };
     for (const s of series) {
       const h = s.history.find((h) => h.date === date);
       point[s.player_name] = h ? h.value : null;
     }
+
+    // Separate overlapping lines: group players sharing the same non-zero value,
+    // then spread them symmetrically. Series index is the stable tie-breaker so
+    // a given player always nudges the same direction across all time points.
+    const byValue = new Map<number, number[]>();
+    series.forEach((s, i) => {
+      const v = point[s.player_name];
+      if (v == null || (v as number) === 0) return;
+      const key = v as number;
+      if (!byValue.has(key)) byValue.set(key, []);
+      byValue.get(key)!.push(i);
+    });
+    for (const [, indices] of byValue) {
+      if (indices.length < 2) continue;
+      const mid = (indices.length - 1) / 2;
+      indices.forEach((seriesIdx, offsetIdx) => {
+        const name = series[seriesIdx].player_name;
+        point[name] = (point[name] as number) + (offsetIdx - mid) * tieOffset;
+      });
+    }
+
     return point;
   });
 
