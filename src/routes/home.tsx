@@ -182,10 +182,11 @@ function LiveCompetitionBox({ comp, onDismiss }: { comp: Competition; onDismiss:
               WOM <ExternalLink className="h-3 w-3" />
             </a>
             <Link
-              to="/members"
+              to="/competitions/$compId"
+              params={{ compId: String(comp.id) }}
               className="text-xs text-primary hover:underline"
             >
-              View all
+              Take me there!
             </Link>
           </div>
         </CardContent>

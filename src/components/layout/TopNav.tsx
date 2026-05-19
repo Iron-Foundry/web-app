@@ -74,9 +74,9 @@ export function TopNav() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-        <span className="text-sm font-semibold tracking-wide text-primary">
+        <Link to="/" className="text-sm font-semibold tracking-wide text-primary hover:text-primary/80 transition-colors">
           Iron Foundry
-        </span>
+        </Link>
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-4 md:flex">
