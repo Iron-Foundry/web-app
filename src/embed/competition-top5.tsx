@@ -117,7 +117,7 @@ export function CompetitionTop5Card(props: CompetitionTop5Props) {
     "FINISHED";
 
   const maxGained = top5.reduce((m, e) => Math.max(m, e.gained), 1);
-  const dateRange = `${fmtDate(startsAt)} — ${fmtDate(endsAt)}`;
+  const dateRange = `${fmtDate(startsAt)} - ${fmtDate(endsAt)}`;
 
   const base = {
     width: 1200,
@@ -242,10 +242,7 @@ export function CompetitionTop5Card(props: CompetitionTop5Props) {
           <div style={{ fontSize: 22, color: "#c6a44b" }}>{dateRange}</div>
           {status === "ongoing" && (
             <div style={{ fontSize: 14, color: "#4a4035", letterSpacing: 1 }}>
-              Exported {new Date().toLocaleString("en-GB", {
-                day: "numeric", month: "short", year: "numeric",
-                hour: "2-digit", minute: "2-digit", timeZoneName: "short",
-              })}
+              {`Exported ${fmtDate(new Date().toISOString())}`}
             </div>
           )}
         </div>
