@@ -155,7 +155,7 @@ function OvertimeTooltip({
   metric,
 }: {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
+  payload?: Array<{ name: string; value: number; color: string; payload: Record<string, number | null> }>;
   label?: string;
   metric: string;
 }) {
@@ -172,15 +172,18 @@ function OvertimeTooltip({
           })}
         </p>
       )}
-      {visible.map((item) => (
-        <div key={item.name} className="flex items-center gap-2 py-0.5">
-          <span className="h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} />
-          <span className="font-medium text-foreground">{item.name}</span>
-          <span className="ml-auto pl-3 tabular-nums text-muted-foreground">
-            {fmtGained(item.value, metric)}
-          </span>
-        </div>
-      ))}
+      {visible.map((item) => {
+        const original = item.payload[`__orig_${item.name}`] ?? item.value;
+        return (
+          <div key={item.name} className="flex items-center gap-2 py-0.5">
+            <span className="h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} />
+            <span className="font-medium text-foreground">{item.name}</span>
+            <span className="ml-auto pl-3 tabular-nums text-muted-foreground">
+              {fmtGained(original as number, metric)}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -207,6 +210,11 @@ function TimelineChart({
     for (const s of series) {
       const h = s.history.find((h) => h.date === date);
       point[s.player_name] = h ? h.value : null;
+    }
+
+    // Snapshot originals before nudging - tooltip reads these back via payload.payload.
+    for (const s of series) {
+      point[`__orig_${s.player_name}`] = point[s.player_name];
     }
 
     // Separate overlapping lines: group players sharing the same non-zero value,
