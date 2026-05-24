@@ -65,10 +65,11 @@ function timelineColor(index: number): string {
   return `hsl(${hue} 65% 55%)`;
 }
 
-function rankGainStyle(rank: number): React.CSSProperties {
+function rankGainStyle(rank: number, value: number): React.CSSProperties {
   if (rank === 1) return { color: "hsl(44 72% 52%)", borderColor: "hsl(44 72% 52% / 0.4)" };
   if (rank === 2) return { color: "hsl(210 20% 72%)", borderColor: "hsl(210 20% 72% / 0.4)" };
   if (rank === 3) return { color: "hsl(25 60% 55%)", borderColor: "hsl(25 60% 55% / 0.4)" };
+  if (value > 0) return { color: "hsl(142 71% 45%)", borderColor: "hsl(142 71% 45% / 0.4)" };
   return {};
 }
 
@@ -340,17 +341,17 @@ function PlayerFilterStrip({
 function ClassicTable({ participations, metric }: { participations: MetricParticipation[]; metric: string }) {
   return (
     <div>
-      <div className="grid grid-cols-[2.5rem_1fr_auto_auto_auto] gap-x-4 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border">
+      <div className="grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem] gap-x-4 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border">
         <span>Rank</span><span>Player</span>
         <span className="text-right">Start</span><span className="text-right">End</span><span className="text-right">Gained</span>
       </div>
       {participations.map((p) => (
-        <div key={p.player_name} className="grid grid-cols-[2.5rem_1fr_auto_auto_auto] gap-x-4 px-3 py-2 items-center text-sm border-b border-border/50 last:border-0 hover:bg-muted/30">
+        <div key={p.player_name} className="grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem] gap-x-4 px-3 py-2 items-center text-sm border-b border-border/50 last:border-0 hover:bg-muted/30">
           <span className="font-medium text-muted-foreground">{rankEmoji(p.rank)}</span>
           <span className="truncate font-medium">{p.player_name}</span>
           <span className="text-right text-muted-foreground text-xs">{fmtGained(p.start, metric)}</span>
           <span className="text-right text-muted-foreground text-xs">{fmtGained(p.end, metric)}</span>
-          <span className="text-right"><Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(p.rank)}>+{fmtGained(p.gained, metric)}</Badge></span>
+          <span className="text-right"><Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(p.rank, p.gained)}>+{fmtGained(p.gained, metric)}</Badge></span>
         </div>
       ))}
     </div>
@@ -364,21 +365,21 @@ function TeamTable({ teams, metric }: { teams: TeamRow[]; metric: string }) {
   }
   return (
     <div>
-      <div className="grid grid-cols-[2.5rem_1fr_auto_auto] gap-x-4 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border">
+      <div className="grid grid-cols-[2.5rem_1fr_5rem_7rem] gap-x-4 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border">
         <span>Rank</span><span>Team</span><span className="text-right">Members</span><span className="text-right">Total Gained</span>
       </div>
       {teams.map((team) => {
         const open = expanded.has(team.team_name);
         return (
           <div key={team.team_name}>
-            <button onClick={() => toggle(team.team_name)} className="w-full grid grid-cols-[2.5rem_1fr_auto_auto] gap-x-4 px-3 py-2 items-center text-sm border-b border-border/50 hover:bg-muted/30 text-left">
+            <button onClick={() => toggle(team.team_name)} className="w-full grid grid-cols-[2.5rem_1fr_5rem_7rem] gap-x-4 px-3 py-2 items-center text-sm border-b border-border/50 hover:bg-muted/30 text-left">
               <span className="font-medium text-muted-foreground">{rankEmoji(team.rank)}</span>
               <span className="flex items-center gap-1.5 font-semibold">
                 {open ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
                 {team.team_name}
               </span>
               <span className="text-right text-xs text-muted-foreground">{team.members.length}</span>
-              <span className="text-right"><Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(team.rank)}>+{fmtGained(team.total_gained, metric)}</Badge></span>
+              <span className="text-right"><Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(team.rank, team.total_gained)}>+{fmtGained(team.total_gained, metric)}</Badge></span>
             </button>
             {open && (
               <div className="bg-muted/20 border-b border-border/50">
@@ -554,8 +555,7 @@ function RaidTeamStackedChart({ teams, variants }: { teams: RaidTeamRow[]; varia
 }
 
 function RaidClassicTable({ rows, variants }: { rows: RaidPlayerRow[]; variants: string[] }) {
-  const extraCols = variants.length + 1;
-  const gridCols = `2.5rem 1fr ${Array(extraCols).fill("auto").join(" ")}`;
+  const gridCols = `2.5rem 1fr ${variants.map(() => "6rem").join(" ")} 7rem`;
   return (
     <div>
       <div
@@ -581,7 +581,7 @@ function RaidClassicTable({ rows, variants }: { rows: RaidPlayerRow[]; variants:
             </span>
           ))}
           <span className="text-right">
-            <Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(r.rank)}>+{r.total.toLocaleString()}</Badge>
+            <Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(r.rank, r.total)}>+{r.total.toLocaleString()}</Badge>
           </span>
         </div>
       ))}
@@ -594,9 +594,8 @@ function RaidTeamTable({ teams, variants }: { teams: RaidTeamRow[]; variants: st
   function toggle(name: string) {
     setExpanded((prev) => { const next = new Set(prev); next.has(name) ? next.delete(name) : next.add(name); return next; });
   }
-  const extraCols = variants.length + 1;
-  const gridCols = `2.5rem 1fr auto ${Array(extraCols).fill("auto").join(" ")}`;
-  const memberGridCols = `2.5rem 1fr ${Array(extraCols).fill("auto").join(" ")}`;
+  const gridCols = `2.5rem 1fr 5rem ${variants.map(() => "6rem").join(" ")} 7rem`;
+  const memberGridCols = `2.5rem 1fr ${variants.map(() => "6rem").join(" ")} 7rem`;
 
   return (
     <div>
@@ -631,7 +630,7 @@ function RaidTeamTable({ teams, variants }: { teams: RaidTeamRow[]; variants: st
                 </span>
               ))}
               <span className="text-right">
-                <Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(team.rank)}>+{team.total.toLocaleString()}</Badge>
+                <Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(team.rank, team.total)}>+{team.total.toLocaleString()}</Badge>
               </span>
             </button>
             {open && (
