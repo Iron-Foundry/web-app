@@ -65,6 +65,13 @@ function timelineColor(index: number): string {
   return `hsl(${hue} 65% 55%)`;
 }
 
+function rankGainStyle(rank: number): React.CSSProperties {
+  if (rank === 1) return { color: "hsl(44 72% 52%)", borderColor: "hsl(44 72% 52% / 0.4)" };
+  if (rank === 2) return { color: "hsl(210 20% 72%)", borderColor: "hsl(210 20% 72% / 0.4)" };
+  if (rank === 3) return { color: "hsl(25 60% 55%)", borderColor: "hsl(25 60% 55% / 0.4)" };
+  return {};
+}
+
 // ---------------------------------------------------------------------------
 // Countdown
 // ---------------------------------------------------------------------------
@@ -343,7 +350,7 @@ function ClassicTable({ participations, metric }: { participations: MetricPartic
           <span className="truncate font-medium">{p.player_name}</span>
           <span className="text-right text-muted-foreground text-xs">{fmtGained(p.start, metric)}</span>
           <span className="text-right text-muted-foreground text-xs">{fmtGained(p.end, metric)}</span>
-          <span className="text-right"><Badge variant="outline" className="font-mono text-xs">+{fmtGained(p.gained, metric)}</Badge></span>
+          <span className="text-right"><Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(p.rank)}>+{fmtGained(p.gained, metric)}</Badge></span>
         </div>
       ))}
     </div>
@@ -371,14 +378,14 @@ function TeamTable({ teams, metric }: { teams: TeamRow[]; metric: string }) {
                 {team.team_name}
               </span>
               <span className="text-right text-xs text-muted-foreground">{team.members.length}</span>
-              <span className="text-right"><Badge variant="outline" className="font-mono text-xs">+{fmtGained(team.total_gained, metric)}</Badge></span>
+              <span className="text-right"><Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(team.rank)}>+{fmtGained(team.total_gained, metric)}</Badge></span>
             </button>
             {open && (
               <div className="bg-muted/20 border-b border-border/50">
                 {team.members.map((m) => (
                   <div key={m.player_name} className="grid grid-cols-[2.5rem_1fr_auto] gap-x-4 pl-10 pr-3 py-1.5 items-center text-xs text-muted-foreground">
                     <span /><span>{m.player_name}</span>
-                    <span className="text-right font-mono">+{fmtGained(m.gained, metric)}</span>
+                    <span className="text-right font-mono text-primary">+{fmtGained(m.gained, metric)}</span>
                   </div>
                 ))}
               </div>
@@ -574,7 +581,7 @@ function RaidClassicTable({ rows, variants }: { rows: RaidPlayerRow[]; variants:
             </span>
           ))}
           <span className="text-right">
-            <Badge variant="outline" className="font-mono text-xs">+{r.total.toLocaleString()}</Badge>
+            <Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(r.rank)}>+{r.total.toLocaleString()}</Badge>
           </span>
         </div>
       ))}
@@ -624,7 +631,7 @@ function RaidTeamTable({ teams, variants }: { teams: RaidTeamRow[]; variants: st
                 </span>
               ))}
               <span className="text-right">
-                <Badge variant="outline" className="font-mono text-xs">+{team.total.toLocaleString()}</Badge>
+                <Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(team.rank)}>+{team.total.toLocaleString()}</Badge>
               </span>
             </button>
             {open && (
@@ -638,11 +645,11 @@ function RaidTeamTable({ teams, variants }: { teams: RaidTeamRow[]; variants: st
                     <span />
                     <span>{m.player_name}</span>
                     {variants.map((v) => (
-                      <span key={v} className="text-right font-mono">
+                      <span key={v} className="text-right font-mono text-primary/70">
                         {(m.variants[v] ?? 0).toLocaleString()}
                       </span>
                     ))}
-                    <span className="text-right font-mono font-semibold">+{m.total.toLocaleString()}</span>
+                    <span className="text-right font-mono font-semibold text-primary">+{m.total.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
