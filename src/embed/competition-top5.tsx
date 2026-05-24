@@ -171,13 +171,13 @@ export function CompetitionTop5Card(props: CompetitionTop5Props) {
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <div style={{
             fontSize: 17,
-            color: "#570091",
+            color: "#c084fc",
             textTransform: "uppercase",
             letterSpacing: 2,
-            background: "rgba(87, 0, 145, 0.14)",
+            background: "rgba(192, 132, 252, 0.12)",
             padding: "3px 10px",
-            border: "1px solid rgba(87, 0, 145, 0.55)",
-            boxShadow: "0 0 10px rgba(87, 0, 145, 0.4)",
+            border: "1px solid rgba(192, 132, 252, 0.45)",
+            boxShadow: "0 0 10px rgba(192, 132, 252, 0.25)",
           }}>
             {metricLabel ?? fmtMetric(metric)}
           </div>
