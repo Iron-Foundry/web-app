@@ -179,10 +179,11 @@ serve({
 
     if (pathname === "/embed/competition-top5.png") {
       const id = url.searchParams.get("id") ?? "";
-      const metric = url.searchParams.get("metric") ?? "";
-      if (!id || !metric) return new Response("Missing id or metric", { status: 400 });
+      const metrics = url.searchParams.getAll("metric");
+      const label = url.searchParams.get("label") ?? undefined;
+      if (!id || metrics.length === 0) return new Response("Missing id or metric", { status: 400 });
       try {
-        const png = await serveCompetitionTop5(id, metric, INTERNAL_API_URL);
+        const png = await serveCompetitionTop5(id, metrics, INTERNAL_API_URL, label);
         return new Response(png as unknown as BodyInit, {
           headers: {
             "Content-Type": "image/png",

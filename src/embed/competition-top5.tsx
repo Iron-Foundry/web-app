@@ -39,6 +39,7 @@ export interface CompetitionTop5Props {
   startsAt: string;
   endsAt: string;
   metric: string;
+  metricLabel?: string;
   top5: Top5Entry[];
 }
 
@@ -101,7 +102,7 @@ function rankLabel(rank: number): string {
 }
 
 export function CompetitionTop5Card(props: CompetitionTop5Props) {
-  const { title, status, startsAt, endsAt, metric, top5 } = props;
+  const { title, status, startsAt, endsAt, metric, metricLabel, top5 } = props;
 
   const statusColor =
     status === "ongoing" ? "#4ade80" :
@@ -178,7 +179,7 @@ export function CompetitionTop5Card(props: CompetitionTop5Props) {
             border: "1px solid rgba(87, 0, 145, 0.55)",
             boxShadow: "0 0 10px rgba(87, 0, 145, 0.4)",
           }}>
-            {fmtMetric(metric)}
+            {metricLabel ?? fmtMetric(metric)}
           </div>
           <div style={{ fontSize: 15, color: "#4a4035", letterSpacing: 1 }}>TOP 5 LEADERBOARD</div>
         </div>

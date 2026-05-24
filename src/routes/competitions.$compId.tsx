@@ -6,7 +6,7 @@ import { registerPage } from "@/lib/permissions";
 import {
   fmtCompetitionLabel, fmtGained, fmtCompDate, rankEmoji, statusColor,
   buildTeamRows, sanitizeParticipations, buildMetricTabs, buildRaidRows,
-  buildRaidTeamRows, VARIANT_LABELS,
+  buildRaidTeamRows, mergeRaidOvertimeSeries, VARIANT_LABELS,
 } from "@/lib/competitions";
 import type { TabDescriptor, RaidPlayerRow, RaidTeamRow } from "@/lib/competitions";
 import {
@@ -662,17 +662,28 @@ function RaidGroupContent({ comp, tab }: { comp: Competition; tab: Extract<TabDe
   }));
 
   const primaryMetric = tab.variants[0]!;
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { data: overtime, isLoading: overtimeLoading } = useCompetitionOvertime(comp.id, primaryMetric);
+  const overtimeResults = tab.variants.map((v) => ({
+    metric: v,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    query: useCompetitionOvertime(comp.id, v),
+  }));
+
+  const overtimeLoading = overtimeResults.some((r) => r.query.isLoading);
+  const mergedSeries = mergeRaidOvertimeSeries(
+    overtimeResults.map((r) => r.query.data?.series ?? []),
+  );
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [activePlayers, setActivePlayers] = useState<Set<string>>(new Set());
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (overtime?.series) {
-      setActivePlayers(new Set(overtime.series.map((s) => s.player_name)));
+    if (mergedSeries.length > 0) {
+      setActivePlayers(new Set(mergedSeries.map((s) => s.player_name)));
     }
-  }, [overtime?.series]);
+    // Seed once loading completes; stable dep avoids re-running on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [overtimeLoading]);
 
   function togglePlayer(name: string) {
     setActivePlayers((prev) => {
@@ -702,7 +713,7 @@ function RaidGroupContent({ comp, tab }: { comp: Competition; tab: Extract<TabDe
   const rows = buildRaidRows(variantData);
   const teams = isTeam ? buildRaidTeamRows(rows) : [];
 
-  const noHistory = overtime?.series.every((s) => s.history.length === 0);
+  const noHistory = mergedSeries.every((s) => s.history.length === 0);
   const primaryLabel = VARIANT_LABELS[primaryMetric] ?? fmtCompetitionLabel(primaryMetric);
 
   return (
@@ -726,13 +737,13 @@ function RaidGroupContent({ comp, tab }: { comp: Competition; tab: Extract<TabDe
           </CardHeader>
           <CardContent className="px-2 pb-4">
             {overtimeLoading && <CompetitionSkeleton />}
-            {!overtimeLoading && overtime && !noHistory && (
+            {!overtimeLoading && mergedSeries.length > 0 && !noHistory && (
               <>
-                <PlayerFilterStrip series={overtime.series} activePlayers={activePlayers} onToggle={togglePlayer} />
-                <TimelineChart series={overtime.series} metric={primaryMetric} activePlayers={activePlayers} />
+                <PlayerFilterStrip series={mergedSeries} activePlayers={activePlayers} onToggle={togglePlayer} />
+                <TimelineChart series={mergedSeries} metric={primaryMetric} activePlayers={activePlayers} />
               </>
             )}
-            {!overtimeLoading && (noHistory || !overtime) && (
+            {!overtimeLoading && (noHistory || mergedSeries.length === 0) && (
               <p className="py-8 text-center text-sm text-muted-foreground">
                 {compStatus === "upcoming" ? "Competition hasn't started yet." : "No timeline data available."}
               </p>
@@ -831,16 +842,21 @@ export default function CompetitionsPage() {
     });
   }
 
-  // For raid groups, export using the primary variant metric
-  const exportMetric = activeTabDescriptor?.kind === "raid"
-    ? activeTabDescriptor.variants[0]
-    : activeTabDescriptor?.metric;
+  const exportMetrics = activeTabDescriptor?.kind === "raid"
+    ? activeTabDescriptor.variants
+    : activeTabDescriptor?.metric
+    ? [activeTabDescriptor.metric]
+    : [];
+  const exportLabel = activeTabDescriptor?.kind === "raid" ? activeTabDescriptor.label : undefined;
 
   async function handleExport() {
-    if (!selected || !exportMetric) return;
+    if (!selected || exportMetrics.length === 0) return;
     setExporting(true);
     try {
-      const url = `/embed/competition-top5.png?id=${resolvedId}&metric=${encodeURIComponent(exportMetric)}`;
+      const params = new URLSearchParams({ id: resolvedId });
+      for (const m of exportMetrics) params.append("metric", m);
+      if (exportLabel) params.set("label", exportLabel);
+      const url = `/embed/competition-top5.png?${params.toString()}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const blob = await res.blob();
@@ -1017,7 +1033,7 @@ export default function CompetitionsPage() {
               size="sm"
               className="gap-1.5 shrink-0"
               onClick={() => void handleExport()}
-              disabled={!exportMetric || exporting}
+              disabled={exportMetrics.length === 0 || exporting}
             >
               <Download className="h-3.5 w-3.5" />
               {exporting ? "Exporting..." : exportError ? "Export failed" : "Export Top 5"}

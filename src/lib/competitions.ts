@@ -1,4 +1,4 @@
-import type { MetricParticipation, TeamRow } from "@/types/competitions";
+import type { MetricParticipation, OvertimePlayerSeries, TeamRow } from "@/types/competitions";
 
 export const SKILL_METRICS = new Set([
   "overall", "attack", "defence", "strength", "hitpoints", "ranged", "prayer",
@@ -188,6 +188,51 @@ export function statusColor(status: string): string {
   if (status === "ongoing") return "bg-green-500/15 text-green-400 border-green-500/20";
   if (status === "upcoming") return "bg-blue-500/15 text-blue-400 border-blue-500/20";
   return "bg-muted text-muted-foreground";
+}
+
+export function mergeRaidOvertimeSeries(
+  allSeries: OvertimePlayerSeries[][],
+): OvertimePlayerSeries[] {
+  if (allSeries.length === 0) return [];
+  if (allSeries.length === 1) return allSeries[0] ?? [];
+
+  const allDates = Array.from(
+    new Set(allSeries.flatMap((s) => s.flatMap((p) => p.history.map((h) => h.date)))),
+  ).sort();
+
+  const playerNames = new Set(allSeries.flatMap((s) => s.map((p) => p.player_name)));
+
+  const combined = [...playerNames].map((name) => {
+    const history = allDates.map((date) => {
+      let total = 0;
+      for (const variantSeries of allSeries) {
+        const playerData = variantSeries.find((p) => p.player_name === name);
+        if (!playerData) continue;
+        let lastKnown = 0;
+        for (const point of playerData.history) {
+          if (point.date <= date) lastKnown = point.value;
+          else break;
+        }
+        total += lastKnown;
+      }
+      return { date, value: total };
+    });
+
+    const deduped = history.filter((point, i, arr) => {
+      if (i === 0 || i === arr.length - 1) return true;
+      return point.value !== arr[i - 1]!.value || point.value !== arr[i + 1]!.value;
+    });
+
+    return { player_name: name, history: deduped };
+  });
+
+  return combined
+    .sort((a, b) => {
+      const aLast = a.history[a.history.length - 1]?.value ?? 0;
+      const bLast = b.history[b.history.length - 1]?.value ?? 0;
+      return bLast - aLast;
+    })
+    .slice(0, 5);
 }
 
 export function buildTeamRows(participations: MetricParticipation[]): TeamRow[] {

@@ -91,28 +91,45 @@ export async function serveCompetitionById(id: string, apiUrl: string): Promise<
 
 export async function serveCompetitionTop5(
   id: string,
-  metric: string,
+  metrics: string[],
   apiUrl: string,
+  metricLabel?: string,
 ): Promise<Buffer> {
-  const key = `competition-top5:${id}:${metric}`;
-  const cached = getCached(key);
+  const cacheKey = `competition-top5:${id}:${[...metrics].sort().join(",")}`;
+  const cached = getCached(cacheKey);
   if (cached) return cached;
 
-  const [all, detail] = await Promise.all([
+  const primaryMetric = metrics[0] ?? "";
+
+  const [all, ...details] = await Promise.all([
     fetchJson<CompetitionFixture[]>(`${apiUrl}/clan/competitions`),
-    fetchJson<MetricDetailResponse>(
-      `${apiUrl}/clan/competitions/${encodeURIComponent(id)}/metric-detail?metric=${encodeURIComponent(metric)}`,
+    ...metrics.map((m) =>
+      fetchJson<MetricDetailResponse>(
+        `${apiUrl}/clan/competitions/${encodeURIComponent(id)}/metric-detail?metric=${encodeURIComponent(m)}`,
+      )
     ),
   ]);
 
-  const comp = all.find((c) => String(c.id) === id);
+  const comp = (all as CompetitionFixture[]).find((c) => String(c.id) === id);
   if (!comp) throw new Error(`Competition ${id} not found`);
 
-  const top5 = detail.participations.slice(0, 5).map((p) => ({
-    rank: p.rank,
-    player_name: p.player_name,
-    gained: Math.max(0, p.gained),
-  }));
+  // Merge participations across all metrics - sum gained per player.
+  const playerMap = new Map<string, { player_name: string; gained: number }>();
+  for (const detail of details as MetricDetailResponse[]) {
+    for (const p of detail.participations) {
+      const existing = playerMap.get(p.player_name);
+      if (existing) {
+        existing.gained += Math.max(0, p.gained);
+      } else {
+        playerMap.set(p.player_name, { player_name: p.player_name, gained: Math.max(0, p.gained) });
+      }
+    }
+  }
+
+  const top5 = [...playerMap.values()]
+    .sort((a, b) => b.gained - a.gained)
+    .slice(0, 5)
+    .map((p, i) => ({ rank: i + 1, player_name: p.player_name, gained: p.gained }));
 
   const png = await renderCard(
     CompetitionTop5Card({
@@ -120,12 +137,13 @@ export async function serveCompetitionTop5(
       status: comp.status as "ongoing" | "upcoming" | "finished",
       startsAt: comp.startsAt,
       endsAt: comp.endsAt,
-      metric,
+      metric: primaryMetric,
+      metricLabel,
       top5,
     }),
   );
 
-  setCached(key, png, 60 * 1000);
+  setCached(cacheKey, png, 60 * 1000);
   return png;
 }
 
