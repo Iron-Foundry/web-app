@@ -1,0 +1,117 @@
+diff --git a/es/d3-scale.js b/es/d3-scale.js
+index 0aec244..948decb 100644
+--- a/es/d3-scale.js
++++ b/es/d3-scale.js
+@@ -3,4 +3,35 @@
+ // See upstream license: https://github.com/d3/d3-scale/blob/main/LICENSE
+ //
+ // Our ESM package uses the underlying installed dependencies of `node_modules/d3-scale`
+-export * from "d3-scale";
++// Patched: explicit named exports instead of export * to avoid Bun HMR live-binding proxy issue
++import * as _d3Scale from "d3-scale";
++export const {
++  scaleBand,
++  scalePoint,
++  scaleIdentity,
++  scaleLinear,
++  scaleLog,
++  scaleSymlog,
++  scaleOrdinal,
++  scaleImplicit,
++  scalePow,
++  scaleSqrt,
++  scaleRadial,
++  scaleQuantile,
++  scaleQuantize,
++  scaleThreshold,
++  scaleTime,
++  scaleUtc,
++  scaleSequential,
++  scaleSequentialLog,
++  scaleSequentialPow,
++  scaleSequentialSqrt,
++  scaleSequentialSymlog,
++  scaleSequentialQuantile,
++  scaleDiverging,
++  scaleDivergingLog,
++  scaleDivergingPow,
++  scaleDivergingSqrt,
++  scaleDivergingSymlog,
++  tickFormat,
++} = _d3Scale;
+diff --git a/es/d3-shape.js b/es/d3-shape.js
+index 6e81c9b..d25c646 100644
+--- a/es/d3-shape.js
++++ b/es/d3-shape.js
+@@ -3,4 +3,70 @@
+ // See upstream license: https://github.com/d3/d3-shape/blob/main/LICENSE
+ //
+ // Our ESM package uses the underlying installed dependencies of `node_modules/d3-shape`
+-export * from "d3-shape";
++// Patched: explicit named exports instead of export * to avoid Bun HMR live-binding proxy issue
++import * as _d3Shape from "d3-shape";
++export const {
++  arc,
++  area,
++  line,
++  pie,
++  areaRadial,
++  radialArea,
++  lineRadial,
++  radialLine,
++  pointRadial,
++  link,
++  linkHorizontal,
++  linkVertical,
++  linkRadial,
++  symbol,
++  symbolsStroke,
++  symbolsFill,
++  symbols,
++  symbolAsterisk,
++  symbolCircle,
++  symbolCross,
++  symbolDiamond,
++  symbolDiamond2,
++  symbolPlus,
++  symbolSquare,
++  symbolSquare2,
++  symbolStar,
++  symbolTriangle,
++  symbolTriangle2,
++  symbolWye,
++  symbolTimes,
++  symbolX,
++  curveBasisClosed,
++  curveBasisOpen,
++  curveBasis,
++  curveBumpX,
++  curveBumpY,
++  curveBundle,
++  curveCardinalClosed,
++  curveCardinalOpen,
++  curveCardinal,
++  curveCatmullRomClosed,
++  curveCatmullRomOpen,
++  curveCatmullRom,
++  curveLinearClosed,
++  curveLinear,
++  curveMonotoneX,
++  curveMonotoneY,
++  curveNatural,
++  curveStep,
++  curveStepAfter,
++  curveStepBefore,
++  stack,
++  stackOffsetExpand,
++  stackOffsetDiverging,
++  stackOffsetNone,
++  stackOffsetSilhouette,
++  stackOffsetWiggle,
++  stackOrderAppearance,
++  stackOrderAscending,
++  stackOrderDescending,
++  stackOrderInsideOut,
++  stackOrderNone,
++  stackOrderReverse,
++} = _d3Shape;
