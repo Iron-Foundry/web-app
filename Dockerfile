@@ -3,6 +3,7 @@ FROM oven/bun:alpine AS dev
 WORKDIR /app
 
 COPY package.json bun.lock ./
+COPY patches ./patches
 RUN --mount=type=cache,target=/root/.cache/bun \
     bun install --frozen-lockfile
 
@@ -18,6 +19,7 @@ FROM oven/bun:alpine AS builder
 WORKDIR /app
 
 COPY package.json bun.lock ./
+COPY patches ./patches
 RUN --mount=type=cache,target=/root/.cache/bun \
     bun install --frozen-lockfile
 
@@ -34,6 +36,7 @@ FROM oven/bun:alpine AS prod-deps
 WORKDIR /app
 
 COPY package.json bun.lock ./
+COPY patches ./patches
 RUN --mount=type=cache,target=/root/.cache/bun \
     bun install --production --frozen-lockfile
 
