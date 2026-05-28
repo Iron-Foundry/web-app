@@ -187,33 +187,13 @@ function PartyForm({ title, initial = {}, categories, onClose, onSubmit, saving,
 
 // ── Notifications Modal ───────────────────────────────────────────────────────
 
-function NotificationsModal({ onClose }: { onClose: () => void }) {
-  const { data: categories = [] } = useNotificationCategories(true);
-  const { data: prefs } = useNotificationPreferences(true);
+function NotificationsModal({ categories, selected, onToggle, onClose }: { categories: NotificationCategory[]; selected: string[]; onToggle: (id: string) => void; onClose: () => void }) {
   const updatePrefs = useUpdateNotificationPreferences();
-
-  const [selected, setSelected] = useState<string[] | null>(null);
   const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    if (prefs !== undefined && selected === null) {
-      setSelected(prefs.category_ids);
-    }
-  }, [prefs, selected]);
-
-  const effectiveSelected = selected ?? [];
-
-  function toggle(id: string) {
-    setSelected(prev => {
-      const cur = prev ?? [];
-      return cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
-    });
-    setSaved(false);
-  }
 
   function handleSave() {
     updatePrefs.mutate(
-      { category_ids: effectiveSelected },
+      { category_ids: selected },
       { onSuccess: () => setSaved(true) },
     );
   }
@@ -238,15 +218,15 @@ function NotificationsModal({ onClose }: { onClose: () => void }) {
                 <span className="text-sm">{c.label}</span>
                 <button
                   type="button"
-                  onClick={() => toggle(c.id)}
+                  onClick={() => { onToggle(c.id); setSaved(false); }}
                   className={cn(
                     "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
-                    effectiveSelected.includes(c.id) ? "bg-primary" : "bg-muted"
+                    selected.includes(c.id) ? "bg-primary" : "bg-muted"
                   )}
                 >
                   <span className={cn(
                     "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
-                    effectiveSelected.includes(c.id) ? "translate-x-4" : "translate-x-0"
+                    selected.includes(c.id) ? "translate-x-4" : "translate-x-0"
                   )} />
                 </button>
               </div>
@@ -458,12 +438,20 @@ export default function PartiesPage() {
   const { user } = useAuth();
   const { data: parties = [], isLoading } = useParties();
   const { data: categories = [] } = useNotificationCategories(!!user);
+  const { data: prefs } = useNotificationPreferences(!!user);
   const createParty = useCreateParty();
   const updateParty = useUpdateParty();
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingParty, setEditingParty] = useState<Party | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifSelected, setNotifSelected] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    if (prefs !== undefined && notifSelected === null) {
+      setNotifSelected(prefs.category_ids);
+    }
+  }, [prefs, notifSelected]);
 
   const currentUserId = user?.discord_user_id ?? null;
 
@@ -546,7 +534,17 @@ export default function PartiesPage() {
         />
       )}
 
-      {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
+      {showNotifications && (
+        <NotificationsModal
+          categories={categories}
+          selected={notifSelected ?? []}
+          onToggle={(id) => setNotifSelected(prev => {
+            const cur = prev ?? [];
+            return cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
+          })}
+          onClose={() => setShowNotifications(false)}
+        />
+      )}
     </div>
   );
 }
