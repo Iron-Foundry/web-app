@@ -192,21 +192,28 @@ function NotificationsModal({ onClose }: { onClose: () => void }) {
   const { data: prefs } = useNotificationPreferences(true);
   const updatePrefs = useUpdateNotificationPreferences();
 
-  const [selected, setSelected] = useState<string[]>(prefs?.category_ids ?? []);
+  const [selected, setSelected] = useState<string[] | null>(null);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (prefs?.category_ids) setSelected(prefs.category_ids);
-  }, [prefs?.category_ids]);
+    if (prefs !== undefined && selected === null) {
+      setSelected(prefs.category_ids);
+    }
+  }, [prefs, selected]);
+
+  const effectiveSelected = selected ?? [];
 
   function toggle(id: string) {
-    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelected(prev => {
+      const cur = prev ?? [];
+      return cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
+    });
     setSaved(false);
   }
 
   function handleSave() {
     updatePrefs.mutate(
-      { category_ids: selected },
+      { category_ids: effectiveSelected },
       { onSuccess: () => setSaved(true) },
     );
   }
@@ -234,12 +241,12 @@ function NotificationsModal({ onClose }: { onClose: () => void }) {
                   onClick={() => toggle(c.id)}
                   className={cn(
                     "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
-                    selected.includes(c.id) ? "bg-primary" : "bg-muted"
+                    effectiveSelected.includes(c.id) ? "bg-primary" : "bg-muted"
                   )}
                 >
                   <span className={cn(
                     "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
-                    selected.includes(c.id) ? "translate-x-4" : "translate-x-0"
+                    effectiveSelected.includes(c.id) ? "translate-x-4" : "translate-x-0"
                   )} />
                 </button>
               </div>
