@@ -22,11 +22,20 @@ export function usePartyChat(partyId: string, enabled: boolean) {
   });
 }
 
-export function usePartyPingRoles(enabled: boolean) {
+export function useNotificationCategories(enabled: boolean) {
   return useQuery({
-    queryKey: queryKeys.parties.pingRoles(),
-    queryFn: partiesApi.getPingRoles,
+    queryKey: queryKeys.parties.notificationCategories(),
+    queryFn: partiesApi.getNotificationCategories,
     staleTime: 1000 * 60 * 10,
+    enabled,
+  });
+}
+
+export function useNotificationPreferences(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.parties.notificationPreferences(),
+    queryFn: partiesApi.getNotificationPreferences,
+    staleTime: 0,
     enabled,
   });
 }
@@ -38,7 +47,7 @@ interface CreatePartyPayload {
   max_size: number;
   ttl_hours: number;
   scheduled_at: string | null;
-  ping_role_ids: string[];
+  notification_category_ids: string[];
 }
 
 interface UpdatePartyPayload {
@@ -47,7 +56,7 @@ interface UpdatePartyPayload {
   vibe: Vibe;
   max_size: number;
   scheduled_at: string | null;
-  ping_role_ids: string[];
+  notification_category_ids: string[];
 }
 
 export function useCreateParty() {
@@ -106,5 +115,17 @@ export function useSendPartyMessage(partyId: string) {
   return useMutation({
     mutationFn: (text: string) => partiesApi.sendMessage(partyId, text),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.chat(partyId) }),
+  });
+}
+
+export function useUpdateNotificationPreferences() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { category_ids: string[] }) =>
+      partiesApi.updateNotificationPreferences(data),
+    onSuccess: () =>
+      qc.invalidateQueries({
+        queryKey: queryKeys.parties.notificationPreferences(),
+      }),
   });
 }

@@ -4,7 +4,8 @@ import { rootRoute } from "./__root";
 import { useAuth } from "@/context/AuthContext";
 import { getAccounts, type LinkedAccount } from "@/api/accounts";
 import {
-  useParties, usePartyChat, usePartyPingRoles,
+  useParties, usePartyChat,
+  useNotificationCategories, useNotificationPreferences, useUpdateNotificationPreferences,
   useCreateParty, useUpdateParty, useDeleteParty,
   useJoinParty, useLeaveParty, useKickPartyMember, useSendPartyMessage,
 } from "@/hooks/useParties";
@@ -12,7 +13,7 @@ import {
   VIBE_LABEL, VIBE_CLASS, displayName, fmtScheduled, relativeTime, splitLocalDatetime,
 } from "@/lib/parties";
 import { PartySkeleton } from "@/components/skeletons/PartySkeleton";
-import type { Vibe, Party, PingRole } from "@/types/parties";
+import type { Vibe, Party, NotificationCategory } from "@/types/parties";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -20,8 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
-  Users, Plus, X, Send,
-  Crown, LogIn, LogOut, Trash2, Pencil, Check, Clock, Copy,
+  Users, Plus, X, Send, Bell,
+  Crown, LogIn, LogOut, Trash2, Pencil, Clock, Copy,
 } from "lucide-react";
 
 export const partiesRoute = createRoute({
@@ -64,9 +65,9 @@ interface PartyFormProps {
     maxSize: number;
     scheduledDate: string;
     scheduledTime: string;
-    selectedPings: string[];
+    selectedCategories: string[];
   }>;
-  pingRoles: PingRole[];
+  categories: NotificationCategory[];
   onClose: () => void;
   onSubmit: (data: {
     activity: string;
@@ -74,7 +75,7 @@ interface PartyFormProps {
     vibe: Vibe;
     max_size: number;
     scheduled_at: string | null;
-    ping_role_ids: string[];
+    notification_category_ids: string[];
     ttl_hours?: number;
   }) => void;
   saving: boolean;
@@ -82,7 +83,7 @@ interface PartyFormProps {
   showTtl?: boolean;
 }
 
-function PartyForm({ title, initial = {}, pingRoles, onClose, onSubmit, saving, error, showTtl }: PartyFormProps) {
+function PartyForm({ title, initial = {}, categories, onClose, onSubmit, saving, error, showTtl }: PartyFormProps) {
   const [activity, setActivity] = useState(initial.activity ?? "");
   const [description, setDescription] = useState(initial.description ?? "");
   const [vibe, setVibe] = useState<Vibe>(initial.vibe ?? "chill");
@@ -90,11 +91,11 @@ function PartyForm({ title, initial = {}, pingRoles, onClose, onSubmit, saving, 
   const [scheduledDate, setScheduledDate] = useState(initial.scheduledDate ?? "");
   const [scheduledTime, setScheduledTime] = useState(initial.scheduledTime ?? "");
   const [ttlHours, setTtlHours] = useState(4);
-  const [selectedPings, setSelectedPings] = useState<string[]>(initial.selectedPings ?? []);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initial.selectedCategories ?? []);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  function togglePing(id: string) {
-    setSelectedPings(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  function toggleCategory(id: string) {
+    setSelectedCategories(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   }
 
   function handleSubmit() {
@@ -106,7 +107,7 @@ function PartyForm({ title, initial = {}, pingRoles, onClose, onSubmit, saving, 
       vibe,
       max_size: maxSize,
       scheduled_at: scheduledDate ? new Date(`${scheduledDate}T${scheduledTime || "00:00"}`).toISOString() : null,
-      ping_role_ids: selectedPings,
+      notification_category_ids: selectedCategories,
       ttl_hours: ttlHours,
     });
   }
@@ -161,14 +162,13 @@ function PartyForm({ title, initial = {}, pingRoles, onClose, onSubmit, saving, 
               <TimePicker value={scheduledTime} onChange={setScheduledTime} disabled={!scheduledDate} />
             </div>
           </div>
-          {pingRoles.length > 0 && (
+          {categories.length > 0 && (
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Ping roles (optional)</label>
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Notify for (optional)</label>
               <div className="flex flex-wrap gap-2">
-                {pingRoles.map(r => (
-                  <button key={r.discord_role_id} type="button" onClick={() => togglePing(r.discord_role_id)} className={cn("px-2.5 py-1 rounded-full text-xs font-medium border transition-colors", selectedPings.includes(r.discord_role_id) ? "bg-primary/15 text-primary border-primary/30" : "border-border text-muted-foreground hover:text-foreground")}>
-                    {selectedPings.includes(r.discord_role_id) && <Check className="h-2.5 w-2.5 inline mr-1" />}
-                    @{r.label}
+                {categories.map(c => (
+                  <button key={c.id} type="button" onClick={() => toggleCategory(c.id)} className={cn("px-2.5 py-1 rounded-full text-xs font-medium border transition-colors", selectedCategories.includes(c.id) ? "bg-primary/15 text-primary border-primary/30" : "border-border text-muted-foreground hover:text-foreground")}>
+                    {c.label}
                   </button>
                 ))}
               </div>
@@ -178,6 +178,79 @@ function PartyForm({ title, initial = {}, pingRoles, onClose, onSubmit, saving, 
           <div className="flex gap-2 pt-1">
             <Button variant="ghost" onClick={onClose} className="flex-1" disabled={saving}>Cancel</Button>
             <Button onClick={handleSubmit} className="flex-1" disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ── Notifications Modal ───────────────────────────────────────────────────────
+
+function NotificationsModal({ onClose }: { onClose: () => void }) {
+  const { data: categories = [] } = useNotificationCategories(true);
+  const { data: prefs } = useNotificationPreferences(true);
+  const updatePrefs = useUpdateNotificationPreferences();
+
+  const [selected, setSelected] = useState<string[]>(prefs?.category_ids ?? []);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (prefs?.category_ids) setSelected(prefs.category_ids);
+  }, [prefs?.category_ids]);
+
+  function toggle(id: string) {
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSaved(false);
+  }
+
+  function handleSave() {
+    updatePrefs.mutate(
+      { category_ids: selected },
+      { onSuccess: () => setSaved(true) },
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <Card className="w-full max-w-sm mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <p className="font-semibold text-base">Party Notifications</p>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Receive a Discord DM when a party matching your selected categories is created.
+          </p>
+          {categories.length === 0 && (
+            <p className="text-sm text-muted-foreground">No notification categories configured.</p>
+          )}
+          <div className="space-y-2">
+            {categories.map(c => (
+              <div key={c.id} className="flex items-center justify-between">
+                <span className="text-sm">{c.label}</span>
+                <button
+                  type="button"
+                  onClick={() => toggle(c.id)}
+                  className={cn(
+                    "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+                    selected.includes(c.id) ? "bg-primary" : "bg-muted"
+                  )}
+                >
+                  <span className={cn(
+                    "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
+                    selected.includes(c.id) ? "translate-x-4" : "translate-x-0"
+                  )} />
+                </button>
+              </div>
+            ))}
+          </div>
+          {saved && <p className="text-xs text-green-600 dark:text-green-400">Saved.</p>}
+          <div className="flex gap-2 pt-1">
+            <Button variant="ghost" onClick={onClose} className="flex-1">Close</Button>
+            <Button onClick={handleSave} className="flex-1" disabled={updatePrefs.isPending || categories.length === 0}>
+              {updatePrefs.isPending ? "Saving..." : "Save"}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -377,12 +450,13 @@ function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
 export default function PartiesPage() {
   const { user } = useAuth();
   const { data: parties = [], isLoading } = useParties();
-  const { data: pingRoles = [] } = usePartyPingRoles(!!user);
+  const { data: categories = [] } = useNotificationCategories(!!user);
   const createParty = useCreateParty();
   const updateParty = useUpdateParty();
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingParty, setEditingParty] = useState<Party | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const currentUserId = user?.discord_user_id ?? null;
 
@@ -394,9 +468,14 @@ export default function PartiesPage() {
           <p className="text-sm text-muted-foreground mt-1">Set up a group for when you get off work, schedule some niche content or just send tob with the boys.</p>
         </div>
         {user ? (
-          <Button className="gap-1.5" onClick={() => setShowCreate(true)}>
-            <Plus className="h-4 w-4" />Create Party
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-1.5" onClick={() => setShowNotifications(true)}>
+              <Bell className="h-4 w-4" />Notifications
+            </Button>
+            <Button className="gap-1.5" onClick={() => setShowCreate(true)}>
+              <Plus className="h-4 w-4" />Create Party
+            </Button>
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">Log in to create or join parties.</p>
         )}
@@ -422,7 +501,7 @@ export default function PartiesPage() {
       {showCreate && (
         <PartyForm
           title="Create a Party"
-          pingRoles={pingRoles}
+          categories={categories}
           onClose={() => setShowCreate(false)}
           showTtl
           saving={createParty.isPending}
@@ -439,14 +518,14 @@ export default function PartiesPage() {
       {editingParty && (
         <PartyForm
           title="Edit Party"
-          pingRoles={pingRoles}
+          categories={categories}
           initial={{
             activity: editingParty.activity,
             description: editingParty.description ?? "",
             vibe: editingParty.vibe,
             maxSize: editingParty.max_size,
             ...(() => { const [d, t] = splitLocalDatetime(editingParty.scheduled_at); return { scheduledDate: d, scheduledTime: t }; })(),
-            selectedPings: editingParty.ping_role_ids,
+            selectedCategories: editingParty.notification_category_ids,
           }}
           onClose={() => setEditingParty(null)}
           saving={updateParty.isPending}
@@ -459,6 +538,8 @@ export default function PartiesPage() {
           }}
         />
       )}
+
+      {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
     </div>
   );
 }

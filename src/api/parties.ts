@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { Party, ChatMessage, PingRole, Vibe } from "@/types/parties";
+import type { Party, ChatMessage, NotificationCategory, Vibe } from "@/types/parties";
 
 interface CreatePartyPayload {
   activity: string;
@@ -8,7 +8,7 @@ interface CreatePartyPayload {
   max_size: number;
   ttl_hours: number;
   scheduled_at: string | null;
-  ping_role_ids: string[];
+  notification_category_ids: string[];
   rsn_override?: string | null;
 }
 
@@ -18,7 +18,7 @@ interface UpdatePartyPayload {
   vibe?: Vibe;
   max_size?: number;
   scheduled_at?: string | null;
-  ping_role_ids?: string[];
+  notification_category_ids?: string[];
 }
 
 export const partiesApi = {
@@ -51,6 +51,17 @@ export const partiesApi = {
       body: JSON.stringify({ text }),
     }),
 
-  getPingRoles: () =>
-    apiFetch<{ roles: PingRole[] }>("/config/party-ping-roles").then((d) => d.roles),
+  getNotificationPreferences: () =>
+    apiFetch<{ category_ids: string[] }>("/parties/notifications"),
+
+  updateNotificationPreferences: (data: { category_ids: string[] }) =>
+    apiFetch<{ category_ids: string[] }>("/parties/notifications", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  getNotificationCategories: () =>
+    apiFetch<{ categories: NotificationCategory[] }>(
+      "/config/party-notification-categories"
+    ).then((d) => d.categories),
 };

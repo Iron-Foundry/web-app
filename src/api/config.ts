@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { PingRole } from "@/types/parties";
+import type { NotificationCategory } from "@/types/parties";
 
 interface RankMapping {
   discord_role_id: string;
@@ -57,13 +57,19 @@ export const configApi = {
       body: JSON.stringify(data),
     }),
 
-  getPartyPingRoles: () => apiFetch<PingRole[]>("/config/party-ping-roles"),
+  getNotificationCategories: () =>
+    apiFetch<{ categories: NotificationCategory[] }>(
+      "/config/party-notification-categories"
+    ).then((d) => d.categories),
 
-  updatePartyPingRoles: (data: PingRole[]) =>
-    apiFetch<void>("/config/party-ping-roles", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    }),
+  updateNotificationCategories: (data: NotificationCategory[]) =>
+    apiFetch<{ categories: NotificationCategory[] }>(
+      "/config/party-notification-categories",
+      {
+        method: "PUT",
+        body: JSON.stringify({ categories: data }),
+      }
+    ),
 
   getRankingConfig: () => apiFetch<RankingConfig>("/config/ranking"),
 

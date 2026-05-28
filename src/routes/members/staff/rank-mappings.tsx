@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 registerPage({
   id: "staff.rank-mappings",
   label: "Rank Mappings",
-  description: "Map in-game ranks to Discord roles and configure party ping roles.",
+  description: "Map in-game ranks to Discord roles and configure party notification categories.",
   defaults: { read: ["Foundry Mentors"], create: [], edit: ["Senior Moderator"], delete: [] },
 });
 
@@ -171,15 +171,15 @@ function RankMappingsTab() {
   );
 }
 
-// ── Party Pings Tab ───────────────────────────────────────────────────────────
+// ── Notification Categories Tab ───────────────────────────────────────────────
 
-interface PingRole {
-  discord_role_id: string;
+interface NotificationCategory {
+  id: string;
   label: string;
 }
 
-function PartyPingsTab() {
-  const [roles, setRoles] = useState<PingRole[]>([]);
+function NotificationCategoriesTab() {
+  const [categories, setCategories] = useState<NotificationCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -187,32 +187,32 @@ function PartyPingsTab() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/config/party-ping-roles`, { headers: getAuthHeaders() })
+    fetch(`${API_URL}/config/party-notification-categories`, { headers: getAuthHeaders() })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data) => setRoles(
-        (data.roles ?? []).map((r: Partial<PingRole>) => ({
-          discord_role_id: r.discord_role_id ?? "",
-          label: r.label ?? "",
+      .then((data) => setCategories(
+        (data.categories ?? []).map((c: Partial<NotificationCategory>) => ({
+          id: c.id ?? "",
+          label: c.label ?? "",
         }))
       ))
-      .catch(() => setError("Failed to load party ping roles."))
+      .catch(() => setError("Failed to load notification categories."))
       .finally(() => setLoading(false));
   }, []);
 
-  function update(idx: number, field: keyof PingRole, val: string) {
-    setRoles((prev) => prev.map((r, i) => (i === idx ? { ...r, [field]: val } : r)));
+  function update(idx: number, field: keyof NotificationCategory, val: string) {
+    setCategories((prev) => prev.map((c, i) => (i === idx ? { ...c, [field]: val } : c)));
     setDirty(true);
     setSaved(false);
   }
 
   function addRow() {
-    setRoles((prev) => [...prev, { discord_role_id: "", label: "" }]);
+    setCategories((prev) => [...prev, { id: "", label: "" }]);
     setDirty(true);
     setSaved(false);
   }
 
   function removeRow(idx: number) {
-    setRoles((prev) => prev.filter((_, i) => i !== idx));
+    setCategories((prev) => prev.filter((_, i) => i !== idx));
     setDirty(true);
     setSaved(false);
   }
@@ -221,10 +221,10 @@ function PartyPingsTab() {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/config/party-ping-roles`, {
+      const res = await fetch(`${API_URL}/config/party-notification-categories`, {
         method: "PUT",
         headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
-        body: JSON.stringify({ roles }),
+        body: JSON.stringify({ categories }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
@@ -232,7 +232,7 @@ function PartyPingsTab() {
         return;
       }
       const saved_data = await res.json();
-      setRoles(saved_data.roles);
+      setCategories(saved_data.categories);
       setDirty(false);
       setSaved(true);
     } catch {
@@ -247,31 +247,32 @@ function PartyPingsTab() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Add Discord roles that party leaders can optionally ping when creating a party.
-        Enter the role ID (snowflake) and a friendly label shown in the party creation form.
+        Define categories that users can subscribe to for Discord DM notifications.
+        When a party is created with a matching category, opted-in users receive a DM.
+        Use a short unique ID (e.g. "raids") and a friendly label (e.g. "Raids").
       </p>
 
-      {roles.length > 0 && (
+      {categories.length > 0 && (
         <div className="grid grid-cols-[1fr_1fr_2rem] gap-2 px-1">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Discord Role ID</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">ID</p>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Label</p>
           <span />
         </div>
       )}
       <div className="space-y-2">
-        {roles.map((r, i) => (
+        {categories.map((c, i) => (
           <div key={i} className="grid grid-cols-[1fr_1fr_2rem] gap-2 items-center">
-            <Input value={r.discord_role_id} onChange={(e) => update(i, "discord_role_id", e.target.value)} placeholder="e.g. 123456789" className="h-8 text-sm font-mono" />
-            <Input value={r.label} onChange={(e) => update(i, "label", e.target.value)} placeholder="e.g. Raids Team" className="h-8 text-sm" />
+            <Input value={c.id} onChange={(e) => update(i, "id", e.target.value)} placeholder="e.g. raids" className="h-8 text-sm font-mono" />
+            <Input value={c.label} onChange={(e) => update(i, "label", e.target.value)} placeholder="e.g. Raids" className="h-8 text-sm" />
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive" onClick={() => removeRow(i)}>
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
         ))}
       </div>
-      {roles.length === 0 && <p className="text-sm text-muted-foreground">No ping roles configured.</p>}
+      {categories.length === 0 && <p className="text-sm text-muted-foreground">No notification categories configured.</p>}
       <Button variant="outline" size="sm" className="gap-1.5" onClick={addRow}>
-        <Plus className="h-3.5 w-3.5" />Add role
+        <Plus className="h-3.5 w-3.5" />Add category
       </Button>
       {error && <p className="text-sm text-destructive">{error}</p>}
       {saved && !dirty && <p className="text-sm text-green-600 dark:text-green-400">Saved.</p>}
@@ -294,10 +295,10 @@ function RankMappingsPage() {
       <Tabs.Root defaultValue="rank-mappings">
         <Tabs.List className="flex border-b border-border mb-6">
           <Tabs.Trigger value="rank-mappings" className={tabTrigger}>Rank Mappings</Tabs.Trigger>
-          <Tabs.Trigger value="party-pings"   className={tabTrigger}>Party Pings</Tabs.Trigger>
+          <Tabs.Trigger value="notification-categories" className={tabTrigger}>Notification Categories</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="rank-mappings"><RankMappingsTab /></Tabs.Content>
-        <Tabs.Content value="party-pings"><PartyPingsTab /></Tabs.Content>
+        <Tabs.Content value="notification-categories"><NotificationCategoriesTab /></Tabs.Content>
       </Tabs.Root>
     </div>
   );

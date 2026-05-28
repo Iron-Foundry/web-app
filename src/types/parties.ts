@@ -17,7 +17,7 @@ export interface Party {
   max_size: number;
   member_count: number;
   members: PartyMember[];
-  ping_role_ids: string[];
+  notification_category_ids: string[];
   status: PartyStatus;
   created_at: string;
   scheduled_at: string | null;
@@ -34,7 +34,7 @@ export interface ChatMessage {
   sent_at: string;
 }
 
-export interface PingRole {
-  discord_role_id: string;
+export interface NotificationCategory {
+  id: string;
   label: string;
 }

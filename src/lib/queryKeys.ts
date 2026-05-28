@@ -20,7 +20,8 @@ export const queryKeys = {
   parties: {
     list: () => ["parties"] as const,
     chat: (id: string) => ["parties", id, "chat"] as const,
-    pingRoles: () => ["parties", "ping-roles"] as const,
+    notificationCategories: () => ["parties", "notification-categories"] as const,
+    notificationPreferences: () => ["parties", "notification-preferences"] as const,
   },
   bingo: {
     board: () => ["bingo", "board"] as const,
