@@ -5,6 +5,6 @@ export const competitionsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/competitions",
   beforeLoad: () => {
-    throw redirect({ to: "/competitions/$compId", params: { compId: "latest" } });
+    throw redirect({ to: "/competitions/$compId", params: { compId: "latest" }, search: { tab: undefined } });
   },
 });

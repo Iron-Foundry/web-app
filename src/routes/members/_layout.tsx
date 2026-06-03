@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { Footer } from "@/components/layout/Footer";
 import { useLayout } from "@/context/LayoutContext";
-import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy, Bot } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy, Bot, Swords, Lightbulb, Bug } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { useViewAs, useEffectiveRoles } from "@/context/ViewAsContext";
@@ -23,6 +23,8 @@ const NAV_LINKS = [
   { to: "/members/tickets" as const,      label: "Tickets",      icon: Ticket,          exact: false },
   { to: "/members/surveys" as const,      label: "Surveys",      icon: ClipboardList,   exact: false },
   { to: "/members/applications" as const, label: "Applications", icon: FileText,        exact: false },
+  { to: "/members/suggestions" as const,  label: "Suggestions",  icon: Lightbulb,       exact: false },
+  { to: "/members/bugs" as const,         label: "Bug Reports",  icon: Bug,             exact: false },
 ];
 
 const STAFF_NAV = [
@@ -30,6 +32,7 @@ const STAFF_NAV = [
   { to: "/members/staff/permissions" as const,     label: "Permissions",    icon: Lock,           pageId: "staff.permissions",     exact: false },
   { to: "/members/staff/discord-config" as const,  label: "Discord Config", icon: Bot,            pageId: "staff.discord-config",  exact: false },
   { to: "/members/staff/competitions" as const,    label: "Competitions",   icon: Trophy,         pageId: "staff.competitions",    exact: false },
+  { to: "/members/staff/frenzy" as const,          label: "PVM Frenzy",     icon: Swords,         pageId: "frenzy.admin",          exact: false },
 ];
 
 const PORTAL_PAGE_IDS = [

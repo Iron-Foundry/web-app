@@ -9,17 +9,8 @@ import { NAV_SECTIONS, MEMBERS_TAB, STAFF_SECTION, getSectionForPath } from "@/l
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
-import { highestRoleDisplay } from "@/lib/ranks";
+import { highestRoleDisplay, ROLE_BADGE_CLASS } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
-
-const ROLE_BADGE_CLASS: Record<string, string> = {
-  "Co-owner":         "border-amber-500/60   text-amber-600   dark:text-amber-400",
-  "Deputy Owner":     "border-amber-500/60   text-amber-600   dark:text-amber-400",
-  "Senior Moderator": "border-red-400/60     text-red-600     dark:text-red-400",
-  "Moderator":        "border-orange-400/60  text-orange-600  dark:text-orange-400",
-  "Event Team":       "border-green-500/60   text-green-700   dark:text-green-400",
-  "Foundry Mentors":  "border-blue-400/60    text-blue-600    dark:text-blue-400",
-};
 
 function RoleBadge({ roles, roleLabels }: { roles: string[]; roleLabels: Record<string, string> }) {
   const top = highestRoleDisplay(roles, roleLabels);

@@ -11,7 +11,7 @@ const server = serve({
       const label = url.searchParams.get("label") ?? undefined;
       if (!id || metrics.length === 0) return new Response("Missing id or metric", { status: 400 });
       try {
-        const png = await serveCompetitionTop5(id, metrics, API_URL, label);
+        const png = await serveCompetitionTop5(id, metrics, process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000", label);
         return new Response(png as unknown as BodyInit, {
           headers: {
             "Content-Type": "image/png",

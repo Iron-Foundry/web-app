@@ -35,3 +35,19 @@ export function useLeagueLeaderboard() {
     staleTime: STALE,
   });
 }
+
+export function useRankingResults(skip: number, limit: number, rankFilter?: string) {
+  return useQuery({
+    queryKey: queryKeys.ranking.results(`${skip}-${limit}-${rankFilter ?? ""}`),
+    queryFn: () => leaderboardsApi.getRankingResults(skip, limit, rankFilter),
+    staleTime: STALE,
+  });
+}
+
+export function useRankingStats() {
+  return useQuery({
+    queryKey: queryKeys.ranking.stats(),
+    queryFn: leaderboardsApi.getRankingStats,
+    staleTime: STALE,
+  });
+}

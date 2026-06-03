@@ -4,6 +4,7 @@ import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { highestRole, highestRoleDisplay, DISCORD_ROLE_ORDER } from "@/lib/ranks";
+import type { DiscordRole } from "@/lib/ranks";
 import { registerPage } from "@/lib/permissions";
 import { usePermissions } from "@/context/PermissionsContext";
 
@@ -199,14 +200,14 @@ function TemplateCard({
     onOpenChange(entry.template_id, next);
   }
 
-  const CLAN_RANK_SET = new Set(DISCORD_ROLE_ORDER.filter((r) => r !== "Guest"));
+  const CLAN_RANK_SET = new Set<DiscordRole>(DISCORD_ROLE_ORDER.filter((r) => r !== "Guest"));
 
   const presentRanks = responses
     ? Array.from(
         new Set(
           responses
             .map((r) => highestRole(r.discord_roles ?? []))
-            .filter((r): r is string => r !== null && CLAN_RANK_SET.has(r))
+            .filter((r): r is DiscordRole => r !== null && CLAN_RANK_SET.has(r))
         )
       )
     : [];

@@ -17,6 +17,7 @@ export const NAV_SECTIONS = [
       { to: "/parties", label: "Parties" },
       { to: "/calendar", label: "Calendar" },
       { to: "/bingo", label: "Bingo" },
+      { to: "/activities/frenzy", label: "PVM Frenzy" },
     ],
   },
   {
@@ -26,6 +27,7 @@ export const NAV_SECTIONS = [
       { to: "/leaderboards", label: "Leaderboards" },
       { to: "/plugins", label: "Plugins" },
       { to: "/resources", label: "Resources & Guides" },
+      { to: "/feedback", label: "Feedback Board" },
     ],
   },
 ] as const;
@@ -44,6 +46,7 @@ export const STAFF_SECTION = {
     { to: "/staff-portal/assets",      label: "Asset Library" },
     { to: "/staff-portal/resources",   label: "Staff Resources" },
     { to: "/staff-portal/ranking",     label: "Ranking" },
+    { to: "/staff-portal/services",    label: "Services" },
   ],
 } as const;
 

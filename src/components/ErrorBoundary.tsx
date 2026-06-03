@@ -13,20 +13,20 @@ interface Props {
 }
 
 export class ErrorBoundary extends React.Component<Props, State> {
-  state: State = { hasError: false, error: null };
+  override state: State = { hasError: false, error: null };
 
   static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, info: React.ErrorInfo) {
+  override componentDidCatch(error: Error, info: React.ErrorInfo) {
     this.props.onError?.(error);
     console.error("[ErrorBoundary]", error, info.componentStack);
   }
 
   reset = () => this.setState({ hasError: false, error: null });
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return this.props.fallback ?? (
         <ErrorFallback error={this.state.error} reset={this.reset} />

@@ -60,7 +60,7 @@ const TIMELINE_COLORS = [
 ];
 
 function timelineColor(index: number): string {
-  if (index < TIMELINE_COLORS.length) return TIMELINE_COLORS[index];
+  if (index < TIMELINE_COLORS.length) return TIMELINE_COLORS[index]!;
   const hue = Math.round((index * 137.508) % 360);
   return `hsl(${hue} 65% 55%)`;
 }
@@ -228,7 +228,7 @@ function TimelineChart({
 
     // Snapshot originals before nudging - tooltip reads these back via payload.payload.
     for (const s of series) {
-      point[`__orig_${s.player_name}`] = point[s.player_name];
+      point[`__orig_${s.player_name}`] = point[s.player_name] ?? null;
     }
 
     // Separate overlapping lines: group players sharing the same non-zero value,
@@ -246,7 +246,7 @@ function TimelineChart({
       if (indices.length < 2) continue;
       const mid = (indices.length - 1) / 2;
       indices.forEach((seriesIdx, offsetIdx) => {
-        const name = series[seriesIdx].player_name;
+        const name = series[seriesIdx]!.player_name;
         point[name] = (point[name] as number) + (offsetIdx - mid) * tieOffset;
       });
     }
@@ -287,7 +287,14 @@ function TimelineChart({
           width={56}
         />
         <ChartTooltip
-          content={(props) => <OvertimeTooltip {...props} metric={metric} />}
+          content={(props) => (
+            <OvertimeTooltip
+              active={props.active}
+              payload={props.payload as Array<{ name: string; value: number; color: string; payload: Record<string, number | null> }> | undefined}
+              label={props.label != null ? String(props.label) : undefined}
+              metric={metric}
+            />
+          )}
         />
         {series.map((s, i) =>
           activePlayers.has(s.player_name) ? (
@@ -836,6 +843,7 @@ export default function CompetitionsPage() {
     void router.navigate({
       to: "/competitions/$compId",
       params: { compId: id },
+      search: { tab: undefined },
     });
   }
 
@@ -896,7 +904,7 @@ export default function CompetitionsPage() {
     void router.navigate({
       to: "/competitions/$compId",
       params: { compId },
-      search: firstTabKey ? { tab: firstTabKey } : {},
+      search: { tab: firstTabKey || undefined },
     });
   }
 

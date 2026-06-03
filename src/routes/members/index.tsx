@@ -9,6 +9,8 @@ import { highestRoleDisplay, getDisplayRank } from "@/lib/ranks";
 import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
 import { useMyBadges, useMyFeed, useNameChanges, useDashboardCompetitions, useMeStats } from "@/hooks/useMemberDashboard";
+import type { Competition } from "@/types/competitions";
+import type { FeedItem } from "@/types/members";
 import { MemberDashboardSkeleton } from "@/components/skeletons/MemberDashboardSkeleton";
 import {
   Gem, TrendingUp, Zap, ScrollText, Map, Swords,

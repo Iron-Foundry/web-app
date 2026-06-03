@@ -4,6 +4,7 @@ import { rootRoute } from "./__root";
 import { useAuth } from "@/context/AuthContext";
 import { useWomStats, useClanStats, useRecentAchievements, useHomeCompetitions } from "@/hooks/useHome";
 import type { Achievement, AchievementType } from "@/types/members";
+import type { Competition } from "@/types/competitions";
 import clanPhoto from "@/assets/clan-photo.png";
 import bannerLogo from "@/assets/BannerLogo-160x87.png";
 import { Card, CardContent } from "@/components/ui/card";
@@ -184,6 +185,7 @@ function LiveCompetitionBox({ comp, onDismiss }: { comp: Competition; onDismiss:
             <Link
               to="/competitions/$compId"
               params={{ compId: String(comp.id) }}
+              search={{ tab: undefined }}
               className="text-xs text-primary hover:underline"
             >
               Take me there!

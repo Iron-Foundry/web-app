@@ -69,5 +69,30 @@ export const queryKeys = {
   ranking: {
     status: () => ["ranking", "status"] as const,
     results: (params: string) => ["ranking", "results", params] as const,
+    stats: () => ["ranking", "stats"] as const,
+  },
+  services: {
+    status: () => ["services", "status"] as const,
+    history: (service: string, module: string, range: string) =>
+      ["services", "history", service, module, range] as const,
+    uptime: (days: number) => ["services", "uptime", days] as const,
+    bandwidth: (service: string, module: string) => ["services", "bandwidth", service, module] as const,
+  },
+  frenzy: {
+    active: () => ["frenzy", "active"] as const,
+    team: (slug: string) => ["frenzy", "active", "team", slug] as const,
+    teamHistory: (slug: string) => ["frenzy", "active", "team", slug, "history"] as const,
+    eventHistory: () => ["frenzy", "active", "history"] as const,
+    leaderboards: () => ["frenzy", "leaderboards"] as const,
+    osrsItems: (q: string) => ["frenzy", "osrs", "items", q] as const,
+    osrsBosses: () => ["frenzy", "osrs", "bosses"] as const,
+    osrsActivities: () => ["frenzy", "osrs", "activities"] as const,
+    templates: () => ["frenzy", "templates"] as const,
+    template: (id: number) => ["frenzy", "template", id] as const,
+    templateVersions: (id: number) => ["frenzy", "template", id, "versions"] as const,
+    templateVersion: (id: number, vid: number) => ["frenzy", "template", id, "version", vid] as const,
+    events: () => ["frenzy", "events"] as const,
+    event: (id: number) => ["frenzy", "event", id] as const,
+    submissions: (eventId: number, params?: string) => ["frenzy", "submissions", eventId, params ?? ""] as const,
   },
 } as const;

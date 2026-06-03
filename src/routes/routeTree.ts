@@ -26,8 +26,14 @@ import { staffPermissionsRoute } from "./members/staff/permissions";
 import { staffDiscordConfigRoute } from "./members/staff/discord-config";
 import { staffContentRoute } from "./members/staff/content";
 import { staffCompetitionsRoute } from "./members/staff/competitions";
+import { staffFrenzyRoute } from "./members/staff/frenzy";
+import { frenzyRoute } from "./activities/frenzy";
+import { frenzyTeamRoute } from "./activities/frenzy.$teamSlug";
 import { membersSurveysRoute } from "./members/surveys";
 import { membersApplicationsRoute } from "./members/applications";
+import { membersSuggestionsRoute } from "./members/suggestions";
+import { membersBugsRoute } from "./members/bugs";
+import { feedbackRoute } from "./feedback";
 import { surveyDetailRoute } from "./members/surveys.$templateId";
 import { applicationDetailRoute } from "./members/applications.$templateId";
 import { staffPortalLayoutRoute } from "./staff-portal/_layout";
@@ -41,6 +47,7 @@ import { staffPortalResourcesLayoutRoute } from "./staff-portal/resources/_layou
 import { staffPortalResourcesIndexRoute } from "./staff-portal/resources/index";
 import { staffPortalResourcesEntryRoute } from "./staff-portal/resources/$slug";
 import { staffPortalRankingRoute } from "./staff-portal/ranking";
+import { staffPortalServicesRoute } from "./staff-portal/services";
 
 const staffPortalResourcesTree = staffPortalResourcesLayoutRoute.addChildren([
   staffPortalResourcesIndexRoute,
@@ -56,6 +63,7 @@ const staffPortalTree = staffPortalLayoutRoute.addChildren([
   staffPortalAssetsRoute,
   staffPortalResourcesTree,
   staffPortalRankingRoute,
+  staffPortalServicesRoute,
 ]);
 
 const membersTree = membersLayoutRoute.addChildren([
@@ -66,11 +74,14 @@ const membersTree = membersLayoutRoute.addChildren([
   surveyDetailRoute,
   membersApplicationsRoute,
   applicationDetailRoute,
+  membersSuggestionsRoute,
+  membersBugsRoute,
   staffRankMappingsRoute,
   staffPermissionsRoute,
   staffDiscordConfigRoute,
   staffContentRoute,
   staffCompetitionsRoute,
+  staffFrenzyRoute,
 ]);
 
 const pluginsTree = pluginsLayoutRoute.addChildren([pluginsIndexRoute, pluginsEntryRoute]);
@@ -89,6 +100,9 @@ export const routeTree = rootRoute.addChildren([
   competitionsRoute,
   competitionDetailRoute,
   bingoRoute,
+  frenzyRoute,
+  frenzyTeamRoute,
+  feedbackRoute,
   pluginsTree,
   resourcesTree,
   membersTree,

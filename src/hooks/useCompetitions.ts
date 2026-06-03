@@ -51,7 +51,7 @@ export function useCompetitionOvertime(
         // Keep first + last of each run so flat segments still draw correctly.
         const deduped = clamped.filter((point, i, arr) => {
           if (i === 0 || i === arr.length - 1) return true;
-          return point.value !== arr[i - 1].value || point.value !== arr[i + 1].value;
+          return point.value !== arr[i - 1]!.value || point.value !== arr[i + 1]!.value;
         });
         return { ...player, history: deduped };
       }),

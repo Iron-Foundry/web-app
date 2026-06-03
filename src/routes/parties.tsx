@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { useAuth } from "@/context/AuthContext";
@@ -436,6 +438,7 @@ function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
 
 export default function PartiesPage() {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const { data: parties = [], isLoading } = useParties();
   const { data: categories = [] } = useNotificationCategories(!!user);
   const { data: prefs } = useNotificationPreferences(!!user);
@@ -445,13 +448,16 @@ export default function PartiesPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [editingParty, setEditingParty] = useState<Party | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifSelected, setNotifSelected] = useState<string[] | null>(null);
 
-  useEffect(() => {
-    if (prefs !== undefined && notifSelected === null) {
-      setNotifSelected(prefs.category_ids);
-    }
-  }, [prefs, notifSelected]);
+  function handleNotifToggle(id: string) {
+    qc.setQueryData<{ category_ids: string[] }>(
+      queryKeys.parties.notificationPreferences(),
+      (old) => {
+        const cur = old?.category_ids ?? [];
+        return { category_ids: cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id] };
+      },
+    );
+  }
 
   const currentUserId = user?.discord_user_id ?? null;
 
@@ -537,11 +543,8 @@ export default function PartiesPage() {
       {showNotifications && (
         <NotificationsModal
           categories={categories}
-          selected={notifSelected ?? []}
-          onToggle={(id) => setNotifSelected(prev => {
-            const cur = prev ?? [];
-            return cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
-          })}
+          selected={prefs?.category_ids ?? []}
+          onToggle={handleNotifToggle}
           onClose={() => setShowNotifications(false)}
         />
       )}

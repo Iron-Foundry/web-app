@@ -532,7 +532,7 @@ function ConfigTab() {
           <div className="grid grid-cols-3 gap-3">
             {(["tier_1", "tier_2", "tier_3", "tier_4", "tier_5", "max"] as const).map((k) => (
               <NumField key={k} label={k === "max" ? "Max XP" : `XP tier ${k.slice(-1)}`}
-                value={(config.skill_exp_tiers as Record<string, number>)[k]}
+                value={(config.skill_exp_tiers as Record<string, number>)[k] ?? 0}
                 onChange={(v) => updateNested("skill_exp_tiers", k as keyof typeof config.skill_exp_tiers, v)} />
             ))}
           </div>
@@ -652,7 +652,7 @@ function ConfigTab() {
                   {preview.players
                     .filter((p) => p.rank_changed)
                     .map((p) => {
-                      const dir = RANK_ORDER[p.preview_rank] > RANK_ORDER[p.current_rank ?? "No Rank"] ? 1 : -1;
+                      const dir = (RANK_ORDER[p.preview_rank] ?? 0) > (RANK_ORDER[p.current_rank ?? "No Rank"] ?? 0) ? 1 : -1;
                       return (
                         <tr key={p.rsn} className="hover:bg-muted/30">
                           <td className="px-3 py-1.5 font-mono">{p.rsn}</td>
