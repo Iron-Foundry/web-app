@@ -35,3 +35,11 @@ export function useBandwidth(service = "api-backend", module = "endpoints") {
     refetchInterval: 300_000,
   });
 }
+
+export function useWomRateLimit() {
+  return useQuery({
+    queryKey: queryKeys.services.womRateLimit(),
+    queryFn: servicesApi.getWomRateLimit,
+    refetchInterval: 15_000,
+  });
+}

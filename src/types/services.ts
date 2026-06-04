@@ -44,3 +44,12 @@ export interface ServiceUptime {
   uptime_pct: number | null;
   days: UptimeDay[];
 }
+
+export interface WomRateLimitSnapshot {
+  ts: number;
+  remaining: number;
+  reservedUsed: number;
+  queueHigh: number;
+  queueNormal: number;
+  queueLow: number;
+}

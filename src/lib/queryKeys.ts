@@ -77,6 +77,7 @@ export const queryKeys = {
       ["services", "history", service, module, range] as const,
     uptime: (days: number) => ["services", "uptime", days] as const,
     bandwidth: (service: string, module: string) => ["services", "bandwidth", service, module] as const,
+    womRateLimit: () => ["services", "wom-rate-limit"] as const,
   },
   frenzy: {
     active: () => ["frenzy", "active"] as const,

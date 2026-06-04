@@ -14,6 +14,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import type { TooltipProps } from "recharts";
 import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { staffPortalLayoutRoute } from "./_layout";
 import { StaffGuard } from "@/components/StaffGuard";
@@ -28,7 +29,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { registerPage } from "@/lib/permissions";
-import { useServicesStatus, useMetricHistory, useServicesUptime, useBandwidth } from "@/hooks/useServices";
+import { useServicesStatus, useMetricHistory, useServicesUptime, useBandwidth, useWomRateLimit } from "@/hooks/useServices";
 import type { MetricRecord, ServiceStatus, ServiceUptime } from "@/types/services";
 import {
   RefreshCw,
@@ -69,6 +70,57 @@ const RANGES = [
 ] as const;
 
 const LINE_COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ec4899", "#14b8a6"];
+
+const CHART_CURSOR = { stroke: "var(--border)", strokeWidth: 1 };
+
+function ChartTooltip({ active, payload, label }: TooltipProps<number, string>) {
+  if (!active || !payload?.length) return null;
+  const items = payload.filter((p) => p.value != null);
+  return (
+    <div
+      style={{
+        backgroundColor: "var(--card)",
+        border: "1px solid var(--border)",
+        borderRadius: 6,
+        padding: "8px 12px",
+        fontSize: 11,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+        minWidth: 160,
+      }}
+    >
+      <p style={{ color: "var(--muted-foreground)", marginBottom: 6, fontSize: 10 }}>
+        {label ? new Date(String(label)).toLocaleString() : ""}
+      </p>
+      {items.map((item) => (
+        <div
+          key={item.dataKey}
+          style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}
+        >
+          <span
+            style={{
+              display: "inline-block",
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              backgroundColor: item.color,
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ color: item.color, flex: 1 }}>{item.name}</span>
+          <span
+            style={{
+              color: "var(--card-foreground)",
+              fontVariantNumeric: "tabular-nums",
+              paddingLeft: 12,
+            }}
+          >
+            {(item.value ?? 0).toLocaleString()}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function timeAgo(iso: string): string {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -713,10 +765,7 @@ function EndpointsView({ records, rangeDays, service }: { records: MetricRecord[
               />
               <YAxis yAxisId="left" tick={{ fontSize: 10 }} width={40} />
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} width={44} unit="ms" />
-              <Tooltip
-                contentStyle={{ fontSize: 11 }}
-                labelFormatter={(v) => new Date(String(v)).toLocaleString()}
-              />
+              <Tooltip content={ChartTooltip} cursor={CHART_CURSOR} />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
               <Bar yAxisId="left" dataKey="requests" fill="#6366f1" opacity={0.7} name="requests" radius={[2, 2, 0, 0]} />
               <Line yAxisId="right" type="monotone" dataKey="latency" stroke="#f59e0b" dot={false} strokeWidth={2} name="avg ms" />
@@ -783,10 +832,7 @@ function TicketsView({ records, rangeDays }: { records: MetricRecord[]; rangeDay
                 interval="preserveStartEnd"
               />
               <YAxis tick={{ fontSize: 10 }} width={36} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{ fontSize: 11 }}
-                labelFormatter={(v) => new Date(String(v)).toLocaleString()}
-              />
+              <Tooltip content={ChartTooltip} cursor={CHART_CURSOR} />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
               <Line
                 type="monotone"
@@ -816,13 +862,16 @@ function TicketsView({ records, rangeDays }: { records: MetricRecord[]; rangeDay
 
 function MembersView({ records, rangeDays }: { records: MetricRecord[]; rangeDays: number }) {
   const chartData = useMemo(() => {
-    return [...records].reverse().map((r) => {
+    const asc = [...records].reverse();
+    return asc.map((r, i) => {
       const total = (r.metrics.total_users as number) ?? 0;
       const linked = (r.metrics.users_with_rsn as number) ?? 0;
+      const prevTotal = i > 0 ? (((asc[i - 1]?.metrics.total_users) as number) ?? total) : total;
+      const prevLinked = i > 0 ? (((asc[i - 1]?.metrics.users_with_rsn) as number) ?? linked) : linked;
       return {
         t: r.recorded_at,
-        total_users: total || null,
-        users_with_rsn: linked || null,
+        new_users: Math.max(0, total - prevTotal) || null,
+        new_rsn: Math.max(0, linked - prevLinked) || null,
         coverage_pct: total > 0 ? Math.round((linked / total) * 100) : null,
       };
     });
@@ -854,30 +903,11 @@ function MembersView({ records, rangeDays }: { records: MetricRecord[]; rangeDay
                 interval="preserveStartEnd"
               />
               <YAxis yAxisId="left" tick={{ fontSize: 10 }} width={40} allowDecimals={false} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} width={36} unit="%" />
-              <Tooltip
-                contentStyle={{ fontSize: 11 }}
-                labelFormatter={(v) => new Date(String(v)).toLocaleString()}
-              />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} width={36} unit="%" domain={[0, 100]} />
+              <Tooltip content={ChartTooltip} cursor={CHART_CURSOR} />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="total_users"
-                stroke="#6366f1"
-                dot={false}
-                strokeWidth={2}
-                name="total users"
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="users_with_rsn"
-                stroke="#22c55e"
-                dot={false}
-                strokeWidth={1.5}
-                name="rsn linked"
-              />
+              <Bar yAxisId="left" dataKey="new_users" stackId="growth" fill="#6366f1" opacity={0.85} name="new users" radius={[0, 0, 0, 0]} />
+              <Bar yAxisId="left" dataKey="new_rsn" stackId="growth" fill="#22c55e" opacity={0.85} name="new RSN links" radius={[2, 2, 0, 0]} />
               <Line
                 yAxisId="right"
                 type="monotone"
@@ -896,7 +926,7 @@ function MembersView({ records, rangeDays }: { records: MetricRecord[]; rangeDay
   );
 }
 
-// ── CCIngest module view ──────────────────────────────────────────────────────
+// ── CCIngest helpers (used in WebSocketView) ─────────────────────────────────
 
 const CCINGEST_EVENT_COLORS: Record<string, string> = {
   chat: "#6366f1",
@@ -950,150 +980,6 @@ const CCINGEST_CHART_KEYS = [
   "combat_achievement", "collection_log", "personal_best",
 ];
 
-function CcIngestView({ records, rangeDays }: { records: MetricRecord[]; rangeDays: number }) {
-  const chartData = useMemo(() => {
-    return [...records].reverse().map((r) => {
-      const entry: Record<string, unknown> = { t: r.recorded_at };
-      for (const key of CCINGEST_CHART_KEYS) {
-        entry[key] = (r.metrics[key] as number) ?? 0;
-      }
-      const tracked = CCINGEST_CHART_KEYS.reduce((s, k) => s + ((r.metrics[k] as number) ?? 0), 0);
-      const total = (r.metrics.total_messages as number) ?? 0;
-      entry.other = Math.max(0, total - tracked);
-      return entry;
-    });
-  }, [records]);
-
-  const latest = records[0]?.metrics ?? {};
-  const totalMessages = chartData.reduce((s, r) => s + (CCINGEST_CHART_KEYS.reduce((ss, k) => ss + ((r[k] as number) ?? 0), 0) + ((r.other as number) ?? 0)), 0);
-  const totalDuplicates = records.reduce((s, r) => s + ((r.metrics.duplicate_skipped as number) ?? 0), 0);
-  const latestTotal = (latest.total_messages as number) ?? 0;
-  const latestChat = (latest.chat as number) ?? 0;
-  const latestLoot = (latest.loot as number) ?? 0;
-
-  const allEventKeys = useMemo(() => {
-    const keys = new Set<string>();
-    for (const r of records) {
-      for (const k of Object.keys(r.metrics)) {
-        if (k !== "total_messages" && k !== "duplicate_skipped") keys.add(k);
-      }
-    }
-    return Array.from(keys).sort();
-  }, [records]);
-
-  const totalsPerType = useMemo(() => {
-    const agg: Record<string, number> = {};
-    for (const r of records) {
-      for (const k of allEventKeys) {
-        agg[k] = (agg[k] ?? 0) + ((r.metrics[k] as number) ?? 0);
-      }
-    }
-    return Object.entries(agg).sort(([, a], [, b]) => b - a);
-  }, [records, allEventKeys]);
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatChip label={`Messages (${rangeDays}d)`} value={fmtNum(totalMessages)} />
-        <StatChip label="Latest window" value={fmtNum(latestTotal)} />
-        <StatChip label={`Chat (${rangeDays}d)`} value={fmtNum(chartData.reduce((s, r) => s + ((r.chat as number) ?? 0), 0))} />
-        <StatChip label={`Duplicates (${rangeDays}d)`} value={fmtNum(totalDuplicates)} dim={totalDuplicates === 0} />
-      </div>
-
-      {chartData.length > 0 && (
-        <div>
-          <p className="text-xs text-muted-foreground mb-2 font-medium">
-            Event volume by type — {rangeDays === 1 ? "5-minute" : "aggregated"} windows
-          </p>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis
-                dataKey="t"
-                tick={{ fontSize: 10 }}
-                tickFormatter={(v) => formatXTick(v, rangeDays)}
-                interval="preserveStartEnd"
-              />
-              <YAxis tick={{ fontSize: 10 }} width={36} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{ fontSize: 11 }}
-                labelFormatter={(v) => new Date(String(v)).toLocaleString()}
-              />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              {CCINGEST_CHART_KEYS.map((key) => (
-                <Area
-                  key={key}
-                  type="monotone"
-                  dataKey={key}
-                  stackId="events"
-                  stroke={CCINGEST_EVENT_COLORS[key] ?? "#6b7280"}
-                  fill={CCINGEST_EVENT_COLORS[key] ?? "#6b7280"}
-                  fillOpacity={0.6}
-                  dot={false}
-                  strokeWidth={1}
-                  name={CCINGEST_EVENT_LABELS[key] ?? key}
-                  connectNulls={false}
-                />
-              ))}
-              <Area
-                key="other"
-                type="monotone"
-                dataKey="other"
-                stackId="events"
-                stroke="#374151"
-                fill="#374151"
-                fillOpacity={0.4}
-                dot={false}
-                strokeWidth={1}
-                name="Other"
-                connectNulls={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {totalsPerType.length > 0 && (
-        <div>
-          <p className="text-xs text-muted-foreground mb-2 font-medium">
-            Event breakdown — totals over {rangeDays}d
-          </p>
-          <div className="overflow-x-auto rounded-md border border-border">
-            <table className="w-full text-xs">
-              <thead className="border-b border-border bg-muted/30">
-                <tr>
-                  <th className="px-3 py-2 text-left font-medium text-muted-foreground">Event type</th>
-                  <th className="px-3 py-2 text-right font-medium text-muted-foreground">Count</th>
-                  <th className="px-3 py-2 text-right font-medium text-muted-foreground">Share</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {totalsPerType.map(([key, count]) => (
-                  <tr key={key} className="hover:bg-muted/20">
-                    <td className="px-3 py-2 flex items-center gap-2">
-                      <span
-                        className="inline-block h-2 w-2 rounded-full shrink-0"
-                        style={{ background: CCINGEST_EVENT_COLORS[key] ?? "#6b7280" }}
-                      />
-                      {CCINGEST_EVENT_LABELS[key] ?? key.replace(/_/g, " ")}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums font-medium">
-                      {count.toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
-                      {totalMessages > 0 ? `${((count / totalMessages) * 100).toFixed(1)}%` : "-"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ── Generic module view ───────────────────────────────────────────────────────
 
 function GenericModuleView({ records, rangeDays }: { records: MetricRecord[]; rangeDays: number }) {
@@ -1129,10 +1015,7 @@ function GenericModuleView({ records, rangeDays }: { records: MetricRecord[]; ra
           interval="preserveStartEnd"
         />
         <YAxis tick={{ fontSize: 10 }} width={40} />
-        <Tooltip
-          contentStyle={{ fontSize: 11 }}
-          labelFormatter={(v) => new Date(String(v)).toLocaleString()}
-        />
+        <Tooltip content={ChartTooltip} cursor={CHART_CURSOR} />
         <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
         {chartData.keys.slice(0, 6).map((key, i) => (
           <Line
@@ -1161,6 +1044,36 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
       messages_dispatched: (r.metrics.messages_dispatched as number) ?? null,
     }));
   }, [records]);
+
+  const combinedChartData = useMemo(() => {
+    return [...records].reverse().map((r) => {
+      const cc = (r.metrics.ccingest as Record<string, number> | undefined) ?? {};
+      const entry: Record<string, unknown> = {
+        t: r.recorded_at,
+        messages_dispatched: (r.metrics.messages_dispatched as number) ?? null,
+      };
+      for (const key of CCINGEST_CHART_KEYS) entry[key] = cc[key] ?? 0;
+      const tracked = CCINGEST_CHART_KEYS.reduce((s, k) => s + (cc[k] ?? 0), 0);
+      const total = cc.total_messages ?? 0;
+      entry.other = Math.max(0, total - tracked);
+      return entry;
+    });
+  }, [records]);
+
+  const ingestTotals = useMemo(() => {
+    const agg: Record<string, number> = {};
+    for (const r of records) {
+      const cc = (r.metrics.ccingest as Record<string, number> | undefined) ?? {};
+      for (const [k, v] of Object.entries(cc)) {
+        if (k !== "total_messages") agg[k] = (agg[k] ?? 0) + v;
+      }
+    }
+    return Object.entries(agg).sort(([, a], [, b]) => b - a);
+  }, [records]);
+
+  const totalIngestMessages = ingestTotals
+    .filter(([k]) => k !== "duplicate_skipped")
+    .reduce((s, [, v]) => s + v, 0);
 
   const latest = records[0]?.metrics ?? {};
   const totalDispatched = chartData.reduce((s, r) => s + (r.messages_dispatched ?? 0), 0);
@@ -1199,10 +1112,7 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
                   interval="preserveStartEnd"
                 />
                 <YAxis tick={{ fontSize: 10 }} width={32} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ fontSize: 11 }}
-                  labelFormatter={(v) => new Date(String(v)).toLocaleString()}
-                />
+                <Tooltip content={ChartTooltip} cursor={CHART_CURSOR} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                 <Area
                   type="monotone"
@@ -1228,47 +1138,119 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
             </ResponsiveContainer>
           </div>
 
-          <div>
-            <p className="text-xs text-muted-foreground mb-2 font-medium">Messages dispatched per interval</p>
-            <ResponsiveContainer width="100%" height={120}>
-              <AreaChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-                <defs>
-                  <linearGradient id="msgGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis
-                  dataKey="t"
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => formatXTick(v, rangeDays)}
-                  interval="preserveStartEnd"
-                />
-                <YAxis tick={{ fontSize: 10 }} width={32} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ fontSize: 11 }}
-                  labelFormatter={(v) => new Date(String(v)).toLocaleString()}
-                  formatter={(v: number) => [v.toLocaleString(), "messages"]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="messages_dispatched"
-                  stroke="#f59e0b"
-                  strokeWidth={1.5}
-                  fill="url(#msgGradient)"
-                  dot={false}
-                  name="messages dispatched"
-                  connectNulls={false}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-            <p className="text-xs text-muted-foreground mt-1">
-              {totalDispatched.toLocaleString()} total messages dispatched in selected range
-            </p>
-          </div>
         </>
       )}
+
+      <div className="border-t border-border/60 pt-4 space-y-4">
+        <p className="text-xs text-muted-foreground font-medium">
+          Clan chat — ingest events &amp; dispatched messages
+        </p>
+
+        <ResponsiveContainer width="100%" height={220}>
+          <ComposedChart data={combinedChartData} margin={{ top: 4, right: 44, bottom: 0, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+            <XAxis
+              dataKey="t"
+              tick={{ fontSize: 10 }}
+              tickFormatter={(v) => formatXTick(v, rangeDays)}
+              interval="preserveStartEnd"
+            />
+            <YAxis yAxisId="left" tick={{ fontSize: 10 }} width={36} allowDecimals={false} />
+            <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} width={40} allowDecimals={false} />
+            <Tooltip content={ChartTooltip} cursor={CHART_CURSOR} />
+            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+            {CCINGEST_CHART_KEYS.map((key) => (
+              <Area
+                key={key}
+                yAxisId="left"
+                type="monotone"
+                dataKey={key}
+                stackId="ingest"
+                stroke={CCINGEST_EVENT_COLORS[key] ?? "#6b7280"}
+                fill={CCINGEST_EVENT_COLORS[key] ?? "#6b7280"}
+                fillOpacity={0.6}
+                dot={false}
+                strokeWidth={1}
+                name={CCINGEST_EVENT_LABELS[key] ?? key}
+                connectNulls={false}
+              />
+            ))}
+            <Area
+              yAxisId="left"
+              type="monotone"
+              dataKey="other"
+              stackId="ingest"
+              stroke="#374151"
+              fill="#374151"
+              fillOpacity={0.4}
+              dot={false}
+              strokeWidth={1}
+              name="Other"
+              connectNulls={false}
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="messages_dispatched"
+              stroke="#f59e0b"
+              strokeWidth={2}
+              dot={false}
+              name="Dispatched"
+              connectNulls={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+
+        <div>
+          <p className="text-xs text-muted-foreground mb-2 font-medium">
+            Event breakdown — totals over {rangeDays}d
+          </p>
+          <div className="overflow-x-auto rounded-md border border-border">
+            <table className="w-full text-xs">
+              <thead className="border-b border-border bg-muted/30">
+                <tr>
+                  <th className="px-3 py-2 text-left font-medium text-muted-foreground">Event type</th>
+                  <th className="px-3 py-2 text-right font-medium text-muted-foreground">Count</th>
+                  <th className="px-3 py-2 text-right font-medium text-muted-foreground">Share</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {ingestTotals.length === 0
+                  ? Object.entries(CCINGEST_EVENT_LABELS).map(([key, label]) => (
+                      <tr key={key} className="opacity-40">
+                        <td className="px-3 py-2 flex items-center gap-2">
+                          <span
+                            className="inline-block h-2 w-2 rounded-full shrink-0"
+                            style={{ background: CCINGEST_EVENT_COLORS[key] ?? "#6b7280" }}
+                          />
+                          {label}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums">—</td>
+                        <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">—</td>
+                      </tr>
+                    ))
+                  : ingestTotals.map(([key, count]) => (
+                      <tr key={key} className="hover:bg-muted/20">
+                        <td className="px-3 py-2 flex items-center gap-2">
+                          <span
+                            className="inline-block h-2 w-2 rounded-full shrink-0"
+                            style={{ background: CCINGEST_EVENT_COLORS[key] ?? "#6b7280" }}
+                          />
+                          {CCINGEST_EVENT_LABELS[key] ?? key.replace(/_/g, " ")}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums font-medium">
+                          {count.toLocaleString()}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
+                          {totalIngestMessages > 0 ? `${((count / totalIngestMessages) * 100).toFixed(1)}%` : "-"}
+                        </td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1276,7 +1258,7 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
 // ── Service detail panel ──────────────────────────────────────────────────────
 
 const DEFAULT_MODULE: Record<string, string> = {
-  "api-backend": "ccingest",
+  "api-backend": "endpoints",
   "discord-server": "bot",
 };
 
@@ -1359,10 +1341,108 @@ function ServiceDetailPanel({ svc }: { svc: ServiceStatus }) {
           <TicketsView records={data.records} rangeDays={rangeDays} />
         ) : activeModule === "members" ? (
           <MembersView records={data.records} rangeDays={rangeDays} />
-        ) : activeModule === "ccingest" ? (
-          <CcIngestView records={data.records} rangeDays={rangeDays} />
         ) : (
           <GenericModuleView records={data.records} rangeDays={rangeDays} />
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── WOM rate limit chart ──────────────────────────────────────────────────────
+
+function WomRateLimitChart() {
+  const { data, isLoading } = useWomRateLimit();
+
+  const chartData = useMemo(() => {
+    if (!data) return [];
+    return data.map((s) => ({
+      t: new Date(s.ts * 1000).toISOString(),
+      high: s.remaining,
+      normal: Math.max(0, s.remaining - 5),
+      low: Math.max(0, s.remaining - 25),
+      utilized: 100 - s.remaining,
+      queueHigh: s.queueHigh,
+      queueNormal: s.queueNormal,
+      queueLow: s.queueLow,
+    }));
+  }, [data]);
+
+  const latest = data?.[data.length - 1];
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm">WOM Rate Limit</CardTitle>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            {latest && (
+              <>
+                <span>
+                  <span className="text-red-400 font-mono font-medium">{latest.remaining}</span>
+                  <span className="ml-1 mr-3">high</span>
+                  <span className="text-indigo-400 font-mono font-medium">{Math.max(0, latest.remaining - 5)}</span>
+                  <span className="ml-1 mr-3">normal</span>
+                  <span className="text-slate-400 font-mono font-medium">{Math.max(0, latest.remaining - 25)}</span>
+                  <span className="ml-1">low</span>
+                </span>
+              </>
+            )}
+            <span className="opacity-60">30-min window · refreshes 15s</span>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {isLoading ? (
+          <div className="h-44 animate-pulse rounded bg-muted" />
+        ) : chartData.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-6 text-center">No data yet - queue starts recording on first WOM request.</p>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 font-medium">Effective budget per priority tier</p>
+              <ResponsiveContainer width="100%" height={160}>
+                <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis
+                    dataKey="t"
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(v) => new Date(v).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis tick={{ fontSize: 10 }} width={32} domain={[0, 100]} />
+                  <Tooltip content={ChartTooltip} cursor={CHART_CURSOR} />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                  <Line type="monotone" dataKey="utilized" stroke="#f59e0b" strokeWidth={2} strokeDasharray="4 2" dot={false} name="utilized %" />
+                  <Line type="monotone" dataKey="high" stroke="#ef4444" strokeWidth={2} dot={false} name="high (0–100)" />
+                  <Line type="monotone" dataKey="normal" stroke="#6366f1" strokeWidth={2} dot={false} name="normal (0–95)" />
+                  <Line type="monotone" dataKey="low" stroke="#94a3b8" strokeWidth={2} dot={false} name="low (0–75)" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            {chartData.some((d) => d.queueHigh > 0 || d.queueNormal > 0 || d.queueLow > 0) && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-2 font-medium">Queue depth by priority</p>
+                <ResponsiveContainer width="100%" height={100}>
+                  <AreaChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis
+                      dataKey="t"
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v) => new Date(v).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis tick={{ fontSize: 10 }} width={24} allowDecimals={false} />
+                    <Tooltip content={ChartTooltip} cursor={CHART_CURSOR} />
+                    <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                    <Area type="monotone" dataKey="queueHigh" stackId="q" stroke="#ef4444" fill="#ef4444" fillOpacity={0.7} dot={false} strokeWidth={1} name="high" />
+                    <Area type="monotone" dataKey="queueNormal" stackId="q" stroke="#6366f1" fill="#6366f1" fillOpacity={0.6} dot={false} strokeWidth={1} name="normal" />
+                    <Area type="monotone" dataKey="queueLow" stackId="q" stroke="#94a3b8" fill="#94a3b8" fillOpacity={0.5} dot={false} strokeWidth={1} name="low" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>
@@ -1410,6 +1490,8 @@ function ServicesPage() {
       </div>
 
       <UptimeChart />
+
+      <WomRateLimitChart />
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

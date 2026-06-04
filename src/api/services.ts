@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { BandwidthStats, MetricHistory, MetricHistoryParams, ServiceStatus, ServiceUptime } from "@/types/services";
+import type { BandwidthStats, MetricHistory, MetricHistoryParams, ServiceStatus, ServiceUptime, WomRateLimitSnapshot } from "@/types/services";
 
 export const servicesApi = {
   getStatus: () => apiFetch<ServiceStatus[]>("/services/status"),
@@ -17,4 +17,7 @@ export const servicesApi = {
 
   getBandwidth: (service = "api-backend", module = "endpoints") =>
     apiFetch<BandwidthStats>(`/metrics/bandwidth?service=${service}&module=${module}`),
+
+  getWomRateLimit: () =>
+    apiFetch<WomRateLimitSnapshot[]>("/metrics/wom-rate-limit"),
 };
