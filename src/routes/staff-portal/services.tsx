@@ -896,6 +896,204 @@ function MembersView({ records, rangeDays }: { records: MetricRecord[]; rangeDay
   );
 }
 
+// ── CCIngest module view ──────────────────────────────────────────────────────
+
+const CCINGEST_EVENT_COLORS: Record<string, string> = {
+  chat: "#6366f1",
+  loot: "#f59e0b",
+  level_up: "#22c55e",
+  pet: "#ec4899",
+  xp_milestone: "#14b8a6",
+  quest: "#8b5cf6",
+  combat_achievement: "#f97316",
+  collection_log: "#06b6d4",
+  personal_best: "#84cc16",
+  new_member: "#10b981",
+  coffer_donation: "#eab308",
+  coffer_withdrawal: "#ef4444",
+  left_clan: "#6b7280",
+  expelled: "#dc2626",
+  pk: "#b91c1c",
+  loot_key: "#d97706",
+  clue_item: "#7c3aed",
+  hcim_death: "#991b1b",
+  diary: "#0ea5e9",
+  unknown: "#374151",
+};
+
+const CCINGEST_EVENT_LABELS: Record<string, string> = {
+  chat: "Chat",
+  loot: "Loot",
+  level_up: "Level Up",
+  pet: "Pet",
+  xp_milestone: "XP Milestone",
+  quest: "Quest",
+  combat_achievement: "Combat Achievement",
+  collection_log: "Collection Log",
+  personal_best: "Personal Best",
+  new_member: "New Member",
+  coffer_donation: "Coffer Donation",
+  coffer_withdrawal: "Coffer Withdrawal",
+  left_clan: "Left Clan",
+  expelled: "Expelled",
+  pk: "PK",
+  loot_key: "Loot Key",
+  clue_item: "Clue Item",
+  hcim_death: "HCIM Death",
+  diary: "Diary",
+  duplicate_skipped: "Duplicates",
+  unknown: "Unknown",
+};
+
+const CCINGEST_CHART_KEYS = [
+  "chat", "loot", "level_up", "pet", "xp_milestone", "quest",
+  "combat_achievement", "collection_log", "personal_best",
+];
+
+function CcIngestView({ records, rangeDays }: { records: MetricRecord[]; rangeDays: number }) {
+  const chartData = useMemo(() => {
+    return [...records].reverse().map((r) => {
+      const entry: Record<string, unknown> = { t: r.recorded_at };
+      for (const key of CCINGEST_CHART_KEYS) {
+        entry[key] = (r.metrics[key] as number) ?? 0;
+      }
+      const tracked = CCINGEST_CHART_KEYS.reduce((s, k) => s + ((r.metrics[k] as number) ?? 0), 0);
+      const total = (r.metrics.total_messages as number) ?? 0;
+      entry.other = Math.max(0, total - tracked);
+      return entry;
+    });
+  }, [records]);
+
+  const latest = records[0]?.metrics ?? {};
+  const totalMessages = chartData.reduce((s, r) => s + (CCINGEST_CHART_KEYS.reduce((ss, k) => ss + ((r[k] as number) ?? 0), 0) + ((r.other as number) ?? 0)), 0);
+  const totalDuplicates = records.reduce((s, r) => s + ((r.metrics.duplicate_skipped as number) ?? 0), 0);
+  const latestTotal = (latest.total_messages as number) ?? 0;
+  const latestChat = (latest.chat as number) ?? 0;
+  const latestLoot = (latest.loot as number) ?? 0;
+
+  const allEventKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const r of records) {
+      for (const k of Object.keys(r.metrics)) {
+        if (k !== "total_messages" && k !== "duplicate_skipped") keys.add(k);
+      }
+    }
+    return Array.from(keys).sort();
+  }, [records]);
+
+  const totalsPerType = useMemo(() => {
+    const agg: Record<string, number> = {};
+    for (const r of records) {
+      for (const k of allEventKeys) {
+        agg[k] = (agg[k] ?? 0) + ((r.metrics[k] as number) ?? 0);
+      }
+    }
+    return Object.entries(agg).sort(([, a], [, b]) => b - a);
+  }, [records, allEventKeys]);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatChip label={`Messages (${rangeDays}d)`} value={fmtNum(totalMessages)} />
+        <StatChip label="Latest window" value={fmtNum(latestTotal)} />
+        <StatChip label={`Chat (${rangeDays}d)`} value={fmtNum(chartData.reduce((s, r) => s + ((r.chat as number) ?? 0), 0))} />
+        <StatChip label={`Duplicates (${rangeDays}d)`} value={fmtNum(totalDuplicates)} dim={totalDuplicates === 0} />
+      </div>
+
+      {chartData.length > 0 && (
+        <div>
+          <p className="text-xs text-muted-foreground mb-2 font-medium">
+            Event volume by type — {rangeDays === 1 ? "5-minute" : "aggregated"} windows
+          </p>
+          <ResponsiveContainer width="100%" height={240}>
+            <AreaChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis
+                dataKey="t"
+                tick={{ fontSize: 10 }}
+                tickFormatter={(v) => formatXTick(v, rangeDays)}
+                interval="preserveStartEnd"
+              />
+              <YAxis tick={{ fontSize: 10 }} width={36} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ fontSize: 11 }}
+                labelFormatter={(v) => new Date(String(v)).toLocaleString()}
+              />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              {CCINGEST_CHART_KEYS.map((key) => (
+                <Area
+                  key={key}
+                  type="monotone"
+                  dataKey={key}
+                  stackId="events"
+                  stroke={CCINGEST_EVENT_COLORS[key] ?? "#6b7280"}
+                  fill={CCINGEST_EVENT_COLORS[key] ?? "#6b7280"}
+                  fillOpacity={0.6}
+                  dot={false}
+                  strokeWidth={1}
+                  name={CCINGEST_EVENT_LABELS[key] ?? key}
+                  connectNulls={false}
+                />
+              ))}
+              <Area
+                key="other"
+                type="monotone"
+                dataKey="other"
+                stackId="events"
+                stroke="#374151"
+                fill="#374151"
+                fillOpacity={0.4}
+                dot={false}
+                strokeWidth={1}
+                name="Other"
+                connectNulls={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {totalsPerType.length > 0 && (
+        <div>
+          <p className="text-xs text-muted-foreground mb-2 font-medium">
+            Event breakdown — totals over {rangeDays}d
+          </p>
+          <div className="overflow-x-auto rounded-md border border-border">
+            <table className="w-full text-xs">
+              <thead className="border-b border-border bg-muted/30">
+                <tr>
+                  <th className="px-3 py-2 text-left font-medium text-muted-foreground">Event type</th>
+                  <th className="px-3 py-2 text-right font-medium text-muted-foreground">Count</th>
+                  <th className="px-3 py-2 text-right font-medium text-muted-foreground">Share</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {totalsPerType.map(([key, count]) => (
+                  <tr key={key} className="hover:bg-muted/20">
+                    <td className="px-3 py-2 flex items-center gap-2">
+                      <span
+                        className="inline-block h-2 w-2 rounded-full shrink-0"
+                        style={{ background: CCINGEST_EVENT_COLORS[key] ?? "#6b7280" }}
+                      />
+                      {CCINGEST_EVENT_LABELS[key] ?? key.replace(/_/g, " ")}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums font-medium">
+                      {count.toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
+                      {totalMessages > 0 ? `${((count / totalMessages) * 100).toFixed(1)}%` : "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Generic module view ───────────────────────────────────────────────────────
 
 function GenericModuleView({ records, rangeDays }: { records: MetricRecord[]; rangeDays: number }) {
@@ -1078,7 +1276,7 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
 // ── Service detail panel ──────────────────────────────────────────────────────
 
 const DEFAULT_MODULE: Record<string, string> = {
-  "api-backend": "endpoints",
+  "api-backend": "ccingest",
   "discord-server": "bot",
 };
 
@@ -1161,6 +1359,8 @@ function ServiceDetailPanel({ svc }: { svc: ServiceStatus }) {
           <TicketsView records={data.records} rangeDays={rangeDays} />
         ) : activeModule === "members" ? (
           <MembersView records={data.records} rangeDays={rangeDays} />
+        ) : activeModule === "ccingest" ? (
+          <CcIngestView records={data.records} rangeDays={rangeDays} />
         ) : (
           <GenericModuleView records={data.records} rangeDays={rangeDays} />
         )}
