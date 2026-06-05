@@ -43,3 +43,11 @@ export function useWomRateLimit() {
     refetchInterval: 15_000,
   });
 }
+
+export function useServiceToggles() {
+  return useQuery({
+    queryKey: queryKeys.services.toggles(),
+    queryFn: servicesApi.getToggles,
+    staleTime: 30_000,
+  });
+}

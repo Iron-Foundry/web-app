@@ -16,6 +16,7 @@ import {
   RankingTabSkeleton,
 } from "@/components/skeletons/LeaderboardSkeleton";
 import { cn } from "@/lib/utils";
+import { INGAME_TO_DISPLAY } from "@/lib/ranks";
 import { LayoutList, LayoutGrid, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -47,6 +48,17 @@ const GEM_RANKS = [
   "Guest", "Achiever", "Sapphire", "Emerald", "Ruby",
   "Diamond", "Dragonstone", "Onyx", "Zenyte",
 ] as const;
+
+const GEM_RANKS_SET = new Set<string>(GEM_RANKS);
+
+function resolveFilterRank(e: { clan_rank?: string | null; discord_rank?: string | null }): string | null {
+  if (e.discord_rank) {
+    const match = GEM_RANKS.find((r) => r.toLowerCase() === e.discord_rank!.toLowerCase());
+    if (match) return match;
+  }
+  const display = INGAME_TO_DISPLAY[e.clan_rank ?? ""];
+  return display && GEM_RANKS_SET.has(display) ? display : null;
+}
 
 const GEM_RANK_COLOR: Record<string, string> = {
   Sapphire:    "text-blue-400",
@@ -144,11 +156,12 @@ function groupPbs(entries: PbEntry[]): Grouped {
   return out;
 }
 
-/** Count unique player appearances per gem rank from any entry array. */
-function gemRankCounts(entries: { clan_rank?: string | null }[]): Record<string, number> {
+/** Count player appearances per GEM_RANKS bucket. Uses discord_rank for primaries, falls back to in-game display for alts/unlinked (only if already a GEM_RANK). */
+function gemRankCounts(entries: { clan_rank?: string | null; discord_rank?: string | null }[]): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const e of entries) {
-    if (e.clan_rank) counts[e.clan_rank] = (counts[e.clan_rank] ?? 0) + 1;
+    const r = resolveFilterRank(e);
+    if (r) counts[r] = (counts[r] ?? 0) + 1;
   }
   return counts;
 }
@@ -633,7 +646,7 @@ function PbLeaderboardTab({ compact }: { compact: boolean }) {
   if (isLoading) return <LeaderboardSkeleton />;
 
   const counts = gemRankCounts(entries);
-  const filtered = rankFilter ? entries.filter((e) => e.clan_rank === rankFilter) : entries;
+  const filtered = rankFilter ? entries.filter((e) => resolveFilterRank(e) === rankFilter) : entries;
   const grouped = groupPbs(filtered);
   const activities = Object.keys(grouped).sort();
 
@@ -828,7 +841,7 @@ function KcLeaderboardTab({ compact }: { compact: boolean }) {
   const filteredBosses = (bosses as KcBoss[])
     .map((boss) => ({
       ...boss,
-      entries: rankFilter ? boss.entries.filter((e) => e.clan_rank === rankFilter) : boss.entries,
+      entries: rankFilter ? boss.entries.filter((e) => resolveFilterRank(e) === rankFilter) : boss.entries,
     }))
     .filter((boss) => boss.entries.length > 0);
 
@@ -870,7 +883,7 @@ function ClogLeaderboardTab({ compact }: { compact: boolean }) {
 
   const counts = gemRankCounts(entries as ClogEntry[]);
   const filtered = rankFilter
-    ? (entries as ClogEntry[]).filter((e) => e.clan_rank === rankFilter)
+    ? (entries as ClogEntry[]).filter((e) => resolveFilterRank(e) === rankFilter)
     : (entries as ClogEntry[]);
 
   return (
@@ -922,7 +935,7 @@ function LeaguesLeaderboardTab({ compact }: { compact: boolean }) {
 
   const counts = gemRankCounts(entries as LeaguesEntry[]);
   const filtered = rankFilter
-    ? (entries as LeaguesEntry[]).filter((e) => e.clan_rank === rankFilter)
+    ? (entries as LeaguesEntry[]).filter((e) => resolveFilterRank(e) === rankFilter)
     : (entries as LeaguesEntry[]);
 
   return (

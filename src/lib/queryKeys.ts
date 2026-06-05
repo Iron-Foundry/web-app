@@ -31,6 +31,7 @@ export const queryKeys = {
     badges: () => ["members", "badges"] as const,
     feed: () => ["members", "feed"] as const,
     stats: () => ["members", "stats"] as const,
+    rankings: () => ["members", "rankings"] as const,
     nameChanges: () => ["members", "name-changes"] as const,
     apiKey: () => ["members", "api-key"] as const,
   },
@@ -78,6 +79,7 @@ export const queryKeys = {
     uptime: (days: number) => ["services", "uptime", days] as const,
     bandwidth: (service: string, module: string) => ["services", "bandwidth", service, module] as const,
     womRateLimit: () => ["services", "wom-rate-limit"] as const,
+    toggles: () => ["services", "toggles"] as const,
   },
   frenzy: {
     active: () => ["frenzy", "active"] as const,

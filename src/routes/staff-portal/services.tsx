@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createRoute } from "@tanstack/react-router";
 import {
   ComposedChart,
@@ -29,7 +30,11 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { registerPage } from "@/lib/permissions";
-import { useServicesStatus, useMetricHistory, useServicesUptime, useBandwidth, useWomRateLimit } from "@/hooks/useServices";
+import { usePermissions } from "@/context/PermissionsContext";
+import { useEffectiveRoles } from "@/context/ViewAsContext";
+import { useAuth } from "@/context/AuthContext";
+import { useServicesStatus, useMetricHistory, useServicesUptime, useBandwidth, useWomRateLimit, useServiceToggles } from "@/hooks/useServices";
+import { servicesApi } from "@/api/services";
 import type { MetricRecord, ServiceStatus, ServiceUptime } from "@/types/services";
 import {
   RefreshCw,
@@ -47,7 +52,7 @@ registerPage({
   id: "staff.services",
   label: "Services",
   description: "Live health and metric history for all platform services.",
-  defaults: { read: ["Foundry Mentors"], create: [], edit: [], delete: [] },
+  defaults: { read: ["Foundry Mentors"], create: [], edit: ["Senior Moderator"], delete: [] },
 });
 
 export const staffPortalServicesRoute = createRoute({
@@ -1268,7 +1273,7 @@ function ServiceDetailPanel({ svc }: { svc: ServiceStatus }) {
   const [rangeDays, setRangeDays] = useState(7);
 
   const from = new Date(Date.now() - rangeDays * 86400_000).toISOString();
-  const { data, isLoading } = useMetricHistory({
+  const { data, isPending } = useMetricHistory({
     service: svc.service_name,
     module: selectedModule,
     from,
@@ -1322,7 +1327,7 @@ function ServiceDetailPanel({ svc }: { svc: ServiceStatus }) {
       </CardHeader>
 
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <div className="space-y-3">
             <div className="grid grid-cols-4 gap-3">
               {[...Array(4)].map((_, i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />)}
@@ -1343,6 +1348,132 @@ function ServiceDetailPanel({ svc }: { svc: ServiceStatus }) {
           <MembersView records={data.records} rangeDays={rangeDays} />
         ) : (
           <GenericModuleView records={data.records} rangeDays={rangeDays} />
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Service toggles ───────────────────────────────────────────────────────────
+
+const SERVICE_LABELS: Record<string, string> = {
+  wom_name_change: "WOM Name Changes",
+  clan_stats: "Clan Stats",
+  ranking: "Ranking",
+  competition_snapshot: "Competition Snapshots",
+  metric_compaction: "Metric Compaction",
+  discord_chat: "Discord Chat Relay",
+  party_expiry: "Party Expiry",
+};
+
+function ServiceSwitch({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={cn(
+        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        checked ? "bg-green-500" : "bg-muted"
+      )}
+    >
+      <span
+        className={cn(
+          "pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform",
+          checked ? "translate-x-4" : "translate-x-0"
+        )}
+      />
+    </button>
+  );
+}
+
+function ServiceTogglesPanel() {
+  const { data: toggles, isLoading } = useServiceToggles();
+  const { hasPermission } = usePermissions();
+  const { user } = useAuth();
+  const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
+  const canEdit = hasPermission("staff.services", "edit", effectiveRoles);
+  const queryClient = useQueryClient();
+  const [pending, setPending] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  async function handleToggle(key: string, enabled: boolean) {
+    if (!canEdit || pending) return;
+    setPending(key);
+    setErrors((prev) => ({ ...prev, [key]: "" }));
+    try {
+      await servicesApi.setToggle(key, enabled);
+      await queryClient.invalidateQueries({ queryKey: ["services", "toggles"] });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Toggle failed";
+      setErrors((prev) => ({ ...prev, [key]: msg }));
+    } finally {
+      setPending(null);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">Service Toggles</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="space-y-2">
+            {[...Array(7)].map((_, i) => (
+              <div key={i} className="h-8 animate-pulse rounded bg-muted" />
+            ))}
+          </div>
+        ) : (
+          <div className="divide-y divide-border/40">
+            {Object.entries(SERVICE_LABELS).map(([key, label]) => (
+              <div key={key} className="flex items-center justify-between py-2.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm font-mono truncate">{label}</span>
+                  {errors[key] && (
+                    <span className="text-xs text-destructive">{errors[key]}</span>
+                  )}
+                  {!toggles?.[key] && !errors[key] && (
+                    <Badge variant="outline" className="text-xs text-muted-foreground">
+                      disabled
+                    </Badge>
+                  )}
+                </div>
+                {canEdit ? (
+                  <ServiceSwitch
+                    checked={toggles?.[key] ?? true}
+                    onChange={(v) => handleToggle(key, v)}
+                    disabled={pending === key}
+                  />
+                ) : (
+                  <span
+                    className={cn(
+                      "text-xs font-medium",
+                      (toggles?.[key] ?? true) ? "text-green-500" : "text-muted-foreground"
+                    )}
+                  >
+                    {(toggles?.[key] ?? true) ? "enabled" : "disabled"}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {!canEdit && (
+          <p className="text-xs text-muted-foreground mt-3">
+            Read-only. Senior Moderator permission required to change toggles.
+          </p>
         )}
       </CardContent>
     </Card>
@@ -1492,6 +1623,8 @@ function ServicesPage() {
       <UptimeChart />
 
       <WomRateLimitChart />
+
+      <ServiceTogglesPanel />
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

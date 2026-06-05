@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { membersApi } from "@/api/members";
 import { queryKeys } from "@/lib/queryKeys";
+import type { AccountRanking } from "@/types/members";
 
 export function useMyBadges(userId: string | undefined) {
   return useQuery({
@@ -34,6 +35,15 @@ export function useNameChanges() {
     queryKey: queryKeys.members.nameChanges(),
     queryFn: membersApi.getNameChanges,
     staleTime: 1000 * 60 * 15,
+  });
+}
+
+export function useMyRankings(userId: string | undefined) {
+  return useQuery<AccountRanking[]>({
+    queryKey: queryKeys.members.rankings(),
+    queryFn: membersApi.getMyRankings,
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
   });
 }
 

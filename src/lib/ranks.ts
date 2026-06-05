@@ -8,42 +8,42 @@ export const ROLE_BADGE_CLASS: Record<string, string> = {
 };
 
 export const INGAME_TO_DISPLAY: Record<string, string> = {
-  "Guest":       "Guest",
-  "Achiever":    "Achiever",
-  "Sapphire":    "Sapphire",
-  "Emerald":     "Emerald",
-  "Ruby":        "Ruby",
-  "Diamond":     "Diamond",
-  "Dragonstone": "Dragonstone",
-  "Onyx":        "Onyx",
-  "Zenyte":      "Zenyte",
-  "Myth":          "Foundry Mentors",
-  "Legend":        "Event Team",
-  "Captain":       "Moderator",
-  "General":       "Senior Moderator",
-  "Deputy Owner":  "Co-owner",
-  "Owner":         "Co-owner",
-  "Legacy":      "Ex-Moderator",
+  "guest":        "Guest",
+  "achiever":     "Achiever",
+  "sapphire":     "Sapphire",
+  "emerald":      "Emerald",
+  "ruby":         "Ruby",
+  "diamond":      "Diamond",
+  "dragonstone":  "Dragonstone",
+  "onyx":         "Onyx",
+  "zenyte":       "Zenyte",
+  "myth":         "Foundry Mentors",
+  "legend":       "Event Team",
+  "captain":      "Moderator",
+  "general":      "Senior Moderator",
+  "deputy_owner": "Co-owner",
+  "owner":        "Co-owner",
+  "legacy":       "Ex-Moderator",
 };
 
 export type RankCategory = "progression" | "staff" | "legacy" | "fun";
 
 const PROGRESSION = new Set([
-  "Guest", "Achiever", "Sapphire", "Emerald", "Ruby",
-  "Diamond", "Dragonstone", "Onyx", "Zenyte",
+  "guest", "achiever", "sapphire", "emerald", "ruby",
+  "diamond", "dragonstone", "onyx", "zenyte",
 ]);
-const STAFF = new Set(["Myth", "Legend", "Captain", "General", "Deputy Owner", "Owner"]);
+const STAFF = new Set(["myth", "legend", "captain", "general", "deputy_owner", "owner"]);
 
 export function getRankCategory(ingameRank: string): RankCategory {
   if (PROGRESSION.has(ingameRank)) return "progression";
   if (STAFF.has(ingameRank)) return "staff";
-  if (ingameRank === "Legacy") return "legacy";
+  if (ingameRank === "legacy") return "legacy";
   return "fun";
 }
 
 export function getDisplayRank(ingameRank: string | null): string | null {
   if (!ingameRank) return null;
-  return INGAME_TO_DISPLAY[ingameRank] ?? `${ingameRank} (fun rank)`;
+  return INGAME_TO_DISPLAY[ingameRank] ?? ingameRank;
 }
 
 /**

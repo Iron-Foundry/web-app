@@ -4,6 +4,7 @@ export interface PbEntry {
   variant: string;
   time_seconds: number;
   clan_rank?: string | null;
+  discord_rank?: string | null;
 }
 
 export interface ClogEntry {
@@ -11,12 +12,14 @@ export interface ClogEntry {
   slots: number;
   slots_max: number;
   clan_rank?: string | null;
+  discord_rank?: string | null;
 }
 
 export interface KcEntry {
   player_name: string;
   kills: number;
   clan_rank?: string | null;
+  discord_rank?: string | null;
 }
 
 export interface KcBoss {
@@ -29,6 +32,7 @@ export interface LeaguesEntry {
   player_name: string;
   score: number;
   clan_rank?: string | null;
+  discord_rank?: string | null;
 }
 
 export interface RankingPlayer {

@@ -5,10 +5,10 @@ import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { highestRoleDisplay, getDisplayRank } from "@/lib/ranks";
+import { highestRoleDisplay, INGAME_TO_DISPLAY } from "@/lib/ranks";
 import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
-import { useMyBadges, useMyFeed, useNameChanges, useDashboardCompetitions, useMeStats } from "@/hooks/useMemberDashboard";
+import { useMyBadges, useMyFeed, useNameChanges, useDashboardCompetitions, useMeStats, useMyRankings } from "@/hooks/useMemberDashboard";
 import type { Competition } from "@/types/competitions";
 import type { FeedItem } from "@/types/members";
 import { MemberDashboardSkeleton } from "@/components/skeletons/MemberDashboardSkeleton";
@@ -133,6 +133,7 @@ function DashboardPage() {
   const { data: playerBadges = [] } = useMyBadges(user?.discord_user_id);
   const { data: feed = [], isLoading: feedLoading } = useMyFeed(user?.rsn);
   const { data: meStats } = useMeStats(user?.rsn);
+  const { data: rankings = [] } = useMyRankings(user?.discord_user_id);
   const { data: nameChanges = [], isLoading: nameChangesLoading } = useNameChanges();
   const { data: competitions = [], isLoading: compsLoading } = useDashboardCompetitions();
 
@@ -197,30 +198,21 @@ function DashboardPage() {
             )}
             {user.clan_rank && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">In-game rank</span>
-                <span className="text-foreground">{user.clan_rank}</span>
+                <span className="text-muted-foreground">In-Game</span>
+                <span className="text-foreground">{INGAME_TO_DISPLAY[user.clan_rank] ?? user.clan_rank}</span>
               </div>
             )}
-            {user.clan_rank && getDisplayRank(user.clan_rank) !== user.clan_rank && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Community rank</span>
-                <span className="text-foreground">{getDisplayRank(user.clan_rank)}</span>
-              </div>
-            )}
-            {hasPermission("staff.home", "read", user.effective_roles) && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Staff role</span>
-                <span className="text-foreground">{highestRoleDisplay(user.effective_roles, user.role_labels)}</span>
-              </div>
-            )}
+            {(() => {
+              const dr = highestRoleDisplay(user.effective_roles, user.role_labels);
+              return dr ? (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Discord Rank</span>
+                  <span className="text-foreground">{dr}</span>
+                </div>
+              ) : null;
+            })()}
             {meStats && (
               <>
-                {meStats.rank_tier && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Rank tier</span>
-                    <span className="text-foreground">{meStats.rank_tier}</span>
-                  </div>
-                )}
                 {meStats.collection_log_slots > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Collection log</span>
@@ -240,6 +232,32 @@ function DashboardPage() {
                 )}
               </>
             )}
+          </div>
+
+          <Separator />
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">Account Ranks</p>
+            {rankings.length === 0
+              ? <p className="text-xs text-muted-foreground italic">No accounts linked.</p>
+              : (
+                <div className="space-y-1">
+                  {rankings.map((a) => (
+                    <div key={a.rsn} className="flex items-center justify-between gap-2 text-sm">
+                      <span className={cn("truncate", !a.is_primary && "text-muted-foreground text-xs")}>
+                        {a.rsn}
+                      </span>
+                      <div className="flex items-center gap-2 shrink-0 text-right">
+                        <span className="text-muted-foreground text-xs">{a.rank ?? "No Rank"}</span>
+                        {a.points != null && (
+                          <span className="font-rs-bold">{a.points.toLocaleString()}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            }
           </div>
 
           <Separator />

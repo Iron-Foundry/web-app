@@ -1,6 +1,10 @@
 import { apiFetch } from "./client";
 import type { BandwidthStats, MetricHistory, MetricHistoryParams, ServiceStatus, ServiceUptime, WomRateLimitSnapshot } from "@/types/services";
 
+export interface ServiceToggles {
+  [key: string]: boolean;
+}
+
 export const servicesApi = {
   getStatus: () => apiFetch<ServiceStatus[]>("/services/status"),
 
@@ -20,4 +24,13 @@ export const servicesApi = {
 
   getWomRateLimit: () =>
     apiFetch<WomRateLimitSnapshot[]>("/metrics/wom-rate-limit"),
+
+  getToggles: () =>
+    apiFetch<ServiceToggles>("/config/services/toggles"),
+
+  setToggle: (serviceKey: string, enabled: boolean) =>
+    apiFetch<ServiceToggles>(`/config/services/toggles/${serviceKey}`, {
+      method: "PUT",
+      body: JSON.stringify({ enabled }),
+    }),
 };

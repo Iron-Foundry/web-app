@@ -37,6 +37,15 @@ export interface MeStats {
   rank_tier: string | null;
 }
 
+export interface AccountRanking {
+  rsn: string;
+  is_primary: boolean;
+  rank: string | null;
+  points: number | null;
+  boss_points: number | null;
+  skill_points: number | null;
+}
+
 export type AchievementType = "drop" | "level" | "xp_milestone";
 
 export interface Achievement {
