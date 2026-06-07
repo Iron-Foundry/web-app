@@ -46,7 +46,8 @@ export const STAFF_SECTION = {
     { to: "/staff-portal/assets",      label: "Asset Library" },
     { to: "/staff-portal/resources",   label: "Staff Resources" },
     { to: "/staff-portal/ranking",     label: "Ranking" },
-    { to: "/staff-portal/services",    label: "Services" },
+    { to: "/staff-portal/services",      label: "Services" },
+    { to: "/staff-portal/ticket-config", label: "Ticket Config" },
   ],
 } as const;
 

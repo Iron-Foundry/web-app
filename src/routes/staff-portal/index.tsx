@@ -7,7 +7,7 @@ import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Ticket, ShieldCheck, BookOpen, Image, Trophy, BookMarked } from "lucide-react";
+import { Users, Ticket, ShieldCheck, BookOpen, Image, Trophy, BookMarked, SlidersHorizontal } from "lucide-react";
 import { registerPage } from "@/lib/permissions";
 
 registerPage({
@@ -61,12 +61,13 @@ function StaffOverviewPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const { hasPermission } = usePermissions();
-  const canViewMembers      = hasPermission("staff.members",      "read", effectiveRoles);
-  const canViewTickets      = hasPermission("staff.all-tickets",  "read", effectiveRoles);
-  const canViewContent      = hasPermission("resources",          "delete", effectiveRoles);
-  const canViewAssets       = hasPermission("staff.assets",       "read", effectiveRoles);
-  const canViewCompetitions = hasPermission("staff.competitions", "read", effectiveRoles);
-  const canViewResources    = hasPermission("staff.resources",    "read", effectiveRoles);
+  const canViewMembers       = hasPermission("staff.members",       "read", effectiveRoles);
+  const canViewTickets       = hasPermission("staff.all-tickets",   "read", effectiveRoles);
+  const canViewContent       = hasPermission("resources",           "delete", effectiveRoles);
+  const canViewAssets        = hasPermission("staff.assets",        "read", effectiveRoles);
+  const canViewCompetitions  = hasPermission("staff.competitions",  "read", effectiveRoles);
+  const canViewResources     = hasPermission("staff.resources",     "read", effectiveRoles);
+  const canViewTicketConfig  = hasPermission("staff.ticket-config", "read", effectiveRoles);
 
   const [overview, setOverview] = useState<Overview | null>(null);
   const [referral, setReferral] = useState<ReferralStats | null>(null);
@@ -178,7 +179,7 @@ function StaffOverviewPage() {
         </div>
       )}
 
-      {(canViewMembers || canViewTickets || canViewContent || canViewAssets || canViewCompetitions || canViewResources) && (
+      {(canViewMembers || canViewTickets || canViewContent || canViewAssets || canViewCompetitions || canViewResources || canViewTicketConfig) && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {canViewMembers && (
             <Link
@@ -260,6 +261,20 @@ function StaffOverviewPage() {
                 <div>
                   <p className="font-medium text-foreground">Staff Resources</p>
                   <p className="text-xs text-muted-foreground">Internal guides and reference material</p>
+                </div>
+              </div>
+            </Link>
+          )}
+          {canViewTicketConfig && (
+            <Link
+              to="/staff-portal/ticket-config"
+              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <SlidersHorizontal className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium text-foreground">Ticket Config</p>
+                  <p className="text-xs text-muted-foreground">Configure ticket types, messages and images</p>
                 </div>
               </div>
             </Link>

@@ -48,6 +48,7 @@ import { staffPortalResourcesIndexRoute } from "./staff-portal/resources/index";
 import { staffPortalResourcesEntryRoute } from "./staff-portal/resources/$slug";
 import { staffPortalRankingRoute } from "./staff-portal/ranking";
 import { staffPortalServicesRoute } from "./staff-portal/services";
+import { staffPortalTicketConfigRoute } from "./staff-portal/ticket-config";
 
 const staffPortalResourcesTree = staffPortalResourcesLayoutRoute.addChildren([
   staffPortalResourcesIndexRoute,
@@ -64,6 +65,7 @@ const staffPortalTree = staffPortalLayoutRoute.addChildren([
   staffPortalResourcesTree,
   staffPortalRankingRoute,
   staffPortalServicesRoute,
+  staffPortalTicketConfigRoute,
 ]);
 
 const membersTree = membersLayoutRoute.addChildren([
