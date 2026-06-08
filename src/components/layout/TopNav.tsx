@@ -49,7 +49,7 @@ export function TopNav() {
     const token = getAuthToken();
     if (!token) return;
     let cancelled = false;
-    fetch(`${API_URL}/clan/user-avatar/${user.discord_user_id}`, {
+    fetch(`${API_URL}/members/${user.discord_user_id}/avatar`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => (r.ok ? (r.json() as Promise<{ avatar_url: string }>) : Promise.reject()))

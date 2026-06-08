@@ -57,7 +57,7 @@ function RecruiterInput({
       try {
         const token = getAuthToken();
         const res = await fetch(
-          `${API_URL}/members/discord-members?q=${encodeURIComponent(q)}`,
+          `${API_URL}/discord/members?q=${encodeURIComponent(q)}`,
           { headers: { Authorization: `Bearer ${token}` } },
         );
         if (res.ok) {

@@ -95,7 +95,7 @@ function MemberCard({ name, position, discordId }: StaffMember) {
     const token = getAuthToken();
     if (!token) return;
     let cancelled = false;
-    fetch(`${API_URL}/clan/user-avatar/${discordId}`, {
+    fetch(`${API_URL}/members/${discordId}/avatar`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => (r.ok ? (r.json() as Promise<{ avatar_url: string }>) : Promise.reject()))
