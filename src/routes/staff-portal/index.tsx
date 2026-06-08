@@ -76,11 +76,11 @@ function StaffOverviewPage() {
     const token = getAuthToken();
     if (!token) return;
     fetch(`${API_URL}/staff/overview`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json() as Promise<Overview>)
+      .then((r) => (r.ok ? (r.json() as Promise<Overview>) : Promise.reject()))
       .then(setOverview)
       .catch(() => {});
     fetch(`${API_URL}/staff/referral-stats`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json() as Promise<ReferralStats>)
+      .then((r) => (r.ok ? (r.json() as Promise<ReferralStats>) : Promise.reject()))
       .then(setReferral)
       .catch(() => {});
   }, []);
