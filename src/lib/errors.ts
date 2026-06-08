@@ -6,10 +6,10 @@ export function getErrorMessage(error: unknown, fallback = "Something went wrong
   return fallback;
 }
 
-export function isNotFound(error: unknown): boolean {
+function isNotFound(error: unknown): boolean {
   return error instanceof ApiRequestError && error.status === 404;
 }
 
-export function isUnauthorized(error: unknown): boolean {
+function isUnauthorized(error: unknown): boolean {
   return error instanceof ApiRequestError && error.status === 401;
 }

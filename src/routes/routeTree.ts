@@ -21,12 +21,15 @@ import { membersLayoutRoute } from "./members/_layout";
 import { membersDashboardRoute } from "./members/index";
 import { membersSettingsRoute } from "./members/settings";
 import { membersTicketsRoute } from "./members/tickets";
-import { staffRankMappingsRoute } from "./members/staff/rank-mappings";
-import { staffPermissionsRoute } from "./members/staff/permissions";
-import { staffDiscordConfigRoute } from "./members/staff/discord-config";
-import { staffContentRoute } from "./members/staff/content";
-import { staffCompetitionsRoute } from "./members/staff/competitions";
-import { staffFrenzyRoute } from "./members/staff/frenzy";
+import { staffRankMappingsRoute } from "./members/config/rank-mappings";
+import { staffPermissionsRoute } from "./members/config/permissions";
+import { staffDiscordConfigRoute } from "./members/config/discord-config";
+import { staffContentRoute } from "./members/config/content";
+import { staffCompetitionsRoute } from "./members/config/competitions";
+import { staffFrenzyRoute } from "./members/config/frenzy";
+import { configRankingRoute } from "./members/config/ranking";
+import { configServicesRoute } from "./members/config/services";
+import { configTicketConfigRoute } from "./members/config/ticket-config";
 import { frenzyRoute } from "./activities/frenzy";
 import { frenzyTeamRoute } from "./activities/frenzy.$teamSlug";
 import { membersSurveysRoute } from "./members/surveys";
@@ -46,9 +49,6 @@ import { staffPortalAssetsRoute } from "./staff-portal/assets";
 import { staffPortalResourcesLayoutRoute } from "./staff-portal/resources/_layout";
 import { staffPortalResourcesIndexRoute } from "./staff-portal/resources/index";
 import { staffPortalResourcesEntryRoute } from "./staff-portal/resources/$slug";
-import { staffPortalRankingRoute } from "./staff-portal/ranking";
-import { staffPortalServicesRoute } from "./staff-portal/services";
-import { staffPortalTicketConfigRoute } from "./staff-portal/ticket-config";
 
 const staffPortalResourcesTree = staffPortalResourcesLayoutRoute.addChildren([
   staffPortalResourcesIndexRoute,
@@ -63,9 +63,6 @@ const staffPortalTree = staffPortalLayoutRoute.addChildren([
   staffPortalBadgesRoute,
   staffPortalAssetsRoute,
   staffPortalResourcesTree,
-  staffPortalRankingRoute,
-  staffPortalServicesRoute,
-  staffPortalTicketConfigRoute,
 ]);
 
 const membersTree = membersLayoutRoute.addChildren([
@@ -84,6 +81,9 @@ const membersTree = membersLayoutRoute.addChildren([
   staffContentRoute,
   staffCompetitionsRoute,
   staffFrenzyRoute,
+  configRankingRoute,
+  configServicesRoute,
+  configTicketConfigRoute,
 ]);
 
 const pluginsTree = pluginsLayoutRoute.addChildren([pluginsIndexRoute, pluginsEntryRoute]);

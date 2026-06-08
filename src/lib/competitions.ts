@@ -1,6 +1,6 @@
 import type { MetricParticipation, OvertimePlayerSeries, TeamRow } from "@/types/competitions";
 
-export const SKILL_METRICS = new Set([
+const SKILL_METRICS = new Set([
   "overall", "attack", "defence", "strength", "hitpoints", "ranged", "prayer",
   "magic", "cooking", "woodcutting", "fletching", "fishing", "firemaking",
   "crafting", "smithing", "mining", "herblore", "agility", "thieving", "slayer",
@@ -31,7 +31,7 @@ export const VARIANT_LABELS: Record<string, string> = {
   tombs_of_amascut_expert_mode: "Expert Mode",
 };
 
-export const METRIC_TO_RAID_GROUP: Record<string, string> = Object.fromEntries(
+const METRIC_TO_RAID_GROUP: Record<string, string> = Object.fromEntries(
   Object.entries(RAID_GROUPS).flatMap(([key, { variants }]) =>
     variants.map((v) => [v, key]),
   ),

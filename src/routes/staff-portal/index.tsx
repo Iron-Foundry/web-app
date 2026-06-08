@@ -211,7 +211,7 @@ function StaffOverviewPage() {
           )}
           {canViewContent && (
             <Link
-              to="/members/staff/content"
+              to="/members/config/content"
               className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -239,7 +239,7 @@ function StaffOverviewPage() {
           )}
           {canViewCompetitions && (
             <Link
-              to="/members/staff/competitions"
+              to="/members/config/competitions"
               className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -267,7 +267,7 @@ function StaffOverviewPage() {
           )}
           {canViewTicketConfig && (
             <Link
-              to="/staff-portal/ticket-config"
+              to="/members/config/ticket-config"
               className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">

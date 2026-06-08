@@ -222,7 +222,7 @@ export function EntryRefPickerDialog({ open, onClose, onSelect }: EntryRefPicker
                         !selectedHeading ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground",
                       )}
                     >
-                      — Entire entry
+                      - Entire entry
                     </button>
                     {headings.map((h, i) => (
                       <button

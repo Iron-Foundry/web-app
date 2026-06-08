@@ -68,7 +68,7 @@ export function isMultiplierUnlocked(
   return mult.requirement.every((req) => (itemProgress[req] ?? 0) > 0);
 }
 
-export function calcSourcePoints(
+function calcSourcePoints(
   tierName: string,
   source: FrenzySource,
   itemProgress: Record<string, number>,
@@ -86,7 +86,7 @@ export function calcSourcePoints(
   return pts * factor;
 }
 
-export function calcTotalPoints(
+function calcTotalPoints(
   tiers: Record<string, { sources: FrenzySource[] }>,
   activities: FrenzyActivity[],
   milestones: Record<string, FrenzyMilestone[]>,

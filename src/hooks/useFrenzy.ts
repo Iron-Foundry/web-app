@@ -310,7 +310,7 @@ export function useSubmissions(eventId: number, params?: SubmissionFilters) {
   });
 }
 
-export function useCreateSubmission() {
+function useCreateSubmission() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ eventId, data }: { eventId: number; data: FrenzySubmissionCreate }) =>

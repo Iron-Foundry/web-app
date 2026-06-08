@@ -48,7 +48,7 @@ function FrenzyPage() {
           {activeEvent && <FrenzyEventChartsSheet eventName={activeEvent.name} />}
           {canManage && (
             <Button asChild size="sm" variant="outline">
-              <Link to="/members/staff/frenzy">
+              <Link to="/members/config/frenzy">
                 <Settings className="h-4 w-4 mr-1.5" />
                 Manage Event
               </Link>

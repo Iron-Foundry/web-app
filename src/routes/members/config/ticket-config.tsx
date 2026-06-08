@@ -2,14 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
 import { Upload, X } from "lucide-react";
-import { staffPortalLayoutRoute } from "./_layout";
+import { membersLayoutRoute } from "../_layout";
 import { StaffGuard } from "@/components/StaffGuard";
 import { registerPage } from "@/lib/permissions";
+import { usePermissions } from "@/context/PermissionsContext";
+import { useEffectiveRoles } from "@/context/ViewAsContext";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MarkdownRenderer } from "@/components/content/MarkdownRenderer";
 import { ticketConfigApi, type TicketTypeConfig, type PanelConfig, type ImageInfo } from "@/api/ticketConfig";
+import { configApi, type TicketFeaturesConfig } from "@/api/config";
 import { API_URL } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -20,11 +24,11 @@ registerPage({
   defaults: { read: ["Foundry Mentors"], create: [], edit: ["Foundry Mentors"], delete: ["Senior Moderator"] },
 });
 
-export const staffPortalTicketConfigRoute = createRoute({
-  getParentRoute: () => staffPortalLayoutRoute,
-  path: "/ticket-config",
+export const configTicketConfigRoute = createRoute({
+  getParentRoute: () => membersLayoutRoute,
+  path: "/config/ticket-config",
   component: () => (
-    <StaffGuard pageId="staff.ticket-config" redirectTo="/staff-portal">
+    <StaffGuard pageId="staff.ticket-config" redirectTo="/members">
       <TicketConfigPage />
     </StaffGuard>
   ),
@@ -51,16 +55,22 @@ const tabTrigger = cn(
 function TicketConfigPage() {
   const [configs, setConfigs] = useState<Record<string, TicketTypeConfig>>({});
   const [panelConfig, setPanelConfig] = useState<PanelConfig | null>(null);
+  const [features, setFeatures] = useState<TicketFeaturesConfig>({ rank_pull_set_primary: false });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const { hasPermission } = usePermissions();
+  const { user } = useAuth();
+  const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
+  const canEditFeatures = hasPermission("staff.ticket-config", "edit", effectiveRoles);
 
   useEffect(() => {
-    Promise.all([ticketConfigApi.list(), ticketConfigApi.getPanel()])
-      .then(([list, panel]) => {
+    Promise.all([ticketConfigApi.list(), ticketConfigApi.getPanel(), configApi.getTicketFeatures()])
+      .then(([list, panel, feats]) => {
         const map: Record<string, TicketTypeConfig> = {};
         for (const c of list) map[c.type_id] = c;
         setConfigs(map);
         setPanelConfig(panel);
+        setFeatures(feats);
       })
       .catch((e: unknown) => setLoadError(e instanceof Error ? e.message : "Failed to load config."))
       .finally(() => setLoading(false));
@@ -130,6 +140,12 @@ function TicketConfigPage() {
           )}
         </Tabs.Content>
       </Tabs.Root>
+
+      <TicketFeaturesCard
+        features={features}
+        canEdit={canEditFeatures}
+        onSaved={setFeatures}
+      />
     </div>
   );
 }
@@ -359,6 +375,97 @@ function TicketTypeCard({ config, onSaved, showRankImages }: CardProps) {
         )}
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
+    </div>
+  );
+}
+
+// ── TicketFeaturesCard ────────────────────────────────────────────────────────
+
+interface FeaturesCardProps {
+  features: TicketFeaturesConfig;
+  canEdit: boolean;
+  onSaved: (updated: TicketFeaturesConfig) => void;
+}
+
+function TicketFeaturesCard({ features, canEdit, onSaved }: FeaturesCardProps) {
+  const [local, setLocal] = useState<TicketFeaturesConfig>(features);
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocal(features);
+    setDirty(false);
+    setSaved(false);
+    setError(null);
+  }, [features]);
+
+  function toggle(field: keyof TicketFeaturesConfig, value: boolean) {
+    setLocal((prev) => ({ ...prev, [field]: value }));
+    setDirty(true);
+    setSaved(false);
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await configApi.updateTicketFeatures(local);
+      setLocal(updated);
+      setDirty(false);
+      setSaved(true);
+      onSaved(updated);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Save failed.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4 rounded-md border border-border p-6">
+      <div className="space-y-1">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Ticket Features
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Toggles for bot behaviour on Join CC and Rank Up tickets.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        <label className={cn("flex items-start gap-3", !canEdit && "opacity-50")}>
+          <input
+            type="checkbox"
+            checked={local.rank_pull_set_primary}
+            disabled={!canEdit}
+            onChange={(e) => toggle("rank_pull_set_primary", e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
+          />
+          <div className="space-y-0.5">
+            <p className="text-sm font-medium">Set primary account on rank pull</p>
+            <p className="text-xs text-muted-foreground">
+              When a staff member uses the Pull Rank Score button and enters an RSN,
+              automatically set that RSN as the ticket creator's primary account -
+              only if they have no primary account set yet and the RSN is not
+              already held by another user. Creates the user and account link if needed.
+            </p>
+          </div>
+        </label>
+      </div>
+
+      {canEdit && (
+        <div className="flex items-center gap-3 pt-1">
+          <Button onClick={handleSave} disabled={saving || !dirty} size="sm">
+            {saving ? "Saving..." : "Save Changes"}
+          </Button>
+          {saved && !dirty && (
+            <p className="text-sm text-green-600 dark:text-green-400">Saved.</p>
+          )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
+        </div>
+      )}
     </div>
   );
 }

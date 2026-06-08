@@ -5,7 +5,7 @@ export interface MemberCardProps {
 }
 
 function fmtGp(n: number | null): string {
-  if (n === null || n === undefined) return "—";
+  if (n === null || n === undefined) return "-";
   if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B GP`;
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M GP`;
   return `${n.toLocaleString()} GP`;

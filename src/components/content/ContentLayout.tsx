@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 
 export interface ContentEntry {
   id: string;
@@ -32,6 +32,7 @@ export interface CategoryTree {
 
 interface ContentContextValue {
   categories: CategoryTree[];
+  isLoading: boolean;
   refreshTree: () => void;
   pageType: string;
   pageId: string;
@@ -41,6 +42,7 @@ interface ContentContextValue {
 
 const ContentContext = createContext<ContentContextValue>({
   categories: [],
+  isLoading: true,
   refreshTree: () => {},
   pageType: "",
   pageId: "",
@@ -208,10 +210,6 @@ interface NewEntryDialogProps {
   categoryId: string;
   routeBase: string;
   onSuccess: () => void;
-}
-
-function slugify(s: string): string {
-  return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
 }
 
 function NewEntryDialog({ open, onClose, pageType, categoryId, routeBase, onSuccess }: NewEntryDialogProps) {
@@ -697,6 +695,7 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   const canDelete = hasPermission(pageId, "delete", effectiveRoles);
 
   const [categories, setCategories] = useState<CategoryTree[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -710,9 +709,11 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   }, [setHasSidebar, setHasNestedLayout]);
 
   useEffect(() => {
+    setIsLoading(true);
     apiFetch<CategoryTree[]>(`/content/${pageType}/categories`)
       .then(setCategories)
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
   }, [pageType, refreshKey]);
 
   const refreshTree = useCallback(() => {
@@ -732,8 +733,8 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
   };
 
   const contextValue = useMemo(
-    () => ({ categories, refreshTree, pageType, pageId, pageName, routeBase }),
-    [categories, refreshTree, pageType, pageId, pageName, routeBase],
+    () => ({ categories, isLoading, refreshTree, pageType, pageId, pageName, routeBase }),
+    [categories, isLoading, refreshTree, pageType, pageId, pageName, routeBase],
   );
 
   return (

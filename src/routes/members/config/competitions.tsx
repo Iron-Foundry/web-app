@@ -53,7 +53,7 @@ registerPage({
 
 export const staffCompetitionsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
-  path: "/staff/competitions",
+  path: "/config/competitions",
   component: () => (
     <StaffGuard pageId="staff.competitions">
       <StaffCompetitionsPage />
@@ -591,7 +591,7 @@ function StaffCompetitionsPage() {
               <p className="text-xs text-muted-foreground">No metrics selected. Pick from the list below.</p>
             )}
 
-            {/* Raid combine toggles — shown when both variants of a raid are selected */}
+            {/* Raid combine toggles - shown when both variants of a raid are selected */}
             {Object.entries(RAID_GROUPS).some(([, g]) => g.variants.every((v) => pending.includes(v))) && (
               <div className="space-y-1.5">
                 <p className="text-xs font-semibold text-muted-foreground">Raid Display</p>

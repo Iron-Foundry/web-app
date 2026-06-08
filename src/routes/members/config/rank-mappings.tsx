@@ -20,7 +20,7 @@ registerPage({
 
 export const staffRankMappingsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
-  path: "/staff/rank-mappings",
+  path: "/config/rank-mappings",
   component: () => <StaffGuard pageId="staff.rank-mappings"><RankMappingsPage /></StaffGuard>,
 });
 

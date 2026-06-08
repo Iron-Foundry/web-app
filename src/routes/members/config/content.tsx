@@ -9,7 +9,7 @@ import { RotateCcw, Trash2 } from "lucide-react";
 
 export const staffContentRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
-  path: "/staff/content",
+  path: "/config/content",
   component: StaffContentPage,
 });
 

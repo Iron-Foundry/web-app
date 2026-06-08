@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import type { RegisteredPage } from "@/types/permissions";
 
-export type { PermAction, PagePermissionConfig, RegisteredPage } from "@/types/permissions";
+export type { PagePermissionConfig, RegisteredPage } from "@/types/permissions";
 
 const _registry = new Map<string, RegisteredPage>();
 
@@ -17,7 +17,7 @@ export function getPageRegistry(): RegisteredPage[] {
 }
 
 /** Renders children only if the authenticated user is logged in. */
-export function RequireAuth({
+function RequireAuth({
   children,
 }: {
   children: ReactNode;

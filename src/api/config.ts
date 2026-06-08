@@ -48,6 +48,10 @@ export interface PartyPanelFeatureConfig {
   message_id: string;
 }
 
+export interface TicketFeaturesConfig {
+  rank_pull_set_primary: boolean;
+}
+
 export const configApi = {
   getRankMappings: () => apiFetch<RankMapping[]>("/config/rank-mappings"),
 
@@ -125,4 +129,12 @@ export const configApi = {
     }),
 
   getPartyPanelConfig: () => apiFetch<PartyPanelFeatureConfig>("/config/discord-feature/party-panel"),
+
+  getTicketFeatures: () => apiFetch<TicketFeaturesConfig>("/config/ticket-features"),
+
+  updateTicketFeatures: (data: TicketFeaturesConfig) =>
+    apiFetch<TicketFeaturesConfig>("/config/ticket-features", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
 };

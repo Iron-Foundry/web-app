@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { Footer } from "@/components/layout/Footer";
 import { useLayout } from "@/context/LayoutContext";
-import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy, Bot, Swords, Lightbulb, Bug } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy, Bot, Swords, Lightbulb, Bug, BarChart2, Cog, Activity, Archive } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { useViewAs, useEffectiveRoles } from "@/context/ViewAsContext";
@@ -28,16 +28,20 @@ const NAV_LINKS = [
 ];
 
 const STAFF_NAV = [
-  { to: "/members/staff/rank-mappings" as const,   label: "Rank Mappings",  icon: ArrowRightLeft, pageId: "staff.rank-mappings",   exact: false },
-  { to: "/members/staff/permissions" as const,     label: "Permissions",    icon: Lock,           pageId: "staff.permissions",     exact: false },
-  { to: "/members/staff/discord-config" as const,  label: "Discord Config", icon: Bot,            pageId: "staff.discord-config",  exact: false },
-  { to: "/members/staff/competitions" as const,    label: "Competitions",   icon: Trophy,         pageId: "staff.competitions",    exact: false },
-  { to: "/members/staff/frenzy" as const,          label: "PVM Frenzy",     icon: Swords,         pageId: "frenzy.admin",          exact: false },
+  { to: "/members/config/rank-mappings" as const,  label: "Rank Mappings",  icon: ArrowRightLeft, pageId: "staff.rank-mappings",  exact: false },
+  { to: "/members/config/permissions" as const,    label: "Permissions",    icon: Lock,           pageId: "staff.permissions",    exact: false },
+  { to: "/members/config/discord-config" as const, label: "Discord Config", icon: Bot,            pageId: "staff.discord-config", exact: false },
+  { to: "/members/config/ranking" as const,        label: "Ranking",        icon: BarChart2,      pageId: "staff.ranking",        exact: false },
+  { to: "/members/config/ticket-config" as const,  label: "Ticket Config",  icon: Cog,            pageId: "staff.ticket-config",  exact: false },
+  { to: "/members/config/competitions" as const,   label: "Competitions",   icon: Trophy,         pageId: "staff.competitions",   exact: false },
+  { to: "/members/config/frenzy" as const,         label: "PVM Frenzy",     icon: Swords,         pageId: "frenzy.admin",         exact: false },
+  { to: "/members/config/services" as const,       label: "Services",       icon: Activity,       pageId: "staff.services",       exact: false },
+  { to: "/members/config/content" as const,        label: "Content",        icon: Archive,        pageId: "staff.content",        exact: false },
 ];
 
 const PORTAL_PAGE_IDS = [
   "staff.home", "staff.members", "staff.all-tickets",
-  "staff.surveys", "staff.badges", "staff.assets", "staff.resources", "staff.ranking",
+  "staff.surveys", "staff.badges", "staff.assets", "staff.resources",
 ] as const;
 
 function navLinkClass(base?: string) {

@@ -1,7 +1,7 @@
 import { apiFetch } from "./client";
 import type { BandwidthStats, MetricHistory, MetricHistoryParams, ServiceStatus, ServiceUptime, WomRateLimitSnapshot } from "@/types/services";
 
-export interface ServiceToggles {
+interface ServiceToggles {
   [key: string]: boolean;
 }
 

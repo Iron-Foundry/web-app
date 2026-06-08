@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
-export type ViewAsOption = string; // "self" | "member" | role-id
+type ViewAsOption = string; // "self" | "member" | role-id
 
 interface ViewAsEntry {
   value: ViewAsOption;

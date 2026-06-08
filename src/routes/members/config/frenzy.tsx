@@ -22,7 +22,7 @@ registerPage({
 
 export const staffFrenzyRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
-  path: "/staff/frenzy",
+  path: "/config/frenzy",
   component: () => (
     <StaffGuard pageId="frenzy.admin">
       <StaffFrenzyPage />

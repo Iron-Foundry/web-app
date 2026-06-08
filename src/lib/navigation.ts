@@ -45,13 +45,10 @@ export const STAFF_SECTION = {
     { to: "/staff-portal/badges",      label: "Badges" },
     { to: "/staff-portal/assets",      label: "Asset Library" },
     { to: "/staff-portal/resources",   label: "Staff Resources" },
-    { to: "/staff-portal/ranking",     label: "Ranking" },
-    { to: "/staff-portal/services",      label: "Services" },
-    { to: "/staff-portal/ticket-config", label: "Ticket Config" },
   ],
 } as const;
 
-export type NavSection = (typeof NAV_SECTIONS)[number];
+type NavSection = (typeof NAV_SECTIONS)[number];
 
 export function getSectionForPath(pathname: string): string | null {
   if (pathname.startsWith("/members")) return "members";

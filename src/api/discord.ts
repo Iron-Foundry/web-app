@@ -50,7 +50,7 @@ export interface RolePanel {
   updated_at: string;
 }
 
-export interface RolePanelUpdate {
+interface RolePanelUpdate {
   title: string;
   description: string;
   max_selectable: number | null;

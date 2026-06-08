@@ -5,13 +5,13 @@ import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 
 /**
- * Redirects to `redirectTo` (default: /members/staff) if the current effective
+ * Redirects to `redirectTo` (default: /members) if the current effective
  * roles do not have read permission on `pageId`.
  */
 export function StaffGuard({
   pageId,
   children,
-  redirectTo = "/members/staff",
+  redirectTo = "/members",
 }: {
   pageId: string;
   children: React.ReactNode;

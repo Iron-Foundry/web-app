@@ -13,7 +13,7 @@ interface FooterSectionProps {
   children: ReactNode;
 }
 
-export function FooterSection({ title, className, children }: FooterSectionProps) {
+function FooterSection({ title, className, children }: FooterSectionProps) {
   return (
     <div className={cn("flex flex-col gap-3", className)}>
       {title && (
@@ -34,7 +34,7 @@ interface FooterLinkProps {
   children: ReactNode;
 }
 
-export function FooterLink({ href, to, external, className, children }: FooterLinkProps) {
+function FooterLink({ href, to, external, className, children }: FooterLinkProps) {
   const base = cn(
     "text-sm text-muted-foreground transition-colors hover:text-foreground w-fit",
     className,
@@ -67,7 +67,7 @@ interface FooterIconButtonProps {
   className?: string;
 }
 
-export function FooterIconButton({
+function FooterIconButton({
   href,
   label,
   icon,
@@ -159,7 +159,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Navigate — one column per section */}
+          {/* Navigate - one column per section */}
           <div className="flex flex-col gap-2 sm:col-span-3">
             <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Navigate</span>
             <div className="grid grid-cols-3 gap-x-4 gap-y-4">

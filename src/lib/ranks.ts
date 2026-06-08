@@ -26,7 +26,7 @@ export const INGAME_TO_DISPLAY: Record<string, string> = {
   "legacy":       "Ex-Moderator",
 };
 
-export type RankCategory = "progression" | "staff" | "legacy" | "fun";
+type RankCategory = "progression" | "staff" | "legacy" | "fun";
 
 const PROGRESSION = new Set([
   "guest", "achiever", "sapphire", "emerald", "ruby",
@@ -34,7 +34,7 @@ const PROGRESSION = new Set([
 ]);
 const STAFF = new Set(["myth", "legend", "captain", "general", "deputy_owner", "owner"]);
 
-export function getRankCategory(ingameRank: string): RankCategory {
+function getRankCategory(ingameRank: string): RankCategory {
   if (PROGRESSION.has(ingameRank)) return "progression";
   if (STAFF.has(ingameRank)) return "staff";
   if (ingameRank === "legacy") return "legacy";

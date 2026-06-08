@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
 import { membersLayoutRoute } from "../_layout";
@@ -40,7 +40,7 @@ registerPage({
 
 export const staffDiscordConfigRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
-  path: "/staff/discord-config",
+  path: "/config/discord-config",
   component: () => (
     <StaffGuard pageId="staff.discord-config">
       <DiscordConfigPage />
@@ -209,16 +209,15 @@ function StaffRolesTab({ data, roles }: { data: DiscordRolesConfig; roles: Disco
       </p>
       <div className="grid grid-cols-[12rem_1fr] gap-x-4 gap-y-3 items-center max-w-lg">
         {fields.map(({ key, label }) => (
-          <>
-            <label key={`label-${key}`} className="text-sm font-medium">{label}</label>
+          <React.Fragment key={key}>
+            <label className="text-sm font-medium">{label}</label>
             <RoleSelect
-              key={`select-${key}`}
               value={cfg[key]}
               roles={roles}
               onChange={(v) => update(key, v)}
               placeholder={`Select ${label.toLowerCase()}`}
             />
-          </>
+          </React.Fragment>
         ))}
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}

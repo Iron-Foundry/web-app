@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
 import { useContentContext, type CategoryTree, type ContentEntry } from "./ContentLayout";
+import { ContentTableSkeleton } from "@/components/skeletons/ContentTableSkeleton";
 
 function countEntries(cats: CategoryTree[]): number {
   return cats.reduce((n, c) => n + c.entries.length + countEntries(c.children), 0);
@@ -65,7 +66,9 @@ interface ContentIndexPageProps {
 }
 
 export function ContentIndexPage({ description }: ContentIndexPageProps) {
-  const { categories, pageName, routeBase } = useContentContext();
+  const { categories, isLoading, pageName, routeBase } = useContentContext();
+
+  if (isLoading) return <ContentTableSkeleton />;
 
   const totalEntries = countEntries(categories);
 

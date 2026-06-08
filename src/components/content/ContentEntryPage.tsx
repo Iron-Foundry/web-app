@@ -11,12 +11,9 @@ import { MarkdownRenderer } from "./MarkdownRenderer";
 import { EntryEditor } from "./EntryEditor";
 import { useContentContext } from "./ContentLayout";
 import { apiFetch } from "@/api/client";
+import { slugify } from "@/lib/utils";
 import { VersionHistoryDialog } from "./VersionHistoryDialog";
 import type { EntryAuthor, EntryDetail } from "@/types/content";
-
-function slugify(s: string): string {
-  return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "";
-}
 
 function toDiscordMarkdown(body: string): string {
   const safe = DOMPurify.sanitize(body, { ALLOWED_TAGS: ["kbd", "br"], ALLOWED_ATTR: [] });

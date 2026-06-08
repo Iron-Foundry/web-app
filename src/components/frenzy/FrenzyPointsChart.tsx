@@ -29,7 +29,7 @@ export function FrenzyPointsChart({ history }: Props) {
             const p = payload[0].payload as { time: string; points: number; player: string };
             return (
               <div className="rounded border border-border bg-card px-3 py-2 text-xs shadow-lg">
-                <p className="font-medium mb-0.5">{p.time} — {p.player}</p>
+                <p className="font-medium mb-0.5">{p.time} - {p.player}</p>
                 <p className="font-mono font-medium">{p.points.toLocaleString()} pts</p>
               </div>
             );

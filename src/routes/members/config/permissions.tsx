@@ -22,7 +22,7 @@ registerPage({
 
 export const staffPermissionsRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
-  path: "/staff/permissions",
+  path: "/config/permissions",
   component: () => <StaffGuard pageId="staff.permissions"><PermissionsPage /></StaffGuard>,
 });
 

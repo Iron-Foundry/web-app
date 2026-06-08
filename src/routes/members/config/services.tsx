@@ -17,7 +17,7 @@ import {
 } from "recharts";
 import type { TooltipProps } from "recharts";
 import { Tooltip as TooltipPrimitive } from "radix-ui";
-import { staffPortalLayoutRoute } from "./_layout";
+import { membersLayoutRoute } from "../_layout";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,11 +55,11 @@ registerPage({
   defaults: { read: ["Foundry Mentors"], create: [], edit: ["Senior Moderator"], delete: [] },
 });
 
-export const staffPortalServicesRoute = createRoute({
-  getParentRoute: () => staffPortalLayoutRoute,
-  path: "/services",
+export const configServicesRoute = createRoute({
+  getParentRoute: () => membersLayoutRoute,
+  path: "/config/services",
   component: () => (
-    <StaffGuard pageId="staff.services" redirectTo="/staff-portal">
+    <StaffGuard pageId="staff.services" redirectTo="/members">
       <ServicesPage />
     </StaffGuard>
   ),
@@ -648,7 +648,7 @@ function EndpointsTable({ endpoints }: { endpoints: Record<string, Record<string
         </div>
         <p className="text-xs text-muted-foreground">
           {sorted.length} endpoint{sorted.length !== 1 ? "s" : ""}
-          {sorted.some((r) => r.errors_4xx > 0 || r.errors_5xx > 0) && " — click a row with errors to inspect"}
+          {sorted.some((r) => r.errors_4xx > 0 || r.errors_5xx > 0) && " - click a row with errors to inspect"}
         </p>
       </div>
     </>
@@ -743,7 +743,7 @@ function EndpointsView({ records, rangeDays, service }: { records: MetricRecord[
         <StatChip label="Total requests" value={fmtNum(totalRequests)} />
         <StatChip label="Avg latency" value={fmtMs(Math.round(avgLatency))} />
         <StatChip label="Total errors" value={fmtNum(totalErrors)} dim={totalErrors === 0} />
-        <StatChip label="Error rate" value={errorRate > 0 ? `${errorRate.toFixed(2)}%` : "—"} dim={errorRate === 0} />
+        <StatChip label="Error rate" value={errorRate > 0 ? `${errorRate.toFixed(2)}%` : "-"} dim={errorRate === 0} />
       </div>
 
       <div>
@@ -783,7 +783,7 @@ function EndpointsView({ records, rangeDays, service }: { records: MetricRecord[
       {Object.keys(aggregatedEndpoints).length > 0 && (
         <div>
           <p className="text-xs text-muted-foreground mb-2 font-medium">
-            Per-endpoint breakdown — aggregated over {rangeDays}d
+            Per-endpoint breakdown - aggregated over {rangeDays}d
           </p>
           <EndpointsTable endpoints={aggregatedEndpoints} />
         </div>
@@ -1099,7 +1099,7 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
         <>
           <div>
             <p className="text-xs text-muted-foreground mb-2 font-medium">
-              Connected clients — {rangeDays === 1 ? "1-minute" : "sampled"} resolution
+              Connected clients - {rangeDays === 1 ? "1-minute" : "sampled"} resolution
             </p>
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
@@ -1148,7 +1148,7 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
 
       <div className="border-t border-border/60 pt-4 space-y-4">
         <p className="text-xs text-muted-foreground font-medium">
-          Clan chat — ingest events &amp; dispatched messages
+          Clan chat - ingest events &amp; dispatched messages
         </p>
 
         <ResponsiveContainer width="100%" height={220}>
@@ -1208,7 +1208,7 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
 
         <div>
           <p className="text-xs text-muted-foreground mb-2 font-medium">
-            Event breakdown — totals over {rangeDays}d
+            Event breakdown - totals over {rangeDays}d
           </p>
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full text-xs">
@@ -1230,8 +1230,8 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
                           />
                           {label}
                         </td>
-                        <td className="px-3 py-2 text-right tabular-nums">—</td>
-                        <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">—</td>
+                        <td className="px-3 py-2 text-right tabular-nums">-</td>
+                        <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">-</td>
                       </tr>
                     ))
                   : ingestTotals.map(([key, count]) => (

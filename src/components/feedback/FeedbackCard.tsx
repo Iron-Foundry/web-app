@@ -93,7 +93,7 @@ const STATUS_LABEL: Record<string, string> = {
   "wont-fix":     "Won't Fix",
 };
 
-export function statusBadge(status: string) {
+function statusBadge(status: string) {
   const label = STATUS_LABEL[status] ?? status;
   switch (status) {
     case "open":
@@ -115,7 +115,7 @@ export function statusBadge(status: string) {
   }
 }
 
-export function relativeTime(iso: string): string {
+function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";

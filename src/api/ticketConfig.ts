@@ -23,7 +23,7 @@ export interface TicketTypeConfig {
   images: ImageInfo[];
 }
 
-export type TicketTypeConfigPatch = Partial<
+type TicketTypeConfigPatch = Partial<
   Pick<
     TicketTypeConfig,
     | "display_name"

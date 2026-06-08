@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
+import { BingoSkeleton } from "@/components/skeletons/BingoSkeleton";
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis, Legend, Tooltip } from "recharts";
 import { ChartContainer } from "@/components/ui/chart";
 import { rootRoute } from "./__root";
@@ -29,6 +30,7 @@ const data = rawData as unknown as BingoMappedData;
 export const bingoRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/bingo",
+  pendingComponent: BingoSkeleton,
   component: () => <BingoPage />,
 });
 

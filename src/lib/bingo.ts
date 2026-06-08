@@ -22,13 +22,13 @@ export const BOSS_METRICS = new Set([
   "tztok_jad","vardorvis","venenatis","vetion","vorkath","wintertodt","yama","zalcano","zulrah",
 ]);
 
-export const ACTIVITY_METRICS = new Set([
+const ACTIVITY_METRICS = new Set([
   "clue_scrolls_all","clue_scrolls_beginner","clue_scrolls_easy","clue_scrolls_medium",
   "clue_scrolls_hard","clue_scrolls_elite","clue_scrolls_master","collections_logged",
   "colosseum_glory","guardians_of_the_rift","last_man_standing","pvp_arena","soul_wars_zeal",
 ]);
 
-export const COMPUTED_METRICS = new Set(["ehp", "ehb"]);
+const COMPUTED_METRICS = new Set(["ehp", "ehb"]);
 
 export const TEAM_COLORS = [
   "hsl(220,70%,55%)", "hsl(140,60%,45%)", "hsl(280,65%,60%)", "hsl(30,80%,55%)",
@@ -107,7 +107,7 @@ export function fmtBingoDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" });
 }
 
-export function getMetricCat(m: string): "skill" | "boss" | "activity" | "computed" {
+function getMetricCat(m: string): "skill" | "boss" | "activity" | "computed" {
   if (SKILL_METRICS.has(m)) return "skill";
   if (BOSS_METRICS.has(m)) return "boss";
   if (ACTIVITY_METRICS.has(m)) return "activity";

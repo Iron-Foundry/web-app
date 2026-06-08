@@ -91,7 +91,7 @@ function buildOgTags(
       comp.status === "upcoming" ? "Upcoming" :
       "Finished";
     title = `${comp.title} | Iron Foundry`;
-    description = `${statusLabel} Iron Foundry competition — ${comp.participantCount ?? 0} participants.`;
+    description = `${statusLabel} Iron Foundry competition - ${comp.participantCount ?? 0} participants.`;
   }
 
   const url = `${SITE_URL}${pathname === "/" ? "" : pathname}`;

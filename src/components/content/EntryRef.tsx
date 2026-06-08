@@ -1,16 +1,19 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, lazy, Suspense } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "@tanstack/react-router";
 import { contentApi } from "@/api/content";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EntryDetail } from "@/types/content";
-import { MarkdownRenderer } from "./MarkdownRenderer";
+
+const MarkdownRenderer = lazy(() =>
+  import("./MarkdownRenderer").then((m) => ({ default: m.MarkdownRenderer }))
+);
 
 const ROUTE_BASE: Record<string, string> = {
   resource: "/resources",
   plugin: "/plugins",
-  staff_resource: "/members/staff/resources",
+  staff_resource: "/staff-portal/resources",
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -164,7 +167,15 @@ export function EntryRef({ type, slug, section, children }: EntryRefProps) {
               </div>
             ) : entry ? (
               <div className="p-3 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h4]:text-xs [&_p]:text-xs [&_li]:text-xs">
-                <MarkdownRenderer body={entry.body} />
+                <Suspense fallback={
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-4/5" />
+                    <Skeleton className="h-3 w-3/5" />
+                  </div>
+                }>
+                  <MarkdownRenderer body={entry.body} />
+                </Suspense>
               </div>
             ) : null}
           </div>

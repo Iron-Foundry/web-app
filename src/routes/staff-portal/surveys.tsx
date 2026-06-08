@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ChevronDown, ChevronRight, Pencil, Plus } from "lucide-react";
-import { TemplateEditorDialog, type TemplateEntry } from "../members/staff/survey-editor";
+import { TemplateEditorDialog, type TemplateEntry } from "../members/config/survey-editor";
 
 export const staffPortalSurveysRoute = createRoute({
   getParentRoute: () => staffPortalLayoutRoute,

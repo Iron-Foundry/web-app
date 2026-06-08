@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
-import { staffPortalLayoutRoute } from "./_layout";
+import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,10 @@ registerPage({
   defaults: { read: ["Foundry Mentors"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: [] },
 });
 
-export const staffPortalRankingRoute = createRoute({
-  getParentRoute: () => staffPortalLayoutRoute,
-  path: "/ranking",
-  component: () => <StaffGuard pageId="staff.ranking" redirectTo="/staff-portal"><RankingPage /></StaffGuard>,
+export const configRankingRoute = createRoute({
+  getParentRoute: () => membersLayoutRoute,
+  path: "/config/ranking",
+  component: () => <StaffGuard pageId="staff.ranking" redirectTo="/members"><RankingPage /></StaffGuard>,
 });
 
 // ── Default config (mirrors backend _DEFAULT_CONFIG) ─────────────────────────
