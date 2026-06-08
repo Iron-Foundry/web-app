@@ -1,7 +1,7 @@
 export const NAV_SECTIONS = [
   {
-    tab: "explore",
-    label: "Explore",
+    tab: "foundry",
+    label: "Foundry",
     links: [
       { to: "/", label: "Home", exact: true as const },
       { to: "/about", label: "About" },
@@ -10,9 +10,10 @@ export const NAV_SECTIONS = [
     ],
   },
   {
-    tab: "activities",
-    label: "Activities",
+    tab: "community",
+    label: "Community",
     links: [
+      { to: "/leaderboards", label: "Leaderboards" },
       { to: "/competitions", label: "Competitions" },
       { to: "/parties", label: "Parties" },
       { to: "/calendar", label: "Calendar" },
@@ -24,7 +25,6 @@ export const NAV_SECTIONS = [
     tab: "resources",
     label: "Resources",
     links: [
-      { to: "/leaderboards", label: "Leaderboards" },
       { to: "/plugins", label: "Plugins" },
       { to: "/resources", label: "Resources & Guides" },
       { to: "/feedback", label: "Feedback Board" },

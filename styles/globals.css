@@ -149,3 +149,56 @@
 .light .callout-tip     { background: hsl(148, 35%, 88%); border-left-color: hsl(148, 45%, 38%); }
 .light .callout-warning { background: hsl(0,   35%, 91%); border-left-color: hsl(0,   55%, 46%); }
 .light .callout-info    { background: hsl(210, 40%, 88%); border-left-color: hsl(210, 55%, 44%); }
+
+/* Shared spotlight border — ::before gradient sits behind inner card via z-index:-1 */
+.stat-card,
+.achievement-card {
+  position: relative;
+  isolation: isolate;
+  padding: 2px;
+}
+.stat-card::before,
+.achievement-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    300px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+    var(--primary) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.stat-card:hover::before,
+.achievement-card:hover::before {
+  opacity: 1;
+}
+.stat-card:hover,
+.achievement-card:hover {
+  box-shadow: 0 0 14px 2px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+/* Stat cards */
+.stat-card {
+  border-radius: 0.75rem;
+  transition: box-shadow 400ms ease;
+}
+
+/* Achievement cards — cascade entry */
+.achievement-card {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 300ms ease var(--cascade-delay, 0ms),
+              transform 300ms ease var(--cascade-delay, 0ms),
+              box-shadow 400ms ease 0ms;
+}
+.achievements-visible .achievement-card {
+  opacity: var(--tl-opacity, 1);
+  transform: none;
+}
+.achievement-card:hover {
+  transition-delay: 0ms;
+}

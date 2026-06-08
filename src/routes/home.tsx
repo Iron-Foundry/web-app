@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { useAuth } from "@/context/AuthContext";
@@ -7,11 +7,19 @@ import type { Achievement, AchievementType } from "@/types/members";
 import type { Competition } from "@/types/competitions";
 import clanPhoto from "@/assets/clan-photo.png";
 import bannerLogo from "@/assets/BannerLogo-160x87.png";
+import topazImg from "@/assets/Topaz256.png";
+import sapphireImg from "@/assets/Sapphire256.png";
+import emeraldImg from "@/assets/Emerald256.png";
+import rubyImg from "@/assets/Ruby256.png";
+import diamondImg from "@/assets/Diamond256.png";
+import dragonstoneImg from "@/assets/Dragonstone256.png";
+import onyxImg from "@/assets/Onyx256.png";
+import zenyteImg from "@/assets/Zenyte256.png";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Gem, TrendingUp, Zap, Trophy, Clock, X, ExternalLink } from "lucide-react";
+
+import { Gem, TrendingUp, Zap, Trophy, Clock, X, ExternalLink, Users } from "lucide-react";
 
 export const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -19,6 +27,39 @@ export const homeRoute = createRoute({
   component: HomePage,
 });
 
+const PROGRESSION_RANKS = [
+  { name: "Achiever",    img: null,           icon: Users, description: "Social rank for those who just want to hang out or haven't hit Sapphire requirements yet." },
+  { name: "Sapphire",    img: sapphireImg,    description: "Early-to-mid game PvM. Accounts nudging past the quest grind and into bossing." },
+  { name: "Emerald",     img: emeraldImg,     description: "Mid game ready. Comfortable with gear-heavy bosses and dipping into ToA." },
+  { name: "Ruby",        img: rubyImg,        description: "Stepping into Chambers of Xeric and pushing invocations in Tombs of Amascut." },
+  { name: "Diamond",     img: diamondImg,     description: "Geared and confident tackling most of what the game has to offer." },
+  { name: "Dragonstone", img: dragonstoneImg, description: "Proficient raider. Challenge Modes or pushing into Combat Achievements." },
+  { name: "Onyx",        img: onyxImg,        description: "Skilled and geared for anything the game throws at you." },
+  { name: "Zenyte",      img: zenyteImg,      description: "Inferno, Colosseum, Grandmaster CAs. Our most prestigious rank." },
+] as const;
+
+
+function useCountUp(target: number | null, duration = 1200): number | null {
+  const [current, setCurrent] = useState<number | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (target === null) return;
+    setCurrent(0);
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCurrent(Math.round(target * eased));
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
+  }, [target, duration]);
+
+  return current;
+}
 
 const ACHIEVEMENT_META: Record<
   AchievementType,
@@ -26,11 +67,12 @@ const ACHIEVEMENT_META: Record<
     icon: React.ElementType;
     color: string;
     badge: string;
+    accent: string;
   }
 > = {
-  drop: { icon: Gem, color: "text-primary", badge: "Drop" },
-  level: { icon: TrendingUp, color: "text-green-400", badge: "Level Up" },
-  xp_milestone: { icon: Zap, color: "text-blue-400", badge: "XP Milestone" },
+  drop:         { icon: Gem,        color: "text-primary",   badge: "Drop",         accent: "border-l-primary/60" },
+  level:        { icon: TrendingUp, color: "text-green-400", badge: "Level Up",     accent: "border-l-green-400/60" },
+  xp_milestone: { icon: Zap,        color: "text-blue-400",  badge: "XP Milestone", accent: "border-l-blue-400/60" },
 };
 
 function formatGp(value: number): string {
@@ -95,21 +137,34 @@ function StatCard({
   backdropOpacity?: number;
 }) {
   return (
-    <Card className="relative overflow-hidden">
-      {backdrop && (
-        <img
-          src={backdrop}
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-          style={{ opacity: backdropOpacity }}
-        />
-      )}
-      <CardContent className="relative flex flex-col items-center justify-center py-5">
-        <span className="text-2xl font-rs-bold text-primary">{value}</span>
-        <span className="mt-1 text-2xl font-rs-quill text-foreground/60">{label}</span>
-      </CardContent>
-    </Card>
+    <div
+      className="stat-card"
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+        e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.setProperty("--mouse-x", "-9999px");
+        e.currentTarget.style.setProperty("--mouse-y", "-9999px");
+      }}
+    >
+      <Card className="relative overflow-hidden rounded-[10px] border border-border cursor-default">
+        {backdrop && (
+          <img
+            src={backdrop}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+            style={{ opacity: backdropOpacity }}
+          />
+        )}
+        <CardContent className="relative flex flex-col items-center justify-center h-20">
+          <span className="text-2xl font-rs-bold text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]">{value}</span>
+          <span className="mt-1 text-2xl font-rs-quill text-foreground/60">{label}</span>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -203,6 +258,19 @@ function HomePage() {
   const { data: achievements = [], isLoading: achievementsLoading } = useRecentAchievements();
   const { data: competitions = [] } = useHomeCompetitions();
   const [compDismissed, setCompDismissed] = useState(false);
+  const [achievementsVisible, setAchievementsVisible] = useState(false);
+  const achievementsRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    const el = achievementsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setAchievementsVisible(true); observer.disconnect(); } },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [achievements.length]);
 
   const memberCount = womStats?.member_count ?? null;
   const clanXp = womStats && womStats.total_xp > 0 ? womStats.total_xp : null;
@@ -212,6 +280,15 @@ function HomePage() {
   const toaKc = womStats && womStats.toa_kc > 0 ? womStats.toa_kc : null;
   const totalGp = clanStats?.total_gp ?? null;
   const totalLogSlots = clanStats?.collection_log_items ?? null;
+
+  const animMemberCount = useCountUp(memberCount);
+  const animClanXp = useCountUp(clanXp);
+  const animClanEhb = useCountUp(clanEhb);
+  const animCoxKc = useCountUp(coxKc);
+  const animTobKc = useCountUp(tobKc);
+  const animToaKc = useCountUp(toaKc);
+  const animTotalGp = useCountUp(totalGp);
+  const animLogSlots = useCountUp(totalLogSlots);
   const activeComp = competitions.find((c) => c.status === "ongoing") ?? competitions.find((c) => c.status === "upcoming") ?? null;
 
   return (
@@ -277,90 +354,151 @@ function HomePage() {
 
         {/* ── Stats ────────────────────────────────────────────── */}
         <section className="space-y-3">
-          <div className="grid grid-cols-3 gap-3">
-            <StatCard
-              label="Member Count"
-              value={memberCount !== null ? memberCount.toLocaleString() : "-"}
-              backdrop={clanPhoto}
-              backdropOpacity={0.25}
-            />
-            <StatCard
-              label="Total XP"
-              value={clanXp !== null ? formatGp(clanXp) : "-"}
-              backdrop="https://oldschool.runescape.wiki/images/thumb/Forestry-_Part_Two_-_Community_Consultation_%281%29.png/640px-Forestry-_Part_Two_-_Community_Consultation_%281%29.png?b1a37"
-              backdropOpacity={0.25}
-              />
-            <StatCard
-              label="Total EHB"
-              value={clanEhb !== null ? clanEhb.toLocaleString() : "-"}
-              backdrop="https://oldschool.runescape.wiki/images/thumb/Araxxor_artwork_3D_no_text.png/614px-Araxxor_artwork_3D_no_text.png?79f22"
-              backdropOpacity={0.25}
-            />
-          </div>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <StatCard
               label="Loot Value"
-              value={totalGp !== null ? formatGp(totalGp) : "-"}
+              value={animTotalGp !== null ? formatGp(animTotalGp) : "-"}
               backdrop="https://oldschool.runescape.wiki/images/thumb/Loot_Chest_%28opened%29.png/489px-Loot_Chest_%28opened%29.png?b8b83"
               backdropOpacity={0.25}
             />
             <StatCard
               label="Tombs of Amascut"
-              value={toaKc !== null ? toaKc.toLocaleString() : "-"}
+              value={animToaKc !== null ? animToaKc.toLocaleString() : "-"}
               backdrop="https://oldschool.runescape.wiki/images/thumb/Tombs_of_Amascut_-_necropolis_concept_art.jpg/640px-Tombs_of_Amascut_-_necropolis_concept_art.jpg?b3e2f"
               backdropOpacity={0.25}
             />
             <StatCard
               label="Chambers of Xeric"
-              value={coxKc !== null ? coxKc.toLocaleString() : "-"}
+              value={animCoxKc !== null ? animCoxKc.toLocaleString() : "-"}
               backdrop="https://oldschool.runescape.wiki/images/thumb/Chambers_of_Xeric_artwork.jpg/640px-Chambers_of_Xeric_artwork.jpg?090e1"
               backdropOpacity={0.25}
             />
             <StatCard
               label="Theatre of Blood"
-              value={tobKc !== null ? tobKc.toLocaleString() : "-"}
+              value={animTobKc !== null ? animTobKc.toLocaleString() : "-"}
               backdrop="https://oldschool.runescape.wiki/images/thumb/Theatre_of_Blood_artwork.jpg/640px-Theatre_of_Blood_artwork.jpg?92a5f"
+              backdropOpacity={0.25}
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <StatCard
+              label="Member Count"
+              value={animMemberCount !== null ? animMemberCount.toLocaleString() : "-"}
+              backdrop={clanPhoto}
+              backdropOpacity={0.25}
+            />
+            <StatCard
+              label="Total XP"
+              value={animClanXp !== null ? formatGp(animClanXp) : "-"}
+              backdrop="https://oldschool.runescape.wiki/images/thumb/Forestry-_Part_Two_-_Community_Consultation_%281%29.png/640px-Forestry-_Part_Two_-_Community_Consultation_%281%29.png?b1a37"
+              backdropOpacity={0.25}
+            />
+            <StatCard
+              label="Total EHB"
+              value={animClanEhb !== null ? animClanEhb.toLocaleString() : "-"}
+              backdrop="https://oldschool.runescape.wiki/images/thumb/Araxxor_artwork_3D_no_text.png/614px-Araxxor_artwork_3D_no_text.png?79f22"
               backdropOpacity={0.25}
             />
           </div>
         </section>
 
-        <Separator />
+        <div className="flex items-center justify-center gap-2">
+          <span className="h-1 w-1 rounded-full bg-border" />
+          <div className="h-px w-24 bg-border" />
+          <span className="h-1 w-1 rounded-full bg-border" />
+        </div>
 
         {/* ── About ────────────────────────────────────────────── */}
-        <section className="space-y-6">
-          <div className="space-y-3">
+        <div
+          className="stat-card"
+          onMouseMove={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+            e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.setProperty("--mouse-x", "-9999px");
+            e.currentTarget.style.setProperty("--mouse-y", "-9999px");
+          }}
+        >
+        <section className="relative overflow-hidden rounded-[10px] border border-border bg-background">
+          <img
+            src={clanPhoto}
+            alt="Iron Foundry clan photograph"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/30" />
+          <div className="relative space-y-3 px-8 py-10">
             <h2 className="font-rs-bold text-3xl text-primary">Who we are</h2>
-            <p className="leading-relaxed text-muted-foreground">
+            <p className="leading-relaxed text-foreground/90 max-w-2xl">
               Iron Foundry is a community of like-minded Ironmen/Ironwomen in
               Old School Runescape. We pride ourselves on the varying skill
               levels and progression levels of our players. Our focus is always
               creating a fun environment for everyone to relax and enjoy their
               time in-game.
             </p>
-            <p className="leading-relaxed text-muted-foreground">
+            <p className="leading-relaxed text-foreground/90 max-w-2xl">
               We have a progression system based on your achievements ingame, a
               mentorship program to help take any next steps for your account, a
               dedicated event team, and even just a nice place to bank stand and
               chat if thats more your style!
             </p>
-            <p className="leading-relaxed text-muted-foreground">
+            <p className="leading-relaxed text-foreground/90 max-w-2xl">
               No requirements to join! We have a spot for you even if you are
               just coming off Tutorial Island or rocking Blorva. If you are
               looking for community to grow with, learn new skills, and make
               friends join our ranks!
             </p>
           </div>
-          <div className="overflow-hidden rounded-md border border-border">
-            <img
-              src={clanPhoto}
-              alt="Iron Foundry clan photograph"
-              className="h-auto w-full object-cover"
-            />
+        </section>
+        </div>
+
+        <div className="flex items-center justify-center gap-2">
+          <span className="h-1 w-1 rounded-full bg-border" />
+          <div className="h-px w-24 bg-border" />
+          <span className="h-1 w-1 rounded-full bg-border" />
+        </div>
+
+        {/* ── Rank Structure ───────────────────────────────────── */}
+        <section className="space-y-4">
+          <h2 className="font-rs-bold text-3xl text-primary">Rank Structure</h2>
+          <div className="grid grid-cols-2 gap-3 items-stretch">
+            {PROGRESSION_RANKS.map((rank) => (
+              <div
+                key={rank.name}
+                className="stat-card h-full"
+                onMouseMove={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+                  e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.setProperty("--mouse-x", "-9999px");
+                  e.currentTarget.style.setProperty("--mouse-y", "-9999px");
+                }}
+              >
+                <div className="flex items-center gap-4 rounded-[10px] border border-border bg-card px-4 py-3 cursor-default h-full">
+                  {"icon" in rank && rank.icon
+                    ? <rank.icon className="h-10 w-10 shrink-0 text-primary" />
+                    : rank.img && <img src={rank.img} alt={rank.name} className="h-10 w-10 shrink-0 object-contain" />
+                  }
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="font-rs-bold text-lg text-primary leading-tight">{rank.name}</span>
+                    {rank.description && (
+                      <span className="text-sm text-muted-foreground">{rank.description}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
-        <Separator />
+        <div className="flex items-center justify-center gap-2">
+          <span className="h-1 w-1 rounded-full bg-border" />
+          <div className="h-px w-24 bg-border" />
+          <span className="h-1 w-1 rounded-full bg-border" />
+        </div>
 
         {/* ── Recent Achievements ───────────────────────────────── */}
         <section className="space-y-4">
@@ -378,32 +516,47 @@ function HomePage() {
                   No recent achievements yet.
                 </p>
               ) : (
-                <ul className="divide-y divide-border">
+                <ul ref={achievementsRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 px-2 py-0.5 ${achievementsVisible ? "achievements-visible" : ""}`}>
                   {achievements.map((achievement, i) => {
                     const meta = ACHIEVEMENT_META[achievement.type];
                     const Icon = meta.icon;
                     return (
-                      <li key={i} className="flex items-center gap-3 px-4 py-1.5">
+                      <li
+                        key={i}
+                        className="achievement-card rounded-md"
+                        style={{
+                          "--cascade-delay": `${i * 60}ms`,
+                          "--tl-opacity": `${1 - (i / achievements.length) * 0.5}`,
+                        } as React.CSSProperties}
+                        onMouseMove={(e) => {
+                          const r = e.currentTarget.getBoundingClientRect();
+                          e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+                          e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.setProperty("--mouse-x", "-9999px");
+                          e.currentTarget.style.setProperty("--mouse-y", "-9999px");
+                        }}
+                      >
+                        <div className={`flex items-center gap-3 rounded-[4px] border border-border border-l-2 ${meta.accent} bg-card px-3 py-2.5 w-full`}>
                         <AchievementIcon
                           type={achievement.type}
                           label={achievement.label}
                           Fallback={Icon}
-                          className={`h-4 w-4 shrink-0 ${meta.color}`}
+                          className={`h-5 w-5 shrink-0 ${meta.color}`}
                         />
-                        <span className="text-sm font-medium text-foreground truncate">
+                        <span className="text-sm font-semibold text-foreground truncate hidden sm:block">
                           {achievement.label}
                         </span>
-                        <span className="text-xs text-muted-foreground shrink-0">
+                        <span className="shrink-0 rounded-full border border-border bg-background px-2 py-0.5 text-xs text-primary font-medium">
                           {achievement.player}
                         </span>
-                        <Badge variant="secondary" className="shrink-0 text-xs">
-                          {achievement.detail ?? meta.badge}
-                        </Badge>
                         <span
                           className={`ml-auto shrink-0 font-rs-bold text-sm ${meta.color}`}
                         >
                           {formatAchievementValue(achievement)}
                         </span>
+                        </div>
                       </li>
                     );
                   })}

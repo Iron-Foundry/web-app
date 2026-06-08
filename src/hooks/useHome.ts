@@ -23,7 +23,7 @@ export function useClanStats() {
 export function useRecentAchievements() {
   return useQuery({
     queryKey: queryKeys.home.achievements(),
-    queryFn: () => membersApi.getRecentAchievements(20),
+    queryFn: () => membersApi.getRecentAchievements(21),
     staleTime: STALE,
   });
 }

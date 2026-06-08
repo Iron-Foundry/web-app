@@ -4,6 +4,13 @@ import { Menu, X, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import { NavLinks } from "./NavLinks";
 import { NAV_SECTIONS, MEMBERS_TAB, STAFF_SECTION, getSectionForPath } from "@/lib/navigation";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
@@ -22,9 +29,10 @@ function RoleBadge({ roles, roleLabels }: { roles: string[]; roleLabels: Record<
   );
 }
 
-const TAB_CLASS = cn(
-  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-  "hover:bg-muted hover:text-foreground",
+const LINK_CLASS = cn(
+  "block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
+  "transition-colors hover:bg-muted hover:text-foreground",
+  "[&.active]:text-primary",
 );
 
 const STAFF_PAGE_IDS = [
@@ -71,48 +79,68 @@ export function TopNav() {
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-4 md:flex">
-          <nav className="flex items-center gap-1">
-            {NAV_SECTIONS.map((section) => (
-              <button
-                key={section.tab}
-                onClick={() => navigate({ to: section.links[0].to })}
-                className={cn(
-                  TAB_CLASS,
-                  activeTab === section.tab
-                    ? "bg-muted text-primary"
-                    : "text-muted-foreground",
-                )}
-              >
-                {section.label}
-              </button>
-            ))}
-            {user && (
-              <Link
-                to={MEMBERS_TAB.to}
-                className={cn(
-                  TAB_CLASS,
-                  activeTab === MEMBERS_TAB.tab
-                    ? "bg-muted text-primary"
-                    : "text-muted-foreground",
-                )}
-              >
-                {MEMBERS_TAB.label}
-              </Link>
-            )}
-            {hasStaffAccess && (
-              <button
-                onClick={() => navigate({ to: STAFF_SECTION.links[0].to })}
-                className={cn(
-                  TAB_CLASS,
-                  activeTab === STAFF_SECTION.tab
-                    ? "bg-muted text-primary"
-                    : "text-muted-foreground",
-                )}
-              >
-                {STAFF_SECTION.label}
-              </button>
-            )}
-          </nav>
+          <NavigationMenu>
+            <NavigationMenuList>
+              {NAV_SECTIONS.map((section) => (
+                <NavigationMenuItem key={section.tab}>
+                  <NavigationMenuTrigger
+                    className={activeTab === section.tab ? "text-primary!" : ""}
+                  >
+                    {section.label}
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="flex flex-col p-1 min-w-40">
+                      {section.links.map((link) => (
+                        <li key={link.to}>
+                          <Link
+                            to={link.to}
+                            activeOptions={{ exact: "exact" in link ? !!link.exact : false }}
+                            className={LINK_CLASS}
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              ))}
+
+              {user && (
+                <NavigationMenuItem>
+                  <Link
+                    to={MEMBERS_TAB.to}
+                    className={cn(
+                      "inline-flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      "hover:bg-muted hover:text-foreground",
+                      activeTab === MEMBERS_TAB.tab
+                        ? "bg-muted text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {MEMBERS_TAB.label}
+                  </Link>
+                </NavigationMenuItem>
+              )}
+
+              {hasStaffAccess && (
+                <NavigationMenuItem>
+                  <Link
+                    to={STAFF_SECTION.links[0].to}
+                    className={cn(
+                      "inline-flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      "hover:bg-muted hover:text-foreground",
+                      activeTab === STAFF_SECTION.tab
+                        ? "bg-muted text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {STAFF_SECTION.label}
+                  </Link>
+                </NavigationMenuItem>
+              )}
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {user ? (
             <div className="flex items-center gap-2">

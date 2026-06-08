@@ -1,17 +1,14 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { NAV_SECTIONS, STAFF_SECTION, getSectionForPath } from "@/lib/navigation";
+import { STAFF_SECTION, getSectionForPath } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 export function SubNav() {
   const { pathname } = useLocation();
   const activeTab = getSectionForPath(pathname);
 
-  const section =
-    activeTab === "staff"
-      ? STAFF_SECTION
-      : NAV_SECTIONS.find((s) => s.tab === activeTab);
+  if (activeTab !== "staff") return null;
 
-  if (!section) return null;
+  const section = STAFF_SECTION;
 
   return (
     <nav className="border-b border-border bg-card/60">
