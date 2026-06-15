@@ -34,10 +34,11 @@ export function useMetricDetail(competitionId: number | undefined, metric: strin
 export function useCompetitionOvertime(
   competitionId: number | undefined,
   metric: string | undefined,
+  limit?: number,
 ) {
   return useQuery({
-    queryKey: queryKeys.competitions.overtime(competitionId ?? 0, metric ?? ""),
-    queryFn: () => competitionsApi.getOvertime(competitionId!, metric!),
+    queryKey: queryKeys.competitions.overtime(competitionId ?? 0, metric ?? "", limit),
+    queryFn: () => competitionsApi.getOvertime(competitionId!, metric!, limit),
     enabled: !!competitionId && !!metric,
     staleTime: STALE,
     select: (data) => ({

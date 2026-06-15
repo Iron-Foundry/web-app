@@ -1,172 +1,25 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { useAuth } from "@/context/AuthContext";
 import { useWomStats, useClanStats, useRecentAchievements, useHomeCompetitions } from "@/hooks/useHome";
-import type { Achievement, AchievementType } from "@/types/members";
-import type { Competition } from "@/types/competitions";
-import clanPhoto from "@/assets/clan-photo.png";
-import bannerLogo from "@/assets/BannerLogo-160x87.png";
-import topazImg from "@/assets/Topaz256.png";
-import sapphireImg from "@/assets/Sapphire256.png";
-import emeraldImg from "@/assets/Emerald256.png";
-import rubyImg from "@/assets/Ruby256.png";
-import diamondImg from "@/assets/Diamond256.png";
-import dragonstoneImg from "@/assets/Dragonstone256.png";
-import onyxImg from "@/assets/Onyx256.png";
-import zenyteImg from "@/assets/Zenyte256.png";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-import { Gem, TrendingUp, Zap, Trophy, Clock, X, ExternalLink, Users } from "lucide-react";
+import { Trophy, Clock, ExternalLink } from "lucide-react";
+import { StatsSection } from "@/components/home/StatsSection";
+import { AchievementsSection } from "@/components/home/AchievementsSection";
+import { RankSection } from "@/components/home/RankSection";
+import type { Competition } from "@/types/competitions";
+import { shineHandlers } from "@/hooks/useShineEffect";
+import clanPhoto from "@/assets/clan-photo.png";
+import bannerLogo from "@/assets/BannerLogo-160x87.png";
 
 export const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: HomePage,
 });
-
-const PROGRESSION_RANKS = [
-  { name: "Achiever",    img: null,           icon: Users, description: "Social rank for those who just want to hang out or haven't hit Sapphire requirements yet." },
-  { name: "Sapphire",    img: sapphireImg,    description: "Early-to-mid game PvM. Accounts nudging past the quest grind and into bossing." },
-  { name: "Emerald",     img: emeraldImg,     description: "Mid game ready. Comfortable with gear-heavy bosses and dipping into ToA." },
-  { name: "Ruby",        img: rubyImg,        description: "Stepping into Chambers of Xeric and pushing invocations in Tombs of Amascut." },
-  { name: "Diamond",     img: diamondImg,     description: "Geared and confident tackling most of what the game has to offer." },
-  { name: "Dragonstone", img: dragonstoneImg, description: "Proficient raider. Challenge Modes or pushing into Combat Achievements." },
-  { name: "Onyx",        img: onyxImg,        description: "Skilled and geared for anything the game throws at you." },
-  { name: "Zenyte",      img: zenyteImg,      description: "Inferno, Colosseum, Grandmaster CAs. Our most prestigious rank." },
-] as const;
-
-
-function useCountUp(target: number | null, duration = 1200): number | null {
-  const [current, setCurrent] = useState<number | null>(null);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (target === null) return;
-    setCurrent(0);
-    const start = Date.now();
-    const tick = () => {
-      const elapsed = Date.now() - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCurrent(Math.round(target * eased));
-      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
-  }, [target, duration]);
-
-  return current;
-}
-
-const ACHIEVEMENT_META: Record<
-  AchievementType,
-  {
-    icon: React.ElementType;
-    color: string;
-    badge: string;
-    accent: string;
-  }
-> = {
-  drop:         { icon: Gem,        color: "text-primary",   badge: "Drop",         accent: "border-l-primary/60" },
-  level:        { icon: TrendingUp, color: "text-green-400", badge: "Level Up",     accent: "border-l-green-400/60" },
-  xp_milestone: { icon: Zap,        color: "text-blue-400",  badge: "XP Milestone", accent: "border-l-blue-400/60" },
-};
-
-function formatGp(value: number): string {
-  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}B`;
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
-  if (value >= 1_000) return `${Math.round(value / 1_000)}K`;
-  return value.toLocaleString();
-}
-
-function formatAchievementValue(a: Achievement): string {
-  switch (a.type) {
-    case "drop":
-      return formatGp(a.value);
-    case "level":
-      return `Level ${a.value}`;
-    case "xp_milestone":
-      return `${formatGp(a.value)} xp`;
-  }
-}
-
-const WIKI = "https://oldschool.runescape.wiki/images";
-
-function wikiIconUrl(type: AchievementType, label: string): string {
-  if (label === "Total Level") return `${WIKI}/Stats_icon.png`;
-  const slug = label.replace(/ /g, "_");
-  if (type === "drop") return `${WIKI}/${slug}.png`;
-  return `${WIKI}/${slug}_icon.png`;
-}
-
-function AchievementIcon({
-  type,
-  label,
-  Fallback,
-  className,
-}: {
-  type: AchievementType;
-  label: string;
-  Fallback: React.ElementType;
-  className?: string;
-}) {
-  const [failed, setFailed] = useState(false);
-  if (failed) return <Fallback className={className} />;
-  return (
-    <img
-      src={wikiIconUrl(type, label)}
-      alt=""
-      className="h-4 w-4 shrink-0 object-contain"
-      onError={() => setFailed(true)}
-    />
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  backdrop,
-  backdropOpacity = 0.15,
-}: {
-  label: string;
-  value: string;
-  backdrop?: string;
-  backdropOpacity?: number;
-}) {
-  return (
-    <div
-      className="stat-card"
-      onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
-        e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.setProperty("--mouse-x", "-9999px");
-        e.currentTarget.style.setProperty("--mouse-y", "-9999px");
-      }}
-    >
-      <Card className="relative overflow-hidden rounded-[10px] border border-border cursor-default">
-        {backdrop && (
-          <img
-            src={backdrop}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-            style={{ opacity: backdropOpacity }}
-          />
-        )}
-        <CardContent className="relative flex flex-col items-center justify-center h-20">
-          <span className="text-2xl font-rs-bold text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]">{value}</span>
-          <span className="mt-1 text-2xl font-rs-quill text-foreground/60">{label}</span>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
 
 function fmtMetric(m: string): string {
   return m.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -187,14 +40,13 @@ function LiveCompetitionBox({ comp, onDismiss }: { comp: Competition; onDismiss:
   const isOngoing = comp.status === "ongoing";
   const accent = isOngoing
     ? { border: "border-green-500/40", bar: "bg-green-500", text: "text-green-600 dark:text-green-400", icon: "text-green-500" }
-    : { border: "border-blue-500/40",  bar: "bg-blue-500",  text: "text-blue-600 dark:text-blue-400",  icon: "text-blue-500"  };
+    : { border: "border-blue-500/40",  bar: "bg-blue-500",  text: "text-blue-600 dark:text-blue-400",  icon: "text-blue-500" };
 
   return (
     <div className={`fixed left-4 z-40 w-64 animate-in slide-in-from-left-2 duration-200 ${user ? "top-27" : "top-17"}`}>
       <Card className={`${accent.border} bg-card/95 backdrop-blur-sm shadow-lg overflow-hidden`}>
         <div className={`absolute left-0 top-0 bottom-0 w-1 ${accent.bar}`} />
         <CardContent className="pl-4 pr-3 py-3 space-y-2">
-          {/* Header row */}
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-1.5 min-w-0">
               <Trophy className={`h-3.5 w-3.5 shrink-0 ${accent.icon}`} />
@@ -202,47 +54,27 @@ function LiveCompetitionBox({ comp, onDismiss }: { comp: Competition; onDismiss:
                 {isOngoing ? "Live Competition" : "Upcoming Competition"}
               </span>
             </div>
-            <button
-              onClick={onDismiss}
-              className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Dismiss"
-            >
-              <X className="h-3.5 w-3.5" />
+            <button onClick={onDismiss} className="shrink-0 text-muted-foreground hover:text-foreground transition-colors" aria-label="Dismiss">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
-
-          {/* Competition name */}
-          <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">
-            {comp.title}
-          </p>
-
-          {/* Metric + time */}
+          <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">{comp.title}</p>
           <div className="space-y-1">
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-              {fmtMetric(comp.metric)}
-            </Badge>
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{fmtMetric(comp.metric)}</Badge>
             <div className={`flex items-center gap-1 text-xs ${accent.text}`}>
               <Clock className="h-3 w-3 shrink-0" />
               {isOngoing ? timeLeft(comp.endsAt) : `starts in ${timeLeft(comp.startsAt).replace(" left", "")}`}
             </div>
           </div>
-
-          {/* Actions */}
           <div className="flex items-center gap-2 pt-0.5">
-            <a
-              href={comp.competition_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <a href={comp.competition_url} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
               WOM <ExternalLink className="h-3 w-3" />
             </a>
-            <Link
-              to="/competitions/$compId"
-              params={{ compId: String(comp.id) }}
-              search={{ tab: undefined }}
-              className="text-xs text-primary hover:underline"
-            >
+            <Link to="/competitions/$compId" params={{ compId: String(comp.id) }} search={{ tab: undefined }}
+              className="text-xs text-primary hover:underline">
               Take me there!
             </Link>
           </div>
@@ -252,319 +84,95 @@ function LiveCompetitionBox({ comp, onDismiss }: { comp: Competition; onDismiss:
   );
 }
 
+const divider = (
+  <div className="flex items-center justify-center gap-2">
+    <span className="h-1 w-1 rounded-full bg-border" />
+    <div className="h-px w-24 bg-border" />
+    <span className="h-1 w-1 rounded-full bg-border" />
+  </div>
+);
+
 function HomePage() {
   const { data: womStats } = useWomStats();
   const { data: clanStats } = useClanStats();
   const { data: achievements = [], isLoading: achievementsLoading } = useRecentAchievements();
   const { data: competitions = [] } = useHomeCompetitions();
   const [compDismissed, setCompDismissed] = useState(false);
-  const [achievementsVisible, setAchievementsVisible] = useState(false);
-  const achievementsRef = useRef<HTMLUListElement>(null);
 
-  useEffect(() => {
-    const el = achievementsRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setAchievementsVisible(true); observer.disconnect(); } },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [achievements.length]);
-
-  const memberCount = womStats?.member_count ?? null;
-  const clanXp = womStats && womStats.total_xp > 0 ? womStats.total_xp : null;
-  const clanEhb = womStats && womStats.total_ehb > 0 ? womStats.total_ehb : null;
-  const coxKc = womStats && womStats.cox_kc > 0 ? womStats.cox_kc : null;
-  const tobKc = womStats && womStats.tob_kc > 0 ? womStats.tob_kc : null;
-  const toaKc = womStats && womStats.toa_kc > 0 ? womStats.toa_kc : null;
-  const totalGp = clanStats?.total_gp ?? null;
-  const totalLogSlots = clanStats?.collection_log_items ?? null;
-
-  const animMemberCount = useCountUp(memberCount);
-  const animClanXp = useCountUp(clanXp);
-  const animClanEhb = useCountUp(clanEhb);
-  const animCoxKc = useCountUp(coxKc);
-  const animTobKc = useCountUp(tobKc);
-  const animToaKc = useCountUp(toaKc);
-  const animTotalGp = useCountUp(totalGp);
-  const animLogSlots = useCountUp(totalLogSlots);
   const activeComp = competitions.find((c) => c.status === "ongoing") ?? competitions.find((c) => c.status === "upcoming") ?? null;
+
+  const statsProps = {
+    memberCount: womStats?.member_count ?? null,
+    clanXp: womStats && womStats.total_xp > 0 ? womStats.total_xp : null,
+    clanEhb: womStats && womStats.total_ehb > 0 ? womStats.total_ehb : null,
+    coxKc: womStats && womStats.cox_kc > 0 ? womStats.cox_kc : null,
+    tobKc: womStats && womStats.tob_kc > 0 ? womStats.tob_kc : null,
+    toaKc: womStats && womStats.toa_kc > 0 ? womStats.toa_kc : null,
+    totalGp: clanStats?.total_gp ?? null,
+    clanPhoto,
+  };
 
   return (
     <>
       {activeComp && !compDismissed && (
         <LiveCompetitionBox comp={activeComp} onDismiss={() => setCompDismissed(true)} />
       )}
-
       <div className="mx-auto max-w-5xl space-y-10 py-6">
-        {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="flex flex-col items-center gap-6 text-center">
           <div className="relative space-y-2">
-            <img
-              src={bannerLogo}
-              alt=""
-              aria-hidden
-              className="pointer-events-none absolute inset-0 mx-auto h-[1600%] w-[1600%] object-contain opacity-15 top-[calc(50%-8px)] -translate-y-1/2 left-1/2 -translate-x-1/2"
-            />
-            <h1 className="relative font-rs-bold text-6xl text-primary leading-tight">
-              Iron Foundry
-            </h1>
-            <p className="relative text-lg text-foreground/60">
-              An Ironman focused Mixed PvM Clan
-            </p>
+            <img src={bannerLogo} alt="" aria-hidden
+              className="pointer-events-none absolute inset-0 mx-auto h-[1600%] w-[1600%] object-contain opacity-15 top-[calc(50%-8px)] -translate-y-1/2 left-1/2 -translate-x-1/2" />
+            <h1 className="relative font-rs-bold text-6xl text-primary leading-tight">Iron Foundry</h1>
+            <p className="relative text-lg text-foreground/60">An Ironman focused Mixed PvM Clan</p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             <Button asChild size="lg">
-              <a
-                href="https://discord.gg/ironfoundry"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg
-                  className="h-7 w-7"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="-3 -3 22 22"
-                >
-                  <path
-                    fill="#5865F2"
-                    fillRule="evenodd"
-                    d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"
-                  />
+              <a href="https://discord.gg/ironfoundry" target="_blank" rel="noopener noreferrer">
+                <svg className="h-7 w-7" xmlns="http://www.w3.org/2000/svg" viewBox="-3 -3 22 22">
+                  <path fill="#5865F2" fillRule="evenodd" d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612" />
                 </svg>
                 Join us on Discord
               </a>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <a
-                href="https://wiseoldman.net/groups/9403"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img
-                  src="https://avatars.githubusercontent.com/u/65183441?v=4"
-                  alt=""
-                  className="h-5 w-5 rounded-sm"
-                />
+              <a href="https://wiseoldman.net/groups/9403" target="_blank" rel="noopener noreferrer">
+                <img src="https://avatars.githubusercontent.com/u/65183441?v=4" alt="" className="h-5 w-5 rounded-sm" />
                 Wise Old Man
               </a>
             </Button>
           </div>
         </section>
 
-        {/* ── Stats ────────────────────────────────────────────── */}
-        <section className="space-y-3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatCard
-              label="Loot Value"
-              value={animTotalGp !== null ? formatGp(animTotalGp) : "-"}
-              backdrop="https://oldschool.runescape.wiki/images/thumb/Loot_Chest_%28opened%29.png/489px-Loot_Chest_%28opened%29.png?b8b83"
-              backdropOpacity={0.25}
-            />
-            <StatCard
-              label="Tombs of Amascut"
-              value={animToaKc !== null ? animToaKc.toLocaleString() : "-"}
-              backdrop="https://oldschool.runescape.wiki/images/thumb/Tombs_of_Amascut_-_necropolis_concept_art.jpg/640px-Tombs_of_Amascut_-_necropolis_concept_art.jpg?b3e2f"
-              backdropOpacity={0.25}
-            />
-            <StatCard
-              label="Chambers of Xeric"
-              value={animCoxKc !== null ? animCoxKc.toLocaleString() : "-"}
-              backdrop="https://oldschool.runescape.wiki/images/thumb/Chambers_of_Xeric_artwork.jpg/640px-Chambers_of_Xeric_artwork.jpg?090e1"
-              backdropOpacity={0.25}
-            />
-            <StatCard
-              label="Theatre of Blood"
-              value={animTobKc !== null ? animTobKc.toLocaleString() : "-"}
-              backdrop="https://oldschool.runescape.wiki/images/thumb/Theatre_of_Blood_artwork.jpg/640px-Theatre_of_Blood_artwork.jpg?92a5f"
-              backdropOpacity={0.25}
-            />
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <StatCard
-              label="Member Count"
-              value={animMemberCount !== null ? animMemberCount.toLocaleString() : "-"}
-              backdrop={clanPhoto}
-              backdropOpacity={0.25}
-            />
-            <StatCard
-              label="Total XP"
-              value={animClanXp !== null ? formatGp(animClanXp) : "-"}
-              backdrop="https://oldschool.runescape.wiki/images/thumb/Forestry-_Part_Two_-_Community_Consultation_%281%29.png/640px-Forestry-_Part_Two_-_Community_Consultation_%281%29.png?b1a37"
-              backdropOpacity={0.25}
-            />
-            <StatCard
-              label="Total EHB"
-              value={animClanEhb !== null ? animClanEhb.toLocaleString() : "-"}
-              backdrop="https://oldschool.runescape.wiki/images/thumb/Araxxor_artwork_3D_no_text.png/614px-Araxxor_artwork_3D_no_text.png?79f22"
-              backdropOpacity={0.25}
-            />
-          </div>
-        </section>
+        <StatsSection {...statsProps} />
+        {divider}
 
-        <div className="flex items-center justify-center gap-2">
-          <span className="h-1 w-1 rounded-full bg-border" />
-          <div className="h-px w-24 bg-border" />
-          <span className="h-1 w-1 rounded-full bg-border" />
-        </div>
-
-        {/* ── About ────────────────────────────────────────────── */}
         <div
-          className="stat-card"
-          onMouseMove={(e) => {
-            const r = e.currentTarget.getBoundingClientRect();
-            e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
-            e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.setProperty("--mouse-x", "-9999px");
-            e.currentTarget.style.setProperty("--mouse-y", "-9999px");
-          }}
+          className="stat-card shine-border"
+          {...shineHandlers}
         >
-        <section className="relative overflow-hidden rounded-[10px] border border-border bg-background">
-          <img
-            src={clanPhoto}
-            alt="Iron Foundry clan photograph"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/30" />
-          <div className="relative space-y-3 px-8 py-10">
-            <h2 className="font-rs-bold text-3xl text-primary">Who we are</h2>
-            <p className="leading-relaxed text-foreground/90 max-w-2xl">
-              Iron Foundry is a community of like-minded Ironmen/Ironwomen in
-              Old School Runescape. We pride ourselves on the varying skill
-              levels and progression levels of our players. Our focus is always
-              creating a fun environment for everyone to relax and enjoy their
-              time in-game.
-            </p>
-            <p className="leading-relaxed text-foreground/90 max-w-2xl">
-              We have a progression system based on your achievements ingame, a
-              mentorship program to help take any next steps for your account, a
-              dedicated event team, and even just a nice place to bank stand and
-              chat if thats more your style!
-            </p>
-            <p className="leading-relaxed text-foreground/90 max-w-2xl">
-              No requirements to join! We have a spot for you even if you are
-              just coming off Tutorial Island or rocking Blorva. If you are
-              looking for community to grow with, learn new skills, and make
-              friends join our ranks!
-            </p>
-          </div>
-        </section>
+          <section className="relative overflow-hidden rounded-[10px] border border-border bg-background">
+            <img src={clanPhoto} alt="Iron Foundry clan photograph" className="absolute inset-0 h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-linear-to-t from-background via-background/80 to-background/30" />
+            <div className="relative space-y-3 px-8 py-10">
+              <h2 className="font-rs-bold text-3xl text-primary">Who we are</h2>
+              <p className="leading-relaxed text-foreground/90 max-w-2xl">
+                Iron Foundry is a community of like-minded Ironmen/Ironwomen in Old School Runescape. We pride ourselves on the varying skill levels and progression levels of our players. Our focus is always creating a fun environment for everyone to relax and enjoy their time in-game.
+              </p>
+              <p className="leading-relaxed text-foreground/90 max-w-2xl">
+                We have a progression system based on your achievements ingame, a mentorship program to help take any next steps for your account, a dedicated event team, and even just a nice place to bank stand and chat if thats more your style!
+              </p>
+              <p className="leading-relaxed text-foreground/90 max-w-2xl">
+                No requirements to join! We have a spot for you even if you are just coming off Tutorial Island or rocking Blorva. If you are looking for community to grow with, learn new skills, and make friends join our ranks!
+              </p>
+            </div>
+          </section>
         </div>
+        {divider}
 
-        <div className="flex items-center justify-center gap-2">
-          <span className="h-1 w-1 rounded-full bg-border" />
-          <div className="h-px w-24 bg-border" />
-          <span className="h-1 w-1 rounded-full bg-border" />
-        </div>
+        <RankSection />
+        {divider}
 
-        {/* ── Rank Structure ───────────────────────────────────── */}
-        <section className="space-y-4">
-          <h2 className="font-rs-bold text-3xl text-primary">Rank Structure</h2>
-          <div className="grid grid-cols-2 gap-3 items-stretch">
-            {PROGRESSION_RANKS.map((rank) => (
-              <div
-                key={rank.name}
-                className="stat-card h-full"
-                onMouseMove={(e) => {
-                  const r = e.currentTarget.getBoundingClientRect();
-                  e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
-                  e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.setProperty("--mouse-x", "-9999px");
-                  e.currentTarget.style.setProperty("--mouse-y", "-9999px");
-                }}
-              >
-                <div className="flex items-center gap-4 rounded-[10px] border border-border bg-card px-4 py-3 cursor-default h-full">
-                  {"icon" in rank && rank.icon
-                    ? <rank.icon className="h-10 w-10 shrink-0 text-primary" />
-                    : rank.img && <img src={rank.img} alt={rank.name} className="h-10 w-10 shrink-0 object-contain" />
-                  }
-                  <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="font-rs-bold text-lg text-primary leading-tight">{rank.name}</span>
-                    {rank.description && (
-                      <span className="text-sm text-muted-foreground">{rank.description}</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <div className="flex items-center justify-center gap-2">
-          <span className="h-1 w-1 rounded-full bg-border" />
-          <div className="h-px w-24 bg-border" />
-          <span className="h-1 w-1 rounded-full bg-border" />
-        </div>
-
-        {/* ── Recent Achievements ───────────────────────────────── */}
-        <section className="space-y-4">
-          <h2 className="font-rs-bold text-3xl text-primary">
-            Recent Achievements
-          </h2>
-          <Card>
-            <CardContent className="p-0">
-              {achievementsLoading ? (
-                <p className="px-4 py-6 text-sm text-muted-foreground">
-                  Loading…
-                </p>
-              ) : achievements.length === 0 ? (
-                <p className="px-4 py-6 text-sm text-muted-foreground">
-                  No recent achievements yet.
-                </p>
-              ) : (
-                <ul ref={achievementsRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 px-2 py-0.5 ${achievementsVisible ? "achievements-visible" : ""}`}>
-                  {achievements.map((achievement, i) => {
-                    const meta = ACHIEVEMENT_META[achievement.type];
-                    const Icon = meta.icon;
-                    return (
-                      <li
-                        key={i}
-                        className="achievement-card rounded-md"
-                        style={{
-                          "--cascade-delay": `${i * 60}ms`,
-                          "--tl-opacity": `${1 - (i / achievements.length) * 0.5}`,
-                        } as React.CSSProperties}
-                        onMouseMove={(e) => {
-                          const r = e.currentTarget.getBoundingClientRect();
-                          e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
-                          e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.setProperty("--mouse-x", "-9999px");
-                          e.currentTarget.style.setProperty("--mouse-y", "-9999px");
-                        }}
-                      >
-                        <div className={`flex items-center gap-3 rounded-[4px] border border-border border-l-2 ${meta.accent} bg-card px-3 py-2.5 w-full`}>
-                        <AchievementIcon
-                          type={achievement.type}
-                          label={achievement.label}
-                          Fallback={Icon}
-                          className={`h-5 w-5 shrink-0 ${meta.color}`}
-                        />
-                        <span className="text-sm font-semibold text-foreground truncate hidden sm:block">
-                          {achievement.label}
-                        </span>
-                        <span className="shrink-0 rounded-full border border-border bg-background px-2 py-0.5 text-xs text-primary font-medium">
-                          {achievement.player}
-                        </span>
-                        <span
-                          className={`ml-auto shrink-0 font-rs-bold text-sm ${meta.color}`}
-                        >
-                          {formatAchievementValue(achievement)}
-                        </span>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </section>
+        <AchievementsSection achievements={achievements} isLoading={achievementsLoading} />
       </div>
     </>
   );

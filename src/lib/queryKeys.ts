@@ -15,7 +15,7 @@ export const queryKeys = {
     list: () => ["competitions"] as const,
     metricDetail: (id: number, metric: string) => ["competitions", id, "metric", metric] as const,
     metricMap: () => ["competitions", "metric-map"] as const,
-    overtime: (id: number, metric: string) => ["competitions", id, "overtime", metric] as const,
+    overtime: (id: number, metric: string, limit?: number) => ["competitions", id, "overtime", metric, limit] as const,
   },
   parties: {
     list: () => ["parties"] as const,
@@ -66,6 +66,7 @@ export const queryKeys = {
   config: {
     rankMappings: () => ["config", "rank-mappings"] as const,
     ranking: () => ["config", "ranking"] as const,
+    panel: () => ["config", "panel"] as const,
   },
   ranking: {
     status: () => ["ranking", "status"] as const,
@@ -80,6 +81,11 @@ export const queryKeys = {
     bandwidth: (service: string, module: string) => ["services", "bandwidth", service, module] as const,
     womRateLimit: () => ["services", "wom-rate-limit"] as const,
     toggles: () => ["services", "toggles"] as const,
+  },
+  compSchedule: {
+    list: () => ["comp-schedule"] as const,
+    detail: (id: number) => ["comp-schedule", id] as const,
+    runs: (id: number, status?: string) => ["comp-schedule", id, "runs", status ?? ""] as const,
   },
   frenzy: {
     active: () => ["frenzy", "active"] as const,

@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { staffPortalLayoutRoute } from "./_layout";
-import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
 import { Badge } from "@/components/ui/badge";
-import { highestRoleDisplay } from "@/lib/ranks";
-import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { highestRoleDisplay } from "@/lib/ranks";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { registerPage } from "@/lib/permissions";
+import { RsnCell } from "@/components/staff/RsnCell";
 
 registerPage({
   id: "staff.members",
@@ -39,75 +40,104 @@ interface MemberRow {
   key_is_active: boolean;
 }
 
-type SortKey =
-  | "rsn"
-  | "discord_username"
-  | "clan_rank"
-  | "role"
-  | "total_loot_value"
-  | "collection_log_slots"
-  | "join_date"
-  | "recruited_by"
-  | "key_is_active";
+interface MemberDetail {
+  discord_user_id: string;
+  discord_username: string;
+  discord_avatar_url: string | null;
+  rsn: string | null;
+  clan_rank: string | null;
+  discord_roles: string[];
+  stats_opt_out: boolean;
+  hide_presence_notifications: boolean;
+  join_date: string | null;
+  created_at: string;
+  updated_at: string;
+  total_loot_value: number;
+  clan_donated: number;
+  collection_log_slots: number;
+  collection_log_slots_max: number;
+  recruited_by: string | null;
+  referral_source: string | null;
+  referral_detail: string | null;
+  key_is_active: boolean;
+  key_created_at: string | null;
+  key_expires_at: string | null;
+  temp_vc_lock_status: string | null;
+  temp_vc_member_limit: number | null;
+  temp_vc_bitrate: number | null;
+  ticket_count: number;
+  badges: {
+    badge_id: string;
+    name: string;
+    description: string;
+    icon: string | null;
+    color: string;
+    text_color: string;
+    assigned_at: string | null;
+  }[];
+  ranking: {
+    rank: string;
+    points: number;
+    boss_points: number;
+    skill_points: number;
+    updated_at: string;
+  } | null;
+}
 
+type SortKey = "rsn" | "discord_username" | "clan_rank" | "role";
 type SortDir = "asc" | "desc";
 
+const SOURCE_LABELS: Record<string, string> = {
+  reddit:            "Reddit",
+  osrs_discord:      "OSRS Discord",
+  website:           "Website",
+  recruited_by:      "Recruited by",
+  instagram:         "Instagram",
+  other:             "Other",
+  prefer_not_to_say: "Prefer not to say",
+};
+
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: "numeric", month: "short", day: "numeric",
-  });
+  return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
 function fmtGp(v: number): string {
   if (v >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(1)}B`;
-  if (v >= 1_000_000)     return `${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000)         return `${Math.round(v / 1_000)}K`;
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `${Math.round(v / 1_000)}K`;
   return v.toLocaleString();
 }
 
-function rowMatchesSearch(m: MemberRow, q: string): boolean {
+function rowMatchesSearch(m: MemberRow, q: string, roleLabels: Record<string, string>): boolean {
   return (
     (m.rsn?.toLowerCase().includes(q) ?? false) ||
     m.discord_username.toLowerCase().includes(q) ||
     m.discord_user_id.includes(q) ||
     (m.clan_rank?.toLowerCase().includes(q) ?? false) ||
-    (m.recruited_by?.includes(q) ?? false) ||
-    (m.discord_roles ?? []).some((r) => r.toLowerCase().includes(q)) ||
-    (m.key_is_active ? "active" : "inactive").includes(q) ||
-    (m.join_date ? fmtDate(m.join_date) : "").toLowerCase().includes(q) ||
-    String(m.total_loot_value).includes(q) ||
-    String(m.collection_log_slots).includes(q)
+    (highestRoleDisplay(m.discord_roles ?? [], roleLabels)?.toLowerCase().includes(q) ?? false) ||
+    (m.discord_roles ?? []).some((r) => r.toLowerCase().includes(q))
   );
 }
 
-function sortMembers(rows: MemberRow[], key: SortKey, dir: SortDir, roleLabels: Record<string, string> = {}): MemberRow[] {
+function sortRows(rows: MemberRow[], key: SortKey, dir: SortDir, roleLabels: Record<string, string>): MemberRow[] {
   return [...rows].sort((a, b) => {
-    let av: string | number | boolean | null;
-    let bv: string | number | boolean | null;
-
-    switch (key) {
-      case "rsn":             av = a.rsn ?? ""; bv = b.rsn ?? ""; break;
-      case "discord_username": av = a.discord_username; bv = b.discord_username; break;
-      case "clan_rank":       av = a.clan_rank ?? ""; bv = b.clan_rank ?? ""; break;
-      case "role":            av = highestRoleDisplay(a.discord_roles, roleLabels) ?? ""; bv = highestRoleDisplay(b.discord_roles, roleLabels) ?? ""; break;
-      case "total_loot_value": av = a.total_loot_value; bv = b.total_loot_value; break;
-      case "collection_log_slots": av = a.collection_log_slots; bv = b.collection_log_slots; break;
-      case "join_date":       av = a.join_date ?? a.created_at; bv = b.join_date ?? b.created_at; break;
-      case "recruited_by":    av = a.recruited_by ?? ""; bv = b.recruited_by ?? ""; break;
-      case "key_is_active":   av = a.key_is_active ? 1 : 0; bv = b.key_is_active ? 1 : 0; break;
-    }
-
-    if (av === null || av === undefined) av = "";
-    if (bv === null || bv === undefined) bv = "";
-
-    let cmp = 0;
-    if (typeof av === "number" && typeof bv === "number") {
-      cmp = av - bv;
-    } else {
-      cmp = String(av).localeCompare(String(bv));
-    }
+    let av: string, bv: string;
+    if (key === "rsn") { av = a.rsn ?? ""; bv = b.rsn ?? ""; }
+    else if (key === "discord_username") { av = a.discord_username; bv = b.discord_username; }
+    else if (key === "clan_rank") { av = a.clan_rank ?? ""; bv = b.clan_rank ?? ""; }
+    else { av = highestRoleDisplay(a.discord_roles, roleLabels) ?? ""; bv = highestRoleDisplay(b.discord_roles, roleLabels) ?? ""; }
+    const cmp = av.localeCompare(bv);
     return dir === "asc" ? cmp : -cmp;
   });
+}
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-sm">{value ?? <span className="text-muted-foreground/50">-</span>}</span>
+    </div>
+  );
 }
 
 function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
@@ -117,187 +147,186 @@ function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; s
     : <ChevronDown className="inline h-3 w-3 ml-1" />;
 }
 
-interface RsnCellProps {
-  memberId: string;
-  rsn: string | null;
-  onSaved: (id: string, rsn: string | null) => void;
-}
+function MemberDetailSheet({
+  memberId,
+  open,
+  onOpenChange,
+  roleLabels,
+  onRsnSaved,
+}: {
+  memberId: string | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  roleLabels: Record<string, string>;
+  onRsnSaved: (id: string, rsn: string | null) => void;
+}) {
+  const [detail, setDetail] = useState<MemberDetail | null>(null);
+  const [loading, setLoading] = useState(false);
 
-function RsnCell({ memberId, rsn, onSaved }: RsnCellProps) {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(rsn ?? "");
-  const [saving, setSaving] = useState(false);
-  const [cascading, setCascading] = useState(false);
-  const [cascadeMode, setCascadeMode] = useState(false);
-  const [oldRsn, setOldRsn] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [cascadeMsg, setCascadeMsg] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const oldRsnRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!open || !memberId) return;
+    setDetail(null);
+    setLoading(true);
+    const token = getAuthToken();
+    if (!token) { setLoading(false); return; }
+    fetch(`${API_URL}/staff/members/${memberId}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? (r.json() as Promise<MemberDetail>) : Promise.reject()))
+      .then(setDetail)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [open, memberId]);
 
-  function startEdit() {
-    setValue(rsn ?? "");
-    setError(null);
-    setEditing(true);
-    setTimeout(() => inputRef.current?.focus(), 0);
-  }
-
-  function cancel() {
-    setEditing(false);
-    setError(null);
-  }
-
-  function openCascadeMode() {
-    setOldRsn("");
-    setError(null);
-    setCascadeMode(true);
-    setTimeout(() => oldRsnRef.current?.focus(), 0);
-  }
-
-  function closeCascadeMode() {
-    setCascadeMode(false);
-    setError(null);
-  }
-
-  async function triggerCascade() {
-    setCascading(true);
-    setCascadeMsg(null);
-    setError(null);
-    try {
-      const token = getAuthToken();
-      const body = oldRsn.trim() ? { old_rsn: oldRsn.trim() } : {};
-      const res = await fetch(`${API_URL}/staff/members/${memberId}/rsn/cascade`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { detail?: string };
-        setError(data.detail ?? "Cascade failed.");
-        return;
-      }
-      setCascadeMode(false);
-      setCascadeMsg("Cascaded");
-      setTimeout(() => setCascadeMsg(null), 2500);
-    } catch {
-      setError("Network error.");
-    } finally {
-      setCascading(false);
-    }
-  }
-
-  async function save() {
-    const trimmed = value.trim() || null;
-    if (trimmed === rsn) { cancel(); return; }
-    setSaving(true);
-    setError(null);
-    try {
-      const token = getAuthToken();
-      const res = await fetch(`${API_URL}/staff/members/${memberId}/rsn`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ rsn: trimmed }),
-      });
-      if (res.status === 409) { setError("RSN already linked to another account."); return; }
-      if (!res.ok) { setError("Failed to save."); return; }
-      const data = (await res.json()) as { rsn: string | null };
-      onSaved(memberId, data.rsn);
-      setEditing(false);
-    } catch {
-      setError("Network error.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  if (editing) {
-    return (
-      <div className="flex flex-col gap-1 min-w-36">
-        <div className="flex items-center gap-1">
-          <Input
-            ref={inputRef}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") save();
-              if (e.key === "Escape") cancel();
-            }}
-            disabled={saving}
-            className="h-7 py-0 px-2 text-xs w-36"
-            placeholder="RSN…"
-          />
-          <button onClick={save} disabled={saving} className="text-xs text-primary hover:underline disabled:opacity-50">Save</button>
-          <button onClick={cancel} disabled={saving} className="text-xs text-muted-foreground hover:underline disabled:opacity-50">Cancel</button>
-        </div>
-        {error && <span className="text-xs text-destructive">{error}</span>}
-      </div>
-    );
-  }
-
-  if (cascadeMode) {
-    return (
-      <div className="flex flex-col gap-1 min-w-44">
-        <div className="flex items-center gap-1">
-          <Input
-            ref={oldRsnRef}
-            value={oldRsn}
-            onChange={(e) => setOldRsn(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") triggerCascade();
-              if (e.key === "Escape") closeCascadeMode();
-            }}
-            disabled={cascading}
-            className="h-7 py-0 px-2 text-xs w-36"
-            placeholder="Old RSN (optional)…"
-          />
-          <button onClick={triggerCascade} disabled={cascading} className="text-xs text-primary hover:underline disabled:opacity-50">
-            {cascading ? "Running…" : "Run"}
-          </button>
-          <button onClick={closeCascadeMode} disabled={cascading} className="text-xs text-muted-foreground hover:underline disabled:opacity-50">Cancel</button>
-        </div>
-        {error && <span className="text-xs text-destructive">{error}</span>}
-      </div>
-    );
-  }
+  const topRole = detail ? highestRoleDisplay(detail.discord_roles ?? [], roleLabels) : null;
 
   return (
-    <div className="flex flex-col gap-0.5">
-      <div className="group/rsn flex items-center gap-1.5">
-        <span className={rsn ? "font-medium text-foreground" : "italic text-muted-foreground"}>
-          {rsn ?? "-"}
-        </span>
-        <button
-          onClick={startEdit}
-          aria-label="Edit RSN"
-          className="opacity-0 group-hover/rsn:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-        </button>
-        {rsn && (
-          <button
-            onClick={openCascadeMode}
-            aria-label="Force cascade RSN"
-            title="Re-run cascade across all tables"
-            className="opacity-0 group-hover/rsn:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 2v6h-6"/>
-              <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
-              <path d="M3 22v-6h6"/>
-              <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
-            </svg>
-          </button>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col gap-0 p-0">
+        {loading || !detail ? (
+          <div className="flex items-center justify-center flex-1 text-sm text-muted-foreground">
+            {loading ? "Loading..." : "No data."}
+          </div>
+        ) : (
+          <>
+            <SheetHeader className="px-6 pt-6 pb-4 border-b border-border">
+              <div className="flex items-center gap-3 pr-8">
+                {detail.discord_avatar_url && (
+                  <img src={detail.discord_avatar_url} alt="" className="h-10 w-10 rounded-full object-cover shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <SheetTitle className="text-base truncate">
+                    {detail.rsn ?? detail.discord_username}
+                  </SheetTitle>
+                  <p className="text-xs text-muted-foreground truncate">{detail.discord_username}</p>
+                  <p className="text-xs text-muted-foreground/50">{detail.discord_user_id}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {detail.clan_rank && (
+                  <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
+                    {detail.clan_rank}
+                  </span>
+                )}
+                {topRole && <Badge variant="secondary" className="text-xs">{topRole}</Badge>}
+                {detail.stats_opt_out && (
+                  <span className="inline-flex items-center rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-xs">Stats opt-out</span>
+                )}
+                {detail.hide_presence_notifications && (
+                  <span className="inline-flex items-center rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-xs">Hide notifications</span>
+                )}
+              </div>
+            </SheetHeader>
+
+            <div className="flex-1 overflow-auto px-6 py-5 space-y-6">
+
+              {/* RSN edit */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">RSN</p>
+                <RsnCell memberId={detail.discord_user_id} rsn={detail.rsn} onSaved={(id, rsn) => {
+                  onRsnSaved(id, rsn);
+                  setDetail((d) => d ? { ...d, rsn } : d);
+                }} />
+              </div>
+
+              {/* OSRS stats */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">OSRS Stats</p>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <DetailRow label="Total Loot" value={detail.total_loot_value ? fmtGp(detail.total_loot_value) : "0"} />
+                  <DetailRow label="Clan Donated" value={detail.clan_donated ? fmtGp(detail.clan_donated) : "0"} />
+                  <DetailRow label="Collection Log" value={`${detail.collection_log_slots} slots`} />
+                  <DetailRow label="Log Peak" value={detail.collection_log_slots_max ? `${detail.collection_log_slots_max} slots` : null} />
+                  <DetailRow label="Tickets Opened" value={String(detail.ticket_count)} />
+                  <DetailRow label="Joined" value={detail.join_date ? fmtDate(detail.join_date) : (detail.created_at ? fmtDate(detail.created_at) : null)} />
+                  <DetailRow label="Account Created" value={fmtDate(detail.created_at)} />
+                  <DetailRow label="Last Updated" value={fmtDate(detail.updated_at)} />
+                </div>
+              </div>
+
+              {/* WOM Ranking */}
+              {detail.ranking && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">WOM Ranking</p>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                    <DetailRow label="Rank" value={detail.ranking.rank} />
+                    <DetailRow label="Total Points" value={detail.ranking.points.toLocaleString()} />
+                    <DetailRow label="Boss Points" value={detail.ranking.boss_points.toLocaleString()} />
+                    <DetailRow label="Skill Points" value={detail.ranking.skill_points.toLocaleString()} />
+                  </div>
+                  <p className="text-xs text-muted-foreground/50 mt-2">Updated {fmtDate(detail.ranking.updated_at)}</p>
+                </div>
+              )}
+
+              {/* Badges */}
+              {detail.badges.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Badges</p>
+                  <div className="flex flex-wrap gap-2">
+                    {detail.badges.map((b) => (
+                      <span
+                        key={b.badge_id}
+                        title={b.description || b.name}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
+                        style={{ backgroundColor: b.color + "26", color: b.color }}
+                      >
+                        {b.icon && <span>{b.icon}</span>}
+                        {b.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Referral */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Referral</p>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <DetailRow
+                    label="How they found us"
+                    value={detail.referral_source ? (SOURCE_LABELS[detail.referral_source] ?? detail.referral_source) : null}
+                  />
+                  {(detail.referral_source === "recruited_by" || detail.referral_source === "other") && (
+                    <DetailRow
+                      label={detail.referral_source === "recruited_by" ? "Recruited by" : "Detail"}
+                      value={detail.referral_detail}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* API Key */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">API Key</p>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <DetailRow
+                    label="Status"
+                    value={
+                      <span className={detail.key_is_active ? "text-green-600 dark:text-green-400 font-medium" : "text-muted-foreground"}>
+                        {detail.key_is_active ? "Active" : "Inactive"}
+                      </span>
+                    }
+                  />
+                  <DetailRow label="Created" value={detail.key_created_at ? fmtDate(detail.key_created_at) : null} />
+                  <DetailRow label="Expires" value={detail.key_expires_at ? fmtDate(detail.key_expires_at) : null} />
+                </div>
+              </div>
+
+              {/* Temp VC */}
+              {(detail.temp_vc_lock_status || detail.temp_vc_member_limit || detail.temp_vc_bitrate) && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Temp VC Settings</p>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                    <DetailRow label="Lock Status" value={detail.temp_vc_lock_status} />
+                    <DetailRow label="Member Limit" value={detail.temp_vc_member_limit != null ? String(detail.temp_vc_member_limit) : null} />
+                    <DetailRow label="Bitrate" value={detail.temp_vc_bitrate != null ? `${detail.temp_vc_bitrate} kbps` : null} />
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </>
         )}
-      </div>
-      {error && <span className="text-xs text-destructive">{error}</span>}
-      {cascadeMsg && <span className="text-xs text-green-600 dark:text-green-400">{cascadeMsg}</span>}
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -307,15 +336,15 @@ function StaffMembersPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("join_date");
+  const [sortKey, setSortKey] = useState<SortKey>("rsn");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     const token = getAuthToken();
     if (!token) { setLoading(false); return; }
-    fetch(`${API_URL}/staff/members?limit=1000`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetch(`${API_URL}/staff/members?limit=1000`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json() as Promise<MemberRow[]>)
       .then(setMembers)
       .catch(() => {})
@@ -327,26 +356,26 @@ function StaffMembersPage() {
   }
 
   function handleSort(key: SortKey) {
-    if (key === sortKey) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
+    if (key === sortKey) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortKey(key); setSortDir("asc"); }
+  }
+
+  function openSheet(id: string) {
+    setSelectedId(id);
+    setSheetOpen(true);
   }
 
   const q = search.toLowerCase().trim();
-  const filtered = q ? members.filter((m) => rowMatchesSearch(m, q)) : members;
-  const sorted = sortMembers(filtered, sortKey, sortDir, roleLabels);
+  const filtered = q ? members.filter((m) => rowMatchesSearch(m, q, roleLabels)) : members;
+  const sorted = sortRows(filtered, sortKey, sortDir, roleLabels);
 
-  function Th({ label, col, align }: { label: string; col: SortKey; align?: "right" }) {
+  function Th({ label, col }: { label: string; col: SortKey }) {
     return (
       <th
-        className={`px-4 py-2 font-medium cursor-pointer select-none whitespace-nowrap hover:text-foreground${align === "right" ? " text-right" : ""}`}
+        className="px-4 py-2 font-medium cursor-pointer select-none whitespace-nowrap hover:text-foreground"
         onClick={() => handleSort(col)}
       >
-        {label}
-        <SortIcon col={col} sortKey={sortKey} sortDir={sortDir} />
+        {label}<SortIcon col={col} sortKey={sortKey} sortDir={sortDir} />
       </th>
     );
   }
@@ -359,14 +388,14 @@ function StaffMembersPage() {
       </div>
 
       <Input
-        placeholder="Search any field…"
+        placeholder="Search RSN, username, rank, role..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="max-w-sm"
       />
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">Loading...</p>
       ) : sorted.length === 0 ? (
         <p className="text-sm text-muted-foreground">No members found.</p>
       ) : (
@@ -374,23 +403,22 @@ function StaffMembersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-left text-xs text-muted-foreground">
-                <Th label="RSN"         col="rsn" />
-                <Th label="Discord"     col="discord_username" />
-                <Th label="Rank"        col="clan_rank" />
-                <Th label="Role"        col="role" />
-                <Th label="Loot"        col="total_loot_value" align="right" />
-                <Th label="Log"         col="collection_log_slots" align="right" />
-                <Th label="Joined"      col="join_date" />
-                <Th label="Recruited By" col="recruited_by" />
-                <Th label="API Key"     col="key_is_active" />
+                <Th label="RSN"     col="rsn" />
+                <Th label="Discord" col="discord_username" />
+                <Th label="Rank"    col="clan_rank" />
+                <Th label="Role"    col="role" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {sorted.map((m) => {
                 const topRole = highestRoleDisplay(m.discord_roles ?? [], roleLabels);
                 return (
-                  <tr key={m.discord_user_id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-2">
+                  <tr
+                    key={m.discord_user_id}
+                    className="hover:bg-muted/30 transition-colors cursor-pointer"
+                    onClick={() => openSheet(m.discord_user_id)}
+                  >
+                    <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
                       <RsnCell memberId={m.discord_user_id} rsn={m.rsn} onSaved={handleRsnSaved} />
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">
@@ -400,30 +428,13 @@ function StaffMembersPage() {
                         )}
                         <div>
                           <div>{m.discord_username}</div>
-                          <div className="text-xs text-muted-foreground/60">{m.discord_user_id}</div>
+                          <div className="text-xs text-muted-foreground/50">{m.discord_user_id}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">{m.clan_rank ?? "-"}</td>
                     <td className="px-4 py-2">
-                      {topRole ? <Badge variant="secondary" className="text-xs">{topRole}</Badge> : "-"}
-                    </td>
-                    <td className="px-4 py-2 text-right text-muted-foreground">
-                      {m.total_loot_value ? fmtGp(m.total_loot_value) : "-"}
-                    </td>
-                    <td className="px-4 py-2 text-right text-muted-foreground">
-                      {m.collection_log_slots || "-"}
-                    </td>
-                    <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">
-                      {m.join_date ? fmtDate(m.join_date) : m.created_at ? fmtDate(m.created_at) : "-"}
-                    </td>
-                    <td className="px-4 py-2 text-muted-foreground">
-                      {m.recruited_by ?? "-"}
-                    </td>
-                    <td className="px-4 py-2">
-                      <span className={m.key_is_active ? "text-green-600 dark:text-green-400 text-xs font-medium" : "text-muted-foreground text-xs"}>
-                        {m.key_is_active ? "Active" : "Inactive"}
-                      </span>
+                      {topRole ? <Badge variant="secondary" className="text-xs">{topRole}</Badge> : <span className="text-muted-foreground">-</span>}
                     </td>
                   </tr>
                 );
@@ -432,6 +443,14 @@ function StaffMembersPage() {
           </table>
         </div>
       )}
+
+      <MemberDetailSheet
+        memberId={selectedId}
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        roleLabels={roleLabels}
+        onRsnSaved={handleRsnSaved}
+      />
     </div>
   );
 }

@@ -136,6 +136,7 @@ function DashboardPage() {
   const { data: rankings = [] } = useMyRankings(user?.discord_user_id);
   const { data: nameChanges = [], isLoading: nameChangesLoading } = useNameChanges();
   const { data: competitions = [], isLoading: compsLoading } = useDashboardCompetitions();
+  const [showAllFinished, setShowAllFinished] = useState(false);
 
   if (loading) return <MemberDashboardSkeleton />;
   if (!user) return null;
@@ -331,27 +332,83 @@ function DashboardPage() {
       </Card>
 
       {/* Competitions - 3 cols, 2 rows tall, scrolls internally */}
-      <Card className="lg:col-span-3 lg:row-span-2">
+      <Card className="lg:col-span-3 lg:row-span-2 flex flex-col">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">
             <Trophy className="h-4 w-4" />
             Competitions
           </CardTitle>
         </CardHeader>
+
+        {/* Quick links - live + upcoming only */}
+        {!compsLoading && competitions.some((c) => c.status === "ongoing" || c.status === "upcoming") && (
+          <div className="px-4 pb-3 shrink-0 flex flex-col gap-1.5">
+            {competitions
+              .filter((c) => c.status === "ongoing" || c.status === "upcoming")
+              .map((comp) => {
+                const isLive = comp.status === "ongoing";
+                return (
+                  <Link
+                    key={comp.id}
+                    to="/competitions/$compId"
+                    params={{ compId: String(comp.id) }}
+                    search={{ tab: undefined }}
+                    className={cn(
+                      "flex items-center justify-between gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors",
+                      isLive
+                        ? "bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-500/20"
+                        : "bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/20",
+                    )}
+                  >
+                    <span className="truncate">{comp.title}</span>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "shrink-0 text-[10px] px-1.5 py-0",
+                        isLive
+                          ? "border-green-500/40 text-green-700 dark:text-green-400"
+                          : "border-blue-500/40 text-blue-700 dark:text-blue-400",
+                      )}
+                    >
+                      {isLive ? "Live" : "Upcoming"}
+                    </Badge>
+                  </Link>
+                );
+              })}
+            <Separator className="mt-1" />
+          </div>
+        )}
+
         {/* 448px = 4 × 112px entries (py-3 + 4 lines + gaps), always lands between entries */}
-        <CardContent className="p-0 overflow-y-auto max-h-200">
+        <CardContent className="p-0 overflow-y-auto max-h-200 flex-1">
           {compsLoading
             ? <p className="px-4 py-4 text-sm text-muted-foreground">Loading…</p>
             : competitions.length === 0
             ? <p className="px-4 py-4 text-sm text-muted-foreground italic">No competitions found.</p>
-            : (
-              <ul className="divide-y divide-border">
-                {competitions.map((comp) => {
+            : (() => {
+                const ongoing  = competitions.filter((c) => c.status === "ongoing");
+                const upcoming = competitions.filter((c) => c.status === "upcoming");
+                const finished = competitions.filter((c) => c.status === "finished");
+                const visibleFinished = showAllFinished ? finished : finished.slice(0, 5);
+
+                function CompEntry({ comp }: { comp: Competition }) {
                   const s = STATUS_STYLE[comp.status];
+                  const isNavigable = comp.status === "ongoing" || comp.status === "upcoming";
                   return (
-                    <li key={comp.id} className="px-4 py-3 space-y-1.5">
+                    <li className="px-4 py-3 space-y-1.5">
                       <div className="flex items-start justify-between gap-2">
-                        <span className="font-medium text-foreground text-sm leading-snug">{comp.title}</span>
+                        {isNavigable ? (
+                          <Link
+                            to="/competitions/$compId"
+                            params={{ compId: String(comp.id) }}
+                            search={{ tab: undefined }}
+                            className="font-medium text-foreground text-sm leading-snug hover:text-primary transition-colors"
+                          >
+                            {comp.title}
+                          </Link>
+                        ) : (
+                          <span className="font-medium text-foreground text-sm leading-snug">{comp.title}</span>
+                        )}
                         <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 shrink-0 mt-0.5", s.className)}>
                           {s.label}
                         </Badge>
@@ -385,9 +442,26 @@ function DashboardPage() {
                       </div>
                     </li>
                   );
-                })}
-              </ul>
-            )
+                }
+
+                return (
+                  <ul className="divide-y divide-border">
+                    {ongoing.map((c) => <CompEntry key={c.id} comp={c} />)}
+                    {upcoming.map((c) => <CompEntry key={c.id} comp={c} />)}
+                    {visibleFinished.map((c) => <CompEntry key={c.id} comp={c} />)}
+                    {finished.length > 5 && (
+                      <li>
+                        <button
+                          onClick={() => setShowAllFinished((v) => !v)}
+                          className="w-full px-4 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-left"
+                        >
+                          {showAllFinished ? "Show less" : `Show ${finished.length - 5} more ended…`}
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                );
+              })()
           }
         </CardContent>
       </Card>

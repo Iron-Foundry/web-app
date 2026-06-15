@@ -15,8 +15,8 @@ export const competitionsApi = {
   getMetricDetail: (competitionId: number, metric: string) =>
     apiFetch<MetricDetail>(`/clan/competitions/${competitionId}/metric-detail?metric=${metric}`),
 
-  getOvertime: (competitionId: number, metric: string) =>
-    apiFetch<CompetitionOvertime>(`/clan/competitions/${competitionId}/overtime?metric=${metric}`),
+  getOvertime: (competitionId: number, metric: string, limit?: number) =>
+    apiFetch<CompetitionOvertime>(`/clan/competitions/${competitionId}/overtime?metric=${metric}${limit != null ? `&limit=${limit}` : ""}`),
 
   getMetricMap: () => apiFetch<MetricMap>("/clan/competitions/metric-map"),
 

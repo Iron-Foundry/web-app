@@ -52,6 +52,59 @@ export interface TicketFeaturesConfig {
   rank_pull_set_primary: boolean;
 }
 
+export interface ChannelEntry {
+  channel_id: string;
+  description: string;
+  emoji: string;
+}
+
+export interface LinkEntry {
+  label: string;
+  url: string;
+}
+
+export type SectionType =
+  | "header_image"
+  | "server_stats"
+  | "free_text"
+  | "channel_toc"
+  | "name_changes"
+  | "achievements"
+  | "website_links"
+  | "personal_bests"
+  | "competitions";
+
+export interface HeaderImageSection { type: "header_image"; image_url: string }
+export interface ServerStatsSection { type: "server_stats" }
+export interface FreeTextSection { type: "free_text"; content: string }
+export interface ChannelTocSection { type: "channel_toc"; channels: ChannelEntry[] }
+export interface NameChangesSection { type: "name_changes"; count: number }
+export interface AchievementsSection { type: "achievements"; count: number }
+export interface WebsiteLinksSection { type: "website_links"; links: LinkEntry[] }
+export interface PersonalBestsSection { type: "personal_bests"; count: number }
+export interface CompetitionsSection { type: "competitions" }
+
+export type PanelSection =
+  | HeaderImageSection
+  | ServerStatsSection
+  | FreeTextSection
+  | ChannelTocSection
+  | NameChangesSection
+  | AchievementsSection
+  | WebsiteLinksSection
+  | PersonalBestsSection
+  | CompetitionsSection;
+
+export interface PanelMessage {
+  sections: PanelSection[];
+}
+
+export interface InfoPanelConfig {
+  channel_id: number | null;
+  refresh_interval_minutes: number;
+  messages: PanelMessage[];
+}
+
 export const configApi = {
   getRankMappings: () => apiFetch<RankMapping[]>("/config/rank-mappings"),
 
@@ -134,6 +187,14 @@ export const configApi = {
 
   updateTicketFeatures: (data: TicketFeaturesConfig) =>
     apiFetch<TicketFeaturesConfig>("/config/ticket-features", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  getPanelConfig: () => apiFetch<InfoPanelConfig>("/config/panel"),
+
+  updatePanelConfig: (data: InfoPanelConfig) =>
+    apiFetch<InfoPanelConfig>("/config/panel", {
       method: "PUT",
       body: JSON.stringify(data),
     }),

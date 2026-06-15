@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
@@ -36,7 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, X } from "lucide-react";
+import { Check, Plus, Trash2, X } from "lucide-react";
 import type { Competition, CreateCompetitionInput, EditCompetitionInput, MetricMap } from "@/types/competitions";
 
 registerPage({
@@ -329,12 +329,15 @@ function CompForm({ state, onChange, suggestions }: CompFormProps) {
 }
 
 // ---------------------------------------------------------------------------
+const FINISHED_LIMIT = 5;
+
 // Page
 // ---------------------------------------------------------------------------
 
 function StaffCompetitionsPage() {
   useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: competitions = [], isLoading: loading } = useCompetitionList();
   const { data: metricMap = {} } = useCompetitionMetricMap();
@@ -357,6 +360,9 @@ function StaffCompetitionsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<CompFormState>(emptyForm());
   const [createError, setCreateError] = useState("");
+  const [createDone, setCreateDone] = useState(false);
+  const [createTrackedMetrics, setCreateTrackedMetrics] = useState<string[]>([]);
+  const [createMetricsFilter, setCreateMetricsFilter] = useState("");
 
   const [editTarget, setEditTarget] = useState<Competition | null>(null);
   const [editForm, setEditForm] = useState<CompFormState>(emptyForm());
@@ -364,6 +370,7 @@ function StaffCompetitionsPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<Competition | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [showAllFinished, setShowAllFinished] = useState(false);
 
   const selectedComp = competitions.find((c) => String(c.id) === selectedId) ?? null;
 
@@ -405,6 +412,9 @@ function StaffCompetitionsPage() {
   function openCreate() {
     setCreateForm(emptyForm());
     setCreateError("");
+    setCreateDone(false);
+    setCreateTrackedMetrics([]);
+    setCreateMetricsFilter("");
     setCreateOpen(true);
   }
 
@@ -438,8 +448,25 @@ function StaffCompetitionsPage() {
       input.participants = createForm.participants;
     }
     try {
-      await createMutation.mutateAsync(input);
-      setCreateOpen(false);
+      const created = await createMutation.mutateAsync(input);
+      if (createTrackedMetrics.length > 0) {
+        const token = getAuthToken();
+        try {
+          await fetch(`${API_URL}/clan/competitions/metric-map`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify({ competition_id: created.id, metrics: createTrackedMetrics }),
+          });
+          void queryClient.invalidateQueries({ queryKey: queryKeys.competitions.metricMap() });
+        } catch {
+          // metric-map save failure is non-fatal
+        }
+      }
+      setCreateDone(true);
+      setTimeout(() => {
+        setCreateOpen(false);
+        void navigate({ to: "/competitions/$compId", params: { compId: String(created.id) }, search: { tab: undefined } });
+      }, 800);
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : "Failed to create competition.");
     }
@@ -490,6 +517,14 @@ function StaffCompetitionsPage() {
     group: name,
     metrics: filter
       ? metrics.filter((m) => m.includes(filterLower) || fmtLabel(m).toLowerCase().includes(filterLower))
+      : metrics,
+  })).filter(({ metrics }) => metrics.length > 0);
+
+  const createFilterLower = createMetricsFilter.toLowerCase();
+  const createFilteredGroups = METRIC_GROUPS.map(({ name, metrics }) => ({
+    group: name,
+    metrics: createMetricsFilter
+      ? metrics.filter((m) => m.includes(createFilterLower) || fmtLabel(m).toLowerCase().includes(createFilterLower))
       : metrics,
   })).filter(({ metrics }) => metrics.length > 0);
 
@@ -544,14 +579,6 @@ function StaffCompetitionsPage() {
                 <>
                   <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Upcoming</div>
                   {grouped.upcoming.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>{c.title}</SelectItem>
-                  ))}
-                </>
-              )}
-              {grouped.finished.length > 0 && (
-                <>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Finished</div>
-                  {grouped.finished.map((c) => (
                     <SelectItem key={c.id} value={String(c.id)}>{c.title}</SelectItem>
                   ))}
                 </>
@@ -662,6 +689,38 @@ function StaffCompetitionsPage() {
         </Card>
       )}
 
+      {/* Ended competitions */}
+      {grouped.finished.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3 pt-4 px-4">
+            <p className="text-sm font-medium">Ended Competitions</p>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 space-y-1">
+            {grouped.finished.slice(0, showAllFinished ? undefined : FINISHED_LIMIT).map((c) => (
+              <button
+                key={c.id}
+                onClick={() => handleCompSelect(String(c.id))}
+                className={`w-full text-left text-sm px-3 py-2 rounded-md border transition-colors ${
+                  selectedId === String(c.id)
+                    ? "bg-primary/15 border-primary/40 text-primary font-medium"
+                    : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {c.title}
+              </button>
+            ))}
+            {grouped.finished.length > FINISHED_LIMIT && (
+              <button
+                onClick={() => setShowAllFinished((v) => !v)}
+                className="w-full text-xs text-muted-foreground hover:text-foreground py-1.5 transition-colors"
+              >
+                {showAllFinished ? "Show less" : `Show ${grouped.finished.length - FINISHED_LIMIT} more…`}
+              </button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Create dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
@@ -669,11 +728,114 @@ function StaffCompetitionsPage() {
             <DialogTitle>Create Competition</DialogTitle>
           </DialogHeader>
           <CompForm state={createForm} onChange={setCreateForm} suggestions={rsnSuggestions} />
+
+          <Separator />
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">Tracked Metrics</p>
+              {createTrackedMetrics.length > 0 && (
+                <span className="text-xs text-muted-foreground">{createTrackedMetrics.filter((m) => !m.startsWith("__split:")).length} selected</span>
+              )}
+            </div>
+
+            {createTrackedMetrics.filter((m) => !m.startsWith("__split:")).length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {createTrackedMetrics.filter((m) => !m.startsWith("__split:")).map((m) => (
+                  <Badge
+                    key={m}
+                    variant="secondary"
+                    className="gap-1.5 cursor-pointer hover:bg-destructive/20 transition-colors"
+                    onClick={() => setCreateTrackedMetrics((prev) => prev.filter((x) => x !== m))}
+                  >
+                    {fmtLabel(m)}
+                    <X className="h-3 w-3" />
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {Object.entries(RAID_GROUPS).some(([, g]) => g.variants.every((v) => createTrackedMetrics.includes(v))) && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-muted-foreground">Raid Display</p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(RAID_GROUPS)
+                    .filter(([, g]) => g.variants.every((v) => createTrackedMetrics.includes(v)))
+                    .map(([groupKey, g]) => {
+                      const sentinel = raidSplitSentinel(groupKey);
+                      const combined = !createTrackedMetrics.includes(sentinel);
+                      return (
+                        <button
+                          key={groupKey}
+                          type="button"
+                          onClick={() =>
+                            setCreateTrackedMetrics((prev) =>
+                              combined ? [...prev, sentinel] : prev.filter((m) => m !== sentinel),
+                            )
+                          }
+                          className={`text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+                            combined
+                              ? "bg-primary/15 border-primary/40 text-primary font-medium"
+                              : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          {g.label} - {combined ? "Combined" : "Split"}
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            <Input
+              placeholder="Filter metrics..."
+              value={createMetricsFilter}
+              onChange={(e) => setCreateMetricsFilter(e.target.value)}
+              className="h-8 text-sm"
+            />
+            <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
+              {createFilteredGroups.map(({ group, metrics }) => (
+                <div key={group}>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1.5">{group}</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                    {metrics.map((m) => {
+                      const checked = createTrackedMetrics.includes(m);
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() =>
+                            setCreateTrackedMetrics((prev) =>
+                              checked ? prev.filter((x) => x !== m) : [...prev, m],
+                            )
+                          }
+                          className={`text-left text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+                            checked
+                              ? "bg-primary/15 border-primary/40 text-primary font-medium"
+                              : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          {fmtLabel(m)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {createError && <p className="text-sm text-destructive">{createError}</p>}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create"}
+            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={createMutation.isPending || createDone}>Cancel</Button>
+            <Button onClick={handleCreate} disabled={createMutation.isPending || createDone} className={createDone ? "bg-green-600 hover:bg-green-600" : ""}>
+              {createDone ? (
+                <><Check className="h-4 w-4 mr-1" />Created!</>
+              ) : createMutation.isPending ? (
+                "Creating..."
+              ) : (
+                "Create"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

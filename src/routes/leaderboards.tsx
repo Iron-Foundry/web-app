@@ -28,6 +28,7 @@ import {
   useRankingStats,
 } from "@/hooks/useLeaderboards";
 import type { PbEntry, ClogEntry, KcBoss, LeaguesEntry, LeaderboardTab } from "@/types/leaderboard";
+import { useOwnRsns } from "@/hooks/useOwnRsns";;
 
 registerPage({
   id: "leaderboards",
@@ -247,6 +248,8 @@ function RankRow({
   compact: boolean;
   highlight?: boolean;
 }) {
+  const ownRsns = useOwnRsns();
+  const isOwn = ownRsns.has(name.toLowerCase());
   return (
     <div
       className={cn(
@@ -256,7 +259,7 @@ function RankRow({
       )}
     >
       <span className="text-xs text-muted-foreground">{rankLabel(rank)}</span>
-      <span className={cn("font-medium text-foreground truncate", compact && "text-xs")}>{name}</span>
+      <span className={cn("font-medium text-foreground truncate", compact && "text-xs", isOwn && "own-rsn")}>{name}</span>
       {value}
     </div>
   );
@@ -980,6 +983,7 @@ function RankingLeaderboardTab({ compact }: { compact: boolean }) {
   const [page, setPage] = useState(0);
   const [womRankFilter, setWomRankFilter] = useState<string | null>(null);
   const [clanRankFilter, setClanRankFilter] = useState<string | null>(null);
+  const ownRsns = useOwnRsns();
 
   const { data, isLoading } = useRankingResults(
     page * PAGE_SIZE,
@@ -1243,7 +1247,7 @@ function RankingLeaderboardTab({ compact }: { compact: boolean }) {
                     <td className={cn("px-3 py-2 text-muted-foreground tabular-nums", compact && "py-1")}>
                       {page * PAGE_SIZE + i + 1}
                     </td>
-                    <td className={cn("px-3 py-2 font-mono font-medium", compact && "py-1 text-xs")}>{p.rsn}</td>
+                    <td className={cn("px-3 py-2 font-mono font-medium", compact && "py-1 text-xs", ownRsns.has(p.rsn.toLowerCase()) && "own-rsn")}>{p.rsn}</td>
                     <td className={cn("px-3 py-2", compact && "py-1", GEM_RANK_COLOR[p.clan_rank ?? ""] ?? "text-muted-foreground")}>
                       <span className="text-xs">{p.clan_rank ?? "-"}</span>
                     </td>

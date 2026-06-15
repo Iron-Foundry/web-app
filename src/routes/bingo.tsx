@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ChevronUp, ChevronDown, Crown, Users, Swords, ScrollText, Trophy } from "lucide-react";
+import { shineHandlers } from "@/hooks/useShineEffect";
 import type { BingoMappedData } from "@/types/bingo";
 import {
   BOSS_METRICS, TEAM_COLORS, SKILL_METRICS,
@@ -121,19 +122,22 @@ function OverviewTab() {
           { icon: ScrollText, label: "Submissions", value: totalSubs.toLocaleString() },
           { icon: Swords, label: "Active Metrics", value: ACTIVE_METRICS.length.toString() },
         ].map(({ icon: Icon, label, value }) => (
-          <Card key={label}>
-            <CardContent className="flex items-center gap-3 py-4">
-              <Icon className="h-8 w-8 text-primary/70 shrink-0" />
-              <div>
-                <p className="text-2xl font-bold text-primary">{value}</p>
-                <p className="text-xs text-muted-foreground">{label}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <div key={label} className="shine-border rounded-xl" {...shineHandlers}>
+            <Card>
+              <CardContent className="flex items-center gap-3 py-4">
+                <Icon className="h-8 w-8 text-primary/70 shrink-0" />
+                <div>
+                  <p className="text-2xl font-bold text-primary">{value}</p>
+                  <p className="text-xs text-muted-foreground">{label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         ))}
       </div>
 
       {/* Team XP chart */}
+      <div className="shine-border rounded-xl" {...shineHandlers}>
       <Card>
         <CardHeader className="pb-2 pt-4 px-4">
           <p className="font-semibold text-sm">Team XP Ranking - Overall Gained</p>
@@ -159,11 +163,13 @@ function OverviewTab() {
           </ChartContainer>
         </CardContent>
       </Card>
+      </div>
 
       {/* Team cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {teamStats.map((t, rank) => (
-          <Card key={t.name} className="relative overflow-hidden">
+          <div key={t.name} className="shine-border rounded-xl" {...shineHandlers}>
+          <Card className="relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-1" style={{ background: t.color }} />
             <CardContent className="pt-5 pb-4 px-4 space-y-3">
               <div className="flex items-start justify-between gap-2">
@@ -211,6 +217,7 @@ function OverviewTab() {
               </div>
             </CardContent>
           </Card>
+          </div>
         ))}
       </div>
     </div>

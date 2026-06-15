@@ -12,6 +12,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import type { ChartConfig } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { Paperclip, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { shineHandlers } from "@/hooks/useShineEffect";
 import { cn } from "@/lib/utils";
 import { registerPage } from "@/lib/permissions";
 
@@ -400,94 +401,100 @@ function StaffAllTicketsPage() {
       {/* Charts */}
       {!loading && filtered.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">By Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={{}} className="h-40 w-full">
-                <PieChart>
-                  <Pie
-                    data={statusChartData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={38}
-                    outerRadius={62}
-                    paddingAngle={2}
-                  >
-                    {statusChartData.map((entry) => (
-                      <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? STATUS_COLORS.closed} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    content={({ payload }) => {
-                      const item = payload?.[0];
-                      if (!item) return null;
-                      return (
-                        <div className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs shadow-md">
-                          <span className="text-foreground">{item.name}: <strong>{item.value as number}</strong></span>
-                        </div>
-                      );
-                    }}
-                  />
-                </PieChart>
-              </ChartContainer>
-              <div className="mt-2 flex flex-wrap justify-center gap-3">
-                {statusChartData.map((d) => (
-                  <div key={d.status} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full shrink-0" style={{ background: STATUS_COLORS[d.status] }} />
-                    {d.name} ({d.value})
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">By Type</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={TYPE_CHART_CONFIG} className="w-full" style={{ height: Math.max(120, typeChartData.length * 32) }}>
-                <BarChart
-                  data={typeChartData}
-                  layout="vertical"
-                  margin={{ top: 0, right: 16, bottom: 0, left: 0 }}
-                >
-                  <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    type="category"
-                    dataKey="type"
-                    tick={{ fontSize: 10 }}
-                    width={110}
-                    axisLine={false}
-                    tickLine={false}
-                    interval={0}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="count" fill="var(--color-count)" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          {hasResolutionData && (
+          <div className="shine-border rounded-xl" {...shineHandlers}>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Resolved In</CardTitle>
+                <CardTitle className="text-sm font-medium">By Status</CardTitle>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={RESOLUTION_CHART_CONFIG} className="h-44 w-full">
-                  <BarChart data={resolutionChartData} margin={{ top: 0, right: 8, bottom: 0, left: -16 }}>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis dataKey="bucket" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <ChartContainer config={{}} className="h-40 w-full">
+                  <PieChart>
+                    <Pie
+                      data={statusChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={38}
+                      outerRadius={62}
+                      paddingAngle={2}
+                    >
+                      {statusChartData.map((entry) => (
+                        <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? STATUS_COLORS.closed} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      content={({ payload }) => {
+                        const item = payload?.[0];
+                        if (!item) return null;
+                        return (
+                          <div className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs shadow-md">
+                            <span className="text-foreground">{item.name}: <strong>{item.value as number}</strong></span>
+                          </div>
+                        );
+                      }}
+                    />
+                  </PieChart>
+                </ChartContainer>
+                <div className="mt-2 flex flex-wrap justify-center gap-3">
+                  {statusChartData.map((d) => (
+                    <div key={d.status} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="h-2 w-2 rounded-full shrink-0" style={{ background: STATUS_COLORS[d.status] }} />
+                      {d.name} ({d.value})
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="shine-border rounded-xl" {...shineHandlers}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">By Type</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={TYPE_CHART_CONFIG} className="w-full" style={{ height: Math.max(120, typeChartData.length * 32) }}>
+                  <BarChart
+                    data={typeChartData}
+                    layout="vertical"
+                    margin={{ top: 0, right: 16, bottom: 0, left: 0 }}
+                  >
+                    <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis
+                      type="category"
+                      dataKey="type"
+                      tick={{ fontSize: 10 }}
+                      width={110}
+                      axisLine={false}
+                      tickLine={false}
+                      interval={0}
+                    />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="count" fill="var(--color-count)" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ChartContainer>
               </CardContent>
             </Card>
+          </div>
+
+          {hasResolutionData && (
+            <div className="shine-border rounded-xl" {...shineHandlers}>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Resolved In</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={RESOLUTION_CHART_CONFIG} className="h-44 w-full">
+                    <BarChart data={resolutionChartData} margin={{ top: 0, right: 8, bottom: 0, left: -16 }}>
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                      <XAxis dataKey="bucket" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
       )}

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@/components/ui/card";
+import { shineHandlers } from "@/hooks/useShineEffect";
 import type { FrenzyTeamSummary } from "@/types/frenzy";
 
 const RANK_COLORS = ["text-yellow-500", "text-slate-400", "text-amber-700"];
@@ -13,8 +14,9 @@ export function FrenzyTeamCard({ team, rank }: Props) {
   const rankColor = RANK_COLORS[rank - 1] ?? "text-muted-foreground";
 
   return (
-    <Link to="/activities/frenzy/$teamSlug" params={{ teamSlug: team.slug }}>
-      <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+    <div className="shine-border rounded-xl" {...shineHandlers}>
+      <Link to="/activities/frenzy/$teamSlug" params={{ teamSlug: team.slug }}>
+        <Card className="hover:border-primary/50 transition-colors cursor-pointer">
         <CardContent className="flex items-center gap-4 p-4">
           <span className={`text-2xl font-bold w-8 text-center shrink-0 ${rankColor}`}>
             #{rank}
@@ -58,5 +60,6 @@ export function FrenzyTeamCard({ team, rank }: Props) {
         </CardContent>
       </Card>
     </Link>
+    </div>
   );
 }

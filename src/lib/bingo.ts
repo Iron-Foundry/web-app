@@ -107,7 +107,7 @@ export function fmtBingoDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" });
 }
 
-function getMetricCat(m: string): "skill" | "boss" | "activity" | "computed" {
+export function getMetricCat(m: string): "skill" | "boss" | "activity" | "computed" {
   if (SKILL_METRICS.has(m)) return "skill";
   if (BOSS_METRICS.has(m)) return "boss";
   if (ACTIVITY_METRICS.has(m)) return "activity";

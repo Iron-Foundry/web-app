@@ -26,10 +26,12 @@ import { staffPermissionsRoute } from "./members/config/permissions";
 import { staffDiscordConfigRoute } from "./members/config/discord-config";
 import { staffContentRoute } from "./members/config/content";
 import { staffCompetitionsRoute } from "./members/config/competitions";
+import { staffCompScheduleRoute } from "./members/config/competition-schedule";
 import { staffFrenzyRoute } from "./members/config/frenzy";
 import { configRankingRoute } from "./members/config/ranking";
 import { configServicesRoute } from "./members/config/services";
 import { configTicketConfigRoute } from "./members/config/ticket-config";
+import { configPanelRoute } from "./members/config/panel";
 import { frenzyRoute } from "./activities/frenzy";
 import { frenzyTeamRoute } from "./activities/frenzy.$teamSlug";
 import { membersSurveysRoute } from "./members/surveys";
@@ -80,10 +82,12 @@ const membersTree = membersLayoutRoute.addChildren([
   staffDiscordConfigRoute,
   staffContentRoute,
   staffCompetitionsRoute,
+  staffCompScheduleRoute,
   staffFrenzyRoute,
   configRankingRoute,
   configServicesRoute,
   configTicketConfigRoute,
+  configPanelRoute,
 ]);
 
 const pluginsTree = pluginsLayoutRoute.addChildren([pluginsIndexRoute, pluginsEntryRoute]);

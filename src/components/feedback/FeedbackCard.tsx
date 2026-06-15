@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Heart, MessageSquare, ChevronDown, ChevronUp, Send, Pin, PinOff } from "lucide-react";
+import { shineHandlers } from "@/hooks/useShineEffect";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -417,6 +418,7 @@ export function FeedbackCard({ item, onHeart, onEdit, onStatusChange, canHeart =
     : "No replies";
 
   return (
+    <div className="shine-border rounded-xl" {...shineHandlers}>
     <Card className="flex flex-col">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -533,5 +535,6 @@ export function FeedbackCard({ item, onHeart, onEdit, onStatusChange, canHeart =
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }

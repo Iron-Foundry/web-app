@@ -19,6 +19,7 @@ import type { Vibe, Party, NotificationCategory } from "@/types/parties";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { shineHandlers } from "@/hooks/useShineEffect";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -324,7 +325,8 @@ function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
     null;
 
   return (
-    <Card className={cn("transition-opacity", party.status === "closed" && "opacity-50")}>
+    <div className={cn("shine-border rounded-xl", party.status === "closed" && "opacity-50")} {...shineHandlers}>
+    <Card>
       <CardContent className="pt-4 pb-3 px-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
@@ -431,6 +433,7 @@ function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
         {chatOpen && <ChatPanel partyId={party.id} closed={party.status === "closed"} />}
       </CardContent>
     </Card>
+    </div>
   );
 }
 

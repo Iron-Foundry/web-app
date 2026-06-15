@@ -152,7 +152,7 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-6">
 
           {/* Brand */}
-          <div className="flex flex-col gap-2">
+          <div className="col-span-2 sm:col-span-1 flex flex-col gap-2">
             <span className="text-sm font-semibold tracking-wide text-primary">Iron Foundry</span>
             <p className="text-xs text-muted-foreground leading-relaxed">
               An OSRS clan focused on community, competition, and growth.
@@ -160,7 +160,7 @@ export function Footer() {
           </div>
 
           {/* Navigate - one column per section */}
-          <div className="flex flex-col gap-2 sm:col-span-3">
+          <div className="col-span-2 sm:col-span-3 flex flex-col gap-2">
             <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Navigate</span>
             <div className="grid grid-cols-3 gap-x-4 gap-y-4">
               {NAV_SECTIONS.map((section) => (
@@ -194,7 +194,7 @@ export function Footer() {
 
         </div>
 
-        <div className="mt-5 border-t border-border pt-4 flex items-center justify-between">
+        <div className="mt-5 border-t border-border pt-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} Iron Foundry. All rights reserved.
           </p>
