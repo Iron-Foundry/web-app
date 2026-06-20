@@ -20,6 +20,10 @@ export const RAID_GROUPS: Record<string, { label: string; variants: string[] }> 
     label: "Tombs of Amascut",
     variants: ["tombs_of_amascut", "tombs_of_amascut_expert_mode"],
   },
+  nightmare: {
+    label: "Nightmare",
+    variants: ["nightmare", "phosanis_nightmare"],
+  },
 };
 
 export const VARIANT_LABELS: Record<string, string> = {
@@ -29,6 +33,8 @@ export const VARIANT_LABELS: Record<string, string> = {
   theatre_of_blood_hard_mode: "Hard Mode",
   tombs_of_amascut: "Entry Mode",
   tombs_of_amascut_expert_mode: "Expert Mode",
+  nightmare: "Nightmare",
+  phosanis_nightmare: "Phosani's Nightmare",
 };
 
 const METRIC_TO_RAID_GROUP: Record<string, string> = Object.fromEntries(
