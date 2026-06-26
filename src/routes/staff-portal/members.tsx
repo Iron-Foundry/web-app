@@ -7,9 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { highestRoleDisplay } from "@/lib/ranks";
-import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { ChevronUp, ChevronDown, ChevronsUpDown, Shield } from "lucide-react";
 import { registerPage } from "@/lib/permissions";
+import { usePermissions } from "@/context/PermissionsContext";
 import { RsnCell } from "@/components/staff/RsnCell";
+import type { PagePermissionConfig } from "@/types/permissions";
 
 registerPage({
   id: "staff.members",
@@ -87,6 +89,22 @@ interface MemberDetail {
 type SortKey = "rsn" | "discord_username" | "clan_rank" | "role";
 type SortDir = "asc" | "desc";
 
+function highestAdvancedPermissionRole(
+  roles: string[],
+  pagePermissions: Record<string, PagePermissionConfig>,
+  adminBypassRoles: string[],
+  roleLabels: Record<string, string>,
+): string | null {
+  const advanced = roles.filter(
+    (r) =>
+      adminBypassRoles.includes(r) ||
+      Object.values(pagePermissions).some((cfg) =>
+        (["create", "edit", "delete"] as const).some((a) => cfg[a].includes(r)),
+      ),
+  );
+  return highestRoleDisplay(advanced, roleLabels) ?? null;
+}
+
 const SOURCE_LABELS: Record<string, string> = {
   reddit:            "Reddit",
   osrs_discord:      "OSRS Discord",
@@ -153,12 +171,16 @@ function MemberDetailSheet({
   onOpenChange,
   roleLabels,
   onRsnSaved,
+  pagePermissions,
+  adminBypassRoles,
 }: {
   memberId: string | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   roleLabels: Record<string, string>;
   onRsnSaved: (id: string, rsn: string | null) => void;
+  pagePermissions: Record<string, PagePermissionConfig>;
+  adminBypassRoles: string[];
 }) {
   const [detail, setDetail] = useState<MemberDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -177,6 +199,7 @@ function MemberDetailSheet({
   }, [open, memberId]);
 
   const topRole = detail ? highestRoleDisplay(detail.discord_roles ?? [], roleLabels) : null;
+  const advancedRole = detail ? highestAdvancedPermissionRole(detail.discord_roles ?? [], pagePermissions, adminBypassRoles, roleLabels) : null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -212,6 +235,12 @@ function MemberDetailSheet({
                 )}
                 {detail.hide_presence_notifications && (
                   <span className="inline-flex items-center rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-xs">Hide notifications</span>
+                )}
+                {advancedRole && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
+                    <Shield className="h-3 w-3" />
+                    {advancedRole}
+                  </span>
                 )}
               </div>
             </SheetHeader>
@@ -333,6 +362,7 @@ function MemberDetailSheet({
 function StaffMembersPage() {
   const { user } = useAuth();
   const roleLabels = user?.role_labels ?? {};
+  const { pagePermissions, adminBypassRoles } = usePermissions();
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -407,6 +437,7 @@ function StaffMembersPage() {
                 <Th label="Discord" col="discord_username" />
                 <Th label="Rank"    col="clan_rank" />
                 <Th label="Role"    col="role" />
+                <th className="px-4 py-2 font-medium whitespace-nowrap">Perms</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -436,6 +467,14 @@ function StaffMembersPage() {
                     <td className="px-4 py-2">
                       {topRole ? <Badge variant="secondary" className="text-xs">{topRole}</Badge> : <span className="text-muted-foreground">-</span>}
                     </td>
+                    <td className="px-4 py-2">
+                      {(() => {
+                        const advRole = highestAdvancedPermissionRole(m.discord_roles ?? [], pagePermissions, adminBypassRoles, roleLabels);
+                        return advRole
+                          ? <Badge variant="outline" className="text-xs gap-1"><Shield className="h-3 w-3" />{advRole}</Badge>
+                          : <span className="text-muted-foreground">-</span>;
+                      })()}
+                    </td>
                   </tr>
                 );
               })}
@@ -450,6 +489,8 @@ function StaffMembersPage() {
         onOpenChange={setSheetOpen}
         roleLabels={roleLabels}
         onRsnSaved={handleRsnSaved}
+        pagePermissions={pagePermissions}
+        adminBypassRoles={adminBypassRoles}
       />
     </div>
   );
