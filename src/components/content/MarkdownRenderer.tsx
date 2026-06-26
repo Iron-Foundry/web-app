@@ -19,20 +19,36 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
+const tocAnchorStyle: CSSProperties = {
+  height: 0,
+  overflow: "hidden",
+  margin: 0,
+  padding: 0,
+  scrollMarginTop: "80px",
+};
+
 const components: Components = {
-  h1: ({ children }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  h1: ({ children, ...rest }: any) => {
+    if (rest["data-toc-anchor"]) return <h1 id={rest.id as string} style={tocAnchorStyle} />;
     const id = slugify(headingText(children)) || undefined;
     return <h1 id={id} className="text-2xl font-bold mb-4 mt-6 first:mt-0">{children}</h1>;
   },
-  h2: ({ children }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  h2: ({ children, ...rest }: any) => {
+    if (rest["data-toc-anchor"]) return <h2 id={rest.id as string} style={tocAnchorStyle} />;
     const id = slugify(headingText(children)) || undefined;
     return <h2 id={id} className="text-xl font-bold mb-3 mt-5 first:mt-0">{children}</h2>;
   },
-  h3: ({ children }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  h3: ({ children, ...rest }: any) => {
+    if (rest["data-toc-anchor"]) return <h3 id={rest.id as string} style={tocAnchorStyle} />;
     const id = slugify(headingText(children)) || undefined;
     return <h3 id={id} className="text-lg font-semibold mb-2 mt-4 first:mt-0">{children}</h3>;
   },
-  h4: ({ children }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  h4: ({ children, ...rest }: any) => {
+    if (rest["data-toc-anchor"]) return <h4 id={rest.id as string} style={tocAnchorStyle} />;
     const id = slugify(headingText(children)) || undefined;
     return <h4 id={id} className="text-base font-semibold mb-2 mt-3 first:mt-0">{children}</h4>;
   },
@@ -111,8 +127,29 @@ const components: Components = {
   ),
 };
 
+function parseTocMarkerAttrs(raw: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const part of raw.split(/,(?=(indent|title|hidden)=)/)) {
+    const eq = part.indexOf("=");
+    if (eq !== -1) result[part.slice(0, eq).trim()] = part.slice(eq + 1).trim();
+  }
+  return result;
+}
+
 function preprocessMarkdown(body: string): string {
   return body
+    // Strip ```toc ... ``` override blocks so they don't render as code.
+    .replace(/^```toc\n[\s\S]*?^```[ \t]*$/gm, "")
+    // Render [toc]{...} markers as zero-height heading elements for reliable scroll tracking.
+    .replace(/\[toc\]\{([^}]+)\}/g, (_, raw: string) => {
+      const attrs = parseTocMarkerAttrs(raw);
+      const title = (attrs.title ?? "").trim();
+      const id = slugify(title);
+      if (!id) return "";
+      const indent = Math.max(1, Math.min(3, parseInt(attrs.indent ?? "1", 10)));
+      const tag = `h${indent + 1}`;
+      return `<${tag} id="${id}" data-toc-anchor="true">${title}</${tag}>`;
+    })
     // Convert [[type:slug#section|display]] wiki-links to data-attribute anchors
     // so the `a` component override can render them as EntryRef hover cards.
     .replace(

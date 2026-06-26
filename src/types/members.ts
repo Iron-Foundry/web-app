@@ -46,6 +46,14 @@ export interface AccountRanking {
   skill_points: number | null;
 }
 
+export interface PlayerSnapshot {
+  rsn: string | null;
+  skills: Record<string, number>;
+  bosses: Record<string, number>;
+  activities: Record<string, number>;
+  fetched_at: string | null;
+}
+
 export type AchievementType = "drop" | "level" | "xp_milestone";
 
 export interface Achievement {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { Footer } from "@/components/layout/Footer";
 import { useLayout } from "@/context/LayoutContext";
-import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy, Bot, Swords, Lightbulb, Bug, BarChart2, Cog, Activity, Archive, LayoutTemplate, CalendarClock } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy, Bot, Swords, Lightbulb, Bug, BarChart2, Cog, Activity, Archive, LayoutTemplate, CalendarClock, User } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { useViewAs, useEffectiveRoles } from "@/context/ViewAsContext";
@@ -19,7 +19,8 @@ export const membersLayoutRoute = createRoute({
 });
 
 const NAV_LINKS = [
-  { to: "/members" as const,              label: "Dashboard",    icon: LayoutDashboard, exact: true },
+  { to: "/members" as const,              label: "Dashboard",    icon: LayoutDashboard, exact: true  },
+  { to: "/members/profile" as const,      label: "Profile",      icon: User,            exact: false },
   { to: "/members/tickets" as const,      label: "Tickets",      icon: Ticket,          exact: false },
   { to: "/members/surveys" as const,      label: "Surveys",      icon: ClipboardList,   exact: false },
   { to: "/members/applications" as const, label: "Applications", icon: FileText,        exact: false },

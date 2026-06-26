@@ -29,22 +29,22 @@ export function calcItemPoints(item: FrenzyItem, obtained: number): number {
   let pts = 0;
   const required = item.required ?? 1;
   const dupRequired = item.duplicate_required ?? 1;
-  const dupPoints = item.points / 2;
+  const dupPoints = Math.round(item.points / 2);
 
   if (obtained >= required) {
     pts += item.points;
   } else if (required === 2 && obtained === 1) {
-    pts += item.points / 2;
+    pts += Math.round(item.points / 2);
   }
 
   const beyond = obtained - required;
   if (beyond >= dupRequired) {
     pts += dupPoints;
   } else if (dupRequired === 2 && beyond === 1) {
-    pts += dupPoints / 2;
+    pts += Math.round(dupPoints / 2);
   }
 
-  return pts;
+  return Math.round(pts);
 }
 
 export function calcTierEntryPoints(
@@ -56,7 +56,7 @@ export function calcTierEntryPoints(
   ).length;
   const base = entry.point_step * tiersDone;
   if (tiersDone === 4) {
-    return base * entry.multiplier;
+    return Math.round(base * entry.multiplier);
   }
   return base;
 }

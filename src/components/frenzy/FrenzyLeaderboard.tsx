@@ -2,6 +2,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useFrenzyLeaderboards } from "@/hooks/useFrenzy";
 import { shineHandlers } from "@/hooks/useShineEffect";
 
+const RANK_BADGE: Record<number, string> = {
+  1: "bg-yellow-500/20 text-yellow-600 border border-yellow-500/40",
+  2: "bg-slate-400/20 text-slate-500 border border-slate-400/40",
+  3: "bg-amber-700/20 text-amber-700 border border-amber-700/40",
+};
+
 export function FrenzyLeaderboard() {
   const { data, isLoading } = useFrenzyLeaderboards();
 
@@ -39,15 +45,22 @@ export function FrenzyLeaderboard() {
               <h3 className="font-semibold text-sm">{board.display_name}</h3>
             </CardHeader>
             <CardContent className="px-4 pb-3">
-              <div className="space-y-1">
-                {board.entries.map((entry) => (
-                  <div key={entry.rsn} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground w-5 text-right shrink-0">
-                        {entry.index}.
-                      </span>
-                      <span className="font-medium truncate">{entry.rsn}</span>
-                    </div>
+              <div className="space-y-0.5">
+                {board.entries.map((entry, i) => (
+                  <div
+                    key={entry.rsn}
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-sm ${
+                      i % 2 === 0 ? "bg-muted/30" : ""
+                    }`}
+                  >
+                    <span
+                      className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold shrink-0 ${
+                        RANK_BADGE[entry.index] ?? "text-muted-foreground"
+                      }`}
+                    >
+                      {entry.index}
+                    </span>
+                    <span className="font-medium truncate flex-1">{entry.rsn}</span>
                     <span className="text-muted-foreground shrink-0">
                       {entry.value.toLocaleString()}
                     </span>

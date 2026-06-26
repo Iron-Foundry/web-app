@@ -3,7 +3,7 @@ import { Tabs } from "radix-ui";
 import {
   HelpCircle, ImageIcon, Video, Link2, Eraser,
   Bold, Italic, Strikethrough, Code, FileCode, Heading2, Heading3, Quote,
-  Undo2, Redo2,
+  Undo2, Redo2, BookMarked,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -69,6 +69,10 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
   const [refPickerOpen, setRefPickerOpen] = useState(false);
   const [embedUrlOpen, setEmbedUrlOpen] = useState(false);
   const [embedUrlValue, setEmbedUrlValue] = useState("");
+  const [tocInsertOpen, setTocInsertOpen] = useState(false);
+  const [tocTitle, setTocTitle] = useState("");
+  const [tocIndent, setTocIndent] = useState(1);
+  const [tocHidden, setTocHidden] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -190,6 +194,24 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
     }
   }
 
+  function openTocInsert() {
+    const el = textareaRef.current;
+    const sel = el ? body.slice(el.selectionStart, el.selectionEnd).trim() : "";
+    setTocTitle(sel);
+    setTocIndent(1);
+    setTocHidden(false);
+    setTocInsertOpen((v) => !v);
+    setEmbedUrlOpen(false);
+  }
+
+  function handleInsertToc() {
+    const title = tocTitle.trim();
+    if (!title) return;
+    insertAtCursor(`[toc]{indent=${tocIndent},title=${title},hidden=${tocHidden}}`);
+    setTocInsertOpen(false);
+    setTocTitle("");
+  }
+
   function handleAssetSelect(url: string, alt: string, contentType: string) {
     insertAtCursor(contentType.startsWith("video/")
       ? `\n<video src="${url}" controls></video>\n`
@@ -235,11 +257,49 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
           <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setRefPickerOpen(true)} title="Insert entry reference" type="button">
             <Link2 className="h-3.5 w-3.5 mr-1" />Reference
           </Button>
+          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={openTocInsert} title="Insert TOC anchor" type="button">
+            <BookMarked className="h-3.5 w-3.5 mr-1" />TOC
+          </Button>
           <Sep />
           <ToolbarBtn title="Strip leading/trailing whitespace from all lines" onClick={stripWhitespace}>
             <Eraser className="h-3.5 w-3.5" />
           </ToolbarBtn>
         </div>
+
+        {tocInsertOpen && (
+          <div className="flex items-center gap-2 px-2 py-1.5 border-b border-border bg-muted/20 flex-wrap">
+            <Input
+              className="h-7 text-xs flex-1 min-w-32"
+              placeholder="Title…"
+              value={tocTitle}
+              onChange={(e) => setTocTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleInsertToc();
+                if (e.key === "Escape") setTocInsertOpen(false);
+              }}
+              autoFocus
+            />
+            <select
+              className="h-7 text-xs rounded-md border border-input bg-background px-2"
+              value={tocIndent}
+              onChange={(e) => setTocIndent(Number(e.target.value))}
+            >
+              <option value={1}>Indent 1</option>
+              <option value={2}>Indent 2</option>
+              <option value={3}>Indent 3</option>
+            </select>
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground select-none cursor-pointer">
+              <input
+                type="checkbox"
+                checked={tocHidden}
+                onChange={(e) => setTocHidden(e.target.checked)}
+                className="rounded"
+              />
+              Hidden
+            </label>
+            <Button size="sm" className="h-7 text-xs shrink-0" onClick={handleInsertToc} type="button">Insert</Button>
+          </div>
+        )}
 
         {embedUrlOpen && (
           <div className="flex items-center gap-1 px-2 py-1.5 border-b border-border bg-muted/20">

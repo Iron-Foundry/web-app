@@ -10,6 +10,7 @@ import { FrenzyLeaderboard } from "@/components/frenzy/FrenzyLeaderboard";
 import { FrenzyEventChartsSheet } from "@/components/frenzy/FrenzyEventChartsSheet";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 registerPage({
   id: "frenzy",
@@ -29,6 +30,14 @@ export const frenzyRoute = createRoute({
   component: FrenzyPage,
 });
 
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function FrenzyPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
@@ -37,23 +46,48 @@ function FrenzyPage() {
 
   const canManage = hasPermission("frenzy", "edit", effectiveRoles);
 
+  const daysLeft =
+    activeEvent?.ends_at
+      ? Math.max(0, Math.ceil((new Date(activeEvent.ends_at).getTime() - Date.now()) / 86_400_000))
+      : null;
+
   return (
     <div className="mx-auto max-w-6xl w-full space-y-6 py-6 px-4">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="font-rs-bold text-4xl text-primary">PVM Frenzy</h1>
-          <p className="text-sm text-muted-foreground mt-1">Team competition - collect items and earn points.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {activeEvent && <FrenzyEventChartsSheet eventName={activeEvent.name} />}
-          {canManage && (
-            <Button asChild size="sm" variant="outline">
-              <Link to="/members/config/frenzy">
-                <Settings className="h-4 w-4 mr-1.5" />
-                Manage Event
-              </Link>
-            </Button>
-          )}
+      <div className="rounded-xl border bg-card p-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="space-y-1">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+              Active Event
+            </p>
+            <h1 className="font-rs-bold text-4xl text-primary">
+              {activeEvent?.name ?? "PVM Frenzy"}
+            </h1>
+            {activeEvent?.ends_at && (
+              <p className="text-sm text-muted-foreground">
+                {activeEvent.starts_at
+                  ? `${formatDate(activeEvent.starts_at)} - ${formatDate(activeEvent.ends_at)}`
+                  : `Ends ${formatDate(activeEvent.ends_at)}`}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            {daysLeft !== null && (
+              <Badge variant={daysLeft <= 3 ? "destructive" : "secondary"}>
+                {daysLeft === 0 ? "Ends today" : `${daysLeft}d remaining`}
+              </Badge>
+            )}
+            <div className="flex items-center gap-2">
+              {activeEvent && <FrenzyEventChartsSheet eventName={activeEvent.name} />}
+              {canManage && (
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/members/config/frenzy">
+                    <Settings className="h-4 w-4 mr-1.5" />
+                    Manage
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -7,9 +7,9 @@ import { ActivityEditor } from "./ActivityEditor";
 import { MilestoneEditor } from "./MilestoneEditor";
 import { MultiplierEditor } from "./MultiplierEditor";
 import { FrenzyVersionHistoryDialog } from "../FrenzyVersionHistoryDialog";
-import { useCreateTemplate, useUpdateTemplate } from "@/hooks/useFrenzy";
+import { useCalculatePoints, useCreateTemplate, useUpdateTemplate } from "@/hooks/useFrenzy";
 import type { FrenzyTemplate, FrenzyTemplateUpdate } from "@/types/frenzy";
-import { History, Save } from "lucide-react";
+import { History, RefreshCw, Save } from "lucide-react";
 import { toast } from "sonner";
 
 const TABS = ["Tiers", "Activities", "Milestones", "Multipliers"] as const;
@@ -29,6 +29,7 @@ function emptyDraft(): FrenzyTemplateUpdate {
     activities: [],
     milestones: {},
     multipliers: [],
+    total_point_cap: 0,
   };
 }
 
@@ -42,6 +43,7 @@ export function TemplateEditor({ template, onSaved, onCancel }: Props) {
           activities: template.activities,
           milestones: template.milestones,
           multipliers: template.multipliers,
+          total_point_cap: template.total_point_cap,
         }
       : emptyDraft(),
   );
@@ -50,8 +52,27 @@ export function TemplateEditor({ template, onSaved, onCancel }: Props) {
 
   const createTemplate = useCreateTemplate();
   const updateTemplate = useUpdateTemplate();
+  const calculatePoints = useCalculatePoints();
 
   const isPending = createTemplate.isPending || updateTemplate.isPending;
+  const tierBudgetSum = Object.values(draft.tiers).reduce((s, t) => s + (t.budget_pct ?? 0), 0);
+  const canRecalculate =
+    draft.total_point_cap > 0 &&
+    Math.abs(tierBudgetSum - 100) < 0.01 &&
+    !calculatePoints.isPending;
+
+  async function handleRecalculate() {
+    try {
+      const result = await calculatePoints.mutateAsync({
+        tiers: draft.tiers,
+        total_point_cap: draft.total_point_cap,
+      });
+      setDraft((d) => ({ ...d, tiers: result.tiers }));
+      toast.success("Points recalculated. Review and save to apply.");
+    } catch (err) {
+      toast.error(String(err));
+    }
+  }
 
   async function handleSave() {
     try {
@@ -76,7 +97,7 @@ export function TemplateEditor({ template, onSaved, onCancel }: Props) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex-1 grid grid-cols-2 gap-2">
+        <div className="flex-1 grid grid-cols-3 gap-2">
           <div>
             <Label>Name</Label>
             <Input
@@ -93,6 +114,16 @@ export function TemplateEditor({ template, onSaved, onCancel }: Props) {
               placeholder="Optional description"
             />
           </div>
+          <div>
+            <Label>Point Cap</Label>
+            <Input
+              type="number"
+              min={0}
+              value={draft.total_point_cap}
+              onChange={(e) => set("total_point_cap", Number(e.target.value))}
+              placeholder="Total point budget"
+            />
+          </div>
         </div>
         <div className="flex flex-col gap-1.5 shrink-0">
           {template && (
@@ -106,6 +137,16 @@ export function TemplateEditor({ template, onSaved, onCancel }: Props) {
               History
             </Button>
           )}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleRecalculate}
+            disabled={!canRecalculate}
+            className="gap-1.5"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            {calculatePoints.isPending ? "Calculating..." : "Recalculate"}
+          </Button>
           <Button size="sm" variant="outline" onClick={onCancel}>
             Cancel
           </Button>

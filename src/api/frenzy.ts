@@ -13,6 +13,7 @@ import type {
   FrenzyTemplateUpdate,
   FrenzyTeamDetail,
   FrenzyTeamHistory,
+  FrenzyTierData,
   FrenzyVersionDetail,
   FrenzyVersionSummary,
   OsrsActivity,
@@ -139,6 +140,12 @@ export const frenzyApi = {
 
   refreshLeaderboards: () =>
     apiFetch<{ ok: boolean }>("/frenzy/leaderboards/refresh", { method: "POST" }),
+
+  calculatePoints: (data: { tiers: Record<string, FrenzyTierData>; total_point_cap: number }) =>
+    apiFetch<{ tiers: Record<string, FrenzyTierData> }>("/frenzy/calculate-points", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 
   // Admin - Submissions
   listSubmissions: (

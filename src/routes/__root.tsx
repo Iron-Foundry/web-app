@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { RootLayout } from "@/components/layout/RootLayout";
@@ -10,31 +10,12 @@ import { AuthProvider } from "@/context/AuthContext";
 import { PermissionsProvider } from "@/context/PermissionsContext";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { ViewAsProvider } from "@/context/ViewAsContext";
-import { ApiRequestError } from "@/api/client";
-import { getErrorMessage } from "@/lib/errors";
-import { toast } from "sonner";
+import { queryClient } from "@/lib/queryClient";
 
 function ThemedToaster() {
   const { theme } = useTheme();
   return <Toaster position="bottom-right" richColors theme={theme} />;
 }
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 2,
-      retry: (failureCount, error) => {
-        if (error instanceof ApiRequestError && error.status < 500) return false;
-        return failureCount < 2;
-      },
-    },
-    mutations: {
-      onError: (error) => {
-        toast.error(getErrorMessage(error));
-      },
-    },
-  },
-});
 
 function Root() {
   return (

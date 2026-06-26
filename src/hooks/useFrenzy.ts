@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { frenzyApi } from "@/api/frenzy";
 import { queryKeys } from "@/lib/queryKeys";
-import type { FrenzySubmissionCreate, FrenzyTemplateUpdate } from "@/types/frenzy";
+import type { FrenzySubmissionCreate, FrenzyTemplateUpdate, FrenzyTierData } from "@/types/frenzy";
 
 const STALE_5M = 1000 * 60 * 5;
 const STALE_24H = 1000 * 60 * 60 * 24;
@@ -120,6 +120,13 @@ export function useDeleteTemplate() {
   return useMutation({
     mutationFn: (id: number) => frenzyApi.deleteTemplate(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.frenzy.templates() }),
+  });
+}
+
+export function useCalculatePoints() {
+  return useMutation({
+    mutationFn: (data: { tiers: Record<string, FrenzyTierData>; total_point_cap: number }) =>
+      frenzyApi.calculatePoints(data),
   });
 }
 

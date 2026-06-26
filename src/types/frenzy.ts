@@ -4,6 +4,9 @@ export interface FrenzyItem {
   required: number;
   duplicate_required: number;
   icon_url: string | null;
+  drop_denom: number | null;
+  kph: number | null;
+  points_locked: boolean;
 }
 
 export interface FrenzySource {
@@ -15,6 +18,7 @@ export interface FrenzySource {
 
 export interface FrenzyTierData {
   sources: FrenzySource[];
+  budget_pct: number;
 }
 
 export interface FrenzyActivity {
@@ -57,6 +61,7 @@ export interface FrenzyTemplate {
   activities: FrenzyActivity[];
   milestones: Record<string, FrenzyMilestone[]>;
   multipliers: FrenzyMultiplier[];
+  total_point_cap: number;
   version_number: number;
   created_at: string;
   updated_at: string;

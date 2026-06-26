@@ -28,12 +28,16 @@ export const queryKeys = {
     teams: () => ["bingo", "teams"] as const,
   },
   members: {
+    accounts: () => ["members", "accounts"] as const,
+    myGoals: (rsn: string) => ["members", "my-goals", rsn] as const,
+    goalsByToken: (token: string) => ["members", "goals", token] as const,
     badges: () => ["members", "badges"] as const,
     feed: () => ["members", "feed"] as const,
     stats: () => ["members", "stats"] as const,
     rankings: () => ["members", "rankings"] as const,
     nameChanges: () => ["members", "name-changes"] as const,
     apiKey: () => ["members", "api-key"] as const,
+    snapshot: (rsn: string) => ["members", "snapshot", rsn] as const,
   },
   home: {
     womStats: () => ["home", "wom-stats"] as const,

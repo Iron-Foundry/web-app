@@ -11,6 +11,7 @@ import { useContentContext } from "./ContentLayout";
 import { VersionHistoryDialog } from "./VersionHistoryDialog";
 import { useContentEntry, downloadMd } from "@/hooks/useContentEntry";
 import { slugify } from "@/lib/utils";
+import { TableOfContents, MobileToc, extractHeadings } from "./TableOfContents";
 import type { EntryAuthor } from "@/types/content";
 
 interface ContentEntryPageProps {
@@ -43,6 +44,7 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
   if (e.error || !e.entry) return <p className="text-destructive text-sm">{e.error ?? "Entry not found."}</p>;
 
   const entry = e.entry;
+  const headings = entry.body ? extractHeadings(entry.body) : [];
 
   return (
     <div className="space-y-6">
@@ -132,10 +134,22 @@ export function ContentEntryPage({ slug, routeBase }: ContentEntryPageProps) {
           />
         </div>
       ) : (
-        <div className="min-h-25">
-          {entry.body
-            ? <MarkdownRenderer body={entry.body} />
-            : <p className="text-muted-foreground text-sm italic">No content yet.</p>}
+        <div className="flex gap-8 items-start min-h-25">
+          <div className="flex-1 min-w-0 markdown-body">
+            {headings.length >= 2 && (
+              <div className="lg:hidden mb-5">
+                <MobileToc headings={headings} />
+              </div>
+            )}
+            {entry.body
+              ? <MarkdownRenderer body={entry.body} />
+              : <p className="text-muted-foreground text-sm italic">No content yet.</p>}
+          </div>
+          {headings.length >= 2 && (
+            <aside className="hidden lg:block w-48 shrink-0 sticky top-20">
+              <TableOfContents headings={headings} />
+            </aside>
+          )}
         </div>
       )}
 

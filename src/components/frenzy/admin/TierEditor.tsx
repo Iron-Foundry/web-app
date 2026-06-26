@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ItemPicker } from "./ItemPicker";
+import { FrenzyItemRow } from "./FrenzyItemRow";
 import { BossPicker } from "./BossPicker";
-import type { FrenzyItem, FrenzySource, FrenzyTierData, OsrsItem, OsrsBoss } from "@/types/frenzy";
+import type { FrenzyItem, FrenzySource, FrenzyTierData, OsrsBoss } from "@/types/frenzy";
 import { ChevronDown, ChevronRight, Plus, Trash2 } from "lucide-react";
 
 interface Props {
@@ -13,79 +13,24 @@ interface Props {
 }
 
 function emptyItem(): FrenzyItem {
-  return { name: "", points: 10, required: 1, duplicate_required: 1, icon_url: null };
+  return {
+    name: "",
+    points: 10,
+    required: 1,
+    duplicate_required: 1,
+    icon_url: null,
+    drop_denom: null,
+    kph: null,
+    points_locked: false,
+  };
 }
 
 function emptySource(): FrenzySource {
   return { name: "", hovertext: "", icon_url: "", items: [emptyItem()] };
 }
 
-function ItemRow({
-  item,
-  onUpdate,
-  onRemove,
-}: {
-  item: FrenzyItem;
-  onUpdate: (item: FrenzyItem) => void;
-  onRemove: () => void;
-}) {
-  return (
-    <div className="rounded border bg-muted/30 p-2 space-y-1.5">
-      <div className="flex items-center gap-2">
-        {item.icon_url && (
-          <img src={item.icon_url} alt={item.name} className="h-5 w-5 object-contain shrink-0" />
-        )}
-        <div className="flex-1">
-          <ItemPicker
-            value={item.name}
-            onSelect={(osrs: OsrsItem) =>
-              onUpdate({ ...item, name: osrs.name, icon_url: osrs.icon_url })
-            }
-          />
-        </div>
-        <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={onRemove}>
-          <Trash2 className="h-3 w-3" />
-        </Button>
-      </div>
-      <div className="grid grid-cols-3 gap-1.5">
-        <div>
-          <Label className="text-[10px] text-muted-foreground">Points</Label>
-          <Input
-            type="number"
-            value={item.points}
-            onChange={(e) => onUpdate({ ...item, points: Number(e.target.value) })}
-            className="h-6 text-xs"
-          />
-        </div>
-        <div>
-          <Label className="text-[10px] text-muted-foreground">Required</Label>
-          <Input
-            type="number"
-            min={1}
-            value={item.required}
-            onChange={(e) => onUpdate({ ...item, required: Number(e.target.value) })}
-            className="h-6 text-xs"
-          />
-        </div>
-        <div>
-          <Label className="text-[10px] text-muted-foreground">Dup required</Label>
-          <Input
-            type="number"
-            min={1}
-            value={item.duplicate_required}
-            onChange={(e) => onUpdate({ ...item, duplicate_required: Number(e.target.value) })}
-            className="h-6 text-xs"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function SourceSection({
-  tierName,
   source,
-  sourceIndex,
   onUpdate,
   onRemove,
 }: {
@@ -147,7 +92,7 @@ function SourceSection({
           </div>
           <div className="space-y-1.5">
             {source.items.map((item, i) => (
-              <ItemRow
+              <FrenzyItemRow
                 key={i}
                 item={item}
                 onUpdate={(updated) => updateItem(i, updated)}
@@ -170,10 +115,16 @@ export function TierEditor({ tiers, onChange }: Props) {
   const [activeTier, setActiveTier] = useState(tierNames[0] ?? "");
   const [newTierName, setNewTierName] = useState("");
 
-  const tierData = tiers[activeTier] ?? { sources: [] };
+  const tierData = tiers[activeTier] ?? { sources: [], budget_pct: 0 };
+  const totalBudget = Object.values(tiers).reduce((s, t) => s + (t.budget_pct ?? 0), 0);
+  const budgetOk = Math.abs(totalBudget - 100) < 0.01;
 
   function updateSources(sources: FrenzySource[]) {
     onChange({ ...tiers, [activeTier]: { ...tierData, sources } });
+  }
+
+  function updateBudgetPct(pct: number) {
+    onChange({ ...tiers, [activeTier]: { ...tierData, budget_pct: pct } });
   }
 
   function updateSource(index: number, updated: FrenzySource) {
@@ -193,7 +144,7 @@ export function TierEditor({ tiers, onChange }: Props) {
   function addTier() {
     const name = newTierName.trim();
     if (!name || tiers[name]) return;
-    onChange({ ...tiers, [name]: { sources: [] } });
+    onChange({ ...tiers, [name]: { sources: [], budget_pct: 0 } });
     setActiveTier(name);
     setNewTierName("");
   }
@@ -209,7 +160,6 @@ export function TierEditor({ tiers, onChange }: Props) {
 
   return (
     <div className="space-y-3">
-      {/* Tier tabs */}
       <div className="flex flex-wrap gap-2 items-center">
         {tierNames.map((t) => (
           <div key={t} className="flex items-center gap-0.5">
@@ -249,7 +199,32 @@ export function TierEditor({ tiers, onChange }: Props) {
         </div>
       </div>
 
-      {/* Sources for active tier */}
+      {activeTier && (
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <Label className="text-xs text-muted-foreground whitespace-nowrap">
+              Budget % ({activeTier})
+            </Label>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              value={tierData.budget_pct ?? 0}
+              onChange={(e) => updateBudgetPct(Number(e.target.value))}
+              className="h-7 text-xs w-20"
+            />
+          </div>
+          {tierNames.length > 0 && !budgetOk && (
+            <p className="text-xs text-yellow-500">
+              Budgets sum to {totalBudget.toFixed(0)}% (must equal 100% to recalculate)
+            </p>
+          )}
+          {tierNames.length > 0 && budgetOk && (
+            <p className="text-xs text-green-500">Budgets sum to 100%</p>
+          )}
+        </div>
+      )}
+
       {activeTier && (
         <div className="space-y-2">
           {tierData.sources.map((source, i) => (

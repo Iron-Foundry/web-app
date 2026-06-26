@@ -1,5 +1,6 @@
 import { apiFetch } from "./client";
-import type { PlayerBadge, FeedItem, MeStats, NameChange, WomStatsResponse, Achievement, AccountRanking } from "@/types/members";
+import type { PlayerBadge, FeedItem, MeStats, NameChange, WomStatsResponse, Achievement, AccountRanking, PlayerSnapshot } from "@/types/members";
+import type { Goal } from "@/types/goals";
 import type { Competition } from "@/types/competitions";
 
 interface ClanVaultStats {
@@ -38,4 +39,18 @@ export const membersApi = {
 
   updateMe: (data: Record<string, unknown>) =>
     apiFetch<void>("/members/me", { method: "PATCH", body: JSON.stringify(data) }),
+
+  getMySnapshot: (rsn: string) => apiFetch<PlayerSnapshot>(`/members/me/snapshot?rsn=${encodeURIComponent(rsn)}`),
+
+  getMyGoals: (rsn: string) =>
+    apiFetch<{ rsn: string; goals: Goal[]; share_token: string | null; updated_at: string | null }>(`/members/me/goals/${encodeURIComponent(rsn)}`),
+
+  getGoalsByToken: (token: string) =>
+    apiFetch<{ rsn: string; goals: Goal[]; updated_at: string | null }>(`/members/goals/${encodeURIComponent(token)}`),
+
+  saveMyGoals: (rsn: string, goals: Goal[]) =>
+    apiFetch<{ rsn: string; share_token: string; updated_at: string }>(`/members/me/goals/${encodeURIComponent(rsn)}`, {
+      method: "PUT",
+      body: JSON.stringify({ goals }),
+    }),
 };

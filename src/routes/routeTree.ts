@@ -19,6 +19,7 @@ import { resourcesIndexRoute } from "./resources/index";
 import { resourcesEntryRoute } from "./resources/$entryId";
 import { membersLayoutRoute } from "./members/_layout";
 import { membersDashboardRoute } from "./members/index";
+import { membersProfileRoute } from "./members/profile";
 import { membersSettingsRoute } from "./members/settings";
 import { membersTicketsRoute } from "./members/tickets";
 import { staffRankMappingsRoute } from "./members/config/rank-mappings";
@@ -34,6 +35,7 @@ import { configTicketConfigRoute } from "./members/config/ticket-config";
 import { configPanelRoute } from "./members/config/panel";
 import { frenzyRoute } from "./activities/frenzy";
 import { frenzyTeamRoute } from "./activities/frenzy.$teamSlug";
+import { goalsRsnRoute } from "./goals.$rsn";
 import { membersSurveysRoute } from "./members/surveys";
 import { membersApplicationsRoute } from "./members/applications";
 import { membersSuggestionsRoute } from "./members/suggestions";
@@ -69,6 +71,7 @@ const staffPortalTree = staffPortalLayoutRoute.addChildren([
 
 const membersTree = membersLayoutRoute.addChildren([
   membersDashboardRoute,
+  membersProfileRoute,
   membersSettingsRoute,
   membersTicketsRoute,
   membersSurveysRoute,
@@ -109,6 +112,7 @@ export const routeTree = rootRoute.addChildren([
   frenzyRoute,
   frenzyTeamRoute,
   feedbackRoute,
+  goalsRsnRoute,
   pluginsTree,
   resourcesTree,
   membersTree,

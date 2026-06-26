@@ -47,6 +47,15 @@ export function useMyRankings(userId: string | undefined) {
   });
 }
 
+export function useMySnapshot(rsn: string | null | undefined) {
+  return useQuery({
+    queryKey: queryKeys.members.snapshot(rsn ?? ""),
+    queryFn: () => membersApi.getMySnapshot(rsn!),
+    enabled: !!rsn,
+    staleTime: 1000 * 60 * 60,
+  });
+}
+
 export function useDashboardCompetitions() {
   return useQuery({
     queryKey: queryKeys.competitions.list(),
