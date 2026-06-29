@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
-import { Tabs } from "radix-ui";
 import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { StaffGuard } from "@/components/StaffGuard";
@@ -10,8 +9,9 @@ import { getPageRegistry, registerPage, type PagePermissionConfig } from "@/lib/
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
+import { Check, Globe } from "lucide-react";
+import { DISCORD_ROLE_ORDER } from "@/lib/ranks";
 
 registerPage({
   id: "staff.permissions",
@@ -26,68 +26,96 @@ export const staffPermissionsRoute = createRoute({
   component: () => <StaffGuard pageId="staff.permissions"><PermissionsPage /></StaffGuard>,
 });
 
-
 const ACTIONS = [
-  { key: "read",   label: "Read",   hint: "empty = all users" },
-  { key: "create", label: "Create", hint: "empty = Senior Mod+" },
-  { key: "edit",   label: "Edit",   hint: "empty = Senior Mod+" },
-  { key: "delete", label: "Delete", hint: "empty = Senior Mod+" },
-] as const;
-
-const TABS = [
-  { value: "public",  label: "Public",  prefix: null },
-  { value: "members", label: "Members", prefix: "members." },
-  { value: "staff",   label: "Staff",   prefix: "staff." },
+  { key: "read",   label: "Read"   },
+  { key: "create", label: "Create" },
+  { key: "edit",   label: "Edit"   },
+  { key: "delete", label: "Delete" },
 ] as const;
 
 type PagePermissionsMap = Record<string, PagePermissionConfig>;
 
-function PageCard({
-  page,
-  cfg,
-  roleOptions,
-  onSetAction,
+function RolePermissionCard({
+  roleId,
+  roleLabel,
+  isAdminBypass,
+  pages,
+  local,
+  onToggle,
 }: {
-  page: ReturnType<typeof getPageRegistry>[number];
-  cfg: PagePermissionConfig;
-  roleOptions: { id: string; label: string }[];
-  onSetAction: (action: keyof PagePermissionConfig, roles: string[]) => void;
+  roleId: string;
+  roleLabel: string;
+  isAdminBypass: boolean;
+  pages: ReturnType<typeof getPageRegistry>;
+  local: PagePermissionsMap;
+  onToggle: (roleId: string, pageId: string, action: keyof PagePermissionConfig, hasAccess: boolean) => void;
 }) {
   return (
-    <div className="rounded-lg border border-border p-4 space-y-3">
-      <div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-medium text-sm">{page.label}</span>
-          <Badge variant="outline" className="text-xs font-mono">{page.id}</Badge>
-        </div>
-        {page.description && (
-          <p className="text-xs text-muted-foreground mt-0.5">{page.description}</p>
-        )}
+    <div className="rounded-lg border border-border overflow-hidden">
+      <div className="px-4 py-3 flex items-center gap-2 bg-muted/30 border-b border-border">
+        <span className="font-medium text-sm">{roleLabel}</span>
+        {isAdminBypass && <Badge className="text-xs">Admin bypass</Badge>}
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {ACTIONS.map(({ key, label, hint }) => (
-          <div key={key} className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              {label}{" "}
-              <span className="font-normal text-muted-foreground/60">({hint})</span>
-            </p>
-            <ToggleGroup
-              type="multiple"
-              variant="outline"
-              value={cfg[key]}
-              onValueChange={(v) => onSetAction(key, v)}
-              className="flex-wrap justify-start"
-            >
-              {roleOptions.map(({ id, label }) => (
-                <ToggleGroupItem key={id} value={id} className="text-xs h-7 px-2.5">
-                  {label}
-                </ToggleGroupItem>
+      {isAdminBypass ? (
+        <p className="px-4 py-3 text-sm text-muted-foreground">
+          Full access to all pages - bypasses individual settings.
+        </p>
+      ) : (
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-xs text-muted-foreground bg-muted/10 border-b border-border">
+              <th className="px-4 py-2 text-left font-medium">Page</th>
+              {ACTIONS.map(({ key, label }) => (
+                <th key={key} className="px-3 py-2 text-center font-medium w-20">{label}</th>
               ))}
-            </ToggleGroup>
-          </div>
-        ))}
-      </div>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {pages.map((page) => {
+              const cfg: PagePermissionConfig = local[page.id] ?? page.defaults ?? { read: [], create: [], edit: [], delete: [] };
+              const readOpen = cfg.read.length === 0;
+              return (
+                <tr key={page.id} className="hover:bg-muted/20 transition-colors">
+                  <td className="px-4 py-2.5">
+                    <span className="text-sm">{page.label}</span>
+                    {page.description && (
+                      <span className="block text-xs text-muted-foreground/60">{page.description}</span>
+                    )}
+                  </td>
+                  {ACTIONS.map(({ key }) => {
+                    const isOpen = key === "read" && readOpen;
+                    const hasAccess = isOpen || cfg[key].includes(roleId);
+                    return (
+                      <td key={key} className="px-3 py-2.5 text-center">
+                        <button
+                          type="button"
+                          disabled={isOpen}
+                          title={isOpen ? "Open to all authenticated users" : hasAccess ? "Click to revoke" : "Click to grant"}
+                          onClick={() => !isOpen && onToggle(roleId, page.id, key, hasAccess)}
+                          className={cn(
+                            "inline-flex items-center justify-center h-7 w-7 rounded border mx-auto transition-colors",
+                            isOpen
+                              ? "cursor-default border-transparent text-muted-foreground/40"
+                              : hasAccess
+                                ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer"
+                                : "border-border bg-transparent text-muted-foreground/50 hover:border-primary/40 hover:bg-muted/40 cursor-pointer",
+                          )}
+                        >
+                          {isOpen
+                            ? <Globe className="h-3.5 w-3.5" />
+                            : hasAccess
+                              ? <Check className="h-3.5 w-3.5" />
+                              : <span className="text-xs leading-none select-none">-</span>}
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
@@ -96,21 +124,22 @@ function PermissionsPage() {
   const queryClient = useQueryClient();
   const [saved, setSaved] = useState<PagePermissionsMap>({});
   const [local, setLocal] = useState<PagePermissionsMap>({});
+  const [adminBypassRoles, setAdminBypassRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
   const [roleOptions, setRoleOptions] = useState<{ id: string; label: string }[]>([]);
 
   const pages = getPageRegistry();
-
   const authHeaders = getAuthHeaders();
 
   useEffect(() => {
     const permissionsReq = fetch(`${API_URL}/config/page-permissions`, { headers: authHeaders })
-      .then((r) => (r.ok ? r.json() : Promise.resolve({ pages: {} })))
-      .then((data: { pages: PagePermissionsMap }) => {
+      .then((r) => (r.ok ? r.json() : Promise.resolve({ pages: {}, admin_bypass_roles: [] })))
+      .then((data: { pages: PagePermissionsMap; admin_bypass_roles?: string[] }) => {
         setSaved(data.pages ?? {});
         setLocal(data.pages ?? {});
+        setAdminBypassRoles(data.admin_bypass_roles ?? []);
       })
       .catch(() => {});
 
@@ -134,23 +163,20 @@ function PermissionsPage() {
     Promise.all([permissionsReq, rankMappingsReq]).finally(() => setLoading(false));
   }, []);
 
-  function getConfig(pageId: string): PagePermissionConfig {
-    return (
-      local[pageId] ??
-      pages.find((p) => p.id === pageId)?.defaults ?? {
-        read: [],
-        create: [],
-        edit: [],
-        delete: [],
-      }
-    );
-  }
-
-  function setAction(pageId: string, action: keyof PagePermissionConfig, roles: string[]) {
-    setLocal((prev) => ({
-      ...prev,
-      [pageId]: { ...getConfig(pageId), [action]: roles },
-    }));
+  function toggleRoleAction(
+    roleId: string,
+    pageId: string,
+    action: keyof PagePermissionConfig,
+    hasAccess: boolean,
+  ) {
+    setLocal((prev) => {
+      const cfg: PagePermissionConfig = prev[pageId] ?? pages.find((p) => p.id === pageId)?.defaults
+        ?? { read: [], create: [], edit: [], delete: [] };
+      const roles = hasAccess
+        ? cfg[action].filter((r) => r !== roleId)
+        : [...cfg[action], roleId];
+      return { ...prev, [pageId]: { ...cfg, [action]: roles } };
+    });
     setFeedback(null);
   }
 
@@ -182,15 +208,14 @@ function PermissionsPage() {
   }
 
   if (loading) {
-    return <p className="text-muted-foreground">Loading…</p>;
+    return <p className="text-muted-foreground">Loading...</p>;
   }
 
-  function pagesForTab(tab: (typeof TABS)[number]) {
-    return pages.filter((p) => {
-      if (tab.prefix === null) return !p.id.includes(".");
-      return p.id.startsWith(tab.prefix);
-    });
-  }
+  const sortedRoles = [...roleOptions].sort((a, b) => {
+    const ai = (DISCORD_ROLE_ORDER as readonly string[]).indexOf(a.label);
+    const bi = (DISCORD_ROLE_ORDER as readonly string[]).indexOf(b.label);
+    return (bi === -1 ? -999 : bi) - (ai === -1 ? -999 : ai);
+  });
 
   return (
     <div className="mx-auto max-w-3xl w-full space-y-5 py-6">
@@ -208,57 +233,29 @@ function PermissionsPage() {
             </span>
           )}
           <Button onClick={handleSave} disabled={!isDirty || saving}>
-            {saving ? "Saving…" : "Save changes"}
+            {saving ? "Saving..." : "Save changes"}
           </Button>
         </div>
       </div>
 
       <Separator />
 
-      {pages.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No pages registered yet.</p>
+      {sortedRoles.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No roles loaded.</p>
       ) : (
-        <Tabs.Root defaultValue="public">
-          <Tabs.List className="flex border-b border-border gap-1">
-            {TABS.map((tab) => {
-              const count = pagesForTab(tab).length;
-              return (
-                <Tabs.Trigger
-                  key={tab.value}
-                  value={tab.value}
-                  className={cn(
-                    "flex items-center gap-1.5 px-4 py-2 text-sm font-medium -mb-px border-b-2 border-transparent",
-                    "text-muted-foreground hover:text-foreground transition-colors",
-                    "data-[state=active]:text-foreground data-[state=active]:border-primary",
-                  )}
-                >
-                  {tab.label}
-                  <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground">
-                    {count}
-                  </span>
-                </Tabs.Trigger>
-              );
-            })}
-          </Tabs.List>
-
-          {TABS.map((tab) => (
-            <Tabs.Content key={tab.value} value={tab.value} className="mt-5 space-y-4">
-              {pagesForTab(tab).length === 0 ? (
-                <p className="text-sm text-muted-foreground">No pages in this group.</p>
-              ) : (
-                pagesForTab(tab).map((page) => (
-                  <PageCard
-                    key={page.id}
-                    page={page}
-                    cfg={getConfig(page.id)}
-                    roleOptions={roleOptions}
-                    onSetAction={(action, roles) => setAction(page.id, action, roles)}
-                  />
-                ))
-              )}
-            </Tabs.Content>
+        <div className="space-y-4">
+          {sortedRoles.map(({ id, label }) => (
+            <RolePermissionCard
+              key={id}
+              roleId={id}
+              roleLabel={label}
+              isAdminBypass={adminBypassRoles.includes(id)}
+              pages={pages}
+              local={local}
+              onToggle={toggleRoleAction}
+            />
           ))}
-        </Tabs.Root>
+        </div>
       )}
     </div>
   );

@@ -7,6 +7,11 @@ import { eventsRoute } from "./events";
 import { authCallbackRoute } from "./auth-callback";
 import { loginRoute } from "./login";
 import { leaderboardsRoute } from "./leaderboards";
+import { leaderboardsPbRoute } from "./leaderboards/pb";
+import { leaderboardsKcRoute } from "./leaderboards/kc";
+import { leaderboardsClogRoute } from "./leaderboards/clog";
+import { leaderboardsLeaguesRoute } from "./leaderboards/leagues";
+import { leaderboardsRankingRoute } from "./leaderboards/ranking";
 import { partiesRoute } from "./parties";
 import { competitionsRoute } from "./competitions";
 import { competitionDetailRoute } from "./competitions.$compId";
@@ -96,6 +101,14 @@ const membersTree = membersLayoutRoute.addChildren([
 const pluginsTree = pluginsLayoutRoute.addChildren([pluginsIndexRoute, pluginsEntryRoute]);
 const resourcesTree = resourcesLayoutRoute.addChildren([resourcesIndexRoute, resourcesEntryRoute]);
 
+const leaderboardsTree = leaderboardsRoute.addChildren([
+  leaderboardsPbRoute,
+  leaderboardsKcRoute,
+  leaderboardsClogRoute,
+  leaderboardsLeaguesRoute,
+  leaderboardsRankingRoute,
+]);
+
 export const routeTree = rootRoute.addChildren([
   homeRoute,
   aboutRoute,
@@ -104,7 +117,7 @@ export const routeTree = rootRoute.addChildren([
   eventsRoute,
   authCallbackRoute,
   loginRoute,
-  leaderboardsRoute,
+  leaderboardsTree,
   partiesRoute,
   competitionsRoute,
   competitionDetailRoute,
