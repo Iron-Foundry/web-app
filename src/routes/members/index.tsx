@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { highestRoleDisplay, INGAME_TO_DISPLAY } from "@/lib/ranks";
 import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
@@ -59,14 +60,14 @@ export const membersDashboardRoute = createRoute({
 
 
 const FEED_META: Record<string, { icon: React.ElementType; color: string; badge: string }> = {
-  drop:               { icon: Gem,        color: "text-yellow-400", badge: "Drop"       },
+  drop:               { icon: Gem,        color: "text-yellow-400", badge: "Loot"       },
   level:              { icon: TrendingUp, color: "text-green-400",  badge: "Level Up"   },
   xp_milestone:       { icon: Zap,        color: "text-blue-400",   badge: "XP"         },
   quest:              { icon: ScrollText, color: "text-amber-400",  badge: "Quest"      },
   diary:              { icon: Map,        color: "text-orange-400", badge: "Diary"      },
-  combat_achievement: { icon: Swords,     color: "text-red-400",    badge: "Combat"     },
+  combat_achievement: { icon: Swords,     color: "text-red-400",    badge: "CA"     },
   pet:                { icon: Heart,      color: "text-pink-400",   badge: "Pet"        },
-  collection_log:     { icon: BookOpen,   color: "text-purple-400", badge: "Log"        },
+  collection_log:     { icon: BookOpen,   color: "text-purple-400", badge: "Log Slot"        },
   clue:               { icon: FileSearch, color: "text-teal-400",   badge: "Clue"       },
   pk:                 { icon: Skull,      color: "text-red-500",    badge: "PK"         },
   personal_best:      { icon: Timer,      color: "text-cyan-400",   badge: "PB"         },
@@ -74,11 +75,11 @@ const FEED_META: Record<string, { icon: React.ElementType; color: string; badge:
   loot_key:           { icon: KeyRound,   color: "text-yellow-500", badge: "Loot Key"   },
   unknown:            { icon: Gem,        color: "text-muted-foreground", badge: "Unknown"    },
   name_change:        { icon: UserPen,    color: "text-sky-400",    badge: "Name Change" },
-  league_relic:       { icon: Shield,     color: "text-amber-400",  badge: "Relic"       },
-  league_rank:        { icon: Award,      color: "text-violet-400", badge: "League Rank" },
-  league_area:        { icon: Compass,    color: "text-emerald-400",badge: "League Area" },
+  league_relic:       { icon: Shield,     color: "text-amber-400",  badge: "Leagues"       },
+  league_rank:        { icon: Award,      color: "text-violet-400", badge: "Leagues" },
+  league_area:        { icon: Compass,    color: "text-emerald-400",badge: "Leagues" },
 };
-const FALLBACK_META = { icon: Gem, color: "text-muted-foreground", badge: "Event" };
+const FALLBACK_META = { icon: Gem, color: "text-muted-foreground", badge: "Unknown" };
 
 const STATUS_STYLE: Record<Competition["status"], { label: string; className: string }> = {
   ongoing:  { label: "Live",     className: "bg-green-500/15 text-green-600 dark:text-green-400 border-green-500/30" },
@@ -92,7 +93,11 @@ function formatGp(v: number): string {
   if (v >= 1_000)         return `${Math.round(v / 1_000)}K`;
   return v.toLocaleString();
 }
-function formatTime(s: number): string { const m = Math.floor(s / 60); return m > 0 ? `${m}m ${s % 60}s` : `${s}s`; }
+function formatTime(s: number): string {
+  const m = Math.floor(s / 60);
+  const secs = parseFloat((s % 60).toFixed(3));
+  return m > 0 ? `${m}m ${secs}s` : `${secs}s`;
+}
 function formatValue(item: FeedItem): string | null {
   if (item.value == null) return null;
   switch (item.type) {
@@ -113,6 +118,12 @@ function timeAgo(iso: string): string {
 }
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+function fmtFullDate(iso: string): string {
+  return new Date(iso).toLocaleString("en-GB", {
+    day: "numeric", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
 }
 function fmtMetric(m: string): string {
   return m.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -199,7 +210,7 @@ function DashboardPage() {
             )}
             {user.clan_rank && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">In-Game</span>
+                <span className="text-muted-foreground">Rank</span>
                 <span className="text-foreground">{INGAME_TO_DISPLAY[user.clan_rank] ?? user.clan_rank}</span>
               </div>
             )}
@@ -308,24 +319,40 @@ function DashboardPage() {
             : feed.length === 0
             ? <p className="px-4 py-6 text-sm text-muted-foreground">No activity recorded yet.</p>
             : (
-              <ul className="divide-y divide-border">
-                {feed.map((item, i) => {
-                  const meta = FEED_META[item.type] ?? FALLBACK_META;
-                  const Icon = meta.icon;
-                  const value = formatValue(item);
-                  return (
-                    <li key={i} className="flex items-center gap-3 px-4 py-1.5">
-                      <FeedIcon type={item.type} label={item.label} Fallback={Icon}
-                        className={`h-4 w-4 shrink-0 ${meta.color}`} />
-                      <Badge variant="secondary" className="shrink-0 text-xs w-24 justify-center">{meta.badge}</Badge>
-                      <span className="text-sm font-medium text-foreground truncate flex-1 min-w-0">{item.label}</span>
-                      {item.detail && <span className="text-xs text-muted-foreground shrink-0">{item.detail}</span>}
-                      {value && <span className={`shrink-0 font-rs-bold text-sm ${meta.color}`}>{value}</span>}
-                      <span className="shrink-0 text-xs text-muted-foreground w-14 text-right">{timeAgo(item.timestamp)}</span>
-                    </li>
-                  );
-                })}
-              </ul>
+              <TooltipProvider delayDuration={300}>
+                <ul className="divide-y divide-border">
+                  {feed.map((item, i) => {
+                    const meta = FEED_META[item.type] ?? FALLBACK_META;
+                    const Icon = meta.icon;
+                    const value = formatValue(item);
+                    return (
+                      <Tooltip key={i}>
+                        <TooltipTrigger asChild>
+                          <li className="flex items-center gap-3 px-4 py-1.5 cursor-default">
+                            <FeedIcon type={item.type} label={item.label} Fallback={Icon}
+                              className={`h-4 w-4 shrink-0 ${meta.color}`} />
+                            <Badge variant="link" className="shrink-0 text-[10px] w-16 justify-center">{meta.badge}</Badge>
+                            <span className="text-sm font-medium text-foreground truncate flex-1 min-w-0">{item.label}</span>
+                            {item.detail && <span className="text-xs text-muted-foreground shrink-0">{item.detail}</span>}
+                            {value && <span className={`shrink-0 font-rs-bold text-sm ${meta.color}`}>{value}</span>}
+                            <span className="shrink-0 text-xs text-muted-foreground w-14 text-right">{timeAgo(item.timestamp)}</span>
+                          </li>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="max-w-64 p-3 space-y-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Icon className={`h-3.5 w-3.5 shrink-0 ${meta.color}`} />
+                            <span className={`text-xs font-semibold ${meta.color}`}>{meta.badge}</span>
+                          </div>
+                          <p className="text-sm font-medium text-popover-foreground">{item.label}</p>
+                          {item.detail && <p className="text-xs text-muted-foreground">{item.detail}</p>}
+                          {value && <p className={`text-sm font-rs-bold ${meta.color}`}>{value}</p>}
+                          <p className="text-xs text-muted-foreground border-t border-border pt-1.5">{fmtFullDate(item.timestamp)}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </ul>
+              </TooltipProvider>
             )
           }
         </CardContent>
