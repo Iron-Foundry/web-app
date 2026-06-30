@@ -13,6 +13,7 @@ export interface FeedItem {
   label: string;
   detail: string | null;
   value: number | null;
+  rsn: string | null;
 }
 
 export interface NameChange {

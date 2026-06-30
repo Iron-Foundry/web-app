@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import DOMPurify from "dompurify";
 import { createRoute, Link } from "@tanstack/react-router";
 import { membersLayoutRoute } from "./_layout";
 import { useAuth } from "@/context/AuthContext";
@@ -10,15 +11,17 @@ import { highestRoleDisplay, INGAME_TO_DISPLAY } from "@/lib/ranks";
 import { usePermissions } from "@/context/PermissionsContext";
 import { cn } from "@/lib/utils";
 import { useMyBadges, useMyFeed, useNameChanges, useDashboardCompetitions, useMeStats, useMyRankings } from "@/hooks/useMemberDashboard";
+import { useDynamicCount } from "@/hooks/useDynamicCount";
 import type { Competition } from "@/types/competitions";
-import type { FeedItem } from "@/types/members";
 import { MemberDashboardSkeleton } from "@/components/skeletons/MemberDashboardSkeleton";
+import { ActivityFeedSheet } from "@/components/members/ActivityFeedSheet";
+import { NameChangesSheet } from "@/components/members/NameChangesSheet";
+import { CompetitionsSheet } from "@/components/members/CompetitionsSheet";
 import {
-  Gem, TrendingUp, Zap, ScrollText, Map, Swords,
-  Heart, BookOpen, FileSearch, Skull, Timer, Flame, KeyRound,
-  ArrowRight, Trophy, Users, ExternalLink, Clock, UserPen,
-  Shield, Award, Compass,
-} from "lucide-react";
+  FEED_META, FALLBACK_META, FeedIcon,
+  formatValue, formatGp, timeAgo, fmtFullDate,
+} from "@/components/members/feedHelpers";
+import { ArrowRight, Trophy, Users, ExternalLink, Clock } from "lucide-react";
 
 const ROLE_BADGE_CLASS: Record<string, string> = {
   "Co-owner":         "border-amber-500/60  text-amber-600  dark:text-amber-400",
@@ -29,101 +32,14 @@ const ROLE_BADGE_CLASS: Record<string, string> = {
   "Foundry Mentors":  "border-blue-400/60   text-blue-600   dark:text-blue-400",
 };
 
-const WIKI = "https://oldschool.runescape.wiki/images";
-
-function wikiIconUrl(type: string, label: string): string | null {
-  const slug = label.replace(/ /g, "_");
-  switch (type) {
-    case "drop": case "clue": case "loot_key": return `${WIKI}/${slug}.png`;
-    case "level": return label === "Total Level" ? `${WIKI}/Stats_icon.png` : `${WIKI}/${slug}_icon.png`;
-    case "xp_milestone": return `${WIKI}/${slug}_icon.png`;
-    case "quest": return `${WIKI}/${slug}_reward_scroll.png`;
-    case "collection_log": return `${WIKI}/${slug}_detail.png`;
-    default: return null;
-  }
-}
-
-function FeedIcon({ type, label, Fallback, className }: {
-  type: string; label: string; Fallback: React.ElementType; className?: string;
-}) {
-  const [failed, setFailed] = useState(false);
-  const url = wikiIconUrl(type, label);
-  if (failed || !url) return <Fallback className={className} />;
-  return <img src={url} alt="" className="h-4 w-4 shrink-0 object-contain" onError={() => setFailed(true)} />;
-}
-
-export const membersDashboardRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/",
-  component: DashboardPage,
-});
-
-
-const FEED_META: Record<string, { icon: React.ElementType; color: string; badge: string }> = {
-  drop:               { icon: Gem,        color: "text-yellow-400", badge: "Loot"       },
-  level:              { icon: TrendingUp, color: "text-green-400",  badge: "Level Up"   },
-  xp_milestone:       { icon: Zap,        color: "text-blue-400",   badge: "XP"         },
-  quest:              { icon: ScrollText, color: "text-amber-400",  badge: "Quest"      },
-  diary:              { icon: Map,        color: "text-orange-400", badge: "Diary"      },
-  combat_achievement: { icon: Swords,     color: "text-red-400",    badge: "CA"     },
-  pet:                { icon: Heart,      color: "text-pink-400",   badge: "Pet"        },
-  collection_log:     { icon: BookOpen,   color: "text-purple-400", badge: "Log Slot"        },
-  clue:               { icon: FileSearch, color: "text-teal-400",   badge: "Clue"       },
-  pk:                 { icon: Skull,      color: "text-red-500",    badge: "PK"         },
-  personal_best:      { icon: Timer,      color: "text-cyan-400",   badge: "PB"         },
-  hcim_death:         { icon: Flame,      color: "text-red-600",    badge: "HCIM Death" },
-  loot_key:           { icon: KeyRound,   color: "text-yellow-500", badge: "Loot Key"   },
-  unknown:            { icon: Gem,        color: "text-muted-foreground", badge: "Unknown"    },
-  name_change:        { icon: UserPen,    color: "text-sky-400",    badge: "Name Change" },
-  league_relic:       { icon: Shield,     color: "text-amber-400",  badge: "Leagues"       },
-  league_rank:        { icon: Award,      color: "text-violet-400", badge: "Leagues" },
-  league_area:        { icon: Compass,    color: "text-emerald-400",badge: "Leagues" },
-};
-const FALLBACK_META = { icon: Gem, color: "text-muted-foreground", badge: "Unknown" };
-
 const STATUS_STYLE: Record<Competition["status"], { label: string; className: string }> = {
   ongoing:  { label: "Live",     className: "bg-green-500/15 text-green-600 dark:text-green-400 border-green-500/30" },
   upcoming: { label: "Upcoming", className: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30"   },
   finished: { label: "Finished", className: "bg-muted/50 text-muted-foreground border-border"                       },
 };
 
-function formatGp(v: number): string {
-  if (v >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(1)}B`;
-  if (v >= 1_000_000)     return `${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000)         return `${Math.round(v / 1_000)}K`;
-  return v.toLocaleString();
-}
-function formatTime(s: number): string {
-  const m = Math.floor(s / 60);
-  const secs = parseFloat((s % 60).toFixed(3));
-  return m > 0 ? `${m}m ${secs}s` : `${secs}s`;
-}
-function formatValue(item: FeedItem): string | null {
-  if (item.value == null) return null;
-  switch (item.type) {
-    case "drop": case "clue": case "pk": case "loot_key": return `${formatGp(item.value)} gp`;
-    case "level": return `Level ${item.value}`;
-    case "xp_milestone": return `${formatGp(item.value)} xp`;
-    case "personal_best": return formatTime(item.value);
-    default: return null;
-  }
-}
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60_000);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-}
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-function fmtFullDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    day: "numeric", month: "short", year: "numeric",
-    hour: "2-digit", minute: "2-digit",
-  });
 }
 function fmtMetric(m: string): string {
   return m.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -138,6 +54,71 @@ function timeLeft(endsAt: string): string {
   return h > 0 ? `${h}h ${min}m left` : `${min}m left`;
 }
 
+function CompEntry({
+  comp,
+  elRef,
+}: {
+  comp: Competition;
+  elRef?: React.RefObject<HTMLLIElement | null>;
+}): React.ReactElement {
+  const s = STATUS_STYLE[comp.status];
+  const isNavigable = comp.status === "ongoing" || comp.status === "upcoming";
+  return (
+    <li ref={elRef} className="px-4 py-3 space-y-1.5">
+      <div className="flex items-start justify-between gap-2">
+        {isNavigable ? (
+          <Link
+            to="/competitions/$compId"
+            params={{ compId: String(comp.id) }}
+            search={{ tab: undefined }}
+            className="font-medium text-foreground text-sm leading-snug hover:text-primary transition-colors"
+          >
+            {comp.title}
+          </Link>
+        ) : (
+          <span className="font-medium text-foreground text-sm leading-snug">{comp.title}</span>
+        )}
+        <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 shrink-0 mt-0.5", s.className)}>
+          {s.label}
+        </Badge>
+      </div>
+      <div className="text-xs text-muted-foreground">{fmtMetric(comp.metric)}</div>
+      <div className="text-xs text-muted-foreground">
+        {fmtDate(comp.startsAt)} – {fmtDate(comp.endsAt)}
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          {comp.participantCount > 0 && (
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" />{comp.participantCount}
+            </span>
+          )}
+          {comp.status === "ongoing" && (
+            <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+              <Clock className="h-3 w-3" />{timeLeft(comp.endsAt)}
+            </span>
+          )}
+          {comp.status === "upcoming" && (
+            <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+              <Clock className="h-3 w-3" />in {timeLeft(comp.startsAt).replace(" left", "")}
+            </span>
+          )}
+        </div>
+        <a href={comp.competition_url} target="_blank" rel="noopener noreferrer"
+          className="shrink-0 inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+          WOM <ExternalLink className="h-3 w-3" />
+        </a>
+      </div>
+    </li>
+  );
+}
+
+export const membersDashboardRoute = createRoute({
+  getParentRoute: () => membersLayoutRoute,
+  path: "/",
+  component: DashboardPage,
+});
+
 function DashboardPage() {
   const { user, loading } = useAuth();
   const { hasPermission } = usePermissions();
@@ -147,22 +128,38 @@ function DashboardPage() {
   const { data: rankings = [] } = useMyRankings(user?.discord_user_id);
   const { data: nameChanges = [], isLoading: nameChangesLoading } = useNameChanges();
   const { data: competitions = [], isLoading: compsLoading } = useDashboardCompetitions();
-  const [showAllFinished, setShowAllFinished] = useState(false);
+
+  const [showFeedSheet, setShowFeedSheet] = useState(false);
+  const [showNameChangesSheet, setShowNameChangesSheet] = useState(false);
+  const [showCompsSheet, setShowCompsSheet] = useState(false);
+
+  const feedContainerRef = useRef<HTMLDivElement>(null);
+  const feedItemRef = useRef<HTMLLIElement>(null);
+  const compsContainerRef = useRef<HTMLDivElement>(null);
+  const compsItemRef = useRef<HTMLLIElement>(null);
+  const ncContainerRef = useRef<HTMLDivElement>(null);
+  const ncItemRef = useRef<HTMLLIElement>(null);
+
+  const feedCount = useDynamicCount(feedContainerRef, feedItemRef, 26, feed.length, 800);
+  const compsCount = useDynamicCount(compsContainerRef, compsItemRef, 100, competitions.length, 720);
+  const ncCount = useDynamicCount(ncContainerRef, ncItemRef, 24, nameChanges.length, 720);
 
   if (loading) return <MemberDashboardSkeleton />;
   if (!user) return null;
 
-  return (
-    // Auto-placing 12-col bento. Cards declare only their own col-span / row-span.
-    // grid-auto-flow:dense fills gaps when new cards are added. Page scrolls naturally.
-    <div
-      className="grid grid-cols-1 gap-4 lg:grid-cols-12"
-      style={{ gridAutoFlow: "dense", gridAutoRows: "minmax(160px, auto)" }}
-    >
+  const ongoing  = competitions.filter((c) => c.status === "ongoing");
+  const upcoming = competitions.filter((c) => c.status === "upcoming");
+  const finished = competitions.filter((c) => c.status === "finished");
+  const allComps = [...ongoing, ...upcoming, ...finished];
+  const visibleComps = allComps.slice(0, compsCount);
+  const hasMoreComps = allComps.length > compsCount;
 
-      {/* Profile - 4 cols, content-height (no row-span) */}
-      <Card className="lg:col-span-4">
-        <CardHeader className="pb-3">
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+      {/* Profile - 4 cols */}
+      <Card className="lg:col-span-4 pb-1 flex flex-col">
+        <CardHeader className="pb-3 shrink-0">
           <div className="flex items-center gap-3">
             {user.avatar
               ? <img src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=64`} alt="" className="h-12 w-12 rounded-full shrink-0" />
@@ -182,15 +179,15 @@ function DashboardPage() {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="flex-1 flex flex-col gap-4 min-h-0">
           {!user.rsn && (
-            <p className="text-sm text-yellow-600 dark:text-yellow-400">
+            <p className="shrink-0 text-sm text-yellow-600 dark:text-yellow-400">
               Link your RSN in{" "}
               <Link to="/members/settings" className="underline font-medium">Settings</Link>{" "}
               to unlock your activity feed.
             </p>
           )}
-          <div className="space-y-2 text-sm">
+          <div className="shrink-0 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Discord</span>
               <span className="text-foreground truncate max-w-35 text-right">{user.username}</span>
@@ -246,9 +243,9 @@ function DashboardPage() {
             )}
           </div>
 
-          <Separator />
+          <Separator className="shrink-0" />
 
-          <div>
+          <div className="shrink-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">Account Ranks</p>
             {rankings.length === 0
               ? <p className="text-xs text-muted-foreground italic">No accounts linked.</p>
@@ -272,9 +269,9 @@ function DashboardPage() {
             }
           </div>
 
-          <Separator />
+          <Separator className="shrink-0" />
 
-          <div>
+          <div className="shrink-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">Badges</p>
             {playerBadges.length === 0
               ? <p className="text-xs text-muted-foreground italic">No badges earned yet.</p>
@@ -288,7 +285,7 @@ function DashboardPage() {
                         style={{ background: b.color, color: b.text_color }}
                       >
                         {b.icon && (isSvg
-                          ? <span className="h-3.5 w-3.5 shrink-0" dangerouslySetInnerHTML={{ __html: b.icon }} style={{ color: b.text_color }} />
+                          ? <span className="h-3.5 w-3.5 shrink-0" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(b.icon, { USE_PROFILES: { svg: true, svgFilters: true } }) }} style={{ color: b.text_color }} />
                           : <img src={b.icon} alt="" className="h-3.5 w-3.5 shrink-0 object-contain" />
                         )}
                         {b.name}
@@ -299,232 +296,203 @@ function DashboardPage() {
               )
             }
           </div>
+
+          <Separator className="shrink-0" />
+
+          <div className="flex-1 flex flex-col min-h-0">
+            <p className="shrink-0 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">Name Changes</p>
+            {nameChangesLoading
+              ? <p className="text-xs text-muted-foreground">Loading…</p>
+              : nameChanges.length === 0
+              ? <p className="text-xs text-muted-foreground italic">No recent name changes.</p>
+              : (
+                <div ref={ncContainerRef} className="flex-1 min-h-0">
+                  <ul className="divide-y divide-border -mx-6">
+                    {nameChanges.slice(0, ncCount).map((nc, i) => (
+                      <li
+                        ref={i === 0 ? ncItemRef : undefined}
+                        key={i}
+                        className="flex items-center gap-2 px-6 py-1 text-sm"
+                      >
+                        <span className="font-medium text-muted-foreground truncate flex-1 min-w-0">{nc.old_name}</span>
+                        <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground/40" />
+                        <span className="font-medium text-foreground truncate flex-1 min-w-0 text-right">{nc.new_name}</span>
+                        {nc.resolved_at && (
+                          <span className="shrink-0 text-xs text-muted-foreground/70 pl-1">{timeAgo(nc.resolved_at)}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            }
+          </div>
         </CardContent>
+        {nameChanges.length > ncCount && (
+          <button
+            onClick={() => setShowNameChangesSheet(true)}
+            className="px-4 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-left shrink-0"
+          >
+            Show {nameChanges.length - ncCount} more…
+          </button>
+        )}
       </Card>
 
-      {/* Activity Feed - 5 cols, 2 rows tall, scrolls internally */}
-      <Card className="lg:col-span-5 lg:row-span-2 flex flex-col">
+      {/* Activity Feed - 5 cols */}
+      <Card className="lg:col-span-5 pb-1 flex flex-col">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary">Your Activity Feed</CardTitle>
         </CardHeader>
-        <CardContent className="p-0 flex-1 min-h-0 overflow-y-auto">
-          {!user.rsn
-            ? <p className="px-4 py-6 text-sm text-muted-foreground">
-                Link your RSN in{" "}
-                <Link to="/members/settings" className="underline text-foreground">Settings</Link>{" "}
-                to see your activity feed.
-              </p>
-            : feedLoading
-            ? <p className="px-4 py-6 text-sm text-muted-foreground">Loading…</p>
-            : feed.length === 0
-            ? <p className="px-4 py-6 text-sm text-muted-foreground">No activity recorded yet.</p>
-            : (
-              <TooltipProvider delayDuration={300}>
-                <ul className="divide-y divide-border">
-                  {feed.map((item, i) => {
-                    const meta = FEED_META[item.type] ?? FALLBACK_META;
-                    const Icon = meta.icon;
-                    const value = formatValue(item);
-                    return (
-                      <Tooltip key={i}>
-                        <TooltipTrigger asChild>
-                          <li className="flex items-center gap-3 px-4 py-1.5 cursor-default">
-                            <FeedIcon type={item.type} label={item.label} Fallback={Icon}
-                              className={`h-4 w-4 shrink-0 ${meta.color}`} />
-                            <Badge variant="link" className="shrink-0 text-[10px] w-16 justify-center">{meta.badge}</Badge>
-                            <span className="text-sm font-medium text-foreground truncate flex-1 min-w-0">{item.label}</span>
-                            {item.detail && <span className="text-xs text-muted-foreground shrink-0">{item.detail}</span>}
-                            {value && <span className={`shrink-0 font-rs-bold text-sm ${meta.color}`}>{value}</span>}
-                            <span className="shrink-0 text-xs text-muted-foreground w-14 text-right">{timeAgo(item.timestamp)}</span>
-                          </li>
-                        </TooltipTrigger>
-                        <TooltipContent side="left" className="max-w-64 p-3 space-y-1.5">
-                          <div className="flex items-center gap-1.5">
-                            <Icon className={`h-3.5 w-3.5 shrink-0 ${meta.color}`} />
-                            <span className={`text-xs font-semibold ${meta.color}`}>{meta.badge}</span>
-                          </div>
-                          <p className="text-sm font-medium text-popover-foreground">{item.label}</p>
-                          {item.detail && <p className="text-xs text-muted-foreground">{item.detail}</p>}
-                          {value && <p className={`text-sm font-rs-bold ${meta.color}`}>{value}</p>}
-                          <p className="text-xs text-muted-foreground border-t border-border pt-1.5">{fmtFullDate(item.timestamp)}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  })}
-                </ul>
-              </TooltipProvider>
-            )
-          }
+        <Separator className="shrink-0" />
+        <CardContent className="p-0 flex-1 flex flex-col">
+          <div ref={feedContainerRef} className="flex-1 min-h-0">
+            {!user.rsn
+              ? <p className="px-4 py-6 text-sm text-muted-foreground">
+                  Link your RSN in{" "}
+                  <Link to="/members/settings" className="underline text-foreground">Settings</Link>{" "}
+                  to see your activity feed.
+                </p>
+              : feedLoading
+              ? <p className="px-4 py-6 text-sm text-muted-foreground">Loading…</p>
+              : feed.length === 0
+              ? <p className="px-4 py-6 text-sm text-muted-foreground">No activity recorded yet.</p>
+              : (
+                <TooltipProvider delayDuration={300}>
+                  <ul className="divide-y divide-border border-b border-border">
+                    {feed.slice(0, feedCount).map((item, i) => {
+                      const meta = FEED_META[item.type] ?? FALLBACK_META;
+                      const Icon = meta.icon;
+                      const value = formatValue(item);
+                      return (
+                        <Tooltip key={i}>
+                          <TooltipTrigger asChild>
+                            <li
+                              ref={i === 0 ? feedItemRef : undefined}
+                              className="flex items-center gap-3 px-4 py-1.5 cursor-default"
+                            >
+                              <FeedIcon type={item.type} label={item.label} Fallback={Icon}
+                                className={`h-4 w-4 shrink-0 ${meta.color}`} />
+                              <Badge variant="link" className="shrink-0 text-[10px] w-16 justify-center">{meta.badge}</Badge>
+                              <span className="text-sm font-medium text-foreground truncate flex-1 min-w-0">{item.label}</span>
+                              {item.detail && <span className="text-xs text-muted-foreground shrink-0">{item.detail}</span>}
+                              {value && <span className={`shrink-0 font-rs-bold text-sm ${meta.color}`}>{value}</span>}
+                              <span className="shrink-0 text-xs text-muted-foreground w-14 text-right">{timeAgo(item.timestamp)}</span>
+                            </li>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="max-w-64 p-3 space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Icon className={`h-3.5 w-3.5 shrink-0 ${meta.color}`} />
+                              <span className={`text-xs font-semibold ${meta.color}`}>{meta.badge}</span>
+                            </div>
+                            <p className="text-sm font-medium text-popover-foreground">{item.label}</p>
+                            {item.rsn && <p className="text-xs text-muted-foreground">Account: <span className="font-medium text-foreground">{item.rsn}</span></p>}
+                            {item.detail && <p className="text-xs text-muted-foreground">{item.detail}</p>}
+                            {value && <p className={`text-sm font-rs-bold ${meta.color}`}>{value}</p>}
+                            <p className="text-xs text-muted-foreground border-t border-border pt-1.5">{fmtFullDate(item.timestamp)}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                  </ul>
+                </TooltipProvider>
+              )
+            }
+          </div>
         </CardContent>
+        {feed.length > feedCount && (
+          <button
+            onClick={() => setShowFeedSheet(true)}
+            className="px-4 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-left shrink-0"
+          >
+            Show {feed.length - feedCount} more events...
+          </button>
+        )}
       </Card>
 
-      {/* Competitions - 3 cols, 2 rows tall, scrolls internally */}
-      <Card className="lg:col-span-3 lg:row-span-2 flex flex-col">
+      <ActivityFeedSheet open={showFeedSheet} onOpenChange={setShowFeedSheet} feed={feed} />
+      <NameChangesSheet open={showNameChangesSheet} onOpenChange={setShowNameChangesSheet} nameChanges={nameChanges} />
+      <CompetitionsSheet open={showCompsSheet} onOpenChange={setShowCompsSheet} competitions={competitions} />
+
+      {/* Competitions - 3 cols */}
+      <Card className="lg:col-span-3 pb-1 flex flex-col">
         <CardHeader className="pb-2 shrink-0">
           <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">
             <Trophy className="h-4 w-4" />
             Competitions
           </CardTitle>
         </CardHeader>
-
-        {/* Quick links - live + upcoming only */}
-        {!compsLoading && competitions.some((c) => c.status === "ongoing" || c.status === "upcoming") && (
-          <div className="px-4 pb-3 shrink-0 flex flex-col gap-1.5">
-            {competitions
-              .filter((c) => c.status === "ongoing" || c.status === "upcoming")
-              .map((comp) => {
-                const isLive = comp.status === "ongoing";
-                return (
-                  <Link
-                    key={comp.id}
-                    to="/competitions/$compId"
-                    params={{ compId: String(comp.id) }}
-                    search={{ tab: undefined }}
-                    className={cn(
-                      "flex items-center justify-between gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors",
-                      isLive
-                        ? "bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-500/20"
-                        : "bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/20",
-                    )}
-                  >
-                    <span className="truncate">{comp.title}</span>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "shrink-0 text-[10px] px-1.5 py-0",
-                        isLive
-                          ? "border-green-500/40 text-green-700 dark:text-green-400"
-                          : "border-blue-500/40 text-blue-700 dark:text-blue-400",
-                      )}
-                    >
-                      {isLive ? "Live" : "Upcoming"}
-                    </Badge>
-                  </Link>
-                );
-              })}
-            <Separator className="mt-1" />
-          </div>
-        )}
-
-        {/* 448px = 4 × 112px entries (py-3 + 4 lines + gaps), always lands between entries */}
-        <CardContent className="p-0 overflow-y-auto max-h-200 flex-1">
+        <Separator className="shrink-0" />
+        <CardContent className="p-0 flex-1 flex flex-col">
           {compsLoading
             ? <p className="px-4 py-4 text-sm text-muted-foreground">Loading…</p>
             : competitions.length === 0
             ? <p className="px-4 py-4 text-sm text-muted-foreground italic">No competitions found.</p>
             : (() => {
-                const ongoing  = competitions.filter((c) => c.status === "ongoing");
-                const upcoming = competitions.filter((c) => c.status === "upcoming");
-                const finished = competitions.filter((c) => c.status === "finished");
-                const visibleFinished = showAllFinished ? finished : finished.slice(0, 5);
-
-                function CompEntry({ comp }: { comp: Competition }) {
-                  const s = STATUS_STYLE[comp.status];
-                  const isNavigable = comp.status === "ongoing" || comp.status === "upcoming";
-                  return (
-                    <li className="px-4 py-3 space-y-1.5">
-                      <div className="flex items-start justify-between gap-2">
-                        {isNavigable ? (
-                          <Link
-                            to="/competitions/$compId"
-                            params={{ compId: String(comp.id) }}
-                            search={{ tab: undefined }}
-                            className="font-medium text-foreground text-sm leading-snug hover:text-primary transition-colors"
-                          >
-                            {comp.title}
-                          </Link>
-                        ) : (
-                          <span className="font-medium text-foreground text-sm leading-snug">{comp.title}</span>
-                        )}
-                        <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 shrink-0 mt-0.5", s.className)}>
-                          {s.label}
-                        </Badge>
-                      </div>
-                      <div className="text-xs text-muted-foreground">{fmtMetric(comp.metric)}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {fmtDate(comp.startsAt)} – {fmtDate(comp.endsAt)}
-                      </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          {comp.participantCount > 0 && (
-                            <span className="flex items-center gap-1">
-                              <Users className="h-3 w-3" />{comp.participantCount}
-                            </span>
-                          )}
-                          {comp.status === "ongoing" && (
-                            <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                              <Clock className="h-3 w-3" />{timeLeft(comp.endsAt)}
-                            </span>
-                          )}
-                          {comp.status === "upcoming" && (
-                            <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                              <Clock className="h-3 w-3" />in {timeLeft(comp.startsAt).replace(" left", "")}
-                            </span>
-                          )}
-                        </div>
-                        <a href={comp.competition_url} target="_blank" rel="noopener noreferrer"
-                          className="shrink-0 inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                          WOM <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    </li>
-                  );
-                }
-
+                const visibleOngoing  = visibleComps.filter((c) => c.status === "ongoing");
+                const visibleUpcoming = visibleComps.filter((c) => c.status === "upcoming");
                 return (
-                  <ul className="divide-y divide-border">
-                    {ongoing.map((c) => <CompEntry key={c.id} comp={c} />)}
-                    {upcoming.map((c) => <CompEntry key={c.id} comp={c} />)}
-                    {visibleFinished.map((c) => <CompEntry key={c.id} comp={c} />)}
-                    {finished.length > 5 && (
-                      <li>
-                        <button
-                          onClick={() => setShowAllFinished((v) => !v)}
-                          className="w-full px-4 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-left"
-                        >
-                          {showAllFinished ? "Show less" : `Show ${finished.length - 5} more ended…`}
-                        </button>
-                      </li>
+                  <>
+                    {(visibleOngoing.length > 0 || visibleUpcoming.length > 0) && (
+                      <div className="shrink-0 px-4 pt-3 pb-1 flex flex-col gap-1.5">
+                        {[...visibleOngoing, ...visibleUpcoming].map((comp) => {
+                          const isLive = comp.status === "ongoing";
+                          return (
+                            <Link
+                              key={comp.id}
+                              to="/competitions/$compId"
+                              params={{ compId: String(comp.id) }}
+                              search={{ tab: undefined }}
+                              className={cn(
+                                "flex items-center justify-between gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors",
+                                isLive
+                                  ? "bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-500/20"
+                                  : "bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/20",
+                              )}
+                            >
+                              <span className="truncate">{comp.title}</span>
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "shrink-0 text-[10px] px-1.5 py-0",
+                                  isLive
+                                    ? "border-green-500/40 text-green-700 dark:text-green-400"
+                                    : "border-blue-500/40 text-blue-700 dark:text-blue-400",
+                                )}
+                              >
+                                {isLive ? "Live" : "Upcoming"}
+                              </Badge>
+                            </Link>
+                          );
+                        })}
+                        <Separator className="mt-1" />
+                      </div>
                     )}
-                  </ul>
+                    <div ref={compsContainerRef} className="flex-1 min-h-0">
+                      <ul className="divide-y divide-border">
+                        {visibleComps.map((c, i) => (
+                          <CompEntry
+                            key={c.id}
+                            comp={c}
+                            elRef={i === 0 ? compsItemRef : undefined}
+                          />
+                        ))}
+                      </ul>
+                    </div>
+                  </>
                 );
               })()
           }
         </CardContent>
+        {hasMoreComps && (
+          <button
+            onClick={() => setShowCompsSheet(true)}
+            className="px-4 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-left shrink-0"
+          >
+            Show {allComps.length - compsCount} more…
+          </button>
+        )}
       </Card>
 
-      {/* Name Changes - 4 cols, 1 row (dense-fills the gap left of feed row 2) */}
-      <Card className="lg:col-span-4">
-        <CardHeader className="pb-2 shrink-0">
-          <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">
-            <ArrowRight className="h-4 w-4" />
-            Name Changes
-          </CardTitle>
-        </CardHeader>
-        {/* 360px = 10 × 36px rows (py-2 + text-sm), always lands between rows */}
-        <CardContent className="p-0 overflow-y-auto max-h-90">
-          {nameChangesLoading
-            ? <p className="px-4 py-4 text-sm text-muted-foreground">Loading…</p>
-            : nameChanges.length === 0
-            ? <p className="px-4 py-4 text-sm text-muted-foreground italic">No recent name changes.</p>
-            : (
-              <ul className="divide-y divide-border">
-                {nameChanges.map((nc, i) => (
-                  <li key={i} className="flex items-center gap-2 px-4 py-2 text-sm">
-                    <span className="font-medium text-muted-foreground truncate flex-1 min-w-0">{nc.old_name}</span>
-                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground/40" />
-                    <span className="font-medium text-foreground truncate flex-1 min-w-0 text-right">{nc.new_name}</span>
-                    {nc.resolved_at && (
-                      <span className="shrink-0 text-xs text-muted-foreground/70 pl-1">{timeAgo(nc.resolved_at)}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )
-          }
-        </CardContent>
-      </Card>
     </div>
   );
 }
-
