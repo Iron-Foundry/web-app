@@ -7,11 +7,13 @@ import { RankingTabSkeleton } from "@/components/skeletons/LeaderboardSkeleton";
 import { FilterToolbar } from "@/components/leaderboards/FilterToolbar";
 import { RankFilterPills } from "@/components/leaderboards/RankFilterPills";
 import { RankingStats } from "@/components/leaderboards/ranking/RankingStats";
+import { RankingPlayerSheet } from "@/components/leaderboards/ranking/RankingPlayerSheet";
 import { useLeaderboardContext } from "@/components/leaderboards/LeaderboardContext";
 import { useRankingResults, useRankingStats } from "@/hooks/useLeaderboards";
 import { useOwnRsns } from "@/hooks/useOwnRsns";
 import { ALL_WOM_RANKS, WOM_RANK_COLOR, WOM_RANK_BAR_COLOR, GEM_RANK_COLOR } from "@/lib/leaderboardRanks";
 import { fmtNum } from "@/components/leaderboards/RankRow";
+import type { RankingPlayer } from "@/types/leaderboard";
 
 const PAGE_SIZE = 50;
 
@@ -26,6 +28,7 @@ function RankingLeaderboardTab(): React.ReactElement {
   const [page, setPage] = useState(0);
   const [womRankFilter, setWomRankFilter] = useState<string | null>(null);
   const [clanRankFilter, setClanRankFilter] = useState<string | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<RankingPlayer | null>(null);
   const ownRsns = useOwnRsns();
 
   const { data, isLoading } = useRankingResults(page * PAGE_SIZE, PAGE_SIZE, womRankFilter ?? undefined);
@@ -71,7 +74,7 @@ function RankingLeaderboardTab(): React.ReactElement {
         >
           All ({distTotal})
         </button>
-        {ALL_WOM_RANKS.map((r) => (
+        {ALL_WOM_RANKS.filter((r) => !stats || (stats.rank_distribution[r] ?? 0) > 0).map((r) => (
           <button
             key={r}
             onClick={() => { setWomRankFilter(r); setPage(0); }}
@@ -118,7 +121,11 @@ function RankingLeaderboardTab(): React.ReactElement {
                 const totalPts = p.boss_points + p.skill_points;
                 const bossPct = totalPts > 0 ? Math.round((p.boss_points / totalPts) * 100) : 0;
                 return (
-                  <tr key={p.rsn} className="hover:bg-muted/30 transition-colors">
+                  <tr
+                    key={p.rsn}
+                    className="hover:bg-muted/30 transition-colors cursor-pointer"
+                    onClick={() => setSelectedPlayer(p)}
+                  >
                     <td className={cn("px-3 py-2 text-muted-foreground tabular-nums", compact && "py-1")}>
                       {page * PAGE_SIZE + i + 1}
                     </td>
@@ -162,6 +169,8 @@ function RankingLeaderboardTab(): React.ReactElement {
           </Button>
         </div>
       )}
+
+      <RankingPlayerSheet player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />
     </div>
   );
 }

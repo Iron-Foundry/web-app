@@ -32,16 +32,23 @@ export const GEM_RANK_DOT_COLOR: Record<string, string> = {
 };
 
 export const WOM_RANK_COLOR: Record<string, string> = {
-  "Rank 6":  "text-yellow-500 font-semibold",
-  "Rank 5":  "text-amber-500 font-semibold",
-  "Rank 4":  "text-orange-500",
-  "Rank 3":  "text-blue-500",
-  "Rank 2":  "text-green-500",
+  "Rank 10": "text-yellow-500 font-semibold",
+  "Rank 9":  "text-amber-500 font-semibold",
+  "Rank 8":  "text-orange-500",
+  "Rank 7":  "text-purple-500",
+  "Rank 6":  "text-violet-500",
+  "Rank 5":  "text-indigo-500",
+  "Rank 4":  "text-blue-500",
+  "Rank 3":  "text-teal-500",
+  "Rank 2":  "text-green-600",
   "Rank 1":  "text-muted-foreground",
   "No Rank": "text-muted-foreground",
 };
 
-export const ALL_WOM_RANKS = ["Rank 6", "Rank 5", "Rank 4", "Rank 3", "Rank 2", "Rank 1", "No Rank"];
+export const ALL_WOM_RANKS = [
+  "Rank 10", "Rank 9", "Rank 8", "Rank 7", "Rank 6",
+  "Rank 5", "Rank 4", "Rank 3", "Rank 2", "Rank 1", "No Rank",
+];
 
 export const GEM_RANK_HEX: Record<string, string> = {
   Zenyte:      "#fb923c",
@@ -56,21 +63,29 @@ export const GEM_RANK_HEX: Record<string, string> = {
 };
 
 export const WOM_RANK_HEX: Record<string, string> = {
-  "Rank 6":  "#eab308",
-  "Rank 5":  "#f59e0b",
-  "Rank 4":  "#f97316",
-  "Rank 3":  "#3b82f6",
-  "Rank 2":  "#22c55e",
+  "Rank 10": "#eab308",
+  "Rank 9":  "#f59e0b",
+  "Rank 8":  "#f97316",
+  "Rank 7":  "#a855f7",
+  "Rank 6":  "#8b5cf6",
+  "Rank 5":  "#6366f1",
+  "Rank 4":  "#3b82f6",
+  "Rank 3":  "#14b8a6",
+  "Rank 2":  "#16a34a",
   "Rank 1":  "#94a3b8",
   "No Rank": "#334155",
 };
 
 export const WOM_RANK_BAR_COLOR: Record<string, string> = {
-  "Rank 6":  "bg-yellow-500",
-  "Rank 5":  "bg-amber-500",
-  "Rank 4":  "bg-orange-500",
-  "Rank 3":  "bg-blue-500",
-  "Rank 2":  "bg-green-500",
+  "Rank 10": "bg-yellow-500",
+  "Rank 9":  "bg-amber-500",
+  "Rank 8":  "bg-orange-500",
+  "Rank 7":  "bg-purple-500",
+  "Rank 6":  "bg-violet-500",
+  "Rank 5":  "bg-indigo-500",
+  "Rank 4":  "bg-blue-500",
+  "Rank 3":  "bg-teal-500",
+  "Rank 2":  "bg-green-600",
   "Rank 1":  "bg-muted-foreground",
   "No Rank": "bg-muted",
 };

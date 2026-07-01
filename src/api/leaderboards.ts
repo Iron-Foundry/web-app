@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { PbEntry, ClogEntry, KcBoss, LeaguesEntry, RankingResults, RankingStats } from "@/types/leaderboard";
+import type { PbEntry, ClogEntry, KcBoss, LeaguesEntry, PlayerBreakdown, RankingResults, RankingStats } from "@/types/leaderboard";
 
 export const leaderboardsApi = {
   getPbs: () => apiFetch<PbEntry[]>("/clan/leaderboards"),
@@ -12,4 +12,5 @@ export const leaderboardsApi = {
     return apiFetch<RankingResults>(`/ranking/results?${params}`);
   },
   getRankingStats: () => apiFetch<RankingStats>("/ranking/stats"),
+  getPlayerBreakdown: (rsn: string) => apiFetch<PlayerBreakdown>(`/ranking/player/${encodeURIComponent(rsn)}/breakdown`),
 };

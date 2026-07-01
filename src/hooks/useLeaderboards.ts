@@ -51,3 +51,12 @@ export function useRankingStats() {
     staleTime: STALE,
   });
 }
+
+export function usePlayerBreakdown(rsn: string | null) {
+  return useQuery({
+    queryKey: queryKeys.ranking.breakdown(rsn ?? ""),
+    queryFn: () => leaderboardsApi.getPlayerBreakdown(rsn!),
+    enabled: !!rsn,
+    staleTime: STALE,
+  });
+}

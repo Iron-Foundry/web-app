@@ -62,4 +62,39 @@ export interface RankingStats {
   avg_skill_pct: number;
 }
 
+export interface BossBreakdownEntry {
+  name: string;
+  kc: number;
+  points: number;
+  first_kill_bonus: number;
+  kc_points: number;
+  tier_weight: number;
+}
+
+export interface SkillBreakdownEntry {
+  name: string;
+  xp: number;
+  points: number;
+  xp_points: number;
+  milestone_99: number;
+  milestone_200m: number;
+}
+
+export interface PrestigeBreakdownEntry {
+  boss_name: string;
+  multiplier: number;
+  active: boolean;
+}
+
+export interface PlayerBreakdown {
+  bosses: BossBreakdownEntry[];
+  skills: SkillBreakdownEntry[];
+  prestige: PrestigeBreakdownEntry[];
+  boss_points: number;
+  skill_points: number;
+  base_points: number;
+  prestige_multiplier: number;
+  total_points: number;
+}
+
 export type LeaderboardTab = "pb" | "clog" | "kc" | "leagues" | "ranking";

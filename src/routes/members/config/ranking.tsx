@@ -23,28 +23,35 @@ export const configRankingRoute = createRoute({
   component: () => <StaffGuard pageId="staff.ranking" redirectTo="/members"><RankingPage /></StaffGuard>,
 });
 
-// ── Default config (mirrors backend _DEFAULT_CONFIG) ─────────────────────────
+// ── Config types (v2 format) ──────────────────────────────────────────────────
 
-const ALL_SKILLS = [
-  "attack", "strength", "defense", "range", "magic", "prayer", "hitpoints",
-  "slayer", "cooking", "woodcutting", "fletching", "fishing", "firemaking",
-  "crafting", "smithing", "mining", "herblore", "agility", "thieving",
-  "farming", "runecrafting", "hunter", "construction", "sailing",
-];
+interface BossMetricConfig {
+  name: string;
+  points_per_kc: number;
+  first_kill_bonus: number;
+  tier_weight: number;
+  log_scale: boolean;
+}
+
+interface SkillMetricConfig {
+  name: string;
+  points_per_million_xp: number;
+  milestone_99_bonus: number;
+  milestone_200m_bonus: number;
+  log_scale: boolean;
+}
+
+interface PrestigeMetricConfig {
+  boss_name: string;
+  multiplier: number;
+}
 
 interface RankingConfig {
-  multipliers: { boss: number; skill: number };
-  thresholds: { rank_1: number; rank_2: number; rank_3: number; rank_4: number; rank_5: number; rank_6: number };
-  boss_tier_multipliers: { tier_1: number; tier_2: number; tier_3: number; tier_4: number; tier_5: number; toa: number; tob: number; cox: number };
-  skill_exp_tiers: { tier_1: number; tier_2: number; tier_3: number; tier_4: number; tier_5: number; max: number };
-  skills: string[];
-  kc_tiers: { tier_1: number; tier_2: number; tier_3: number; tier_4: number; tier_5: number };
-  tier_1_bosses: string[];
-  tier_2_bosses: string[];
-  tier_3_bosses: string[];
-  tier_4_bosses: string[];
-  tier_5_bosses: string[];
-  raids: { toa: string[]; tob: string[]; cox: string[] };
+  version: 2;
+  bosses: BossMetricConfig[];
+  skills: SkillMetricConfig[];
+  prestige: PrestigeMetricConfig[];
+  rank_thresholds: Record<string, number>;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -55,61 +62,33 @@ const tabTrigger = cn(
   "data-[state=active]:text-foreground data-[state=active]:border-primary",
 );
 
-const RANK_ORDER: Record<string, number> = {
-  "No Rank": 0, "Rank 1": 1, "Rank 2": 2, "Rank 3": 3, "Rank 4": 4, "Rank 5": 5, "Rank 6": 6,
+const RANK_ORDER: Record<string, number> = Object.fromEntries([
+  ["No Rank", 0],
+  ...Array.from({ length: 10 }, (_, i) => [`Rank ${i + 1}`, i + 1]),
+]);
+
+const RANK_COLORS: Record<number, string> = {
+  1:  "text-muted-foreground",
+  2:  "text-green-600",
+  3:  "text-teal-500",
+  4:  "text-blue-500",
+  5:  "text-indigo-500",
+  6:  "text-violet-500",
+  7:  "text-purple-500",
+  8:  "text-orange-500",
+  9:  "text-amber-500 font-semibold",
+  10: "text-yellow-500 font-semibold",
 };
 
 function rankColor(rank: string | null) {
   if (!rank || rank === "No Rank") return "text-muted-foreground";
   const n = parseInt(rank.replace("Rank ", ""), 10);
-  if (n >= 6) return "text-yellow-500 font-semibold";
-  if (n >= 5) return "text-amber-500 font-semibold";
-  if (n >= 4) return "text-orange-500";
-  if (n >= 3) return "text-blue-500";
-  if (n >= 2) return "text-green-500";
-  return "text-muted-foreground";
+  return RANK_COLORS[n] ?? "text-yellow-500 font-semibold";
 }
 
 function fmt(n: number | null | undefined) {
   if (n == null) return "-";
   return n.toLocaleString();
-}
-
-// ── Tag Input ─────────────────────────────────────────────────────────────────
-
-function TagInput({ values, onChange }: { values: string[]; onChange: (v: string[]) => void }) {
-  const [input, setInput] = useState("");
-
-  function addTag(raw: string) {
-    const tags = raw.split(/[,\n]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
-    if (!tags.length) return;
-    const next = [...new Set([...values, ...tags])];
-    onChange(next);
-    setInput("");
-  }
-
-  return (
-    <div className="border border-input rounded-md p-2 space-y-2 bg-background">
-      <div className="flex flex-wrap gap-1">
-        {values.map((v) => (
-          <span key={v} className="flex items-center gap-1 bg-muted rounded-full px-2.5 py-0.5 text-xs">
-            {v}
-            <button onClick={() => onChange(values.filter((x) => x !== v))} className="hover:text-destructive">
-              <X className="h-3 w-3" />
-            </button>
-          </span>
-        ))}
-      </div>
-      <Input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(input); } }}
-        onBlur={() => addTag(input)}
-        placeholder="Add boss name, press Enter"
-        className="h-7 text-xs border-0 p-0 shadow-none focus-visible:ring-0 bg-transparent"
-      />
-    </div>
-  );
 }
 
 // ── Number field helper ────────────────────────────────────────────────────────
@@ -414,23 +393,88 @@ function ConfigTab() {
   useEffect(() => {
     fetch(`${API_URL}/config/ranking`, { headers: getAuthHeaders() })
       .then((r) => r.json())
-      .then((data) => { setConfig(data); })
+      .then((data: RankingConfig) => setConfig(data))
       .catch(() => setError("Failed to load ranking config."))
       .finally(() => setLoading(false));
   }, []);
 
-  function update<K extends keyof RankingConfig>(key: K, val: RankingConfig[K]) {
-    setConfig((prev) => prev ? { ...prev, [key]: val } : prev);
+  function markDirty() {
     setSaved(false);
     setPreview(null);
   }
 
-  function updateNested<K extends keyof RankingConfig, NK extends keyof RankingConfig[K]>(
-    key: K, field: NK, val: RankingConfig[K][NK]
-  ) {
-    setConfig((prev) => prev ? { ...prev, [key]: { ...(prev[key] as object), [field]: val } } : prev);
-    setSaved(false);
-    setPreview(null);
+  function updateThreshold(key: string, val: number) {
+    setConfig((prev) => prev ? { ...prev, rank_thresholds: { ...prev.rank_thresholds, [key]: val } } : prev);
+    markDirty();
+  }
+
+  function addRank() {
+    setConfig((prev) => {
+      if (!prev) return prev;
+      const nums = Object.keys(prev.rank_thresholds)
+        .map((k) => parseInt(k.replace("rank_", ""), 10))
+        .filter((n) => !isNaN(n));
+      const next = nums.length > 0 ? Math.max(...nums) + 1 : 1;
+      return { ...prev, rank_thresholds: { ...prev.rank_thresholds, [`rank_${next}`]: 0 } };
+    });
+    markDirty();
+  }
+
+  function removeRank(key: string) {
+    setConfig((prev) => {
+      if (!prev) return prev;
+      const { [key]: _removed, ...rest } = prev.rank_thresholds;
+      return { ...prev, rank_thresholds: rest };
+    });
+    markDirty();
+  }
+
+  function updateBoss(index: number, field: keyof BossMetricConfig, val: number | boolean) {
+    setConfig((prev) => {
+      if (!prev) return prev;
+      const bosses = prev.bosses.map((b, i) => i === index ? { ...b, [field]: val } : b);
+      return { ...prev, bosses };
+    });
+    markDirty();
+  }
+
+  function updateGroupTierWeight(indices: number[], newWeight: number) {
+    setConfig((prev) => {
+      if (!prev) return prev;
+      const bosses = prev.bosses.map((b, i) =>
+        indices.includes(i) ? { ...b, tier_weight: newWeight } : b,
+      );
+      return { ...prev, bosses };
+    });
+    markDirty();
+  }
+
+  function updateSkill(index: number, field: keyof SkillMetricConfig, val: number | boolean) {
+    setConfig((prev) => {
+      if (!prev) return prev;
+      const skills = prev.skills.map((s, i) => i === index ? { ...s, [field]: val } : s);
+      return { ...prev, skills };
+    });
+    markDirty();
+  }
+
+  function updatePrestige(index: number, field: keyof PrestigeMetricConfig, val: string | number) {
+    setConfig((prev) => {
+      if (!prev) return prev;
+      const prestige = prev.prestige.map((p, i) => i === index ? { ...p, [field]: val } : p);
+      return { ...prev, prestige };
+    });
+    markDirty();
+  }
+
+  function addPrestige() {
+    setConfig((prev) => prev ? { ...prev, prestige: [...prev.prestige, { boss_name: "", multiplier: 1.1 }] } : prev);
+    markDirty();
+  }
+
+  function removePrestige(index: number) {
+    setConfig((prev) => prev ? { ...prev, prestige: prev.prestige.filter((_, i) => i !== index) } : prev);
+    markDirty();
   }
 
   async function handlePreview() {
@@ -444,11 +488,11 @@ function ConfigTab() {
         body: JSON.stringify(config),
       });
       if (!res.ok) {
-        const d = await res.json().catch(() => null);
+        const d = await res.json().catch(() => null) as { detail?: string } | null;
         setError(d?.detail ?? "Preview failed.");
         return;
       }
-      setPreview(await res.json());
+      setPreview(await res.json() as PreviewData);
     } catch {
       setError("Network error.");
     } finally {
@@ -467,7 +511,7 @@ function ConfigTab() {
         body: JSON.stringify(config),
       });
       if (!res.ok) {
-        const d = await res.json().catch(() => null);
+        const d = await res.json().catch(() => null) as { detail?: string } | null;
         setError(d?.detail ?? "Save failed.");
         return;
       }
@@ -484,100 +528,183 @@ function ConfigTab() {
 
   return (
     <div className="flex gap-6 items-start">
-      {/* Left: form */}
       <div className="flex-1 min-w-0 space-y-6">
 
-        <Section title="Formula Multipliers">
-          <div className="grid grid-cols-2 gap-3">
-            <NumField label="Boss multiplier" value={config.multipliers.boss} isFloat
-              onChange={(v) => updateNested("multipliers", "boss", v)} />
-            <NumField label="Skill multiplier" value={config.multipliers.skill} isFloat
-              onChange={(v) => updateNested("multipliers", "skill", v)} />
-          </div>
-          <p className="text-xs text-muted-foreground">Points = (boss_raw × boss_mult + skill_raw × skill_mult) / 2 × 1000</p>
-        </Section>
-
         <Section title="Rank Thresholds (points)">
-          <div className="grid grid-cols-3 gap-3">
-            {(["rank_1", "rank_2", "rank_3", "rank_4", "rank_5", "rank_6"] as const).map((k) => (
-              <NumField key={k} label={k.replace("_", " ").replace("r", "R")} value={config.thresholds[k]} step={1000}
-                onChange={(v) => updateNested("thresholds", k, v)} />
-            ))}
+          <p className="text-xs text-muted-foreground">
+            {Object.keys(config.rank_thresholds).length} rank{Object.keys(config.rank_thresholds).length !== 1 ? "s" : ""} configured (1-10 allowed).
+            Sorted highest to lowest. Players with 0 points always receive No Rank.
+          </p>
+          <div className="space-y-2">
+            {Object.entries(config.rank_thresholds)
+              .sort(([, a], [, b]) => b - a)
+              .map(([key, threshold]) => {
+                const label = `Rank ${key.replace("rank_", "")}`;
+                const canRemove = Object.keys(config.rank_thresholds).length > 1;
+                return (
+                  <div key={key} className="flex items-center gap-2">
+                    <span className={cn("w-16 shrink-0 text-sm font-medium", rankColor(label))}>{label}</span>
+                    <div className="flex-1">
+                      <NumField label="" value={threshold} step={1000} onChange={(v) => updateThreshold(key, v)} />
+                    </div>
+                    <button
+                      onClick={() => removeRank(key)}
+                      disabled={!canRemove}
+                      className="text-muted-foreground hover:text-destructive disabled:opacity-30 shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={addRank}
+            disabled={Object.keys(config.rank_thresholds).length >= 10}
+          >
+            + Add Rank
+          </Button>
         </Section>
 
-        <Section title="Boss Tier Multipliers">
-          <div className="grid grid-cols-4 gap-3">
-            {(["tier_1", "tier_2", "tier_3", "tier_4", "tier_5"] as const).map((k) => (
-              <NumField key={k} label={k.replace("_", " ").replace("t", "T")} value={config.boss_tier_multipliers[k]}
-                onChange={(v) => updateNested("boss_tier_multipliers", k, v)} />
-            ))}
-            {(["toa", "tob", "cox"] as const).map((k) => (
-              <NumField key={k} label={k.toUpperCase()} value={config.boss_tier_multipliers[k]}
-                onChange={(v) => updateNested("boss_tier_multipliers", k, v)} />
-            ))}
-          </div>
-        </Section>
-
-        <Section title="Boss KC Tiers">
-          <div className="grid grid-cols-5 gap-3">
-            {(["tier_1", "tier_2", "tier_3", "tier_4", "tier_5"] as const).map((k) => (
-              <NumField key={k} label={`KC tier ${k.slice(-1)}`} value={config.kc_tiers[k]}
-                onChange={(v) => updateNested("kc_tiers", k, v)} />
-            ))}
-          </div>
-        </Section>
-
-        <Section title="Skill XP Tiers">
-          <div className="grid grid-cols-3 gap-3">
-            {(["tier_1", "tier_2", "tier_3", "tier_4", "tier_5", "max"] as const).map((k) => (
-              <NumField key={k} label={k === "max" ? "Max XP" : `XP tier ${k.slice(-1)}`}
-                value={(config.skill_exp_tiers as Record<string, number>)[k] ?? 0}
-                onChange={(v) => updateNested("skill_exp_tiers", k as keyof typeof config.skill_exp_tiers, v)} />
-            ))}
-          </div>
-        </Section>
-
-        <Section title="Tracked Skills">
-          <div className="grid grid-cols-4 gap-1.5">
-            {ALL_SKILLS.map((skill) => (
-              <label key={skill} className="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={config.skills.includes(skill)}
-                  onChange={(e) => {
-                    const next = e.target.checked
-                      ? [...config.skills, skill]
-                      : config.skills.filter((s) => s !== skill);
-                    update("skills", next);
-                  }}
-                  className="rounded border-input"
+        <Section title="Prestige Multipliers">
+          <p className="text-xs text-muted-foreground">
+            Completing these bosses (KC &ge; 1) multiplies the player&apos;s total score. Stacks multiplicatively.
+          </p>
+          <div className="space-y-2">
+            {config.prestige.map((p, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Input
+                  value={p.boss_name}
+                  onChange={(e) => updatePrestige(i, "boss_name", e.target.value)}
+                  placeholder="boss_name (WOM key)"
+                  className="h-8 text-sm font-mono flex-1"
                 />
-                <span className="truncate">{skill}</span>
-              </label>
+                <div className="w-28 shrink-0">
+                  <NumField label="" value={p.multiplier} isFloat step={0.01}
+                    onChange={(v) => updatePrestige(i, "multiplier", v)} />
+                </div>
+                <button onClick={() => removePrestige(i)} className="text-muted-foreground hover:text-destructive shrink-0">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             ))}
+            <Button variant="outline" size="sm" onClick={addPrestige}>+ Add prestige boss</Button>
           </div>
         </Section>
 
-        <Section title="Boss Tier Lists">
-          {(["tier_1_bosses", "tier_2_bosses", "tier_3_bosses", "tier_4_bosses", "tier_5_bosses"] as const).map((k, i) => (
-            <div key={k} className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">T{i + 1} Bosses</p>
-              <TagInput values={config[k]} onChange={(v) => update(k, v)} />
-            </div>
-          ))}
+        <Section title="Boss Metrics">
+          <p className="text-xs text-muted-foreground">
+            Score = first_kill_bonus + points_per_kc &times; tier_weight &times; (kc &minus; 1).
+            Edit tier weight per row to move a boss between groups. Group headers bulk-update all bosses in that group.
+          </p>
+          <div className="rounded-lg border border-border overflow-hidden">
+            <table className="w-full text-xs">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-2 py-1.5 text-left font-medium text-muted-foreground">Boss</th>
+                  <th className="px-2 py-1.5 text-center font-medium text-muted-foreground w-20">Pts/KC</th>
+                  <th className="px-2 py-1.5 text-center font-medium text-muted-foreground w-24">First Kill Bonus</th>
+                  <th className="px-2 py-1.5 text-center font-medium text-muted-foreground w-24">Tier Weight</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  const groups = config.bosses.reduce<{ weight: number; entries: { boss: BossMetricConfig; index: number }[] }[]>(
+                    (acc, boss, index) => {
+                      const last = acc[acc.length - 1];
+                      if (last && last.weight === boss.tier_weight) {
+                        last.entries.push({ boss, index });
+                      } else {
+                        acc.push({ weight: boss.tier_weight, entries: [{ boss, index }] });
+                      }
+                      return acc;
+                    },
+                    [],
+                  );
+                  return groups.map((group) => {
+                    const indices = group.entries.map((e) => e.index);
+                    return (
+                      <>
+                        <tr key={`group-${group.entries[0].index}`} className="bg-muted/40 border-t-2 border-border">
+                          <td colSpan={3} className="px-2 py-1 font-semibold text-muted-foreground">
+                            Weight {group.weight} - {group.entries.length} boss{group.entries.length !== 1 ? "es" : ""}
+                          </td>
+                          <td className="px-1 py-0.5" title="Bulk-update tier weight for all bosses in this group">
+                            <Input
+                              type="number"
+                              step="0.5"
+                              value={group.weight}
+                              className="h-6 text-xs text-center bg-muted"
+                              onChange={(e) => {
+                                const v = parseFloat(e.target.value);
+                                if (!isNaN(v)) updateGroupTierWeight(indices, v);
+                              }}
+                            />
+                          </td>
+                        </tr>
+                        {group.entries.map(({ boss, index }) => (
+                          <tr key={boss.name} className="border-t border-border/40 hover:bg-muted/20">
+                            <td className="px-2 py-1 font-mono text-foreground pl-5">{boss.name}</td>
+                            <td className="px-1 py-0.5">
+                              <Input type="number" step="0.5" value={boss.points_per_kc} className="h-6 text-xs text-center"
+                                onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) updateBoss(index, "points_per_kc", v); }} />
+                            </td>
+                            <td className="px-1 py-0.5">
+                              <Input type="number" step="50" value={boss.first_kill_bonus} className="h-6 text-xs text-center"
+                                onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) updateBoss(index, "first_kill_bonus", v); }} />
+                            </td>
+                            <td className="px-1 py-0.5">
+                              <Input type="number" step="0.5" value={boss.tier_weight} className="h-6 text-xs text-center"
+                                onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) updateBoss(index, "tier_weight", v); }} />
+                            </td>
+                          </tr>
+                        ))}
+                      </>
+                    );
+                  });
+                })()}
+              </tbody>
+            </table>
+          </div>
         </Section>
 
-        <Section title="Raids">
-          {(["toa", "tob", "cox"] as const).map((raid) => (
-            <div key={raid} className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">{raid.toUpperCase()}</p>
-              <TagInput
-                values={config.raids[raid]}
-                onChange={(v) => update("raids", { ...config.raids, [raid]: v })}
-              />
-            </div>
-          ))}
+        <Section title="Skill Metrics">
+          <p className="text-xs text-muted-foreground">
+            Score = (pts/M XP) &times; (XP / 1M) + 99 bonus (if XP &ge; 13,034,431) + 200M bonus (if XP &ge; 200,000,000)
+          </p>
+          <div className="rounded-lg border border-border overflow-hidden">
+            <table className="w-full text-xs">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-2 py-1.5 text-left font-medium text-muted-foreground">Skill</th>
+                  <th className="px-2 py-1.5 text-center font-medium text-muted-foreground w-20">Pts/M XP</th>
+                  <th className="px-2 py-1.5 text-center font-medium text-muted-foreground w-24">99 Bonus</th>
+                  <th className="px-2 py-1.5 text-center font-medium text-muted-foreground w-24">200M Bonus</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {config.skills.map((s, i) => (
+                  <tr key={s.name} className="hover:bg-muted/20">
+                    <td className="px-2 py-1 font-mono text-foreground">{s.name}</td>
+                    <td className="px-1 py-0.5">
+                      <Input type="number" step="0.5" value={s.points_per_million_xp} className="h-6 text-xs text-center"
+                        onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) updateSkill(i, "points_per_million_xp", v); }} />
+                    </td>
+                    <td className="px-1 py-0.5">
+                      <Input type="number" step="50" value={s.milestone_99_bonus} className="h-6 text-xs text-center"
+                        onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) updateSkill(i, "milestone_99_bonus", v); }} />
+                    </td>
+                    <td className="px-1 py-0.5">
+                      <Input type="number" step="100" value={s.milestone_200m_bonus} className="h-6 text-xs text-center"
+                        onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) updateSkill(i, "milestone_200m_bonus", v); }} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Section>
 
         {error && <p className="text-sm text-destructive">{error}</p>}
