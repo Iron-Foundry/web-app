@@ -19,6 +19,7 @@ export const NAV_SECTIONS = [
       { to: "/calendar", label: "Calendar" },
       { to: "/bingo", label: "Bingo" },
       { to: "/activities/frenzy", label: "PVM Frenzy" },
+      { to: "/activities/tilerace", label: "Tile Race" },
     ],
   },
   {
@@ -44,6 +45,7 @@ export const STAFF_SECTION = {
     { to: "/staff-portal/surveys",     label: "Surveys" },
     { to: "/staff-portal/badges",      label: "Badges" },
     { to: "/staff-portal/assets",      label: "Asset Library" },
+    { to: "/staff-portal/runelite-configs", label: "RuneLite Configs" },
     { to: "/staff-portal/resources",   label: "Staff Resources" },
   ],
 } as const;

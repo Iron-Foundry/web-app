@@ -92,6 +92,13 @@ export const queryKeys = {
     detail: (id: number) => ["comp-schedule", id] as const,
     runs: (id: number, status?: string) => ["comp-schedule", id, "runs", status ?? ""] as const,
   },
+  tilerace: {
+    active: () => ["tilerace", "active"] as const,
+    event: (id: string) => ["tilerace", "event", id] as const,
+    events: () => ["tilerace", "events"] as const,
+    tiles: (params?: string) => ["tilerace", "tiles", params ?? ""] as const,
+    tile: (id: string) => ["tilerace", "tile", id] as const,
+  },
   frenzy: {
     active: () => ["frenzy", "active"] as const,
     team: (slug: string) => ["frenzy", "active", "team", slug] as const,

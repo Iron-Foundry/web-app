@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { Footer } from "@/components/layout/Footer";
 import { useLayout } from "@/context/LayoutContext";
-import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy, Bot, Swords, Lightbulb, Bug, BarChart2, Cog, Activity, Archive, LayoutTemplate, CalendarClock, User } from "lucide-react";
+import { Menu, X, LayoutDashboard, Settings, Ticket, ShieldCheck, ClipboardList, FileText, ArrowRightLeft, Lock, Eye, Trophy, Bot, Swords, Lightbulb, Bug, BarChart2, Cog, Activity, Archive, LayoutTemplate, CalendarClock, User, Map, Library, Database } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { useViewAs, useEffectiveRoles } from "@/context/ViewAsContext";
@@ -36,7 +36,10 @@ const STAFF_NAV = [
   { to: "/members/config/ticket-config" as const,  label: "Ticket Config",  icon: Cog,            pageId: "staff.ticket-config",  exact: false },
   { to: "/members/config/competitions" as const,          label: "Competitions",   icon: Trophy,         pageId: "staff.competitions",      exact: false },
   { to: "/members/config/competition-schedule" as const, label: "Comp Schedule",  icon: CalendarClock,  pageId: "staff.comp-schedule",     exact: false },
-  { to: "/members/config/frenzy" as const,         label: "PVM Frenzy",     icon: Swords,         pageId: "frenzy.admin",         exact: false },
+  { to: "/members/config/frenzy" as const,           label: "PVM Frenzy",       icon: Swords,         pageId: "frenzy.admin",           exact: false },
+  { to: "/members/config/tilerace" as const,         label: "Tile Race",        icon: Map,            pageId: "tilerace.admin",         exact: false },
+  { to: "/members/config/tile-repository" as const,  label: "Tile Repository",  icon: Library,        pageId: "staff.tile-repository",  exact: false },
+  { to: "/members/config/map-tiles" as const,        label: "Map Tiles",        icon: Database,       pageId: "staff.map_tiles",        exact: false },
   { to: "/members/config/services" as const,       label: "Services",       icon: Activity,       pageId: "staff.services",       exact: false },
   { to: "/members/config/content" as const,        label: "Content",        icon: Archive,        pageId: "staff.content",        exact: false },
   { to: "/members/config/panel" as const,          label: "Info Panel",     icon: LayoutTemplate, pageId: "staff.panel",          exact: false },

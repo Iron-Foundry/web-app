@@ -40,12 +40,17 @@ import { configTicketConfigRoute } from "./members/config/ticket-config";
 import { configPanelRoute } from "./members/config/panel";
 import { frenzyRoute } from "./activities/frenzy";
 import { frenzyTeamRoute } from "./activities/frenzy.$teamSlug";
+import { tileraceRoute } from "./activities/tilerace";
+import { staffTileraceRoute } from "./members/config/tilerace";
+import { tileRepositoryRoute } from "./members/config/tile-repository";
+import { mapTilesConfigRoute } from "./members/config/map-tiles";
 import { goalsRsnRoute } from "./goals.$rsn";
 import { membersSurveysRoute } from "./members/surveys";
 import { membersApplicationsRoute } from "./members/applications";
 import { membersSuggestionsRoute } from "./members/suggestions";
 import { membersBugsRoute } from "./members/bugs";
 import { feedbackRoute } from "./feedback";
+import { mapTestRoute } from "./map-test";
 import { surveyDetailRoute } from "./members/surveys.$templateId";
 import { applicationDetailRoute } from "./members/applications.$templateId";
 import { staffPortalLayoutRoute } from "./staff-portal/_layout";
@@ -55,6 +60,7 @@ import { staffPortalAllTicketsRoute } from "./staff-portal/all-tickets";
 import { staffPortalSurveysRoute } from "./staff-portal/surveys";
 import { staffPortalBadgesRoute } from "./staff-portal/badges";
 import { staffPortalAssetsRoute } from "./staff-portal/assets";
+import { staffPortalRuneliteConfigsRoute } from "./staff-portal/runelite-configs";
 import { staffPortalResourcesLayoutRoute } from "./staff-portal/resources/_layout";
 import { staffPortalResourcesIndexRoute } from "./staff-portal/resources/index";
 import { staffPortalResourcesEntryRoute } from "./staff-portal/resources/$slug";
@@ -71,6 +77,7 @@ const staffPortalTree = staffPortalLayoutRoute.addChildren([
   staffPortalSurveysRoute,
   staffPortalBadgesRoute,
   staffPortalAssetsRoute,
+  staffPortalRuneliteConfigsRoute,
   staffPortalResourcesTree,
 ]);
 
@@ -92,6 +99,9 @@ const membersTree = membersLayoutRoute.addChildren([
   staffCompetitionsRoute,
   staffCompScheduleRoute,
   staffFrenzyRoute,
+  staffTileraceRoute,
+  tileRepositoryRoute,
+  mapTilesConfigRoute,
   configRankingRoute,
   configServicesRoute,
   configTicketConfigRoute,
@@ -124,7 +134,9 @@ export const routeTree = rootRoute.addChildren([
   bingoRoute,
   frenzyRoute,
   frenzyTeamRoute,
+  tileraceRoute,
   feedbackRoute,
+  mapTestRoute,
   goalsRsnRoute,
   pluginsTree,
   resourcesTree,
