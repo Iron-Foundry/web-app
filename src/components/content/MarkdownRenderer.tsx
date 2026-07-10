@@ -5,6 +5,18 @@ import type { Components } from "react-markdown";
 import type { CSSProperties } from "react";
 import { slugify, headingText } from "@/lib/utils";
 import { EntryRef } from "./EntryRef";
+import { WikiHoverLink } from "./WikiHoverLink";
+import { wikiTitleFromUrl, wikiUrlFromTitle } from "@/hooks/useWikiSummary";
+import { TileMarkerEmbedGroup } from "@/components/runelite/TileMarkerEmbedGroup";
+import { BossHealthEmbed } from "@/components/runelite/BossHealthEmbed";
+import { BankTagEmbed } from "@/components/runelite/BankTagEmbed";
+import { InventorySetupEmbed } from "@/components/runelite/InventorySetupEmbed";
+import { decodeGlow, glowToFilter } from "@/components/runelite/glow";
+
+function glowFilterFromSpec(spec: string): string {
+  const glow = decodeGlow(spec);
+  return glow ? glowToFilter(glow) : "";
+}
 
 function extractYouTubeId(url: string): string | null {
   try {
@@ -77,6 +89,14 @@ const components: Components = {
       );
     }
     if (href) {
+      const wikiTitle = wikiTitleFromUrl(href);
+      if (wikiTitle) {
+        return (
+          <WikiHoverLink href={href} title={wikiTitle}>
+            {children}
+          </WikiHoverLink>
+        );
+      }
       const ytId = extractYouTubeId(href);
       if (ytId) {
         return (
@@ -104,6 +124,30 @@ const components: Components = {
   th: ({ children }) => <th className="text-left p-2 border-b border-border font-semibold bg-muted/50">{children}</th>,
   td: ({ children }) => <td className="p-2 border-b border-border">{children}</td>,
   div: ({ style, className, children, ...props }) => {
+    const bossHealthId = (props as Record<string, unknown>)["data-bosshealth-id"];
+    if (typeof bossHealthId === "string" && bossHealthId) {
+      return <BossHealthEmbed configId={bossHealthId} />;
+    }
+    const glowAttr = (props as Record<string, unknown>)["data-glow"];
+    const glow = typeof glowAttr === "string" && glowAttr ? glowAttr : undefined;
+    const bankTagId = (props as Record<string, unknown>)["data-banktag-id"];
+    if (typeof bankTagId === "string" && bankTagId) {
+      return <BankTagEmbed configId={bankTagId} glow={glow} />;
+    }
+    const invSetupId = (props as Record<string, unknown>)["data-invsetup-id"];
+    if (typeof invSetupId === "string" && invSetupId) {
+      return <InventorySetupEmbed configId={invSetupId} glow={glow} />;
+    }
+    const tilemarkerGroup = (props as Record<string, unknown>)["data-tilemarker-group"];
+    if (typeof tilemarkerGroup === "string" && tilemarkerGroup) {
+      const align = (props as Record<string, unknown>)["data-tilemarker-align"];
+      return (
+        <TileMarkerEmbedGroup
+          ids={tilemarkerGroup.split(",")}
+          align={typeof align === "string" ? align : "left"}
+        />
+      );
+    }
     const s = style as CSSProperties | undefined;
     const border = s?.borderLeft as string | undefined;
     if (border?.includes("#4ade80") || className?.includes("callout-tip"))
@@ -136,46 +180,127 @@ function parseTocMarkerAttrs(raw: string): Record<string, string> {
   return result;
 }
 
-function preprocessMarkdown(body: string): string {
-  return body
-    // Strip ```toc ... ``` override blocks so they don't render as code.
-    .replace(/^```toc\n[\s\S]*?^```[ \t]*$/gm, "")
-    // Render [toc]{...} markers as zero-height heading elements for reliable scroll tracking.
-    .replace(/\[toc\]\{([^}]+)\}/g, (_, raw: string) => {
-      const attrs = parseTocMarkerAttrs(raw);
-      const title = (attrs.title ?? "").trim();
-      const id = slugify(title);
-      if (!id) return "";
-      const indent = Math.max(1, Math.min(3, parseInt(attrs.indent ?? "1", 10)));
-      const tag = `h${indent + 1}`;
-      return `<${tag} id="${id}" data-toc-anchor="true">${title}</${tag}>`;
-    })
-    // Convert [[type:slug#section|display]] wiki-links to data-attribute anchors
-    // so the `a` component override can render them as EntryRef hover cards.
-    .replace(
-      /\[\[(\w+):([a-z0-9-]+)(?:#([a-z0-9-]+))?(?:\|([^\]]+))?\]\]/g,
-      (_, type, slug, section, display) => {
-        const text = (display as string | undefined) || (slug as string);
-        const sec = section ? ` data-section="${section as string}"` : "";
-        return `<a data-entry-ref="true" data-type="${type as string}" data-slug="${slug as string}"${sec}>${text}</a>`;
-      },
-    )
-    // Fix missing slash on closing inline tags: <tag>text<tag> → <tag>text</tag>
-    .replace(/<(code|strong|em|b|i|u|s|kbd|mark|sub|sup)>([^<]*)<\1>/g, "<$1>$2</$1>")
-    // Keep div blocks together so rehype-raw can reconstruct them
-    .replace(/(<div\b[^>]*>)\n\n/g, "$1\n")
-    .replace(/\n\n(<\/div>)/g, "\n$1");
+interface MdNode {
+  type: string;
+  value?: string;
+  lang?: string;
+  url?: string;
+  children?: MdNode[];
+}
+
+const SHORTCODE = new RegExp(
+  [
+    "(?:\\[\\[tilemarker:[a-zA-Z0-9-]+(?:\\|(?:left|center|right))?\\]\\]\\s*)+",
+    "\\[\\[bosshealth:[a-zA-Z0-9-]+\\]\\]",
+    "\\[\\[banktag:[a-zA-Z0-9-]+(?:\\|glow=[\\d.,]+)?\\]\\]",
+    "\\[\\[invsetup:[a-zA-Z0-9-]+(?:\\|glow=[\\d.,]+)?\\]\\]",
+    "\\[\\[wiki:[^\\]|#]+(?:\\|[^\\]]+)?\\]\\]",
+    "\\[\\[\\w+:[a-z0-9-]+(?:#[a-z0-9-]+)?(?:\\|[^\\]]+)?\\]\\]",
+    "\\[toc\\]\\{[^}]+\\}",
+  ].join("|"),
+  "g",
+);
+
+function htmlNode(value: string): MdNode {
+  return { type: "html", value };
+}
+
+function shortcodeToNode(source: string): MdNode {
+  let m: RegExpMatchArray | null;
+  if (source.startsWith("[[tilemarker:")) {
+    const items = [
+      ...source.matchAll(/\[\[tilemarker:([a-zA-Z0-9-]+)(?:\|(left|center|right))?\]\]/g),
+    ];
+    const ids = items.map((i) => i[1]).join(",");
+    const align = items.find((i) => i[2])?.[2] ?? "left";
+    return htmlNode(`<div data-tilemarker-group="${ids}" data-tilemarker-align="${align}"></div>`);
+  }
+  if ((m = source.match(/^\[\[bosshealth:([a-zA-Z0-9-]+)\]\]$/))) {
+    return htmlNode(`<div data-bosshealth-id="${m[1]}"></div>`);
+  }
+  if ((m = source.match(/^\[\[banktag:([a-zA-Z0-9-]+)(?:\|glow=([\d.,]+))?\]\]$/))) {
+    const glow = m[2] ? ` data-glow="${glowFilterFromSpec(m[2])}"` : "";
+    return htmlNode(`<div data-banktag-id="${m[1]}"${glow}></div>`);
+  }
+  if ((m = source.match(/^\[\[invsetup:([a-zA-Z0-9-]+)(?:\|glow=([\d.,]+))?\]\]$/))) {
+    const glow = m[2] ? ` data-glow="${glowFilterFromSpec(m[2])}"` : "";
+    return htmlNode(`<div data-invsetup-id="${m[1]}"${glow}></div>`);
+  }
+  if ((m = source.match(/^\[\[wiki:([^\]|#]+)(?:\|([^\]]+))?\]\]$/))) {
+    return {
+      type: "link",
+      url: wikiUrlFromTitle(m[1]!),
+      children: [{ type: "text", value: (m[2] ?? m[1]!).trim() }],
+    };
+  }
+  if ((m = source.match(/^\[\[(\w+):([a-z0-9-]+)(?:#([a-z0-9-]+))?(?:\|([^\]]+))?\]\]$/))) {
+    const sec = m[3] ? ` data-section="${m[3]}"` : "";
+    return htmlNode(
+      `<a data-entry-ref="true" data-type="${m[1]}" data-slug="${m[2]}"${sec}>${m[4] || m[2]}</a>`,
+    );
+  }
+  if ((m = source.match(/^\[toc\]\{([^}]+)\}$/))) {
+    const attrs = parseTocMarkerAttrs(m[1]!);
+    const title = (attrs.title ?? "").trim();
+    const id = slugify(title);
+    if (!id) return { type: "text", value: "" };
+    const indent = Math.max(1, Math.min(3, parseInt(attrs.indent ?? "1", 10)));
+    return htmlNode(`<h${indent + 1} id="${id}" data-toc-anchor="true">${title}</h${indent + 1}>`);
+  }
+  return { type: "text", value: source };
+}
+
+function splitShortcodes(value: string): MdNode[] | null {
+  const nodes: MdNode[] = [];
+  let last = 0;
+  for (const match of value.matchAll(SHORTCODE)) {
+    const start = match.index ?? 0;
+    if (start > last) nodes.push({ type: "text", value: value.slice(last, start) });
+    nodes.push(shortcodeToNode(match[0]));
+    last = start + match[0].length;
+  }
+  if (nodes.length === 0) return null;
+  if (last < value.length) nodes.push({ type: "text", value: value.slice(last) });
+  return nodes;
+}
+
+function transformShortcodeNodes(node: MdNode): void {
+  if (!node.children) return;
+  const out: MdNode[] = [];
+  for (const child of node.children) {
+    if (child.type === "code" && child.lang === "toc") continue;
+    if (child.type === "text" && child.value) {
+      const parts = splitShortcodes(child.value);
+      if (parts) {
+        out.push(...parts);
+        continue;
+      }
+    } else {
+      transformShortcodeNodes(child);
+    }
+    out.push(child);
+  }
+  node.children = out;
+}
+
+/**
+ * Remark plugin that expands Foundry shortcodes ([[tilemarker:...]], [[wiki:...]],
+ * [toc]{...}, etc.) found in text nodes. Fenced and inline code are separate mdast
+ * node types, so shortcodes inside code are skipped structurally and render literally.
+ */
+function remarkFoundryShortcodes() {
+  return (tree: MdNode): void => transformShortcodeNodes(tree);
 }
 
 export function MarkdownRenderer({ body }: { body: string }) {
   return (
     <div className="text-foreground">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkFoundryShortcodes]}
         rehypePlugins={[rehypeRaw]}
         components={components}
       >
-        {preprocessMarkdown(body)}
+        {body}
       </ReactMarkdown>
     </div>
   );

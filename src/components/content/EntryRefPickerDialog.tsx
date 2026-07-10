@@ -138,7 +138,10 @@ export function EntryRefPickerDialog({ open, onClose, onSelect }: EntryRefPicker
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl" aria-describedby={undefined}>
+      <DialogContent
+        className="w-[92vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto"
+        aria-describedby={undefined}
+      >
         <DialogHeader>
           <DialogTitle>Insert Entry Reference</DialogTitle>
         </DialogHeader>
@@ -162,7 +165,7 @@ export function EntryRefPickerDialog({ open, onClose, onSelect }: EntryRefPicker
               onChange={(e) => setSearch(e.target.value)}
               className="h-8 text-sm"
             />
-            <div className="h-64 overflow-y-auto border border-border rounded-md">
+            <div className="h-96 overflow-y-auto border border-border rounded-md">
               {loading ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">Loading...</p>
               ) : filtered.length === 0 ? (

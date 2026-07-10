@@ -3,7 +3,7 @@ import { Tabs } from "radix-ui";
 import {
   HelpCircle, ImageIcon, Video, Link2, Eraser,
   Bold, Italic, Strikethrough, Code, FileCode, Heading2, Heading3, Quote,
-  Undo2, Redo2, BookMarked,
+  Undo2, Redo2, BookMarked, MapPinned,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -15,6 +15,7 @@ import { MarkdownRenderer } from "./MarkdownRenderer";
 import { MarkdownCheatsheet } from "./MarkdownCheatsheet";
 import { AssetPickerDialog } from "./AssetPickerDialog";
 import { EntryRefPickerDialog } from "./EntryRefPickerDialog";
+import { RuneLiteObjectPickerDialog } from "./RuneLiteObjectPickerDialog";
 
 interface EntryEditorProps {
   initialBody: string;
@@ -67,6 +68,7 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
   const [body, setBody] = useState(initialBody);
   const [assetPickerOpen, setAssetPickerOpen] = useState(false);
   const [refPickerOpen, setRefPickerOpen] = useState(false);
+  const [runelitePickerOpen, setRunelitePickerOpen] = useState(false);
   const [embedUrlOpen, setEmbedUrlOpen] = useState(false);
   const [embedUrlValue, setEmbedUrlValue] = useState("");
   const [tocInsertOpen, setTocInsertOpen] = useState(false);
@@ -257,6 +259,9 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
           <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setRefPickerOpen(true)} title="Insert entry reference" type="button">
             <Link2 className="h-3.5 w-3.5 mr-1" />Reference
           </Button>
+          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setRunelitePickerOpen(true)} title="Insert RuneLite object" type="button">
+            <MapPinned className="h-3.5 w-3.5 mr-1" />RuneLite
+          </Button>
           <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={openTocInsert} title="Insert TOC anchor" type="button">
             <BookMarked className="h-3.5 w-3.5 mr-1" />TOC
           </Button>
@@ -368,6 +373,12 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
       <EntryRefPickerDialog
         open={refPickerOpen}
         onClose={() => setRefPickerOpen(false)}
+        onSelect={insertAtCursor}
+      />
+
+      <RuneLiteObjectPickerDialog
+        open={runelitePickerOpen}
+        onClose={() => setRunelitePickerOpen(false)}
         onSelect={insertAtCursor}
       />
     </div>
