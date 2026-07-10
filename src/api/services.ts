@@ -8,11 +8,11 @@ interface ServiceToggles {
 export const servicesApi = {
   getStatus: () => apiFetch<ServiceStatus[]>("/services/status"),
 
-  getHistory: ({ service, module, from, to, limit }: MetricHistoryParams) => {
+  getHistory: ({ service, module, from, to, max_points }: MetricHistoryParams) => {
     const params = new URLSearchParams({ service, module });
     if (from) params.set("from", from);
     if (to) params.set("to", to);
-    if (limit) params.set("limit", String(limit));
+    if (max_points) params.set("max_points", String(max_points));
     return apiFetch<MetricHistory>(`/metrics/history?${params}`);
   },
 

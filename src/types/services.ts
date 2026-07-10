@@ -24,7 +24,7 @@ export type MetricHistoryParams = {
   module: string;
   from?: string;
   to?: string;
-  limit?: number;
+  max_points?: number;
 };
 
 export interface BandwidthStats {

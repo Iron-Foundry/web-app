@@ -34,6 +34,7 @@ import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { useAuth } from "@/context/AuthContext";
 import { useServicesStatus, useMetricHistory, useServicesUptime, useBandwidth, useWomRateLimit, useServiceToggles } from "@/hooks/useServices";
+import { OutboundMetricsChart } from "@/components/metrics/OutboundMetricsChart";
 import { servicesApi } from "@/api/services";
 import type { MetricRecord, ServiceStatus, ServiceUptime } from "@/types/services";
 import {
@@ -727,30 +728,42 @@ function EndpointsView({ records, rangeDays, service }: { records: MetricRecord[
 
   const { data: allTimeBw } = useBandwidth(service, "endpoints");
 
-  const totalRequests = chartData.reduce((s, r) => s + (r.requests ?? 0), 0);
-  const totalErrors = chartData.reduce((s, r) => s + (r.errors_4xx ?? 0) + (r.errors_5xx ?? 0), 0);
-  const avgLatency =
-    chartData.length > 0
-      ? chartData.reduce((s, r) => s + (r.latency ?? 0), 0) / chartData.filter((r) => r.latency != null).length
-      : 0;
-  const errorRate = totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0;
-  const rangeReqBytes = records.reduce((s, r) => s + ((r.metrics.total_req_bytes as number) ?? 0), 0);
-  const rangeRespBytes = records.reduce((s, r) => s + ((r.metrics.total_resp_bytes as number) ?? 0), 0);
+  const stats = useMemo(() => {
+    let totalRequests = 0, totalErrors = 0, latencySum = 0, latencyCount = 0;
+    let rangeReqBytes = 0, rangeRespBytes = 0;
+    for (const r of chartData) {
+      totalRequests += r.requests ?? 0;
+      totalErrors += (r.errors_4xx ?? 0) + (r.errors_5xx ?? 0);
+      if (r.latency != null) { latencySum += r.latency; latencyCount++; }
+    }
+    for (const r of records) {
+      rangeReqBytes += (r.metrics.total_req_bytes as number) ?? 0;
+      rangeRespBytes += (r.metrics.total_resp_bytes as number) ?? 0;
+    }
+    return {
+      totalRequests,
+      totalErrors,
+      avgLatency: latencyCount > 0 ? latencySum / latencyCount : 0,
+      errorRate: totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0,
+      rangeReqBytes,
+      rangeRespBytes,
+    };
+  }, [chartData, records]);
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatChip label="Total requests" value={fmtNum(totalRequests)} />
-        <StatChip label="Avg latency" value={fmtMs(Math.round(avgLatency))} />
-        <StatChip label="Total errors" value={fmtNum(totalErrors)} dim={totalErrors === 0} />
-        <StatChip label="Error rate" value={errorRate > 0 ? `${errorRate.toFixed(2)}%` : "-"} dim={errorRate === 0} />
+        <StatChip label="Total requests" value={fmtNum(stats.totalRequests)} />
+        <StatChip label="Avg latency" value={fmtMs(Math.round(stats.avgLatency))} />
+        <StatChip label="Total errors" value={fmtNum(stats.totalErrors)} dim={stats.totalErrors === 0} />
+        <StatChip label="Error rate" value={stats.errorRate > 0 ? `${stats.errorRate.toFixed(2)}%` : "-"} dim={stats.errorRate === 0} />
       </div>
 
       <div>
         <p className="text-xs text-muted-foreground mb-2 font-medium">Bandwidth</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatChip label={`In (${rangeDays}d range)`} value={fmtBytes(rangeReqBytes)} dim={rangeReqBytes === 0} />
-          <StatChip label={`Out (${rangeDays}d range)`} value={fmtBytes(rangeRespBytes)} dim={rangeRespBytes === 0} />
+          <StatChip label={`In (${rangeDays}d range)`} value={fmtBytes(stats.rangeReqBytes)} dim={stats.rangeReqBytes === 0} />
+          <StatChip label={`Out (${rangeDays}d range)`} value={fmtBytes(stats.rangeRespBytes)} dim={stats.rangeRespBytes === 0} />
           <StatChip label="In (all time)" value={fmtBytes(allTimeBw?.total_req_bytes ?? null)} dim={!allTimeBw?.total_req_bytes} />
           <StatChip label="Out (all time)" value={fmtBytes(allTimeBw?.total_resp_bytes ?? null)} dim={!allTimeBw?.total_resp_bytes} />
         </div>
@@ -1041,17 +1054,19 @@ function GenericModuleView({ records, rangeDays }: { records: MetricRecord[]; ra
 // ── WebSocket module view ─────────────────────────────────────────────────────
 
 function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeDays: number }) {
+  const reversedRecords = useMemo(() => [...records].reverse(), [records]);
+
   const chartData = useMemo(() => {
-    return [...records].reverse().map((r) => ({
+    return reversedRecords.map((r) => ({
       t: r.recorded_at,
       connected_clients: (r.metrics.connected_clients as number) ?? null,
       active_guilds: (r.metrics.active_guilds as number) ?? null,
       messages_dispatched: (r.metrics.messages_dispatched as number) ?? null,
     }));
-  }, [records]);
+  }, [reversedRecords]);
 
   const combinedChartData = useMemo(() => {
-    return [...records].reverse().map((r) => {
+    return reversedRecords.map((r) => {
       const cc = (r.metrics.ccingest as Record<string, number> | undefined) ?? {};
       const entry: Record<string, unknown> = {
         t: r.recorded_at,
@@ -1063,7 +1078,7 @@ function WebSocketView({ records, rangeDays }: { records: MetricRecord[]; rangeD
       entry.other = Math.max(0, total - tracked);
       return entry;
     });
-  }, [records]);
+  }, [reversedRecords]);
 
   const ingestTotals = useMemo(() => {
     const agg: Record<string, number> = {};
@@ -1623,6 +1638,8 @@ function ServicesPage() {
       <UptimeChart />
 
       <WomRateLimitChart />
+
+      <OutboundMetricsChart />
 
       <ServiceTogglesPanel />
 
