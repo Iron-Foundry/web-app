@@ -65,7 +65,7 @@ export function extractHeadings(body: string): TocHeading[] {
       }
       const match = line.match(/^(#{1,4})\s+(.+)$/);
       if (!match) return [];
-      const level = match[1].length as 1 | 2 | 3 | 4;
+      const level = (match[1]?.length ?? 1) as 1 | 2 | 3 | 4;
       const text = stripInlineMarkdown(match[2] ?? "");
       const id = slugify(text);
       if (!id) return [];

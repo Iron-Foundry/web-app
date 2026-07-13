@@ -48,7 +48,7 @@ export function YearlyGoalsCard({ accounts }: {
 
   const { user }             = useAuth();
   const { data: snapshot }   = useMySnapshot(selectedRsn || null);
-  const { data: rankings = [] } = useMyRankings(user?.id);
+  const { data: rankings = [] } = useMyRankings(user?.discord_user_id);
   const { data: goalsData }  = useQuery({
     queryKey: queryKeys.members.myGoals(selectedRsn),
     queryFn:  () => membersApi.getMyGoals(selectedRsn),
