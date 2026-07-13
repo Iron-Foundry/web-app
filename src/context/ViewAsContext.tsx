@@ -1,9 +1,9 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-type ViewAsOption = string; // "self" | "member" | role-id
+type ViewAsOption = string; // "self" | "member" | "user" | role-id
 
-interface ViewAsEntry {
-  value: ViewAsOption;
+export interface ViewAsUser {
+  id: string;
   label: string;
   roles: string[];
 }
@@ -11,37 +11,45 @@ interface ViewAsEntry {
 interface ViewAsContextValue {
   viewAs: ViewAsOption;
   setViewAs: (option: ViewAsOption) => void;
-  /** The resolved option entry for the current viewAs selection. */
-  currentOption: ViewAsEntry | undefined;
-  /** Non-null when viewing as a role other than self. */
+  /** Switch to mocking a specific member's roles. */
+  viewAsUser: (user: ViewAsUser) => void;
+  /** The member being mocked, when viewAs is "user". */
+  userOverride: ViewAsUser | null;
+  /** Non-null when viewing as anything other than self. */
   overrideRoles: string[] | null;
 }
 
 const ViewAsContext = createContext<ViewAsContextValue>({
   viewAs: "self",
   setViewAs: () => {},
-  currentOption: undefined,
+  viewAsUser: () => {},
+  userOverride: null,
   overrideRoles: null,
 });
 
 export function ViewAsProvider({ children }: { children: React.ReactNode }) {
-  const [viewAs, setViewAs] = useState<ViewAsOption>("self");
+  const [viewAs, setViewAsState] = useState<ViewAsOption>("self");
+  const [userOverride, setUserOverride] = useState<ViewAsUser | null>(null);
 
-  const currentOption = useMemo<ViewAsEntry | undefined>(() => {
-    if (viewAs === "self") return { value: "self", label: "Myself", roles: [] };
-    if (viewAs === "member") return { value: "member", label: "Member (no perms)", roles: [] };
-    return undefined; // role-ID options are resolved dynamically via useViewAsOptions
-  }, [viewAs]);
+  const setViewAs = useCallback((option: ViewAsOption) => {
+    setUserOverride(null);
+    setViewAsState(option);
+  }, []);
 
-  const overrideRoles: string[] | null =
-    viewAs === "self"
-      ? null
-      : viewAs === "member"
-        ? []
-        : [viewAs]; // treat the selected role ID as the override
+  const viewAsUser = useCallback((user: ViewAsUser) => {
+    setUserOverride(user);
+    setViewAsState("user");
+  }, []);
+
+  const overrideRoles = useMemo<string[] | null>(() => {
+    if (viewAs === "self") return null;
+    if (viewAs === "member") return [];
+    if (viewAs === "user") return userOverride?.roles ?? [];
+    return [viewAs];
+  }, [viewAs, userOverride]);
 
   return (
-    <ViewAsContext.Provider value={{ viewAs, setViewAs, currentOption, overrideRoles }}>
+    <ViewAsContext.Provider value={{ viewAs, setViewAs, viewAsUser, userOverride, overrideRoles }}>
       {children}
     </ViewAsContext.Provider>
   );

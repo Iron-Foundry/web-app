@@ -7,7 +7,6 @@ registerPage({
   id: "resources",
   label: "Resources & Guides",
   description: "Community guides and resource articles.",
-  defaults: { read: [], create: ["Foundry Mentors"], edit: ["Foundry Mentors"], delete: ["Senior Moderator"] },
 });
 
 export const resourcesLayoutRoute = createRoute({

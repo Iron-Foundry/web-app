@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
 import { Upload, X } from "lucide-react";
-import { membersLayoutRoute } from "../_layout";
-import { StaffGuard } from "@/components/StaffGuard";
 import { registerPage } from "@/lib/permissions";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
@@ -21,18 +18,8 @@ registerPage({
   id: "staff.ticket-config",
   label: "Ticket Config",
   description: "Configure ticket types - display, behaviour, welcome messages and images.",
-  defaults: { read: ["Foundry Mentors"], create: [], edit: ["Foundry Mentors"], delete: ["Senior Moderator"] },
 });
 
-export const configTicketConfigRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/ticket-config",
-  component: () => (
-    <StaffGuard pageId="staff.ticket-config" redirectTo="/members">
-      <TicketConfigPage />
-    </StaffGuard>
-  ),
-});
 
 const TYPE_LABELS: Record<string, string> = {
   general:        "General",
@@ -52,7 +39,7 @@ const tabTrigger = cn(
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-function TicketConfigPage() {
+export function TicketConfigPage() {
   const [configs, setConfigs] = useState<Record<string, TicketTypeConfig>>({});
   const [panelConfig, setPanelConfig] = useState<PanelConfig | null>(null);
   const [features, setFeatures] = useState<TicketFeaturesConfig>({ rank_pull_set_primary: false });

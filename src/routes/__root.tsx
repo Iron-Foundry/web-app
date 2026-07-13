@@ -21,8 +21,8 @@ function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          <ViewAsProvider>
+        <ViewAsProvider>
+          <AuthProvider>
             <PermissionsProvider>
               <ThemedToaster />
               <LayoutProvider>
@@ -34,8 +34,8 @@ function Root() {
               <ReferralModal />
               <ReactQueryDevtools initialIsOpen={false} />
             </PermissionsProvider>
-          </ViewAsProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </ViewAsProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

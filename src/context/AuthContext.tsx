@@ -3,9 +3,11 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import type { AuthUser } from "@/types/auth";
+import { useViewAs } from "@/context/ViewAsContext";
 
 export type { AuthUser } from "@/types/auth";
 
@@ -15,6 +17,8 @@ export const API_URL: string =
 
 interface AuthContextValue {
   user: AuthUser | null;
+  /** The user's true effective roles, ignoring any active "view as" override. */
+  realRoles: string[];
   loading: boolean;
   login: () => void;
   logout: () => void;
@@ -23,6 +27,7 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
+  realRoles: [],
   loading: true,
   login: () => {},
   logout: () => {},
@@ -60,8 +65,9 @@ async function fetchMe(token: string): Promise<AuthUser | null> {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [realUser, setRealUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const { overrideRoles } = useViewAs();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -84,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     fetchMe(stored)
       .then((data) => {
         if (data) {
-          setUser(data);
+          setRealUser(data);
         } else {
           localStorage.removeItem(TOKEN_KEY);
         }
@@ -100,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
-    setUser(null);
+    setRealUser(null);
   }, []);
 
   const refresh = useCallback(async () => {
@@ -109,17 +115,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await fetchMe(token);
       if (data) {
-        setUser(data);
+        setRealUser(data);
       } else {
         localStorage.removeItem(TOKEN_KEY);
-        setUser(null);
+        setRealUser(null);
       }
     } catch {
     }
   }, []);
 
+  const realRoles = realUser?.effective_roles ?? [];
+  const user = useMemo<AuthUser | null>(
+    () =>
+      realUser && overrideRoles
+        ? { ...realUser, effective_roles: overrideRoles }
+        : realUser,
+    [realUser, overrideRoles],
+  );
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refresh }}>
+    <AuthContext.Provider value={{ user, realRoles, loading, login, logout, refresh }}>
       {children}
     </AuthContext.Provider>
   );

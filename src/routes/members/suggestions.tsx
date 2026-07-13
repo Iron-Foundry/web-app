@@ -19,7 +19,6 @@ registerPage({
   id: "members.suggestions",
   label: "Suggestions",
   description: "Submit and view clan suggestions.",
-  defaults: { read: [], create: [], edit: [], delete: [] },
 });
 
 export const membersSuggestionsRoute = createRoute({

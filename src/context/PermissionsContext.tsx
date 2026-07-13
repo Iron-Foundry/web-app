@@ -18,9 +18,8 @@ interface PermissionsContextValue {
    * given action on the given page.
    *
    * Rules:
-   * - "read" with empty allowed list -> open to all authenticated users.
-   * - "create"/"edit"/"delete" with empty allowed list -> denied (bypass roles excepted).
-   * - If the user holds any role in the bypass list -> granted for non-read.
+   * - If the user holds any role in the bypass list -> granted for all actions.
+   * - Any action with an empty allowed list -> denied (including read).
    * - If the user holds any role in the allowed list -> granted.
    */
   hasPermission: (pageId: string, action: PermAction, effectiveRoles: string[]) => boolean;
@@ -50,7 +49,6 @@ function checkPermission(
   const config = pagePermissions[pageId];
   const allowed: string[] = config?.[action] ?? [];
 
-  if (action === "read" && allowed.length === 0) return true;
   if (allowed.length === 0) return false;
 
   return effectiveRoles.some((r) => allowed.includes(r));

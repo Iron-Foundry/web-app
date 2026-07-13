@@ -3,6 +3,7 @@ import { TopNav } from "./TopNav";
 import { SubNav } from "./SubNav";
 import { Footer } from "./Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ViewAsBanner } from "@/components/members/ViewAsControls";
 import { useLayout } from "@/context/LayoutContext";
 
 export function RootLayout({ children }: { children: ReactNode }) {
@@ -11,6 +12,7 @@ export function RootLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
       <TopNav />
+      <ViewAsBanner />
       <SubNav />
       {hasSidebar ? (
         // Sidebar pages: flex-row, sidebar spans full height, right col scrolls + owns footer

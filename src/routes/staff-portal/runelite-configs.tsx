@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
 import { Plus, Pencil, Trash2, Copy } from "lucide-react";
-import { staffPortalLayoutRoute } from "./_layout";
 import { registerPage } from "@/lib/permissions";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -33,19 +31,8 @@ registerPage({
   id: "staff.runelite_configs",
   label: "Staff - RuneLite Configs",
   description: "Store and edit RuneLite config objects used across the site.",
-  defaults: {
-    read: [],
-    create: ["Foundry Mentors"],
-    edit: ["Foundry Mentors"],
-    delete: ["Senior Moderator"],
-  },
 });
 
-export const staffPortalRuneliteConfigsRoute = createRoute({
-  getParentRoute: () => staffPortalLayoutRoute,
-  path: "/runelite-configs",
-  component: RuneliteConfigsPage,
-});
 
 function ConfigName({ config }: { config: RuneLiteConfig }) {
   const Preview = getObjectType(config.type)?.preview;
@@ -66,7 +53,7 @@ function ConfigName({ config }: { config: RuneLiteConfig }) {
   );
 }
 
-function RuneliteConfigsPage() {
+export function RuneliteConfigsPage() {
   const { user } = useAuth();
   const { hasPermission } = usePermissions();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);

@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
-import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
-import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -15,14 +12,8 @@ registerPage({
   id: "staff.rank-mappings",
   label: "Rank Mappings",
   description: "Map in-game ranks to Discord roles and configure party notification categories.",
-  defaults: { read: ["Foundry Mentors"], create: [], edit: ["Senior Moderator"], delete: [] },
 });
 
-export const staffRankMappingsRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/rank-mappings",
-  component: () => <StaffGuard pageId="staff.rank-mappings"><RankMappingsPage /></StaffGuard>,
-});
 
 const tabTrigger = cn(
   "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
@@ -285,7 +276,7 @@ function NotificationCategoriesTab() {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-function RankMappingsPage() {
+export function RankMappingsPage() {
   return (
     <div className="mx-auto max-w-3xl w-full space-y-6 py-6">
       <div className="space-y-1">

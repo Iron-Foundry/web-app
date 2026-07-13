@@ -11,5 +11,4 @@ export interface RegisteredPage {
   id: string;
   label: string;
   description?: string;
-  defaults: PagePermissionConfig;
 }

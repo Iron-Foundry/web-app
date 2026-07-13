@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
+import { registerPage } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Trash2 } from "lucide-react";
 
-export const staffContentRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/content",
-  component: StaffContentPage,
+registerPage({
+  id: "staff.content",
+  label: "Content",
+  description: "Restore or permanently delete deprecated content entries.",
 });
+
 
 interface DeprecatedEntry {
   id: string;
@@ -35,7 +35,7 @@ function PageTypeBadge({ type }: { type: string }) {
   );
 }
 
-function StaffContentPage() {
+export function StaffContentPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const { hasPermission } = usePermissions();

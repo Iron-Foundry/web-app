@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
-import { membersLayoutRoute } from "../_layout";
-import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,18 +32,8 @@ registerPage({
   id: "staff.discord-config",
   label: "Discord Config",
   description: "Configure staff role IDs and feature channel/role assignments.",
-  defaults: { read: ["Foundry Mentors"], create: [], edit: ["Senior Moderator"], delete: [] },
 });
 
-export const staffDiscordConfigRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/discord-config",
-  component: () => (
-    <StaffGuard pageId="staff.discord-config">
-      <DiscordConfigPage />
-    </StaffGuard>
-  ),
-});
 
 const tabTrigger = cn(
   "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
@@ -803,7 +790,7 @@ function unwrap<T>(result: PromiseSettledResult<T>, fallback: T): T {
   return result.status === "fulfilled" ? result.value : fallback;
 }
 
-function DiscordConfigPage() {
+export function DiscordConfigPage() {
   const [pageData, setPageData] = useState<PageData | null>(null);
   const [discordUnavailable, setDiscordUnavailable] = useState(false);
   const [error, setError] = useState<string | null>(null);

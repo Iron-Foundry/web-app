@@ -43,9 +43,6 @@ export const STAFF_SECTION = {
     { to: "/staff-portal/members",     label: "Members" },
     { to: "/staff-portal/all-tickets", label: "All Tickets" },
     { to: "/staff-portal/surveys",     label: "Surveys" },
-    { to: "/staff-portal/badges",      label: "Badges" },
-    { to: "/staff-portal/assets",      label: "Asset Library" },
-    { to: "/staff-portal/runelite-configs", label: "RuneLite Configs" },
     { to: "/staff-portal/resources",   label: "Staff Resources" },
   ],
 } as const;

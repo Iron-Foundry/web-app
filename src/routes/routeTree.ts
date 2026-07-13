@@ -27,23 +27,9 @@ import { membersDashboardRoute } from "./members/index";
 import { membersProfileRoute } from "./members/profile";
 import { membersSettingsRoute } from "./members/settings";
 import { membersTicketsRoute } from "./members/tickets";
-import { staffRankMappingsRoute } from "./members/config/rank-mappings";
-import { staffPermissionsRoute } from "./members/config/permissions";
-import { staffDiscordConfigRoute } from "./members/config/discord-config";
-import { staffContentRoute } from "./members/config/content";
-import { staffCompetitionsRoute } from "./members/config/competitions";
-import { staffCompScheduleRoute } from "./members/config/competition-schedule";
-import { staffFrenzyRoute } from "./members/config/frenzy";
-import { configRankingRoute } from "./members/config/ranking";
-import { configServicesRoute } from "./members/config/services";
-import { configTicketConfigRoute } from "./members/config/ticket-config";
-import { configPanelRoute } from "./members/config/panel";
 import { frenzyRoute } from "./activities/frenzy";
 import { frenzyTeamRoute } from "./activities/frenzy.$teamSlug";
 import { tileraceRoute } from "./activities/tilerace";
-import { staffTileraceRoute } from "./members/config/tilerace";
-import { tileRepositoryRoute } from "./members/config/tile-repository";
-import { mapTilesConfigRoute } from "./members/config/map-tiles";
 import { goalsRsnRoute } from "./goals.$rsn";
 import { membersSurveysRoute } from "./members/surveys";
 import { membersApplicationsRoute } from "./members/applications";
@@ -58,9 +44,6 @@ import { staffPortalIndexRoute } from "./staff-portal/index";
 import { staffPortalMembersRoute } from "./staff-portal/members";
 import { staffPortalAllTicketsRoute } from "./staff-portal/all-tickets";
 import { staffPortalSurveysRoute } from "./staff-portal/surveys";
-import { staffPortalBadgesRoute } from "./staff-portal/badges";
-import { staffPortalAssetsRoute } from "./staff-portal/assets";
-import { staffPortalRuneliteConfigsRoute } from "./staff-portal/runelite-configs";
 import { staffPortalResourcesLayoutRoute } from "./staff-portal/resources/_layout";
 import { staffPortalResourcesIndexRoute } from "./staff-portal/resources/index";
 import { staffPortalResourcesEntryRoute } from "./staff-portal/resources/$slug";
@@ -75,9 +58,6 @@ const staffPortalTree = staffPortalLayoutRoute.addChildren([
   staffPortalMembersRoute,
   staffPortalAllTicketsRoute,
   staffPortalSurveysRoute,
-  staffPortalBadgesRoute,
-  staffPortalAssetsRoute,
-  staffPortalRuneliteConfigsRoute,
   staffPortalResourcesTree,
 ]);
 
@@ -92,20 +72,6 @@ const membersTree = membersLayoutRoute.addChildren([
   applicationDetailRoute,
   membersSuggestionsRoute,
   membersBugsRoute,
-  staffRankMappingsRoute,
-  staffPermissionsRoute,
-  staffDiscordConfigRoute,
-  staffContentRoute,
-  staffCompetitionsRoute,
-  staffCompScheduleRoute,
-  staffFrenzyRoute,
-  staffTileraceRoute,
-  tileRepositoryRoute,
-  mapTilesConfigRoute,
-  configRankingRoute,
-  configServicesRoute,
-  configTicketConfigRoute,
-  configPanelRoute,
 ]);
 
 const pluginsTree = pluginsLayoutRoute.addChildren([pluginsIndexRoute, pluginsEntryRoute]);

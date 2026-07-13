@@ -16,12 +16,6 @@ registerPage({
   id: "frenzy",
   label: "PVM Frenzy",
   description: "PVM Frenzy event dashboard.",
-  defaults: {
-    read: [],
-    create: ["Foundry Mentors"],
-    edit: ["Foundry Mentors"],
-    delete: ["Senior Moderator"],
-  },
 });
 
 export const frenzyRoute = createRoute({
@@ -80,7 +74,7 @@ function FrenzyPage() {
               {activeEvent && <FrenzyEventChartsSheet eventName={activeEvent.name} />}
               {canManage && (
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/members/config/frenzy">
+                  <Link to="/members" search={{ cp: "frenzy" }}>
                     <Settings className="h-4 w-4 mr-1.5" />
                     Manage
                   </Link>

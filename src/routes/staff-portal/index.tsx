@@ -9,7 +9,7 @@ import { StaffGuard } from "@/components/StaffGuard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Users, Ticket, ShieldCheck, BookOpen, Image, Trophy, BookMarked, SlidersHorizontal } from "lucide-react";
+import { Users, Ticket, ShieldCheck, BookMarked } from "lucide-react";
 import { shineHandlers } from "@/hooks/useShineEffect";
 import { registerPage } from "@/lib/permissions";
 
@@ -17,7 +17,6 @@ registerPage({
   id: "staff.home",
   label: "Staff Home",
   description: "Staff dashboard and clan statistics.",
-  defaults: { read: ["Foundry Mentors"], create: [], edit: [], delete: [] },
 });
 
 export const staffPortalIndexRoute = createRoute({
@@ -103,13 +102,9 @@ function StaffOverviewPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const { hasPermission } = usePermissions();
-  const canViewMembers       = hasPermission("staff.members",       "read", effectiveRoles);
-  const canViewTickets       = hasPermission("staff.all-tickets",   "read", effectiveRoles);
-  const canViewContent       = hasPermission("resources",           "delete", effectiveRoles);
-  const canViewAssets        = hasPermission("staff.assets",        "read", effectiveRoles);
-  const canViewCompetitions  = hasPermission("staff.competitions",  "read", effectiveRoles);
-  const canViewResources     = hasPermission("staff.resources",     "read", effectiveRoles);
-  const canViewTicketConfig  = hasPermission("staff.ticket-config", "read", effectiveRoles);
+  const canViewMembers   = hasPermission("staff.members",     "read", effectiveRoles);
+  const canViewTickets   = hasPermission("staff.all-tickets", "read", effectiveRoles);
+  const canViewResources = hasPermission("staff.resources",   "read", effectiveRoles);
 
   const [overview, setOverview] = useState<Overview | null>(null);
   const [referral, setReferral] = useState<ReferralStats | null>(null);
@@ -289,7 +284,7 @@ function StaffOverviewPage() {
         </div>
       )}
 
-      {(canViewMembers || canViewTickets || canViewContent || canViewAssets || canViewCompetitions || canViewResources || canViewTicketConfig) && (
+      {(canViewMembers || canViewTickets || canViewResources) && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {canViewMembers && (
             <Link
@@ -319,48 +314,6 @@ function StaffOverviewPage() {
               </div>
             </Link>
           )}
-          {canViewContent && (
-            <Link
-              to="/members/config/content"
-              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <BookOpen className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">Content</p>
-                  <p className="text-xs text-muted-foreground">Manage deprecated content entries</p>
-                </div>
-              </div>
-            </Link>
-          )}
-          {canViewAssets && (
-            <Link
-              to="/staff-portal/assets"
-              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <Image className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">Asset Library</p>
-                  <p className="text-xs text-muted-foreground">Upload and manage shared assets</p>
-                </div>
-              </div>
-            </Link>
-          )}
-          {canViewCompetitions && (
-            <Link
-              to="/members/config/competitions"
-              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <Trophy className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">Competitions</p>
-                  <p className="text-xs text-muted-foreground">Configure multi-metric competition tracking</p>
-                </div>
-              </div>
-            </Link>
-          )}
           {canViewResources && (
             <Link
               to="/staff-portal/resources"
@@ -371,20 +324,6 @@ function StaffOverviewPage() {
                 <div>
                   <p className="font-medium text-foreground">Staff Resources</p>
                   <p className="text-xs text-muted-foreground">Internal guides and reference material</p>
-                </div>
-              </div>
-            </Link>
-          )}
-          {canViewTicketConfig && (
-            <Link
-              to="/members/config/ticket-config"
-              className="rounded-lg border border-border bg-card p-4 hover:bg-muted transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <SlidersHorizontal className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">Ticket Config</p>
-                  <p className="text-xs text-muted-foreground">Configure ticket types, messages and images</p>
                 </div>
               </div>
             </Link>

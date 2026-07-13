@@ -17,7 +17,6 @@ registerPage({
   id: "staff.members",
   label: "Staff - Members",
   description: "View and manage clan member roster.",
-  defaults: { read: ["Moderator"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
 });
 
 export const staffPortalMembersRoute = createRoute({

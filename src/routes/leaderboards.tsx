@@ -9,7 +9,6 @@ registerPage({
   id: "leaderboards",
   label: "Leaderboards",
   description: "Clan skill and activity leaderboards.",
-  defaults: { read: [], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
 });
 
 const TABS = [

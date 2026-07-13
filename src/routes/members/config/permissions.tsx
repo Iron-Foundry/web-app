@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
-import { StaffGuard } from "@/components/StaffGuard";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
 import { getPageRegistry, registerPage, type PagePermissionConfig } from "@/lib/permissions";
@@ -10,21 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { Check, Globe } from "lucide-react";
+import { Check } from "lucide-react";
 import { DISCORD_ROLE_ORDER } from "@/lib/ranks";
+import { AdminBypassEditor } from "@/components/members/AdminBypassEditor";
 
 registerPage({
   id: "staff.permissions",
   label: "Page Permissions",
   description: "Configure who can read, edit, or delete content on each page.",
-  defaults: { read: [], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
 });
 
-export const staffPermissionsRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/permissions",
-  component: () => <StaffGuard pageId="staff.permissions"><PermissionsPage /></StaffGuard>,
-});
 
 const ACTIONS = [
   { key: "read",   label: "Read"   },
@@ -72,8 +64,7 @@ function RolePermissionCard({
           </thead>
           <tbody className="divide-y divide-border">
             {pages.map((page) => {
-              const cfg: PagePermissionConfig = local[page.id] ?? page.defaults ?? { read: [], create: [], edit: [], delete: [] };
-              const readOpen = cfg.read.length === 0;
+              const cfg: PagePermissionConfig = local[page.id] ?? { read: [], create: [], edit: [], delete: [] };
               return (
                 <tr key={page.id} className="hover:bg-muted/20 transition-colors">
                   <td className="px-4 py-2.5">
@@ -83,29 +74,23 @@ function RolePermissionCard({
                     )}
                   </td>
                   {ACTIONS.map(({ key }) => {
-                    const isOpen = key === "read" && readOpen;
-                    const hasAccess = isOpen || cfg[key].includes(roleId);
+                    const hasAccess = cfg[key].includes(roleId);
                     return (
                       <td key={key} className="px-3 py-2.5 text-center">
                         <button
                           type="button"
-                          disabled={isOpen}
-                          title={isOpen ? "Open to all authenticated users" : hasAccess ? "Click to revoke" : "Click to grant"}
-                          onClick={() => !isOpen && onToggle(roleId, page.id, key, hasAccess)}
+                          title={hasAccess ? "Click to revoke" : "Click to grant"}
+                          onClick={() => onToggle(roleId, page.id, key, hasAccess)}
                           className={cn(
                             "inline-flex items-center justify-center h-7 w-7 rounded border mx-auto transition-colors",
-                            isOpen
-                              ? "cursor-default border-transparent text-muted-foreground/40"
-                              : hasAccess
-                                ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer"
-                                : "border-border bg-transparent text-muted-foreground/50 hover:border-primary/40 hover:bg-muted/40 cursor-pointer",
+                            hasAccess
+                              ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer"
+                              : "border-border bg-transparent text-muted-foreground/50 hover:border-primary/40 hover:bg-muted/40 cursor-pointer",
                           )}
                         >
-                          {isOpen
-                            ? <Globe className="h-3.5 w-3.5" />
-                            : hasAccess
-                              ? <Check className="h-3.5 w-3.5" />
-                              : <span className="text-xs leading-none select-none">-</span>}
+                          {hasAccess
+                            ? <Check className="h-3.5 w-3.5" />
+                            : <span className="text-xs leading-none select-none">-</span>}
                         </button>
                       </td>
                     );
@@ -120,7 +105,7 @@ function RolePermissionCard({
   );
 }
 
-function PermissionsPage() {
+export function PermissionsPage() {
   const queryClient = useQueryClient();
   const [saved, setSaved] = useState<PagePermissionsMap>({});
   const [local, setLocal] = useState<PagePermissionsMap>({});
@@ -170,8 +155,7 @@ function PermissionsPage() {
     hasAccess: boolean,
   ) {
     setLocal((prev) => {
-      const cfg: PagePermissionConfig = prev[pageId] ?? pages.find((p) => p.id === pageId)?.defaults
-        ?? { read: [], create: [], edit: [], delete: [] };
+      const cfg: PagePermissionConfig = prev[pageId] ?? { read: [], create: [], edit: [], delete: [] };
       const roles = hasAccess
         ? cfg[action].filter((r) => r !== roleId)
         : [...cfg[action], roleId];
@@ -239,6 +223,12 @@ function PermissionsPage() {
       </div>
 
       <Separator />
+
+      <AdminBypassEditor
+        roles={sortedRoles}
+        bypassRoles={adminBypassRoles}
+        onSaved={setAdminBypassRoles}
+      />
 
       {sortedRoles.length === 0 ? (
         <p className="text-sm text-muted-foreground">No roles loaded.</p>

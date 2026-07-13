@@ -1,8 +1,5 @@
 import { useState } from "react";
-import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
 import { registerPage } from "@/lib/permissions";
-import { StaffGuard } from "@/components/StaffGuard";
 import { TemplateList } from "@/components/frenzy/admin/TemplateList";
 import { EventList } from "@/components/frenzy/admin/EventEditor";
 import { FrenzySubmissionFeed } from "@/components/frenzy/admin/FrenzySubmissionFeed";
@@ -12,23 +9,8 @@ registerPage({
   id: "frenzy.admin",
   label: "PVM Frenzy Admin",
   description: "Manage PVM Frenzy templates and events.",
-  defaults: {
-    read: ["Foundry Mentors"],
-    create: ["Foundry Mentors"],
-    edit: ["Foundry Mentors"],
-    delete: ["Senior Moderator"],
-  },
 });
 
-export const staffFrenzyRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/frenzy",
-  component: () => (
-    <StaffGuard pageId="frenzy.admin">
-      <StaffFrenzyPage />
-    </StaffGuard>
-  ),
-});
 
 type Tab = "templates" | "events" | "submissions";
 
@@ -57,7 +39,7 @@ function SubmissionsTab() {
   );
 }
 
-function StaffFrenzyPage() {
+export function StaffFrenzyPage() {
   const [tab, setTab] = useState<Tab>("templates");
 
   const TAB_LABELS: Record<Tab, string> = {

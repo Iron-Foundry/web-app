@@ -18,7 +18,6 @@ registerPage({
   id: "members.bugs",
   label: "Bug Reports",
   description: "Submit and view bug reports.",
-  defaults: { read: [], create: [], edit: [], delete: [] },
 });
 
 export const membersBugsRoute = createRoute({

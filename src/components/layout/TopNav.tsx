@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
-import { Menu, X, Settings } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   NavigationMenu,
@@ -12,22 +11,14 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { NavLinks } from "./NavLinks";
+import { ProfileMenu } from "./ProfileMenu";
+import { ControlPanel } from "@/components/members/ControlPanel";
+import { hasControlPanelAccess } from "@/components/members/controlPanelPages";
 import { NAV_SECTIONS, MEMBERS_TAB, STAFF_SECTION, getSectionForPath } from "@/lib/navigation";
-import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
-import { highestRoleDisplay, ROLE_BADGE_CLASS } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
-
-function RoleBadge({ roles, roleLabels }: { roles: string[]; roleLabels: Record<string, string> }) {
-  const top = highestRoleDisplay(roles, roleLabels);
-  if (!top || !(top in ROLE_BADGE_CLASS)) return null;
-  return (
-    <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", ROLE_BADGE_CLASS[top])}>
-      {top}
-    </Badge>
-  );
-}
 
 const LINK_CLASS = cn(
   "block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
@@ -35,9 +26,15 @@ const LINK_CLASS = cn(
   "[&.active]:text-primary",
 );
 
+const MOBILE_ACCOUNT_LINK = cn(
+  "flex w-full rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
+  "transition-colors hover:bg-muted hover:text-foreground",
+  "[&.active]:bg-muted [&.active]:text-primary",
+);
+
 const STAFF_PAGE_IDS = [
   "staff.home", "staff.members", "staff.all-tickets",
-  "staff.surveys", "staff.badges", "staff.assets", "staff.resources",
+  "staff.surveys", "staff.resources",
 ] as const;
 
 export function TopNav() {
@@ -45,30 +42,13 @@ export function TopNav() {
   const { user, logout } = useAuth();
   const { hasPermission } = usePermissions();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
-  const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
+  const [controlPanelOpen, setControlPanelOpen] = useState(false);
   const { pathname } = useLocation();
   const activeTab = getSectionForPath(pathname);
   const navigate = useNavigate();
 
   const hasStaffAccess = !!user && STAFF_PAGE_IDS.some((id) => hasPermission(id, "read", effectiveRoles));
-
-  useEffect(() => {
-    if (!user || user.avatar) { setFetchedAvatarUrl(null); return; }
-    const token = getAuthToken();
-    if (!token) return;
-    let cancelled = false;
-    fetch(`${API_URL}/members/${user.discord_user_id}/avatar`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => (r.ok ? (r.json() as Promise<{ avatar_url: string }>) : Promise.reject()))
-      .then((data) => { if (!cancelled) setFetchedAvatarUrl(data.avatar_url); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [user]);
-
-  const avatarUrl = user?.avatar
-    ? `https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`
-    : fetchedAvatarUrl;
+  const showControlPanel = !!user && hasControlPanelAccess(hasPermission, effectiveRoles);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card">
@@ -106,23 +86,6 @@ export function TopNav() {
                 </NavigationMenuItem>
               ))}
 
-              {user && (
-                <NavigationMenuItem>
-                  <Link
-                    to={MEMBERS_TAB.to}
-                    className={cn(
-                      "inline-flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                      "hover:bg-muted hover:text-foreground",
-                      activeTab === MEMBERS_TAB.tab
-                        ? "bg-muted text-primary"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    {MEMBERS_TAB.label}
-                  </Link>
-                </NavigationMenuItem>
-              )}
-
               {hasStaffAccess && (
                 <NavigationMenuItem>
                   <Link
@@ -143,26 +106,7 @@ export function TopNav() {
           </NavigationMenu>
 
           {user ? (
-            <div className="flex items-center gap-2">
-              {avatarUrl && (
-                <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full" />
-              )}
-              <div className="flex flex-col items-start leading-none gap-0.5">
-                <span className="text-sm text-foreground">{user.rsn ?? user.username}</span>
-                <RoleBadge roles={user.effective_roles} roleLabels={user.role_labels} />
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => navigate({ to: "/members/settings" })}
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={logout}>
-                Logout
-              </Button>
-            </div>
+            <ProfileMenu user={user} logout={logout} />
           ) : (
             <Button size="sm" onClick={() => navigate({ to: "/login" })}>
               Login
@@ -200,13 +144,25 @@ export function TopNav() {
                     <Link
                       to={MEMBERS_TAB.to}
                       onClick={() => setMobileOpen(false)}
-                      className={cn(
-                        "flex w-full rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
-                        "transition-colors hover:bg-muted hover:text-foreground",
-                        "[&.active]:bg-muted [&.active]:text-primary",
-                      )}
+                      className={MOBILE_ACCOUNT_LINK}
                     >
                       {MEMBERS_TAB.label}
+                    </Link>
+                    {showControlPanel && (
+                      <button
+                        type="button"
+                        onClick={() => { setMobileOpen(false); setControlPanelOpen(true); }}
+                        className={cn(MOBILE_ACCOUNT_LINK, "text-left")}
+                      >
+                        Control Panel
+                      </button>
+                    )}
+                    <Link
+                      to="/members/settings"
+                      onClick={() => setMobileOpen(false)}
+                      className={MOBILE_ACCOUNT_LINK}
+                    >
+                      Settings
                     </Link>
                   </div>
                 )}
@@ -260,6 +216,9 @@ export function TopNav() {
           </Sheet>
         </div>
       </div>
+      {showControlPanel && (
+        <ControlPanel open={controlPanelOpen} onOpenChange={setControlPanelOpen} />
+      )}
     </header>
   );
 }

@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
-import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { registerPage } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
@@ -16,14 +14,8 @@ registerPage({
   id: "staff.badges",
   label: "Staff - Badges",
   description: "Create and assign profile badges to members.",
-  defaults: { read: ["Foundry Mentors"], create: ["Foundry Mentors"], edit: ["Foundry Mentors"], delete: ["Senior Moderator"] },
 });
 
-export const staffPortalBadgesRoute = createRoute({
-  getParentRoute: () => staffPortalLayoutRoute,
-  path: "/badges",
-  component: BadgesPage,
-});
 
 interface BadgeEntry {
   id: string;
@@ -437,7 +429,7 @@ function AssignDialog({
   );
 }
 
-function BadgesPage() {
+export function BadgesPage() {
   const { user } = useAuth();
   const { hasPermission } = usePermissions();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);

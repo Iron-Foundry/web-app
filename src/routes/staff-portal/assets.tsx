@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
-import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
-import { StaffGuard } from "@/components/StaffGuard";
 import { registerPage } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +15,6 @@ registerPage({
   id: "staff.assets",
   label: "Asset Library",
   description: "Upload and manage shared assets (images, videos) used across the site.",
-  defaults: {
-    read:   ["Foundry Mentors"],
-    create: ["Foundry Mentors"],
-    edit:   [],
-    delete: ["Senior Moderator"],
-  },
 });
 
 
@@ -90,19 +81,10 @@ function AssetHoverPreview({ asset, x, y }: { asset: Asset; x: number; y: number
   );
 }
 
-export const staffPortalAssetsRoute = createRoute({
-  getParentRoute: () => staffPortalLayoutRoute,
-  path: "/assets",
-  component: () => (
-    <StaffGuard pageId="staff.assets" redirectTo="/staff-portal">
-      <AssetManagerPage />
-    </StaffGuard>
-  ),
-});
 
 type TypeFilter = "all" | "image" | "video";
 
-function AssetManagerPage() {
+export function AssetManagerPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const { hasPermission } = usePermissions();

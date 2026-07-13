@@ -7,12 +7,6 @@ registerPage({
   id: "staff.resources",
   label: "Staff Resources",
   description: "Internal guides and reference material for staff members.",
-  defaults: {
-    read: ["Foundry Mentors"],
-    create: ["Foundry Mentors"],
-    edit: ["Foundry Mentors"],
-    delete: ["Senior Moderator"],
-  },
 });
 
 export const staffPortalResourcesLayoutRoute = createRoute({

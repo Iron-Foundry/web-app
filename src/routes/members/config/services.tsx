@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { createRoute } from "@tanstack/react-router";
 import {
   ComposedChart,
   Bar,
@@ -17,8 +16,6 @@ import {
 } from "recharts";
 import type { TooltipProps } from "recharts";
 import { Tooltip as TooltipPrimitive } from "radix-ui";
-import { membersLayoutRoute } from "../_layout";
-import { StaffGuard } from "@/components/StaffGuard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,18 +50,8 @@ registerPage({
   id: "staff.services",
   label: "Services",
   description: "Live health and metric history for all platform services.",
-  defaults: { read: ["Foundry Mentors"], create: [], edit: ["Senior Moderator"], delete: [] },
 });
 
-export const configServicesRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/services",
-  component: () => (
-    <StaffGuard pageId="staff.services" redirectTo="/members">
-      <ServicesPage />
-    </StaffGuard>
-  ),
-});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -1597,7 +1584,7 @@ function WomRateLimitChart() {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-function ServicesPage() {
+export function ServicesPage() {
   const { data: services, isLoading, dataUpdatedAt, refetch, isFetching } = useServicesStatus();
   const [selectedName, setSelectedName] = useState<string | null>(null);
 

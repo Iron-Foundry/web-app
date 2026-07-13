@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
 import { Tabs } from "radix-ui";
-import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
-import { StaffGuard } from "@/components/StaffGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { registerPage } from "@/lib/permissions";
@@ -14,14 +11,8 @@ registerPage({
   id: "staff.ranking",
   label: "Ranking",
   description: "Daily WOM-based clan member ranking by boss KC and skill XP.",
-  defaults: { read: ["Foundry Mentors"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: [] },
 });
 
-export const configRankingRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/ranking",
-  component: () => <StaffGuard pageId="staff.ranking" redirectTo="/members"><RankingPage /></StaffGuard>,
-});
 
 // ── Config types (v2 format) ──────────────────────────────────────────────────
 
@@ -627,7 +618,7 @@ function ConfigTab() {
                     const indices = group.entries.map((e) => e.index);
                     return (
                       <>
-                        <tr key={`group-${group.entries[0].index}`} className="bg-muted/40 border-t-2 border-border">
+                        <tr key={`group-${group.entries[0]?.index}`} className="bg-muted/40 border-t-2 border-border">
                           <td colSpan={3} className="px-2 py-1 font-semibold text-muted-foreground">
                             Weight {group.weight} - {group.entries.length} boss{group.entries.length !== 1 ? "es" : ""}
                           </td>
@@ -815,7 +806,7 @@ function ConfigTab() {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-function RankingPage() {
+export function RankingPage() {
   return (
     <div className="w-full max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between">

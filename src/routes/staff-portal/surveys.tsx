@@ -12,7 +12,6 @@ registerPage({
   id: "staff.surveys",
   label: "Staff - Surveys",
   description: "Manage survey and application templates, view responses.",
-  defaults: { read: ["Foundry Mentors"], create: ["Senior Moderator"], edit: ["Senior Moderator"], delete: ["Senior Moderator"] },
 });
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";

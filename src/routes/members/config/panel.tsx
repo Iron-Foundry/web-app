@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import { createRoute } from "@tanstack/react-router";
 import { ChevronUp, ChevronDown, Plus, X, MessageSquarePlus } from "lucide-react";
-import { membersLayoutRoute } from "../_layout";
-import { StaffGuard } from "@/components/StaffGuard";
 import { registerPage } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,18 +26,8 @@ registerPage({
   id: "staff.panel",
   label: "Info Panel",
   description: "Configure the Cuddly Tower info panel sections, order, and message layout.",
-  defaults: { read: ["Foundry Mentors"], create: [], edit: ["Foundry Mentors"], delete: [] },
 });
 
-export const configPanelRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/panel",
-  component: () => (
-    <StaffGuard pageId="staff.panel" redirectTo="/members">
-      <PanelConfigPage />
-    </StaffGuard>
-  ),
-});
 
 const SECTION_LABELS: Record<SectionType, string> = {
   header_image:   "Header Image",
@@ -94,7 +81,7 @@ function makeDefaultSection(type: SectionType): PanelSection {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-function PanelConfigPage() {
+export function PanelConfigPage() {
   const [config, setConfig] = useState<InfoPanelConfig | null>(null);
   const [channels, setChannels] = useState<DiscordChannelsResponse | null>(null);
   const [loading, setLoading] = useState(true);
