@@ -1,8 +1,5 @@
 import { useState } from "react";
-import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
 import { registerPage } from "@/lib/permissions";
-import { StaffGuard } from "@/components/StaffGuard";
 import {
   useScheduleList,
   useScheduleRuns,
@@ -13,6 +10,7 @@ import {
   useResumeSchedule,
   useSkipNext,
   useTriggerNow,
+  useAdjustPoll,
   useOverrideOptions,
   usePatchRun,
 } from "@/hooks/useCompetitionSchedule";
@@ -45,29 +43,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { CalendarClock, Play, Pause, SkipForward, Plus, Trash2, Zap, Settings, Pencil } from "lucide-react";
+import { CalendarClock, Play, Pause, SkipForward, Plus, Trash2, Zap, Settings, Pencil, Clock, TimerReset } from "lucide-react";
 
 registerPage({
   id: "staff.comp-schedule",
   label: "Staff - Competition Schedule",
   description: "Manage rolling competition schedules with automated Discord polls.",
-  defaults: {
-    read: ["Senior Moderator"],
-    create: ["Senior Moderator"],
-    edit: ["Senior Moderator"],
-    delete: ["Senior Moderator"],
-  },
 });
 
-export const staffCompScheduleRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/competition-schedule",
-  component: () => (
-    <StaffGuard pageId="staff.comp-schedule">
-      <CompSchedulePage />
-    </StaffGuard>
-  ),
-});
 
 // ── Metric options from TOML ────────────────────────────────────────────
 
@@ -126,7 +109,7 @@ function PollOptionsEditor({
   );
 
   const add = (metric: string, label: string) => {
-    if (value.length >= 10) return;
+    if (value.length >= 5) return;
     onChange([...value, { metric, label }]);
     setMetricFilter("");
   };
@@ -145,7 +128,7 @@ function PollOptionsEditor({
           </div>
         ))}
       </div>
-      {value.length < 10 && (
+      {value.length < 5 && (
         <div className="flex gap-2">
           <Input
             placeholder="Filter metrics..."
@@ -182,6 +165,7 @@ interface ScheduleFormState {
   competition_duration_hours: string;
   recurrence_days: string;
   title_template: string;
+  poll_version: string;
   next_poll_at: string;
   poll_options: PollOption[];
 }
@@ -196,6 +180,7 @@ function defaultForm(sched?: CompetitionSchedule): ScheduleFormState {
     competition_duration_hours: String(sched?.competition_duration_hours ?? 168),
     recurrence_days: String(sched?.recurrence_days ?? 7),
     title_template: sched?.title_template ?? "{metric} Competition",
+    poll_version: String(sched?.poll_version ?? 1),
     next_poll_at: sched?.next_poll_at
       ? sched.next_poll_at.slice(0, 16)
       : new Date(Date.now() + 86400000).toISOString().slice(0, 16),
@@ -229,6 +214,7 @@ function ScheduleDialog({
       competition_duration_hours: Number(form.competition_duration_hours),
       recurrence_days: Number(form.recurrence_days),
       title_template: form.title_template,
+      poll_version: Number(form.poll_version),
       next_poll_at: new Date(form.next_poll_at).toISOString(),
       poll_options: form.poll_options,
     };
@@ -283,11 +269,24 @@ function ScheduleDialog({
             <p className="mt-0.5 text-xs text-muted-foreground">Use {"{metric}"} to insert the winning metric name.</p>
           </div>
           <div>
+            <Label>Poll Type</Label>
+            <Select value={form.poll_version} onValueChange={(v) => set("poll_version", v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Native poll (free)</SelectItem>
+                <SelectItem value="2">Ballot Booth (charges tokens)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Ballot Booth charges a Ballot Token per vote and awards tokens for competition placements. Cap options at 8.
+            </p>
+          </div>
+          <div>
             <Label>First Poll At</Label>
             <Input type="datetime-local" value={form.next_poll_at} onChange={(e) => set("next_poll_at", e.target.value)} />
           </div>
           <div>
-            <Label>Poll Options (2-10)</Label>
+            <Label>Poll Options (2-5)</Label>
             <PollOptionsEditor value={form.poll_options} onChange={(opts) => set("poll_options", opts)} />
           </div>
         </div>
@@ -542,7 +541,11 @@ function ScheduleCard({ schedule }: { schedule: CompetitionSchedule }) {
   const resume = useResumeSchedule();
   const skip = useSkipNext();
   const trigger = useTriggerNow();
+  const adjust = useAdjustPoll();
   const del = useDeleteSchedule();
+
+  const activePoll =
+    schedule.active_run?.status === "poll_active" ? schedule.active_run : null;
 
   return (
     <Card>
@@ -583,6 +586,21 @@ function ScheduleCard({ schedule }: { schedule: CompetitionSchedule }) {
           <p className="text-xs text-muted-foreground">
             Next poll: {new Date(schedule.next_poll_at).toLocaleString()}
           </p>
+        )}
+
+        {activePoll?.poll_ends_at && (
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" /> Poll closes:{" "}
+              {new Date(activePoll.poll_ends_at).toLocaleString()}
+            </p>
+            <Button size="sm" variant="outline" onClick={() => adjust.mutate({ id: schedule.id, deltaHours: 6 })} disabled={adjust.isPending}>
+              <Plus className="mr-1 h-3 w-3" /> 6h
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => adjust.mutate({ id: schedule.id, deltaHours: -6 })} disabled={adjust.isPending}>
+              <TimerReset className="mr-1 h-3 w-3" /> -6h
+            </Button>
+          </div>
         )}
 
         <div className="flex flex-wrap gap-1.5">
@@ -638,7 +656,7 @@ function ScheduleCard({ schedule }: { schedule: CompetitionSchedule }) {
 
 // ── Page ────────────────────────────────────────────────────────────────
 
-function CompSchedulePage() {
+export function CompSchedulePage() {
   const { data: schedules, isLoading } = useScheduleList();
   const [createOpen, setCreateOpen] = useState(false);
 

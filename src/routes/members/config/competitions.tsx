@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { createRoute, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { membersLayoutRoute } from "../_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
 import { registerPage } from "@/lib/permissions";
-import { StaffGuard } from "@/components/StaffGuard";
 import { queryKeys } from "@/lib/queryKeys";
 import {
   useCompetitionList,
@@ -43,23 +41,8 @@ registerPage({
   id: "staff.competitions",
   label: "Staff - Competitions",
   description: "Configure which metrics are tracked per competition.",
-  defaults: {
-    read: ["Senior Moderator"],
-    create: ["Senior Moderator"],
-    edit: ["Senior Moderator"],
-    delete: ["Senior Moderator"],
-  },
 });
 
-export const staffCompetitionsRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/competitions",
-  component: () => (
-    <StaffGuard pageId="staff.competitions">
-      <StaffCompetitionsPage />
-    </StaffGuard>
-  ),
-});
 
 const METRIC_GROUPS: { name: string; metrics: string[] }[] = metricsConfig.groups;
 
@@ -334,7 +317,7 @@ const FINISHED_LIMIT = 5;
 // Page
 // ---------------------------------------------------------------------------
 
-function StaffCompetitionsPage() {
+export function StaffCompetitionsPage() {
   useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();

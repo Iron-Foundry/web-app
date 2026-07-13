@@ -43,6 +43,8 @@ export interface CompetitionSchedule {
   recurrence_days: number;
   poll_options: PollOption[];
   title_template: string;
+  poll_version: number;
+  token_config_override: Record<string, number | number[]> | null;
   next_poll_at: string | null;
   created_by: number | null;
   created_at: string;
@@ -60,6 +62,8 @@ export interface CreateScheduleInput {
   recurrence_days: number;
   poll_options: PollOption[];
   title_template?: string;
+  poll_version?: number;
+  token_config_override?: Record<string, number | number[]> | null;
   next_poll_at: string;
 }
 

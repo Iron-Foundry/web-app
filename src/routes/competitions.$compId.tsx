@@ -25,7 +25,6 @@ registerPage({
   id: "competitions",
   label: "Competitions",
   description: "View multi-metric competition standings and charts.",
-  defaults: { read: [], create: [], edit: [], delete: [] },
 });
 
 export const competitionDetailRoute = createRoute({

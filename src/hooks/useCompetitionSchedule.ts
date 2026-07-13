@@ -95,6 +95,16 @@ export function useTriggerNow() {
   });
 }
 
+export function useAdjustPoll() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, deltaHours }: { id: number; deltaHours: number }) =>
+      competitionScheduleApi.adjustPoll(id, deltaHours),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
 export function usePatchRun(scheduleId: number) {
   const qc = useQueryClient();
   return useMutation({

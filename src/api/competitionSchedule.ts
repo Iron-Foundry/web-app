@@ -44,6 +44,12 @@ export const competitionScheduleApi = {
       method: "POST",
     }),
 
+  adjustPoll: (id: number, delta_hours: number) =>
+    apiFetch<{ poll_ends_at: string }>(`/clan/competition-schedules/${id}/adjust-poll`, {
+      method: "POST",
+      body: JSON.stringify({ delta_hours }),
+    }),
+
   setNextPollAt: (id: number, next_poll_at: string) =>
     apiFetch<CompetitionSchedule>(`/clan/competition-schedules/${id}/next-poll-at`, {
       method: "PATCH",
