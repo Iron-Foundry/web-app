@@ -18,8 +18,8 @@ const COUNT_CONFIG: ChartConfig = { count: { label: "Tickets", color: "var(--pri
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="shine-border rounded-xl" {...shineHandlers}>
-      <Card>
+    <div className="shine-border rounded-xl h-full" {...shineHandlers}>
+      <Card className="h-full">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
         </CardHeader>
@@ -48,17 +48,18 @@ export function TicketCharts({ tickets }: { tickets: TicketSummary[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <ChartCard title="By Status">
-        <ChartContainer config={COUNT_CONFIG} className="mx-auto aspect-auto h-44 w-full">
-          <PieChart>
+        <ChartContainer config={COUNT_CONFIG} className="aspect-auto h-56 w-full">
+          <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
             <Pie
               data={statusData}
               dataKey="value"
               nameKey="name"
-              innerRadius={40}
-              outerRadius={64}
+              innerRadius="55%"
+              outerRadius="85%"
               paddingAngle={2}
               strokeWidth={2}
+              isAnimationActive={false}
             >
               {statusData.map((entry) => (
                 <Cell
