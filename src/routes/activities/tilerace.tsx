@@ -4,15 +4,19 @@ import { registerPage } from "@/lib/permissions";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
+import { useQuery } from "@tanstack/react-query";
 import {
   useActiveTileraceEvent,
   useCompletions,
   useSignUp,
+  useChangeSignup,
   useCancelSignup,
 } from "@/hooks/useTilerace";
+import { getAccounts } from "@/api/accounts";
 import { TileBoard } from "@/components/tilerace/TileBoard";
 import { TeamCard } from "@/components/tilerace/TeamCard";
 import { DiceRoller } from "@/components/tilerace/DiceRoller";
+import { SignupPanel } from "@/components/events/SignupPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -37,7 +41,14 @@ function TileRacePage(): JSX.Element {
   const { hasPermission } = usePermissions();
   const { data: event, isLoading } = useActiveTileraceEvent();
   const { mutate: signUp, isPending: signingUp } = useSignUp();
+  const { mutate: changeSignup, isPending: changing } = useChangeSignup();
   const { mutate: cancelSignup, isPending: cancelling } = useCancelSignup();
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["members", "accounts"],
+    queryFn: getAccounts,
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5,
+  });
   const { data: completions = [] } = useCompletions(user && event ? event.id : "");
 
   const canManage = hasPermission("tilerace", "edit", effectiveRoles);
@@ -47,9 +58,10 @@ function TileRacePage(): JSX.Element {
       ? Math.max(0, Math.ceil((new Date(event.ends_at).getTime() - Date.now()) / 86_400_000))
       : null;
 
-  const isSignedUp = user
-    ? event?.signups.some((s) => s.discord_user_id === user.discord_user_id) ?? false
-    : false;
+  const mySignup = user
+    ? event?.signups.find((s) => s.discord_user_id === user.discord_user_id)
+    : undefined;
+  const isSignedUp = !!mySignup;
 
   const isOnTeam = user
     ? event?.teams.some((t) =>
@@ -86,20 +98,22 @@ function TileRacePage(): JSX.Element {
               </Badge>
             )}
             <div className="flex items-center gap-2">
-              {user && event && !isOnTeam && !isSignedUp && (
-                <Button size="sm" onClick={() => signUp(event.id)} disabled={signingUp}>
-                  Sign Up
-                </Button>
-              )}
-              {user && event && isSignedUp && !isOnTeam && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => cancelSignup(event.id)}
-                  disabled={cancelling}
-                >
-                  Cancel Signup
-                </Button>
+              {user && event && !isOnTeam && (
+                <SignupPanel
+                  open={event.signups_open}
+                  accounts={accounts}
+                  signedUp={isSignedUp}
+                  currentAccountId={mySignup?.account_id ?? null}
+                  wantsCaptain={mySignup?.wants_captain ?? false}
+                  busy={signingUp || changing || cancelling}
+                  onSignUp={(accountId, wantsCaptain) =>
+                    signUp({ eventId: event.id, accountId, wantsCaptain })
+                  }
+                  onChange={(accountId, wantsCaptain) =>
+                    changeSignup({ eventId: event.id, accountId, wantsCaptain })
+                  }
+                  onRescind={() => cancelSignup(event.id)}
+                />
               )}
               {canManage && (
                 <Button asChild size="sm" variant="outline">

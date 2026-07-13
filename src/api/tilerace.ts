@@ -16,8 +16,16 @@ export const tileraceApi = {
   // Public
   getActiveEvent: () => apiFetch<TileRaceEvent>("/tilerace/active"),
   getEvent: (id: string) => apiFetch<TileRaceEvent>(`/tilerace/events/${id}`),
-  signUp: (eventId: string) =>
-    apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/signup`, { method: "POST" }),
+  signUp: (eventId: string, accountId: number, wantsCaptain: boolean) =>
+    apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/signup`, {
+      method: "POST",
+      body: JSON.stringify({ account_id: accountId, wants_captain: wantsCaptain }),
+    }),
+  changeSignup: (eventId: string, accountId: number, wantsCaptain: boolean) =>
+    apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/signup`, {
+      method: "PATCH",
+      body: JSON.stringify({ account_id: accountId, wants_captain: wantsCaptain }),
+    }),
   cancelSignup: (eventId: string) =>
     apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/signup`, { method: "DELETE" }),
 

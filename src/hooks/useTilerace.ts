@@ -31,13 +31,32 @@ export function useTileraceEvent(id: string) {
   });
 }
 
+interface SignupVars {
+  eventId: string;
+  accountId: number;
+  wantsCaptain: boolean;
+}
+
 export function useSignUp() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (eventId: string) => tileraceApi.signUp(eventId),
-    onSuccess: (_result, eventId) => {
+    mutationFn: (vars: SignupVars) =>
+      tileraceApi.signUp(vars.eventId, vars.accountId, vars.wantsCaptain),
+    onSuccess: (_result, vars) => {
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
-      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(vars.eventId) });
+    },
+  });
+}
+
+export function useChangeSignup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: SignupVars) =>
+      tileraceApi.changeSignup(vars.eventId, vars.accountId, vars.wantsCaptain),
+    onSuccess: (_result, vars) => {
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(vars.eventId) });
     },
   });
 }

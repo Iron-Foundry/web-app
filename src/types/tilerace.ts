@@ -58,6 +58,7 @@ export interface TileRaceEventSummary {
   id: string;
   name: string;
   is_active: boolean;
+  signups_open: boolean;
   fog_of_war: boolean;
   grid_cols: number;
   grid_rows: number;
@@ -101,8 +102,10 @@ export interface TileRaceParticipant {
 
 export interface TileRaceSignup {
   discord_user_id: string;
+  account_id: number | null;
   rsn: string;
   ranking_score: number;
+  wants_captain: boolean;
   signed_up_at: string;
 }
 
@@ -154,6 +157,7 @@ export interface TileRaceEventPatch {
   background_url?: string | null;
   fog_of_war?: boolean;
   is_finished?: boolean;
+  signups_open?: boolean;
   starts_at?: string | null;
   ends_at?: string | null;
   cells?: Array<{

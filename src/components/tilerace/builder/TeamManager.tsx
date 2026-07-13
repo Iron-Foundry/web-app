@@ -4,12 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Shuffle, Crown } from "lucide-react";
+import { Plus, Trash2, Shuffle, Crown, Lock, LockOpen } from "lucide-react";
 import { TEAM_COLORS } from "@/lib/tilerace";
 import {
   useAddTileraceTeam,
   useDeleteTileraceTeam,
   useScrambleTileraceTeams,
+  usePatchTileraceEvent,
 } from "@/hooks/useTilerace";
 import type { TileRaceEvent, TileRaceTeam } from "@/types/tilerace";
 
@@ -128,6 +129,7 @@ function AddTeamForm({
 export function TeamManager({ event }: TeamManagerProps): JSX.Element {
   const [adding, setAdding] = useState(false);
   const { mutate: scramble, isPending: scrambling } = useScrambleTileraceTeams();
+  const { mutate: patchEvent, isPending: patching } = usePatchTileraceEvent();
 
   return (
     <div className="space-y-4">
@@ -139,6 +141,27 @@ export function TeamManager({ event }: TeamManagerProps): JSX.Element {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              patchEvent({ id: event.id, data: { signups_open: !event.signups_open } })
+            }
+            disabled={patching}
+            className="gap-1.5"
+          >
+            {event.signups_open ? (
+              <>
+                <Lock className="h-3.5 w-3.5" />
+                Close Signups
+              </>
+            ) : (
+              <>
+                <LockOpen className="h-3.5 w-3.5" />
+                Open Signups
+              </>
+            )}
+          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -186,7 +209,12 @@ export function TeamManager({ event }: TeamManagerProps): JSX.Element {
           </p>
           <div className="flex flex-wrap gap-1.5">
             {event.signups.map((s) => (
-              <Badge key={s.discord_user_id} variant="outline" className="text-xs">
+              <Badge
+                key={s.discord_user_id}
+                variant="outline"
+                className="text-xs gap-1"
+              >
+                {s.wants_captain && <Crown className="h-3 w-3 text-amber-500" />}
                 {s.rsn}
               </Badge>
             ))}
