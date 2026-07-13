@@ -4,6 +4,7 @@ import { apiFetch } from "./client";
 export interface TileSyncStatus {
   running: boolean;
   cached: number;
+  cached_bytes: number;
   processed?: number;
   total?: number;
   current_zoom?: number;

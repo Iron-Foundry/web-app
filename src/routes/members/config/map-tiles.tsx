@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createRoute } from "@tanstack/react-router";
 import { RefreshCw, Play, Square, Trash2, MapPin } from "lucide-react";
-import { membersLayoutRoute } from "../_layout";
-import { StaffGuard } from "@/components/StaffGuard";
 import { registerPage } from "@/lib/permissions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,25 +16,16 @@ registerPage({
   id: "staff.map_tiles",
   label: "Map Tiles",
   description: "Manage the OSRS map tile cache - sync, invalidate, and delete tiles.",
-  defaults: {
-    read: ["Foundry Mentors"],
-    create: ["Foundry Mentors"],
-    edit: ["Foundry Mentors"],
-    delete: ["Senior Moderator"],
-  },
 });
 
-export const mapTilesConfigRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/map-tiles",
-  component: () => (
-    <StaffGuard pageId="staff.map_tiles">
-      <MapTilesPage />
-    </StaffGuard>
-  ),
-});
+function formatBytes(bytes: number): string {
+  const mib = bytes / 1024 / 1024;
+  if (mib >= 1024) return `${(mib / 1024).toFixed(2)} GiB`;
+  return `${mib.toFixed(1)} MiB`;
+}
 
-function MapTilesPage(): JSX.Element {
+
+export function MapTilesPage(): JSX.Element {
   const queryClient = useQueryClient();
   const [force, setForce] = useState(false);
   const [regionId, setRegionId] = useState("");
@@ -133,6 +121,12 @@ function MapTilesPage(): JSX.Element {
             <span>Cached tiles:</span>
             <span className="font-mono font-medium text-foreground tabular-nums">
               {status !== undefined ? status.cached.toLocaleString() : "-"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>Total size:</span>
+            <span className="font-mono font-medium text-foreground tabular-nums">
+              {status !== undefined ? formatBytes(status.cached_bytes) : "-"}
             </span>
           </div>
         </CardContent>
