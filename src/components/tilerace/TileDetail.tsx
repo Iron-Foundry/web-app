@@ -8,6 +8,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import type { RepositoryTile } from "@/types/tilerace";
 import { getEffectiveTileIcon } from "@/lib/tilerace";
+import { RequirementSummary } from "./RequirementSummary";
 
 interface TileDetailProps {
   tile: RepositoryTile;
@@ -49,30 +50,14 @@ export function TileDetail({ tile, open, onOpenChange }: TileDetailProps): JSX.E
             </div>
           )}
 
-          {tile.items.length > 0 && (
+          {tile.requirement && (
             <>
               <Separator />
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  Required Items
+                  Requirement
                 </p>
-                <ul className="space-y-2">
-                  {tile.items.map((item) => (
-                    <li key={item.item_id} className="flex items-center gap-2">
-                      <img
-                        src={item.icon_url}
-                        alt={item.name}
-                        className="h-7 w-7 object-contain"
-                      />
-                      <span className="text-sm">{item.name}</span>
-                      {item.quantity > 1 && (
-                        <Badge variant="secondary" className="ml-auto text-xs">
-                          x{item.quantity}
-                        </Badge>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+                <RequirementSummary node={tile.requirement} />
               </div>
             </>
           )}

@@ -4,7 +4,11 @@ import { RotateCcw } from "lucide-react";
 import { usePatchTileraceEvent } from "@/hooks/useTilerace";
 import { buildCellMap, getEffectiveTileIcon } from "@/lib/tilerace";
 import { TilePicker } from "./TilePicker";
-import type { BoardCell, TileRaceEvent } from "@/types/tilerace";
+import { CellModifiers } from "./CellModifiers";
+import { PadConfig, type PadKind } from "./PadConfig";
+import { BoardViewport } from "../board/BoardViewport";
+import { BoardPads } from "../board/BoardPads";
+import type { BoardCell, CellModifier, TileRaceEvent } from "@/types/tilerace";
 
 interface PathEditorProps {
   event: TileRaceEvent;
@@ -34,12 +38,19 @@ function removeCell(x: number, y: number, cells: BoardCell[]): BoardCell[] {
 }
 
 function serialize(cells: BoardCell[]) {
-  return cells.map(({ cell_x, cell_y, path_position, tile_id }) => ({ cell_x, cell_y, path_position, tile_id }));
+  return cells.map(({ cell_x, cell_y, path_position, tile_id, modifiers }) => ({
+    cell_x,
+    cell_y,
+    path_position,
+    tile_id,
+    modifiers,
+  }));
 }
 
 export function PathEditor({ event }: PathEditorProps): JSX.Element {
   const [selectedCell, setSelectedCell] = useState<BoardCell | null>(null);
   const [dragDraft, setDragDraft] = useState<BoardCell[] | null>(null);
+  const [placing, setPlacing] = useState<{ kind: PadKind; width: number; height: number } | null>(null);
   const { mutate: patchEvent, isPending } = usePatchTileraceEvent();
 
   const isDragging = useRef(false);
@@ -65,6 +76,13 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
 
   function onCellDown(x: number, y: number, e: React.MouseEvent) {
     e.preventDefault();
+    if (placing) {
+      const pad = { cell_x: x, cell_y: y, width: placing.width, height: placing.height };
+      const data = placing.kind === "start" ? { start_pad: pad } : { end_pad: pad };
+      patchEvent({ id: event.id, data });
+      setPlacing(null);
+      return;
+    }
     const cell = cellMap.get(`${x},${y}`);
     const onPath = cell?.path_position != null;
 
@@ -117,12 +135,23 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
     setSelectedCell((prev) => (prev ? { ...prev, tile_id: tileId } : null));
   }
 
+  function assignModifiers(modifiers: CellModifier[]) {
+    if (!selectedCell) return;
+    const newCells = event.cells.map((c) =>
+      c.cell_x === selectedCell.cell_x && c.cell_y === selectedCell.cell_y
+        ? { ...c, modifiers }
+        : c,
+    );
+    patchEvent({ id: event.id, data: { cells: serialize(newCells) } });
+    setSelectedCell((prev) => (prev ? { ...prev, modifiers } : null));
+  }
+
   return (
     <div className="flex gap-4">
       <div className="flex-1 space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {pathLength} step{pathLength !== 1 ? "s" : ""} — drag to draw, shift+drag to erase
+            {pathLength} step{pathLength !== 1 ? "s" : ""} - drag to draw, shift+drag to erase
           </p>
           <Button
             size="sm"
@@ -136,23 +165,16 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
           </Button>
         </div>
 
-        <div
-          className="w-full border rounded-lg overflow-hidden select-none"
-          style={{
-            aspectRatio: "18/9",
-            backgroundImage: event.background_url ? `url(${event.background_url})` : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundColor: event.background_url ? undefined : "hsl(var(--muted))",
-          }}
-        >
+        <div className="select-none">
+          <BoardViewport backgroundUrl={event.background_url} leftButtonPans={false}>
           <div
-            className="w-full h-full grid gap-0.5 p-1"
+            className="absolute inset-0 grid gap-0.5 p-2 sm:p-3"
             style={{
-              gridTemplateColumns: `repeat(${event.grid_cols}, 1fr)`,
-              gridTemplateRows: `repeat(${event.grid_rows}, 1fr)`,
+              gridTemplateColumns: `repeat(${event.grid_cols}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${event.grid_rows}, minmax(0, 1fr))`,
             }}
           >
+            <BoardPads startPad={event.start_pad} endPad={event.end_pad} />
             {Array.from({ length: event.grid_rows }, (_, y) =>
               Array.from({ length: event.grid_cols }, (_, x) => {
                 const key = `${x},${y}`;
@@ -167,7 +189,7 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
                     style={{ gridColumn: x + 1, gridRow: y + 1 }}
                     onMouseDown={(e) => onCellDown(x, y, e)}
                     onMouseEnter={() => onCellEnter(x, y)}
-                    className={`relative flex items-center justify-center rounded-sm cursor-crosshair border transition-colors text-[8px] font-medium ${
+                    className={`relative flex items-center justify-center overflow-hidden min-w-0 min-h-0 rounded-sm cursor-crosshair border transition-colors text-[8px] font-medium ${
                       isSelected
                         ? "bg-primary/40 border-primary"
                         : onPath
@@ -190,15 +212,29 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
               }),
             )}
           </div>
+          </BoardViewport>
         </div>
       </div>
 
-      <div className="w-52 shrink-0">
+      <div className="w-52 shrink-0 space-y-2">
+        <PadConfig
+          eventId={event.id}
+          startPad={event.start_pad}
+          endPad={event.end_pad}
+          placing={placing?.kind ?? null}
+          onPlace={(kind, width, height) => setPlacing({ kind, width, height })}
+        />
         <TilePicker
           selectedPathPosition={selectedCell?.path_position ?? null}
           currentTileId={selectedCell?.tile_id}
           onAssign={assignTile}
         />
+        {selectedCell?.path_position != null && (
+          <CellModifiers
+            modifiers={selectedCell.modifiers ?? []}
+            onChange={assignModifiers}
+          />
+        )}
       </div>
     </div>
   );

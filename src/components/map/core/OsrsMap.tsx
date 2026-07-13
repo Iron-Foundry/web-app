@@ -341,6 +341,9 @@ export function OsrsMap({
           style={{ imageRendering: "pixelated" }}
         />
         <div className="absolute inset-0 pointer-events-none">{children}</div>
+        <div className="absolute top-2 left-2 pointer-events-none rounded border border-border bg-background/80 px-2 py-1 font-mono text-xs text-muted-foreground">
+          X: {Math.round(centerX)} Y: {Math.round(centerY)} P: {plane}
+        </div>
       </div>
     </MapContext.Provider>
   );

@@ -1,3 +1,12 @@
+import type { CellModifier, RequirementNode } from "./tilerace-requirements";
+
+export type {
+  BonusEffect,
+  CellModifier,
+  RequirementNode,
+  SabotageAction,
+} from "./tilerace-requirements";
+
 export type TileTag =
   | "precheck"
   | "pvm"
@@ -22,9 +31,18 @@ export interface RepositoryTile {
   icon_url: string | null;
   icon_source: "wiki" | "asset" | "external";
   items: TileItem[];
+  requirement: RequirementNode | null;
   tags: TileTag[];
   created_at: string;
   updated_at: string;
+}
+
+export interface BoardPad {
+  cell_x: number;
+  cell_y: number;
+  width: number;
+  height: number;
+  trigger?: CellModifier | null;
 }
 
 export interface BoardCell {
@@ -32,6 +50,7 @@ export interface BoardCell {
   cell_y: number;
   path_position: number | null;
   tile_id: string | null;
+  modifiers?: CellModifier[];
   tile?: RepositoryTile;
 }
 
@@ -42,6 +61,12 @@ export interface TileRaceEventSummary {
   fog_of_war: boolean;
   grid_cols: number;
   grid_rows: number;
+  dice_count: number;
+  dice_sides: number;
+  is_finished: boolean;
+  winner_team_id: string | null;
+  start_pad: BoardPad | null;
+  end_pad: BoardPad | null;
   background_asset_id: string | null;
   background_url?: string;
   starts_at: string | null;
@@ -64,6 +89,7 @@ export interface TileRaceTeam {
   color: string;
   position: number;
   members: TileRaceParticipant[];
+  pending_effects?: { skip_next?: boolean; extra_rolls?: number };
 }
 
 export interface TileRaceParticipant {
@@ -81,9 +107,22 @@ export interface TileRaceSignup {
 }
 
 export interface DiceRollResult {
-  team_id: string;
-  roll: number;
+  roll?: number;
+  dice?: number[];
   new_position: number;
+  skipped?: boolean;
+  moved_to?: number;
+  allow_extra_roll?: boolean;
+  reroll?: boolean;
+  skip_next?: boolean;
+  game_over?: boolean;
+}
+
+export interface TileCompletion {
+  team_id: string;
+  path_position: number;
+  completed_by: string | null;
+  completed_at: string;
 }
 
 export interface TileRaceTeamCreate {
@@ -107,10 +146,21 @@ export interface TileRaceEventPatch {
   name?: string;
   grid_cols?: number;
   grid_rows?: number;
+  dice_count?: number;
+  dice_sides?: number;
+  start_pad?: BoardPad | null;
+  end_pad?: BoardPad | null;
   background_asset_id?: string | null;
   background_url?: string | null;
   fog_of_war?: boolean;
+  is_finished?: boolean;
   starts_at?: string | null;
   ends_at?: string | null;
-  cells?: Array<{ cell_x: number; cell_y: number; path_position: number | null; tile_id: string | null }>;
+  cells?: Array<{
+    cell_x: number;
+    cell_y: number;
+    path_position: number | null;
+    tile_id: string | null;
+    modifiers?: CellModifier[];
+  }>;
 }

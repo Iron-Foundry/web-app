@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { tileraceApi } from "@/api/tilerace";
 import { queryKeys } from "@/lib/queryKeys";
-import type { RepositoryTile, TileRaceEventCreate, TileRaceEventPatch, TileRaceTeamCreate, TileTag } from "@/types/tilerace";
+import type {
+  RepositoryTile,
+  SabotageAction,
+  TileRaceEventCreate,
+  TileRaceEventPatch,
+  TileRaceTeamCreate,
+  TileTag,
+} from "@/types/tilerace";
 
 const STALE_5M = 1000 * 60 * 5;
 const STALE_24H = 1000 * 60 * 60 * 24;
@@ -221,15 +228,8 @@ export function useScrambleTileraceTeams() {
 export function useRollDice() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      eventId,
-      teamId,
-      roll,
-    }: {
-      eventId: string;
-      teamId: string;
-      roll: number;
-    }) => tileraceApi.rollDice(eventId, teamId, roll),
+    mutationFn: ({ eventId, teamId }: { eventId: string; teamId: string }) =>
+      tileraceApi.rollDice(eventId, teamId),
     onSuccess: (_result, { eventId }) => {
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
@@ -242,6 +242,66 @@ export function useSetFogOfWar() {
   return useMutation({
     mutationFn: ({ eventId, enabled }: { eventId: string; enabled: boolean }) =>
       tileraceApi.setFogOfWar(eventId, enabled),
+    onSuccess: (_result, { eventId }) => {
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+    },
+  });
+}
+
+// Completions
+export function useCompletions(eventId: string) {
+  return useQuery({
+    queryKey: queryKeys.tilerace.completions(eventId),
+    queryFn: () => tileraceApi.listCompletions(eventId),
+    staleTime: STALE_5M,
+    enabled: !!eventId,
+  });
+}
+
+export function useToggleCompletion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      teamId,
+      pathPosition,
+      completed,
+    }: {
+      eventId: string;
+      teamId: string;
+      pathPosition: number;
+      completed: boolean;
+    }) => tileraceApi.toggleCompletion(eventId, teamId, pathPosition, completed),
+    onSuccess: (_result, { eventId }) => {
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.completions(eventId) });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+    },
+  });
+}
+
+export function useSabotage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      teamId,
+      action,
+      targetTeamId,
+      amount,
+    }: {
+      eventId: string;
+      teamId: string;
+      action: SabotageAction;
+      targetTeamId: string;
+      amount: number;
+    }) =>
+      tileraceApi.sabotage(eventId, teamId, {
+        action,
+        target_team_id: targetTeamId,
+        amount,
+      }),
     onSuccess: (_result, { eventId }) => {
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });

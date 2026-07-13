@@ -15,7 +15,7 @@ export function levelFromXp(xp: number): number {
   let hi = XP_TABLE.length - 1;
   while (lo < hi) {
     const mid = (lo + hi + 1) >> 1;
-    if (XP_TABLE[mid] <= xp) lo = mid;
+    if ((XP_TABLE[mid] ?? 0) <= xp) lo = mid;
     else hi = mid - 1;
   }
   return lo + 1;

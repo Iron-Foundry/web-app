@@ -1,4 +1,11 @@
-import type { BoardCell, RepositoryTile, TileRaceTeam, TileTag } from "@/types/tilerace";
+import type {
+  BoardCell,
+  RepositoryTile,
+  RequirementNode,
+  TileItem,
+  TileRaceTeam,
+  TileTag,
+} from "@/types/tilerace";
 
 export const TILE_TAGS: TileTag[] = [
   "precheck",
@@ -47,9 +54,28 @@ export function isCellVisible(
   return cell.path_position <= maxVisible;
 }
 
+export function collectRequirementItems(node: RequirementNode | null): TileItem[] {
+  if (!node) return [];
+  if (node.kind === "item") {
+    return [
+      {
+        item_id: node.item_id,
+        name: node.name,
+        quantity: node.quantity,
+        icon_url: node.icon_url,
+      },
+    ];
+  }
+  if (node.kind === "not") return collectRequirementItems(node.child);
+  return node.children.flatMap(collectRequirementItems);
+}
+
 export function getEffectiveTileIcon(tile: RepositoryTile): string | null {
   if (tile.icon_url) return tile.icon_url;
-  if (tile.items.length > 0) return tile.items[0].icon_url;
+  const firstItem = tile.items[0];
+  if (firstItem?.icon_url) return firstItem.icon_url;
+  const firstLeaf = collectRequirementItems(tile.requirement)[0];
+  if (firstLeaf?.icon_url) return firstLeaf.icon_url;
   return null;
 }
 

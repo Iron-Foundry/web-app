@@ -1,52 +1,31 @@
 import { useState } from "react";
-import { createRoute } from "@tanstack/react-router";
-import { membersLayoutRoute } from "../_layout";
 import { registerPage } from "@/lib/permissions";
-import { StaffGuard } from "@/components/StaffGuard";
 import { GridConfig } from "@/components/tilerace/builder/GridConfig";
 import { PathEditor } from "@/components/tilerace/builder/PathEditor";
 import { TeamManager } from "@/components/tilerace/builder/TeamManager";
+import { ControlsTab } from "@/components/tilerace/controls/ControlsTab";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, Play, Square, Trash2 } from "lucide-react";
+import { Play, Square, Trash2 } from "lucide-react";
 import {
   useActivateTileraceEvent,
   useCreateTileraceEvent,
   useDeactivateTileraceEvent,
   useDeleteTileraceEvent,
-  usePatchTileraceTeam,
-  useSetFogOfWar,
   useTileraceEvent,
   useTileraceEvents,
 } from "@/hooks/useTilerace";
-import type { TileRaceEventSummary } from "@/types/tilerace";
 import { formatTileRaceDate } from "@/lib/tilerace";
 
 registerPage({
   id: "tilerace.admin",
   label: "Tile Race Admin",
   description: "Manage Tile Race events, paths, and teams.",
-  defaults: {
-    read: ["Foundry Mentors"],
-    create: ["Foundry Mentors"],
-    edit: ["Foundry Mentors"],
-    delete: ["Senior Moderator"],
-  },
 });
 
-export const staffTileraceRoute = createRoute({
-  getParentRoute: () => membersLayoutRoute,
-  path: "/config/tilerace",
-  component: () => (
-    <StaffGuard pageId="tilerace.admin">
-      <StaffTileracePage />
-    </StaffGuard>
-  ),
-});
 
 type Tab = "builder" | "events" | "teams" | "controls";
 
@@ -164,70 +143,7 @@ function EventsTab({
   );
 }
 
-function ControlsTab({ eventId }: { eventId: string }): JSX.Element {
-  const { data: event } = useTileraceEvent(eventId);
-  const { mutate: setFogOfWar, isPending: fogPending } = useSetFogOfWar();
-  const { mutate: patchTeam } = usePatchTileraceTeam();
-
-  if (!event) return <p className="text-sm text-muted-foreground">Loading...</p>;
-
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <p className="text-sm font-semibold">Fog of War</p>
-          <p className="text-xs text-muted-foreground">
-            When enabled, tiles beyond the furthest team position are hidden from all viewers.
-          </p>
-          <Button
-            size="sm"
-            variant={event.fog_of_war ? "default" : "outline"}
-            disabled={fogPending}
-            onClick={() => setFogOfWar({ eventId, enabled: !event.fog_of_war })}
-            className="gap-1.5"
-          >
-            {event.fog_of_war ? (
-              <>
-                <EyeOff className="h-3.5 w-3.5" />
-                Fog On
-              </>
-            ) : (
-              <>
-                <Eye className="h-3.5 w-3.5" />
-                Fog Off
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-
-      <div className="space-y-2">
-        <p className="text-sm font-semibold">Team Positions</p>
-        <p className="text-xs text-muted-foreground">Manually set a team's current step.</p>
-        {event.teams.map((team) => (
-          <div key={team.id} className="flex items-center gap-3">
-            <div className="h-4 w-4 rounded-full shrink-0" style={{ backgroundColor: team.color }} />
-            <span className="text-sm flex-1 truncate">{team.name}</span>
-            <Input
-              type="number"
-              min={0}
-              defaultValue={team.position}
-              className="h-7 w-20 text-sm text-center"
-              onBlur={(e) => {
-                const pos = Math.max(0, Number(e.target.value));
-                if (pos !== team.position) {
-                  patchTeam({ eventId, teamId: team.id, data: { position: pos } });
-                }
-              }}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function StaffTileracePage(): JSX.Element {
+export function StaffTileracePage(): JSX.Element {
   const [tab, setTab] = useState<Tab>("events");
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const { data: selectedEvent } = useTileraceEvent(selectedEventId ?? "");

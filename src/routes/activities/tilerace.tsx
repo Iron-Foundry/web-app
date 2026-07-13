@@ -4,7 +4,12 @@ import { registerPage } from "@/lib/permissions";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
-import { useActiveTileraceEvent, useSignUp, useCancelSignup } from "@/hooks/useTilerace";
+import {
+  useActiveTileraceEvent,
+  useCompletions,
+  useSignUp,
+  useCancelSignup,
+} from "@/hooks/useTilerace";
 import { TileBoard } from "@/components/tilerace/TileBoard";
 import { TeamCard } from "@/components/tilerace/TeamCard";
 import { DiceRoller } from "@/components/tilerace/DiceRoller";
@@ -18,12 +23,6 @@ registerPage({
   id: "tilerace",
   label: "Tile Race",
   description: "Tile Race event dashboard.",
-  defaults: {
-    read: [],
-    create: ["Foundry Mentors"],
-    edit: ["Foundry Mentors"],
-    delete: ["Senior Moderator"],
-  },
 });
 
 export const tileraceRoute = createRoute({
@@ -39,6 +38,7 @@ function TileRacePage(): JSX.Element {
   const { data: event, isLoading } = useActiveTileraceEvent();
   const { mutate: signUp, isPending: signingUp } = useSignUp();
   const { mutate: cancelSignup, isPending: cancelling } = useCancelSignup();
+  const { data: completions = [] } = useCompletions(user && event ? event.id : "");
 
   const canManage = hasPermission("tilerace", "edit", effectiveRoles);
 
@@ -103,7 +103,7 @@ function TileRacePage(): JSX.Element {
               )}
               {canManage && (
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/members/config/tilerace">
+                  <Link to="/members" search={{ cp: "tilerace" }}>
                     <Settings className="h-4 w-4 mr-1.5" />
                     Manage
                   </Link>
@@ -122,6 +122,20 @@ function TileRacePage(): JSX.Element {
         </p>
       )}
 
+      {event?.is_finished && (
+        <div className="rounded-xl border border-primary/50 bg-primary/10 p-4 text-center">
+          <p className="font-rs-bold text-2xl text-primary">Game Over</p>
+          <p className="text-sm text-muted-foreground">
+            {event.winner_team_id
+              ? `${
+                  event.teams.find((t) => t.id === event.winner_team_id)?.name ??
+                  "A team"
+                } reached the finish. Rolls are locked.`
+              : "The finish was reached. Rolls are locked."}
+          </p>
+        </div>
+      )}
+
       {event && (
         <>
           <TileBoard event={event} />
@@ -131,6 +145,11 @@ function TileRacePage(): JSX.Element {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {event.teams.map((team) => {
               const currentCell = pathPositionMap.get(team.position);
+              const gated =
+                !!currentCell?.tile_id &&
+                !completions.some(
+                  (c) => c.team_id === team.id && c.path_position === team.position,
+                );
               return (
                 <TeamCard key={team.id} team={team} currentCell={currentCell}>
                   {user && (
@@ -138,6 +157,10 @@ function TileRacePage(): JSX.Element {
                       eventId={event.id}
                       team={team}
                       currentUserId={user.discord_user_id}
+                      diceCount={event.dice_count}
+                      diceSides={event.dice_sides}
+                      gated={gated}
+                      finished={event.is_finished}
                     />
                   )}
                 </TeamCard>

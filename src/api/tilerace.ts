@@ -2,6 +2,8 @@ import { apiFetch } from "@/api/client";
 import type {
   DiceRollResult,
   RepositoryTile,
+  SabotageAction,
+  TileCompletion,
   TileRaceEvent,
   TileRaceEventCreate,
   TileRaceEventPatch,
@@ -93,14 +95,45 @@ export const tileraceApi = {
     apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/teams/scramble`, { method: "POST" }),
 
   // Controls
-  rollDice: (eventId: string, teamId: string, roll: number) =>
+  rollDice: (eventId: string, teamId: string) =>
     apiFetch<DiceRollResult>(`/tilerace/events/${eventId}/teams/${teamId}/roll`, {
       method: "POST",
-      body: JSON.stringify({ roll }),
     }),
   setFogOfWar: (eventId: string, enabled: boolean) =>
     apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/fog-of-war`, {
       method: "PATCH",
       body: JSON.stringify({ enabled }),
     }),
+
+  // Completions
+  listCompletions: (eventId: string) =>
+    apiFetch<TileCompletion[]>(`/tilerace/events/${eventId}/completions`),
+  toggleCompletion: (
+    eventId: string,
+    teamId: string,
+    pathPosition: number,
+    completed: boolean,
+  ) =>
+    apiFetch<{ ok: boolean; completed: boolean }>(
+      `/tilerace/events/${eventId}/teams/${teamId}/completions/${pathPosition}`,
+      { method: "PUT", body: JSON.stringify({ completed }) },
+    ),
+
+  // Sabotage
+  sabotage: (
+    eventId: string,
+    teamId: string,
+    data: { action: SabotageAction; target_team_id: string; amount: number },
+  ) =>
+    apiFetch<{ ok: boolean; action: string }>(
+      `/tilerace/events/${eventId}/teams/${teamId}/sabotage`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          action: data.action,
+          target_team_id: Number(data.target_team_id),
+          amount: data.amount,
+        }),
+      },
+    ),
 };

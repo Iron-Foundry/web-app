@@ -4,15 +4,25 @@ import { Dice6 } from "lucide-react";
 import { useRollDice } from "@/hooks/useTilerace";
 import type { TileRaceTeam } from "@/types/tilerace";
 
-const DICE_FACES = ["1", "2", "3", "4", "5", "6"] as const;
-
 interface DiceRollerProps {
   eventId: string;
   team: TileRaceTeam;
   currentUserId: string;
+  diceCount: number;
+  diceSides: number;
+  gated?: boolean;
+  finished?: boolean;
 }
 
-export function DiceRoller({ eventId, team, currentUserId }: DiceRollerProps): JSX.Element | null {
+export function DiceRoller({
+  eventId,
+  team,
+  currentUserId,
+  diceCount,
+  diceSides,
+  gated = false,
+  finished = false,
+}: DiceRollerProps): JSX.Element | null {
   const captain = team.members.find((m) => m.is_captain);
   const isCaptain = captain?.discord_user_id === currentUserId;
 
@@ -27,21 +37,27 @@ export function DiceRoller({ eventId, team, currentUserId }: DiceRollerProps): J
     };
   }, []);
 
-  function handleRoll() {
-    if (rolling || isPending) return;
-    const result = Math.floor(Math.random() * 6) + 1;
-    setRolling(true);
+  const blocked = gated || finished;
 
+  function handleRoll() {
+    if (rolling || isPending || blocked) return;
+    setRolling(true);
     let ticks = 0;
     intervalRef.current = setInterval(() => {
-      const face = DICE_FACES[Math.floor(Math.random() * 6)];
-      setDisplayFace(face ?? "?");
+      setDisplayFace(String(Math.floor(Math.random() * diceSides) + 1));
       ticks++;
       if (ticks >= 12) {
         if (intervalRef.current) clearInterval(intervalRef.current);
-        setDisplayFace(String(result));
         setRolling(false);
-        rollDice({ eventId, teamId: team.id, roll: result });
+        rollDice(
+          { eventId, teamId: team.id },
+          {
+            onSuccess: (result) => {
+              if (result.skipped) setDisplayFace("skip");
+              else setDisplayFace(String(result.roll ?? "?"));
+            },
+          },
+        );
       }
     }, 80);
   }
@@ -51,7 +67,7 @@ export function DiceRoller({ eventId, team, currentUserId }: DiceRollerProps): J
   return (
     <div className="flex items-center gap-2 mt-2">
       <div
-        className="h-9 w-9 rounded border-2 flex items-center justify-center font-rs-bold text-lg transition-all"
+        className="h-9 min-w-9 px-1 rounded border-2 flex items-center justify-center font-rs-bold text-lg transition-all"
         style={{ borderColor: team.color }}
       >
         {displayFace}
@@ -60,11 +76,18 @@ export function DiceRoller({ eventId, team, currentUserId }: DiceRollerProps): J
         size="sm"
         variant="outline"
         onClick={handleRoll}
-        disabled={rolling || isPending}
+        disabled={rolling || isPending || blocked}
+        title={
+          finished
+            ? "Game over"
+            : gated
+            ? "Complete the current tile first"
+            : undefined
+        }
         className="gap-1.5"
       >
         <Dice6 className="h-3.5 w-3.5" />
-        Roll
+        Roll {diceCount}d{diceSides}
       </Button>
     </div>
   );

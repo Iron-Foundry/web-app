@@ -27,8 +27,8 @@ export function GridConfig({ event }: GridConfigProps): JSX.Element {
   const canDeleteAny = hasPermission("staff.assets", "delete", effectiveRoles);
 
   function handleApplyGrid() {
-    const gridCols = Math.min(20, Math.max(2, Number(cols)));
-    const gridRows = Math.min(12, Math.max(2, Number(rows)));
+    const gridCols = Math.min(50, Math.max(2, Number(cols)));
+    const gridRows = Math.min(30, Math.max(2, Number(rows)));
     patchEvent({ id: event.id, data: { grid_cols: gridCols, grid_rows: gridRows } });
   }
 
@@ -38,7 +38,10 @@ export function GridConfig({ event }: GridConfigProps): JSX.Element {
   }
 
   function handleClearBackground() {
-    patchEvent({ id: event.id, data: { background_url: null } });
+    patchEvent({
+      id: event.id,
+      data: { background_url: null, background_asset_id: null },
+    });
   }
 
   return (
@@ -52,7 +55,7 @@ export function GridConfig({ event }: GridConfigProps): JSX.Element {
             <Input
               type="number"
               min={2}
-              max={20}
+              max={50}
               value={cols}
               onChange={(e) => setCols(e.target.value)}
               className="h-8 w-20 text-sm"
@@ -63,7 +66,7 @@ export function GridConfig({ event }: GridConfigProps): JSX.Element {
             <Input
               type="number"
               min={2}
-              max={12}
+              max={30}
               value={rows}
               onChange={(e) => setRows(e.target.value)}
               className="h-8 w-20 text-sm"

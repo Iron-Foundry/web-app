@@ -3,46 +3,41 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
-import { ItemSearch } from "./ItemSearch";
+import { RequirementEditor } from "./RequirementEditor";
 import { useCreateTile, useUpdateTile } from "@/hooks/useTilerace";
-import { TILE_TAGS } from "@/lib/tilerace";
-import type { RepositoryTile, TileItem, TileTag } from "@/types/tilerace";
+import { TILE_TAGS, collectRequirementItems } from "@/lib/tilerace";
+import type { RepositoryTile, RequirementNode, TileItem, TileTag } from "@/types/tilerace";
 
 interface TileEditorProps {
   tile?: RepositoryTile;
   onDone: () => void;
 }
 
+function initialRequirement(tile?: RepositoryTile): RequirementNode {
+  if (tile?.requirement) return tile.requirement;
+  const leaves: RequirementNode[] = (tile?.items ?? []).map((i: TileItem) => ({
+    kind: "item",
+    item_id: i.item_id,
+    name: i.name,
+    quantity: i.quantity,
+    icon_url: i.icon_url,
+  }));
+  return { kind: "and", children: leaves };
+}
+
 export function TileEditor({ tile, onDone }: TileEditorProps): JSX.Element {
   const [title, setTitle] = useState(tile?.title ?? "");
   const [description, setDescription] = useState(tile?.description ?? "");
   const [iconUrl, setIconUrl] = useState(tile?.icon_url ?? "");
-  const [items, setItems] = useState<TileItem[]>(tile?.items ?? []);
+  const [requirement, setRequirement] = useState<RequirementNode>(
+    initialRequirement(tile),
+  );
   const [tags, setTags] = useState<TileTag[]>(tile?.tags ?? []);
 
   const { mutate: create, isPending: creating } = useCreateTile();
   const { mutate: update, isPending: updating } = useUpdateTile();
 
   const isLoading = creating || updating;
-
-  function addItem(osrsItem: { id: number; name: string; icon_url: string }) {
-    if (items.some((i) => i.item_id === osrsItem.id)) return;
-    setItems((prev) => [
-      ...prev,
-      { item_id: osrsItem.id, name: osrsItem.name, quantity: 1, icon_url: osrsItem.icon_url },
-    ]);
-  }
-
-  function removeItem(itemId: number) {
-    setItems((prev) => prev.filter((i) => i.item_id !== itemId));
-  }
-
-  function updateQuantity(itemId: number, qty: number) {
-    setItems((prev) =>
-      prev.map((i) => (i.item_id === itemId ? { ...i, quantity: Math.max(1, qty) } : i)),
-    );
-  }
 
   function toggleTag(tag: TileTag) {
     setTags((prev) =>
@@ -51,12 +46,14 @@ export function TileEditor({ tile, onDone }: TileEditorProps): JSX.Element {
   }
 
   function handleSubmit() {
+    const items = collectRequirementItems(requirement);
     const data = {
       title,
       description,
       icon_url: iconUrl || null,
       icon_source: "wiki" as const,
       items,
+      requirement,
       tags,
     };
     if (tile) {
@@ -93,33 +90,8 @@ export function TileEditor({ tile, onDone }: TileEditorProps): JSX.Element {
       </div>
 
       <div className="space-y-2">
-        <Label>Items</Label>
-        <ItemSearch onSelect={addItem} />
-        {items.length > 0 && (
-          <ul className="space-y-1.5">
-            {items.map((item) => (
-              <li key={item.item_id} className="flex items-center gap-2">
-                <img src={item.icon_url} alt={item.name} className="h-6 w-6 object-contain" />
-                <span className="flex-1 text-sm">{item.name}</span>
-                <Input
-                  type="number"
-                  min={1}
-                  value={item.quantity}
-                  onChange={(e) => updateQuantity(item.item_id, Number(e.target.value))}
-                  className="h-7 w-16 text-xs text-center"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => removeItem(item.item_id)}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <Label>Requirement</Label>
+        <RequirementEditor node={requirement} onChange={setRequirement} />
       </div>
 
       <div className="space-y-2">
