@@ -14,6 +14,7 @@ import { LinkedAccountsCard } from "@/components/profile/LinkedAccountsCard";
 import { YearlyGoalsCard } from "@/components/profile/YearlyGoalsCard";
 import { WomSnapshotCard } from "@/components/profile/WomSnapshotCard";
 import { SkillsCard } from "@/components/profile/SkillsCard";
+import { BallotTokensCard } from "@/components/profile/BallotTokensCard";
 import type { PlayerBadge } from "@/types/members";
 
 export const membersProfileRoute = createRoute({
@@ -182,6 +183,7 @@ function ProfilePage(): React.JSX.Element | null {
       <div className="space-y-6 lg:col-span-4">
         <ProfileHeaderCard />
         <LinkedAccountsCard />
+        <BallotTokensCard />
         <WomSnapshotCard rsn={user.rsn} />
       </div>
       <div className="space-y-6 lg:col-span-8">
