@@ -10,7 +10,6 @@ import {
   Swords,
   Map,
   Library,
-  Database,
   Activity,
   Archive,
   LayoutTemplate,
@@ -32,7 +31,6 @@ import { BallotTokensConfigPage } from "@/routes/members/config/ballot-tokens";
 import { StaffFrenzyPage } from "@/routes/members/config/frenzy";
 import { StaffTileracePage } from "@/routes/members/config/tilerace";
 import { TileRepositoryPage } from "@/routes/members/config/tile-repository";
-import { MapTilesPage } from "@/routes/members/config/map-tiles";
 import { ServicesPage } from "@/routes/members/config/services";
 import { StaffContentPage } from "@/routes/members/config/content";
 import { PanelConfigPage } from "@/routes/members/config/panel";
@@ -63,7 +61,6 @@ export const CONFIG_PAGES: ConfigPage[] = [
   { id: "permissions", label: "Permissions", icon: Lock, pageId: "staff.permissions", group: "Site Config", Component: PermissionsPage },
   { id: "ranking", label: "Ranking", icon: BarChart2, pageId: "staff.ranking", group: "Site Config", redirectTo: "/members", Component: RankingPage },
   { id: "services", label: "Services", icon: Activity, pageId: "staff.services", group: "Site Config", redirectTo: "/members", Component: ServicesPage },
-  { id: "map-tiles", label: "Map Tiles", icon: Database, pageId: "staff.map_tiles", group: "Site Config", Component: MapTilesPage },
 
   { id: "discord-config", label: "Discord Config", icon: Bot, pageId: "staff.discord-config", group: "Discord Config", Component: DiscordConfigPage },
   { id: "rank-mappings", label: "Rank Mappings", icon: ArrowRightLeft, pageId: "staff.rank-mappings", group: "Discord Config", Component: RankMappingsPage },

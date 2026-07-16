@@ -69,7 +69,7 @@ export function TileMarkerEmbed({ configId, embedded = false }: TileMarkerEmbedP
           )}
         </figcaption>
         <div className={square}>
-          <TileMarkerConfigMap className="h-full w-full" markers={data.data as TileMarkerData[]} />
+          <TileMarkerConfigMap className="absolute inset-0" markers={data.data as TileMarkerData[]} />
         </div>
         <Button
           size="sm"

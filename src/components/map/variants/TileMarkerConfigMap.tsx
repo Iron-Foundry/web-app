@@ -21,7 +21,15 @@ function TileSquareLayer({ squares }: { squares: OsrsTileSquare[] }) {
   return (
     <>
       {squares.map((square, i) => {
-        const { x, y } = osrsToScreen(square.coord);
+        // A RuneLite tile marker names game tile (x,y), which spans world
+        // [x,x+1]x[y,y+1]; its visual centre on the background is (x+0.5, y+0.5).
+        // Anchoring the square/popup at the raw corner shifts it half a tile.
+        const centre = {
+          x: square.coord.x + 0.5,
+          y: square.coord.y + 0.5,
+          plane: square.coord.plane,
+        };
+        const { x, y } = osrsToScreen(centre);
         const isActive = active === i;
         return (
           <div key={i}>
@@ -43,7 +51,7 @@ function TileSquareLayer({ squares }: { squares: OsrsTileSquare[] }) {
             />
             {isActive && square.label && (
               <OsrsPopup
-                coord={square.coord}
+                coord={centre}
                 label={square.label}
                 onClose={() => setActive(null)}
               />
