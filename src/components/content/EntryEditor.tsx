@@ -3,7 +3,7 @@ import { Tabs } from "radix-ui";
 import {
   HelpCircle, ImageIcon, Video, Link2, Eraser,
   Bold, Italic, Strikethrough, Code, FileCode, Heading2, Heading3, Quote,
-  Undo2, Redo2, BookMarked, MapPinned,
+  Undo2, Redo2, BookMarked, MapPinned, Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -16,6 +16,8 @@ import { MarkdownCheatsheet } from "./MarkdownCheatsheet";
 import { AssetPickerDialog } from "./AssetPickerDialog";
 import { EntryRefPickerDialog } from "./EntryRefPickerDialog";
 import { RuneLiteObjectPickerDialog } from "./RuneLiteObjectPickerDialog";
+import { OsrsIconPickerDialog } from "./OsrsIconPickerDialog";
+import { buildImageMarkup, buildVideoMarkup } from "@/lib/guideAssets";
 
 interface EntryEditorProps {
   initialBody: string;
@@ -33,8 +35,10 @@ const tabTrigger = cn(
 
 const headerBar = "flex items-center gap-0.5 flex-wrap border-b border-border bg-muted/40 px-2 py-1.5 shrink-0";
 
-function Sep() {
-  return <div className="w-px h-4 bg-border mx-1" />;
+function Sep({ vertical }: { vertical?: boolean }) {
+  return vertical
+    ? <div className="h-px w-4 bg-border my-1 self-center" />
+    : <div className="w-px h-4 bg-border mx-1" />;
 }
 
 function ToolbarBtn({ title, onClick, disabled, children }: { title: string; onClick: () => void; disabled?: boolean; children: React.ReactNode }) {
@@ -69,14 +73,18 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
   const [assetPickerOpen, setAssetPickerOpen] = useState(false);
   const [refPickerOpen, setRefPickerOpen] = useState(false);
   const [runelitePickerOpen, setRunelitePickerOpen] = useState(false);
+  const [osrsIconPickerOpen, setOsrsIconPickerOpen] = useState(false);
   const [embedUrlOpen, setEmbedUrlOpen] = useState(false);
   const [embedUrlValue, setEmbedUrlValue] = useState("");
+  const [embedAutoplay, setEmbedAutoplay] = useState(false);
   const [tocInsertOpen, setTocInsertOpen] = useState(false);
   const [tocTitle, setTocTitle] = useState("");
   const [tocIndent, setTocIndent] = useState(1);
   const [tocHidden, setTocHidden] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [toolbarStuck, setToolbarStuck] = useState(false);
+  const toolbarSentinelRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const historyRef = useRef<string[]>([initialBody]);
   const historyIndexRef = useRef(0);
@@ -87,6 +95,17 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
     el.style.height = "auto";
     el.style.height = el.scrollHeight + "px";
   }, [body]);
+
+  useEffect(() => {
+    const node = toolbarSentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setToolbarStuck(!(entry?.isIntersecting ?? true)),
+      { threshold: 0 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   const { user } = useAuth();
   const { hasPermission } = usePermissions();
@@ -214,62 +233,90 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
     setTocTitle("");
   }
 
-  function handleAssetSelect(url: string, alt: string, contentType: string) {
+  function handleAssetSelect(url: string, alt: string, contentType: string, width: number | null) {
     insertAtCursor(contentType.startsWith("video/")
-      ? `\n<video src="${url}" controls></video>\n`
-      : `![${alt}](${url})`);
+      ? buildVideoMarkup(url, width)
+      : buildImageMarkup({ url, alt, width }));
   }
 
   function handleEmbedUrl() {
     const url = embedUrlValue.trim();
     if (!url) return;
     const ytId = extractYouTubeId(url);
+    const query = embedAutoplay ? "?autoplay=1&mute=1" : "";
     insertAtCursor(ytId
-      ? `\n<iframe src="https://www.youtube-nocookie.com/embed/${ytId}" width="560" height="315" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>\n`
+      ? `\n<iframe src="https://www.youtube-nocookie.com/embed/${ytId}${query}" width="560" height="315" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>\n`
       : `[Watch](${url})`);
     setEmbedUrlValue("");
+    setEmbedAutoplay(false);
     setEmbedUrlOpen(false);
+  }
+
+  function renderTools(vertical: boolean) {
+    const labelCls = vertical ? "sr-only" : "";
+    return (
+      <>
+        <ToolbarBtn title="Undo (Ctrl+Z)"       onClick={undo} disabled={!canUndo}><Undo2 className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn title="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={!canRedo}><Redo2 className="h-3.5 w-3.5" /></ToolbarBtn>
+        <Sep vertical={vertical} />
+        <ToolbarBtn title="Bold (Ctrl+B)"   onClick={() => wrapSelection("**")}><Bold          className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn title="Italic (Ctrl+I)" onClick={() => wrapSelection("*")} ><Italic        className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn title="Strikethrough"   onClick={() => wrapSelection("~~")}><Strikethrough  className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn title="Inline code"     onClick={() => wrapSelection("`")} ><Code          className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn title="Code block"      onClick={insertCodeBlock}          ><FileCode      className="h-3.5 w-3.5" /></ToolbarBtn>
+        <Sep vertical={vertical} />
+        <ToolbarBtn title="Heading 2"  onClick={() => prefixLine("## ")} ><Heading2 className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn title="Heading 3"  onClick={() => prefixLine("### ")}><Heading3 className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn title="Blockquote" onClick={() => prefixLine("> ")}  ><Quote    className="h-3.5 w-3.5" /></ToolbarBtn>
+        <Sep vertical={vertical} />
+        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setAssetPickerOpen(true)} title="Insert image or video asset" type="button">
+          <ImageIcon className="h-3.5 w-3.5 mr-1" /><span className={labelCls}>Assets</span>
+        </Button>
+        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEmbedUrlOpen(v => !v)} title="Embed YouTube or video URL" type="button">
+          <Video className="h-3.5 w-3.5 mr-1" /><span className={labelCls}>Embed</span>
+        </Button>
+        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setRefPickerOpen(true)} title="Insert entry reference" type="button">
+          <Link2 className="h-3.5 w-3.5 mr-1" /><span className={labelCls}>Reference</span>
+        </Button>
+        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setRunelitePickerOpen(true)} title="Insert RuneLite object" type="button">
+          <MapPinned className="h-3.5 w-3.5 mr-1" /><span className={labelCls}>RuneLite</span>
+        </Button>
+        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setOsrsIconPickerOpen(true)} title="Insert OSRS item or sprite icon" type="button">
+          <Sparkles className="h-3.5 w-3.5 mr-1" /><span className={labelCls}>OSRS Icon</span>
+        </Button>
+        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={openTocInsert} title="Insert TOC anchor" type="button">
+          <BookMarked className="h-3.5 w-3.5 mr-1" /><span className={labelCls}>TOC</span>
+        </Button>
+        <Sep vertical={vertical} />
+        <ToolbarBtn title="Strip leading/trailing whitespace from all lines" onClick={stripWhitespace}>
+          <Eraser className="h-3.5 w-3.5" />
+        </ToolbarBtn>
+      </>
+    );
   }
 
   return (
     <div className="flex gap-4 items-start">
 
+      {/* Floating vertical toolbar that follows the scroll once the main bar leaves view */}
+      <div
+        className={cn(
+          "fixed left-3 top-1/2 z-40 -translate-y-1/2 flex flex-col items-center gap-0.5 rounded-md border border-border bg-background/95 p-1 shadow-lg backdrop-blur transition-all duration-300",
+          toolbarStuck
+            ? "opacity-100 translate-x-0 pointer-events-auto"
+            : "-translate-x-6 opacity-0 pointer-events-none",
+        )}
+        aria-hidden={!toolbarStuck}
+      >
+        {renderTools(true)}
+      </div>
+
       {/* ── Left: Editor panel ── */}
       <div className="flex flex-col flex-1 rounded-md border border-border overflow-hidden">
         <div className={headerBar}>
-          <ToolbarBtn title="Undo (Ctrl+Z)"       onClick={undo} disabled={!canUndo}><Undo2 className="h-3.5 w-3.5" /></ToolbarBtn>
-          <ToolbarBtn title="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={!canRedo}><Redo2 className="h-3.5 w-3.5" /></ToolbarBtn>
-          <Sep />
-          <ToolbarBtn title="Bold (Ctrl+B)"   onClick={() => wrapSelection("**")}><Bold          className="h-3.5 w-3.5" /></ToolbarBtn>
-          <ToolbarBtn title="Italic (Ctrl+I)" onClick={() => wrapSelection("*")} ><Italic        className="h-3.5 w-3.5" /></ToolbarBtn>
-          <ToolbarBtn title="Strikethrough"   onClick={() => wrapSelection("~~")}><Strikethrough  className="h-3.5 w-3.5" /></ToolbarBtn>
-          <ToolbarBtn title="Inline code"     onClick={() => wrapSelection("`")} ><Code          className="h-3.5 w-3.5" /></ToolbarBtn>
-          <ToolbarBtn title="Code block"      onClick={insertCodeBlock}          ><FileCode      className="h-3.5 w-3.5" /></ToolbarBtn>
-          <Sep />
-          <ToolbarBtn title="Heading 2"  onClick={() => prefixLine("## ")} ><Heading2 className="h-3.5 w-3.5" /></ToolbarBtn>
-          <ToolbarBtn title="Heading 3"  onClick={() => prefixLine("### ")}><Heading3 className="h-3.5 w-3.5" /></ToolbarBtn>
-          <ToolbarBtn title="Blockquote" onClick={() => prefixLine("> ")}  ><Quote    className="h-3.5 w-3.5" /></ToolbarBtn>
-          <Sep />
-          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setAssetPickerOpen(true)} title="Insert image or video asset" type="button">
-            <ImageIcon className="h-3.5 w-3.5 mr-1" />Assets
-          </Button>
-          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEmbedUrlOpen(v => !v)} title="Embed YouTube or video URL" type="button">
-            <Video className="h-3.5 w-3.5 mr-1" />Embed
-          </Button>
-          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setRefPickerOpen(true)} title="Insert entry reference" type="button">
-            <Link2 className="h-3.5 w-3.5 mr-1" />Reference
-          </Button>
-          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setRunelitePickerOpen(true)} title="Insert RuneLite object" type="button">
-            <MapPinned className="h-3.5 w-3.5 mr-1" />RuneLite
-          </Button>
-          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={openTocInsert} title="Insert TOC anchor" type="button">
-            <BookMarked className="h-3.5 w-3.5 mr-1" />TOC
-          </Button>
-          <Sep />
-          <ToolbarBtn title="Strip leading/trailing whitespace from all lines" onClick={stripWhitespace}>
-            <Eraser className="h-3.5 w-3.5" />
-          </ToolbarBtn>
+          {renderTools(false)}
         </div>
+        <div ref={toolbarSentinelRef} className="h-px" />
 
         {tocInsertOpen && (
           <div className="flex items-center gap-2 px-2 py-1.5 border-b border-border bg-muted/20 flex-wrap">
@@ -319,6 +366,18 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
               }}
               autoFocus
             />
+            <label
+              className="flex items-center gap-1.5 text-xs text-muted-foreground select-none cursor-pointer shrink-0 whitespace-nowrap"
+              title="YouTube only autoplays when muted, so this starts the video muted"
+            >
+              <input
+                type="checkbox"
+                checked={embedAutoplay}
+                onChange={e => setEmbedAutoplay(e.target.checked)}
+                className="rounded"
+              />
+              Autoplay (muted)
+            </label>
             <Button size="sm" className="h-7 text-xs shrink-0" onClick={handleEmbedUrl} type="button">Embed</Button>
           </div>
         )}
@@ -379,6 +438,12 @@ export function EntryEditor({ initialBody, onSave, onCancel, saving, onBodyChang
       <RuneLiteObjectPickerDialog
         open={runelitePickerOpen}
         onClose={() => setRunelitePickerOpen(false)}
+        onSelect={insertAtCursor}
+      />
+
+      <OsrsIconPickerDialog
+        open={osrsIconPickerOpen}
+        onClose={() => setOsrsIconPickerOpen(false)}
         onSelect={insertAtCursor}
       />
     </div>

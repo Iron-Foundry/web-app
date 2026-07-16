@@ -105,6 +105,7 @@ const components: Components = {
               src={`https://www.youtube-nocookie.com/embed/${ytId}`}
               className="absolute inset-0 w-full h-full rounded-md"
               allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             />
           </div>
@@ -158,11 +159,26 @@ const components: Components = {
       return <div className="callout-info">{children}</div>;
     return <div style={s} className={className} {...props}>{children}</div>;
   },
-  img: ({ src, alt }) => <img src={src} alt={alt ?? ""} className="max-w-full rounded-md my-2" />,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  video: ({ src, ...props }: any) => (
-    <video src={src} controls className="max-w-full rounded-md my-2" {...props} />
-  ),
+  img: ({ src, alt, width, ...props }: any) => {
+    const style = width ? { width: typeof width === "number" ? `${width}px` : width } : undefined;
+    if (props["data-inline"] === "true" || props["data-inline"] === true) {
+      return (
+        <img
+          src={src}
+          alt={alt ?? ""}
+          style={style}
+          className="inline align-middle mx-0.5 my-0 max-w-full"
+        />
+      );
+    }
+    return <img src={src} alt={alt ?? ""} style={style} className="max-w-full rounded-md my-2" />;
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  video: ({ src, width, ...props }: any) => {
+    const style = width ? { width: typeof width === "number" ? `${width}px` : width } : undefined;
+    return <video src={src} controls style={style} className="max-w-full rounded-md my-2" {...props} />;
+  },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   kbd: ({ children }: any) => (
     <kbd className="font-mono text-xs border border-border rounded px-1.5 py-0.5 bg-muted shadow-sm">

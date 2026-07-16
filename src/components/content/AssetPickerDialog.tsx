@@ -4,6 +4,8 @@ import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { assetThumbnailUrl } from "@/lib/assetUrl";
+import { ASSET_SIZE_PRESETS } from "@/lib/guideAssets";
 import { cn } from "@/lib/utils";
 import type { Asset } from "@/types/assets";
 
@@ -16,8 +18,8 @@ function formatBytes(n: number): string {
 interface AssetPickerDialogProps {
   open: boolean;
   onClose: () => void;
-  /** Called when user selects an asset. Provides full URL, suggested alt text, and content type. */
-  onSelect: (url: string, alt: string, contentType: string) => void;
+  /** Called when user selects an asset. Provides full URL, suggested alt text, content type, and chosen width (px, null = full). */
+  onSelect: (url: string, alt: string, contentType: string, width: number | null) => void;
   /** Whether the current user can upload (Mentor+). */
   canUpload: boolean;
   /** Whether the current user can delete others' assets (Senior Mod+). */
@@ -36,7 +38,17 @@ export function AssetPickerDialog({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [sizeKey, setSizeKey] = useState("full");
+  const [customWidth, setCustomWidth] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function selectedWidth(): number | null {
+    if (sizeKey === "custom") {
+      const px = Number(customWidth);
+      return Number.isFinite(px) && px > 0 ? px : null;
+    }
+    return ASSET_SIZE_PRESETS.find((p) => p.key === sizeKey)?.width ?? null;
+  }
 
 
   async function loadAssets() {
@@ -53,6 +65,8 @@ export function AssetPickerDialog({
   useEffect(() => {
     if (open) {
       setSearch("");
+      setSizeKey("full");
+      setCustomWidth("");
       setUploadError(null);
       loadAssets();
     }
@@ -143,6 +157,40 @@ export function AssetPickerDialog({
           <p className="text-xs text-destructive -mt-1">{uploadError}</p>
         )}
 
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs text-muted-foreground mr-1">Insert size:</span>
+          {ASSET_SIZE_PRESETS.map((preset) => (
+            <button
+              key={preset.key}
+              type="button"
+              onClick={() => setSizeKey(preset.key)}
+              className={cn(
+                "text-xs px-2.5 py-1 rounded border transition-colors",
+                sizeKey === preset.key
+                  ? "border-primary bg-primary/10 text-primary font-medium"
+                  : "border-border text-muted-foreground hover:border-foreground/40",
+              )}
+            >
+              {preset.label}
+            </button>
+          ))}
+          <Input
+            type="number"
+            min={1}
+            value={customWidth}
+            onFocus={() => setSizeKey("custom")}
+            onChange={(e) => {
+              setCustomWidth(e.target.value);
+              setSizeKey("custom");
+            }}
+            placeholder="px"
+            className={cn("h-7 w-20 text-xs", sizeKey === "custom" && "border-primary")}
+          />
+        </div>
+        <p className="text-[11px] text-muted-foreground -mt-1">
+          Applied on insert. You can edit <code className="font-mono">width</code> in the text afterwards.
+        </p>
+
         <div className="h-105 overflow-y-auto">
           {loading ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
@@ -158,12 +206,12 @@ export function AssetPickerDialog({
                   role="button"
                   tabIndex={0}
                   onClick={() => {
-                    onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""), asset.content_type);
+                    onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""), asset.content_type, selectedWidth());
                     onClose();
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                      onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""), asset.content_type);
+                      onSelect(`${API_URL}${asset.url}`, asset.original_name.replace(/\.[^.]+$/, ""), asset.content_type, selectedWidth());
                       onClose();
                     }
                   }}
@@ -175,8 +223,10 @@ export function AssetPickerDialog({
                   <div className="flex items-center justify-center h-24 bg-muted/50">
                     {isImage(asset) ? (
                       <img
-                        src={`${API_URL}${asset.url}`}
+                        src={assetThumbnailUrl(asset.url, asset.content_type, 256)}
                         alt={asset.original_name}
+                        loading="lazy"
+                        decoding="async"
                         className="max-h-24 max-w-full object-contain"
                       />
                     ) : isVideo(asset) ? (
