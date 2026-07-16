@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { X, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
+import { assetThumbnailUrl } from "@/lib/assetUrl";
 import type { FeedbackAttachment } from "./FeedbackCard";
 
 interface AttachmentUploaderProps {
@@ -48,8 +49,10 @@ export function AttachmentUploader({ attachments, onChange, disabled }: Attachme
             className="relative group overflow-hidden rounded-md border bg-muted/40"
           >
             <img
-              src={`${API_URL}${a.url}`}
+              src={assetThumbnailUrl(a.url, a.content_type, 128)}
               alt={a.original_name}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-20 object-cover"
             />
             <button

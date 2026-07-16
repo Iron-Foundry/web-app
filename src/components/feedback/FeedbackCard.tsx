@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { assetThumbnailUrl } from "@/lib/assetUrl";
 import { cn } from "@/lib/utils";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { INGAME_TO_DISPLAY, ROLE_BADGE_CLASS } from "@/lib/ranks";
@@ -142,8 +143,10 @@ function AttachmentGrid({ attachments }: { attachments: FeedbackAttachment[] }) 
             className="relative overflow-hidden rounded-md border bg-muted/40 hover:opacity-80 transition-opacity"
           >
             <img
-              src={`${API_URL}${a.url}`}
+              src={assetThumbnailUrl(a.url, a.content_type, 128)}
               alt={a.original_name}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-20 object-cover"
             />
           </button>

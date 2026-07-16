@@ -9,12 +9,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ControlPanel } from "@/components/members/ControlPanel";
 import { hasControlPanelAccess } from "@/components/members/controlPanelPages";
 import { ViewAsMenuItem } from "@/components/members/ViewAsControls";
 import { ViewAsUserDialog } from "@/components/members/ViewAsUserDialog";
 import { API_URL, getAuthToken, useAuth, type AuthUser } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
+import { useControlPanel } from "@/context/ControlPanelContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { highestRoleDisplay, ROLE_BADGE_CLASS } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export function ProfileMenu({ user, logout }: { user: AuthUser; logout: () => vo
   const { realRoles } = useAuth();
   const effectiveRoles = useEffectiveRoles(user.effective_roles);
   const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
-  const [controlPanelOpen, setControlPanelOpen] = useState(false);
+  const { openPanel } = useControlPanel();
   const [viewAsUserOpen, setViewAsUserOpen] = useState(false);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export function ProfileMenu({ user, logout }: { user: AuthUser; logout: () => vo
             </Link>
           </DropdownMenuItem>
           {showControlPanel && (
-            <DropdownMenuItem onSelect={() => setControlPanelOpen(true)}>
+            <DropdownMenuItem onSelect={() => openPanel()}>
               <SlidersHorizontal className="h-4 w-4" />
               Control Panel
             </DropdownMenuItem>
@@ -95,9 +95,6 @@ export function ProfileMenu({ user, logout }: { user: AuthUser; logout: () => vo
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {showControlPanel && (
-        <ControlPanel open={controlPanelOpen} onOpenChange={setControlPanelOpen} />
-      )}
       <ViewAsUserDialog open={viewAsUserOpen} onOpenChange={setViewAsUserOpen} />
     </>
   );

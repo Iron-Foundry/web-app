@@ -1,9 +1,10 @@
-import { createRoute, Link } from "@tanstack/react-router";
+import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "../__root";
 import { registerPage } from "@/lib/permissions";
 import { useAuth } from "@/context/AuthContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
+import { useControlPanel } from "@/context/ControlPanelContext";
 import { useActiveEvent } from "@/hooks/useFrenzy";
 import { FrenzyOverview } from "@/components/frenzy/FrenzyOverview";
 import { FrenzyLeaderboard } from "@/components/frenzy/FrenzyLeaderboard";
@@ -36,6 +37,7 @@ function FrenzyPage() {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const { hasPermission } = usePermissions();
+  const { openPanel } = useControlPanel();
   const { data: activeEvent, isLoading } = useActiveEvent();
 
   const canManage = hasPermission("frenzy", "edit", effectiveRoles);
@@ -73,11 +75,9 @@ function FrenzyPage() {
             <div className="flex items-center gap-2">
               {activeEvent && <FrenzyEventChartsSheet eventName={activeEvent.name} />}
               {canManage && (
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/members" search={{ cp: "frenzy" }}>
-                    <Settings className="h-4 w-4 mr-1.5" />
-                    Manage
-                  </Link>
+                <Button size="sm" variant="outline" onClick={() => openPanel("frenzy")}>
+                  <Settings className="h-4 w-4 mr-1.5" />
+                  Manage
                 </Button>
               )}
             </div>

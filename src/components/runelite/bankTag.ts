@@ -1,3 +1,5 @@
+import { API_URL } from "@/context/AuthContext";
+
 export const BANK_TAG_COLUMNS = 8;
 
 export interface BankTagSlot {
@@ -34,5 +36,5 @@ export function parseBankTag(raw: string): BankTagLayout | null {
 }
 
 export function itemIconUrl(itemId: number): string {
-  return `https://static.runelite.net/cache/item/icon/${itemId}.png`;
+  return `${API_URL}/osrs-cache/item-icons/${itemId}`;
 }

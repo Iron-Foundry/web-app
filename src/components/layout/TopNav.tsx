@@ -12,12 +12,12 @@ import {
 } from "@/components/ui/navigation-menu";
 import { NavLinks } from "./NavLinks";
 import { ProfileMenu } from "./ProfileMenu";
-import { ControlPanel } from "@/components/members/ControlPanel";
 import { hasControlPanelAccess } from "@/components/members/controlPanelPages";
 import { NAV_SECTIONS, MEMBERS_TAB, STAFF_SECTION, getSectionForPath } from "@/lib/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
+import { useControlPanel } from "@/context/ControlPanelContext";
 import { cn } from "@/lib/utils";
 
 const LINK_CLASS = cn(
@@ -42,7 +42,7 @@ export function TopNav() {
   const { user, logout } = useAuth();
   const { hasPermission } = usePermissions();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
-  const [controlPanelOpen, setControlPanelOpen] = useState(false);
+  const { openPanel } = useControlPanel();
   const { pathname } = useLocation();
   const activeTab = getSectionForPath(pathname);
   const navigate = useNavigate();
@@ -151,7 +151,7 @@ export function TopNav() {
                     {showControlPanel && (
                       <button
                         type="button"
-                        onClick={() => { setMobileOpen(false); setControlPanelOpen(true); }}
+                        onClick={() => { setMobileOpen(false); openPanel(); }}
                         className={cn(MOBILE_ACCOUNT_LINK, "text-left")}
                       >
                         Control Panel
@@ -216,9 +216,6 @@ export function TopNav() {
           </Sheet>
         </div>
       </div>
-      {showControlPanel && (
-        <ControlPanel open={controlPanelOpen} onOpenChange={setControlPanelOpen} />
-      )}
     </header>
   );
 }

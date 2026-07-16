@@ -1,3 +1,5 @@
+import { skillSpriteUrl } from "@/lib/skillSprites";
+
 const WIKI = "https://oldschool.runescape.wiki/images";
 
 const BOSS_ICON: Record<string, string> = {
@@ -73,39 +75,11 @@ const BOSS_ICON: Record<string, string> = {
   theatre_of_blood_hard_mode:   "Verzik_Vitur.png",
 };
 
-const SKILL_ICON: Record<string, string> = {
-  attack:       "Attack_icon.png",
-  strength:     "Strength_icon.png",
-  defence:      "Defence_icon.png",
-  ranged:       "Ranged_icon.png",
-  magic:        "Magic_icon.png",
-  prayer:       "Prayer_icon.png",
-  hitpoints:    "Hitpoints_icon.png",
-  slayer:       "Slayer_icon.png",
-  cooking:      "Cooking_icon.png",
-  woodcutting:  "Woodcutting_icon.png",
-  fletching:    "Fletching_icon.png",
-  fishing:      "Fishing_icon.png",
-  firemaking:   "Firemaking_icon.png",
-  crafting:     "Crafting_icon.png",
-  smithing:     "Smithing_icon.png",
-  mining:       "Mining_icon.png",
-  herblore:     "Herblore_icon.png",
-  agility:      "Agility_icon.png",
-  thieving:     "Thieving_icon.png",
-  farming:      "Farming_icon.png",
-  runecrafting: "Runecraft_icon.png",
-  hunter:       "Hunter_icon.png",
-  construction: "Construction_icon.png",
-  sailing:      "Sailing_icon.png",
-};
-
 export function bossIconUrl(name: string): string {
   const file = BOSS_ICON[name];
   return file ? `${WIKI}/${file}` : "";
 }
 
 export function skillIconUrl(name: string): string {
-  const file = SKILL_ICON[name];
-  return file ? `${WIKI}/${file}` : "";
+  return skillSpriteUrl(name);
 }

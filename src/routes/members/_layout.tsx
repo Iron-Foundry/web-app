@@ -8,18 +8,10 @@ import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { ControlPanel } from "@/components/members/ControlPanel";
-
-interface MembersSearch {
-  cp?: string;
-}
 
 export const membersLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/members",
-  validateSearch: (search: Record<string, unknown>): MembersSearch => ({
-    cp: typeof search.cp === "string" ? search.cp : undefined,
-  }),
   component: MembersLayout,
 });
 
@@ -83,8 +75,6 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 function MembersShell({ user }: { user: AuthUser }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { setHasSidebar, hasNestedLayout } = useLayout();
-  const { cp } = membersLayoutRoute.useSearch();
-  const navigate = useNavigate();
 
   useEffect(() => {
     setHasSidebar(true);
@@ -151,13 +141,6 @@ function MembersShell({ user }: { user: AuthUser }) {
           )}
         </div>
       </div>
-      <ControlPanel
-        open={!!cp}
-        initialPageId={cp ?? null}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen) navigate({ to: "/members", search: {} });
-        }}
-      />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { skillSpriteUrl } from "@/lib/skillSprites";
+
 function buildXpTable(): number[] {
   const table: number[] = [0];
   let points = 0;
@@ -55,5 +57,5 @@ export const SKILLS: SkillMeta[] = [
 ];
 
 export function skillIconUrl(wikiSlug: string): string {
-  return `https://oldschool.runescape.wiki/images/${wikiSlug}_icon.png`;
+  return skillSpriteUrl(wikiSlug);
 }
