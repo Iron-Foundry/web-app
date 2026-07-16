@@ -1,10 +1,12 @@
 import type { CellModifier, RequirementNode } from "./tilerace-requirements";
 
 export type {
+  AndRequirement,
   BonusEffect,
   CellModifier,
   RequirementNode,
   SabotageAction,
+  TextRequirement,
 } from "./tilerace-requirements";
 
 export type TileTag =
@@ -43,6 +45,7 @@ export interface BoardPad {
   width: number;
   height: number;
   trigger?: CellModifier | null;
+  ends_game?: boolean;
 }
 
 export interface BoardCell {
@@ -119,6 +122,17 @@ export interface DiceRollResult {
   reroll?: boolean;
   skip_next?: boolean;
   game_over?: boolean;
+}
+
+export interface TileRaceRoll {
+  id: string;
+  team_id: string;
+  dice: number[];
+  roll: number;
+  skipped: boolean;
+  new_position: number;
+  rolled_by: string;
+  rolled_at: string;
 }
 
 export interface TileCompletion {

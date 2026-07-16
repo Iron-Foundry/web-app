@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { tileraceApi } from "@/api/tilerace";
+import { itemIconUrl } from "@/components/runelite/bankTag";
 
 interface OsrsSearchResult {
   id: number;
@@ -49,7 +50,7 @@ export function ItemSearch({ onSelect, placeholder = "Search OSRS items..." }: I
               }}
               className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
             >
-              <img src={item.icon_url} alt={item.name} className="h-6 w-6 object-contain" />
+              <img src={itemIconUrl(item.id)} alt={item.name} className="h-6 w-6 object-contain" />
               <span>{item.name}</span>
             </button>
           ))}

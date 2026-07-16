@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Crown } from "lucide-react";
+import { ChevronDown, ChevronUp, Crown, Dice6 } from "lucide-react";
 import type { BoardCell, RepositoryTile, TileRaceTeam } from "@/types/tilerace";
 import { getEffectiveTileIcon } from "@/lib/tilerace";
 
 interface TeamCardProps {
   team: TileRaceTeam;
   currentCell: BoardCell | undefined;
+  isRolling?: boolean;
   children?: React.ReactNode;
 }
 
-export function TeamCard({ team, currentCell, children }: TeamCardProps): JSX.Element {
+export function TeamCard({
+  team,
+  currentCell,
+  isRolling = false,
+  children,
+}: TeamCardProps): JSX.Element {
   const [membersExpanded, setMembersExpanded] = useState(false);
   const tile = currentCell?.tile ?? null;
   const tileIcon = tile ? getEffectiveTileIcon(tile) : null;
@@ -37,6 +43,12 @@ export function TeamCard({ team, currentCell, children }: TeamCardProps): JSX.El
             <p className="font-semibold text-sm truncate">{team.name}</p>
             <p className="text-xs text-muted-foreground">Step {team.position}</p>
           </div>
+          {isRolling && (
+            <Badge variant="outline" className="gap-1 shrink-0 animate-pulse">
+              <Dice6 className="h-3 w-3 animate-spin" />
+              Rolling
+            </Badge>
+          )}
           {tile && tileIcon && (
             <div className="h-8 w-8 rounded bg-muted flex items-center justify-center overflow-hidden shrink-0">
               <img src={tileIcon} alt={tile.title} className="h-7 w-7 object-contain" />

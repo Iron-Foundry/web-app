@@ -1,3 +1,4 @@
+import { itemIconUrl } from "@/components/runelite/bankTag";
 import type {
   BoardCell,
   RepositoryTile,
@@ -66,6 +67,7 @@ export function collectRequirementItems(node: RequirementNode | null): TileItem[
       },
     ];
   }
+  if (node.kind === "text") return [];
   if (node.kind === "not") return collectRequirementItems(node.child);
   return node.children.flatMap(collectRequirementItems);
 }
@@ -73,9 +75,9 @@ export function collectRequirementItems(node: RequirementNode | null): TileItem[
 export function getEffectiveTileIcon(tile: RepositoryTile): string | null {
   if (tile.icon_url) return tile.icon_url;
   const firstItem = tile.items[0];
-  if (firstItem?.icon_url) return firstItem.icon_url;
+  if (firstItem) return itemIconUrl(firstItem.item_id);
   const firstLeaf = collectRequirementItems(tile.requirement)[0];
-  if (firstLeaf?.icon_url) return firstLeaf.icon_url;
+  if (firstLeaf) return itemIconUrl(firstLeaf.item_id);
   return null;
 }
 

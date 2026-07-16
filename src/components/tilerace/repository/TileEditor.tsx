@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RequirementEditor } from "./RequirementEditor";
+import { RequirementBuilder } from "./RequirementBuilder";
 import { useCreateTile, useUpdateTile } from "@/hooks/useTilerace";
 import { TILE_TAGS, collectRequirementItems } from "@/lib/tilerace";
 import type { RepositoryTile, RequirementNode, TileItem, TileTag } from "@/types/tilerace";
@@ -91,7 +91,7 @@ export function TileEditor({ tile, onDone }: TileEditorProps): JSX.Element {
 
       <div className="space-y-2">
         <Label>Requirement</Label>
-        <RequirementEditor node={requirement} onChange={setRequirement} />
+        <RequirementBuilder node={requirement} onChange={setRequirement} />
       </div>
 
       <div className="space-y-2">

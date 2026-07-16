@@ -1,8 +1,9 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { Check, Eye, EyeOff } from "lucide-react";
 import {
   usePatchTileraceEvent,
   usePatchTileraceTeam,
@@ -10,15 +11,70 @@ import {
   useTileraceEvent,
 } from "@/hooks/useTilerace";
 import { CompletionsPanel } from "./CompletionsPanel";
+import type { TileRaceTeam } from "@/types/tilerace";
 
 interface ControlsTabProps {
   eventId: string;
 }
 
+interface TeamPositionInputProps {
+  eventId: string;
+  team: TileRaceTeam;
+}
+
+function TeamPositionInput({ eventId, team }: TeamPositionInputProps): JSX.Element {
+  const { mutate: patchTeam, isPending } = usePatchTileraceTeam();
+  const [value, setValue] = useState(String(team.position));
+
+  useEffect(() => {
+    setValue(String(team.position));
+  }, [team.position]);
+
+  function commit(): void {
+    const parsed = Number(value);
+    const pos = Number.isFinite(parsed) ? Math.max(0, Math.trunc(parsed)) : team.position;
+    setValue(String(pos));
+    if (pos !== team.position) {
+      patchTeam({ eventId, teamId: team.id, data: { position: pos } });
+    }
+  }
+
+  const dirty = Number(value) !== team.position;
+
+  return (
+    <div className="flex items-center gap-1">
+      <Input
+        type="number"
+        min={0}
+        value={value}
+        disabled={isPending}
+        className="h-7 w-20 text-sm text-center"
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+        }}
+        onBlur={commit}
+      />
+      {dirty && (
+        <Button
+          size="icon"
+          variant="default"
+          className="h-7 w-7 shrink-0"
+          disabled={isPending}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={commit}
+          title="Save position"
+        >
+          <Check className="h-3.5 w-3.5" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export function ControlsTab({ eventId }: ControlsTabProps): JSX.Element {
   const { data: event } = useTileraceEvent(eventId);
   const { mutate: setFogOfWar, isPending: fogPending } = useSetFogOfWar();
-  const { mutate: patchTeam } = usePatchTileraceTeam();
   const { mutate: patchEvent } = usePatchTileraceEvent();
 
   if (!event) return <p className="text-sm text-muted-foreground">Loading...</p>;
@@ -127,18 +183,7 @@ export function ControlsTab({ eventId }: ControlsTabProps): JSX.Element {
               style={{ backgroundColor: team.color }}
             />
             <span className="text-sm flex-1 truncate">{team.name}</span>
-            <Input
-              type="number"
-              min={0}
-              defaultValue={team.position}
-              className="h-7 w-20 text-sm text-center"
-              onBlur={(e) => {
-                const pos = Math.max(0, Number(e.target.value));
-                if (pos !== team.position) {
-                  patchTeam({ eventId, teamId: team.id, data: { position: pos } });
-                }
-              }}
-            />
+            <TeamPositionInput eventId={eventId} team={team} />
           </div>
         ))}
       </div>

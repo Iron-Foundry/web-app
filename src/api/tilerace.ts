@@ -8,6 +8,7 @@ import type {
   TileRaceEventCreate,
   TileRaceEventPatch,
   TileRaceEventSummary,
+  TileRaceRoll,
   TileRaceTeamCreate,
   TileTag,
 } from "@/types/tilerace";
@@ -43,7 +44,7 @@ export const tileraceApi = {
   listTiles: (params?: { tag?: TileTag; search?: string }) => {
     const qs = new URLSearchParams();
     if (params?.tag) qs.set("tag", params.tag);
-    if (params?.search) qs.set("search", params.search);
+    if (params?.search) qs.set("q", params.search);
     const query = qs.toString();
     return apiFetch<RepositoryTile[]>(`/tilerace/repository${query ? `?${query}` : ""}`);
   },
@@ -112,6 +113,8 @@ export const tileraceApi = {
       method: "PATCH",
       body: JSON.stringify({ enabled }),
     }),
+  listRolls: (eventId: string, limit = 25) =>
+    apiFetch<TileRaceRoll[]>(`/tilerace/events/${eventId}/rolls?limit=${limit}`),
 
   // Completions
   listCompletions: (eventId: string) =>

@@ -4,6 +4,9 @@ import { Dice6 } from "lucide-react";
 import { useRollDice } from "@/hooks/useTilerace";
 import type { TileRaceTeam } from "@/types/tilerace";
 
+const ROLL_DURATION_MS = 10000;
+const TICK_MS = 120;
+
 interface DiceRollerProps {
   eventId: string;
   team: TileRaceTeam;
@@ -23,72 +26,93 @@ export function DiceRoller({
   gated = false,
   finished = false,
 }: DiceRollerProps): JSX.Element | null {
-  const captain = team.members.find((m) => m.is_captain);
-  const isCaptain = captain?.discord_user_id === currentUserId;
+  const isMember = team.members.some((m) => m.discord_user_id === currentUserId);
 
   const { mutate: rollDice, isPending } = useRollDice();
   const [displayFace, setDisplayFace] = useState<string>("?");
   const [rolling, setRolling] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [dropMessage, setDropMessage] = useState<string | null>(null);
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (tickRef.current) clearInterval(tickRef.current);
+      if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
     };
   }, []);
 
   const blocked = gated || finished;
 
-  function handleRoll() {
-    if (rolling || isPending || blocked) return;
-    setRolling(true);
-    let ticks = 0;
-    intervalRef.current = setInterval(() => {
-      setDisplayFace(String(Math.floor(Math.random() * diceSides) + 1));
-      ticks++;
-      if (ticks >= 12) {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        setRolling(false);
-        rollDice(
-          { eventId, teamId: team.id },
-          {
-            onSuccess: (result) => {
-              if (result.skipped) setDisplayFace("skip");
-              else setDisplayFace(String(result.roll ?? "?"));
-            },
-          },
-        );
-      }
-    }, 80);
+  function stopSpin(): void {
+    if (tickRef.current) clearInterval(tickRef.current);
+    if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
+    setRolling(false);
   }
 
-  if (!isCaptain) return null;
+  function handleRoll(): void {
+    if (rolling || isPending || blocked) return;
+    setDropMessage(null);
+    setRolling(true);
+    tickRef.current = setInterval(() => {
+      setDisplayFace(String(Math.floor(Math.random() * diceSides) + 1));
+    }, TICK_MS);
+
+    rollDice(
+      { eventId, teamId: team.id },
+      {
+        onSuccess: (result) => {
+          revealTimeoutRef.current = setTimeout(() => {
+            stopSpin();
+            if (result.skipped) setDisplayFace("skip");
+            else setDisplayFace(String(result.roll ?? "?"));
+          }, ROLL_DURATION_MS);
+        },
+        onError: (error) => {
+          stopSpin();
+          setDisplayFace("?");
+          setDropMessage(
+            error instanceof Error
+              ? error.message
+              : "Someone else already rolled for this team.",
+          );
+        },
+      },
+    );
+  }
+
+  if (!isMember) return null;
 
   return (
-    <div className="flex items-center gap-2 mt-2">
-      <div
-        className="h-9 min-w-9 px-1 rounded border-2 flex items-center justify-center font-rs-bold text-lg transition-all"
-        style={{ borderColor: team.color }}
-      >
-        {displayFace}
+    <div className="flex flex-col gap-1 mt-2">
+      <div className="flex items-center gap-2">
+        <div
+          className={`h-9 min-w-9 px-1 rounded border-2 flex items-center justify-center font-rs-bold text-lg transition-all ${
+            rolling ? "animate-pulse" : ""
+          }`}
+          style={{ borderColor: team.color }}
+        >
+          {displayFace}
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleRoll}
+          disabled={rolling || isPending || blocked}
+          title={
+            finished
+              ? "Game over"
+              : gated
+              ? "Complete the current tile first"
+              : undefined
+          }
+          className="gap-1.5"
+        >
+          <Dice6 className={`h-3.5 w-3.5 ${rolling ? "animate-spin" : ""}`} />
+          Roll {diceCount}d{diceSides}
+        </Button>
       </div>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={handleRoll}
-        disabled={rolling || isPending || blocked}
-        title={
-          finished
-            ? "Game over"
-            : gated
-            ? "Complete the current tile first"
-            : undefined
-        }
-        className="gap-1.5"
-      >
-        <Dice6 className="h-3.5 w-3.5" />
-        Roll {diceCount}d{diceSides}
-      </Button>
+      {dropMessage && <p className="text-xs text-muted-foreground">{dropMessage}</p>}
     </div>
   );
 }

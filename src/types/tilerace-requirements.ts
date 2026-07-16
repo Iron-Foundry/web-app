@@ -6,6 +6,11 @@ export interface LeafRequirement {
   icon_url: string;
 }
 
+export interface TextRequirement {
+  kind: "text";
+  text: string;
+}
+
 export interface AndRequirement {
   kind: "and";
   children: RequirementNode[];
@@ -23,6 +28,7 @@ export interface NotRequirement {
 
 export type RequirementNode =
   | LeafRequirement
+  | TextRequirement
   | AndRequirement
   | OrRequirement
   | NotRequirement;

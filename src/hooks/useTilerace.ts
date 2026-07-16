@@ -96,7 +96,7 @@ export function useCreateTile() {
   return useMutation({
     mutationFn: (data: Omit<RepositoryTile, "id" | "created_at" | "updated_at">) =>
       tileraceApi.createTile(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.tilerace.tiles() }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["tilerace", "tiles"] }),
   });
 }
 
@@ -111,7 +111,7 @@ export function useUpdateTile() {
       data: Partial<Omit<RepositoryTile, "id" | "created_at" | "updated_at">>;
     }) => tileraceApi.updateTile(id, data),
     onSuccess: (_result, { id }) => {
-      qc.invalidateQueries({ queryKey: queryKeys.tilerace.tiles() });
+      qc.invalidateQueries({ queryKey: ["tilerace", "tiles"] });
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.tile(id) });
     },
   });
@@ -121,7 +121,7 @@ export function useDeleteTile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => tileraceApi.deleteTile(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.tilerace.tiles() }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["tilerace", "tiles"] }),
   });
 }
 
@@ -252,7 +252,20 @@ export function useRollDice() {
     onSuccess: (_result, { eventId }) => {
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.rolls(eventId) });
     },
+  });
+}
+
+const ROLLS_POLL_MS = 3000;
+
+export function useRecentRolls(eventId: string) {
+  return useQuery({
+    queryKey: queryKeys.tilerace.rolls(eventId),
+    queryFn: () => tileraceApi.listRolls(eventId),
+    staleTime: 0,
+    refetchInterval: ROLLS_POLL_MS,
+    enabled: !!eventId,
   });
 }
 

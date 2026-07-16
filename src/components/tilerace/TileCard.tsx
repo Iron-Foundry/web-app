@@ -39,7 +39,11 @@ export function TileCard({ tile, compact = false, selectable = false, onSelect }
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium truncate">{tile.title}</p>
-            <p className="text-xs text-muted-foreground truncate">{tile.items.length} item{tile.items.length !== 1 ? "s" : ""}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {tile.items.length > 0
+                ? `${tile.items.length} item${tile.items.length !== 1 ? "s" : ""}`
+                : "Custom requirement"}
+            </p>
           </div>
         </button>
         {!selectable && (

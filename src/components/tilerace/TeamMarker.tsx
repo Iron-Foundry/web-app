@@ -1,43 +1,42 @@
 import type { TileRaceTeam } from "@/types/tilerace";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TeamMarkerProps {
   team: TileRaceTeam;
   index: number;
   total: number;
+  isRolling?: boolean;
 }
 
-export function TeamMarker({ team, index, total }: TeamMarkerProps): JSX.Element {
-  const offset = total > 1 ? (index - (total - 1) / 2) * 22 : 0;
+export function TeamMarker({
+  team,
+  index,
+  total,
+  isRolling = false,
+}: TeamMarkerProps): JSX.Element {
+  const offset = total > 1 ? (index - (total - 1) / 2) * 12 : 0;
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div
-          className="absolute top-1/2 w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center overflow-hidden cursor-default transition-transform hover:scale-110 z-10"
-          style={{
-            backgroundColor: team.color,
-            transform: `translate(calc(-50% + ${offset}px), -50%)`,
-            left: "50%",
-          }}
-        >
-          {team.icon_url ? (
-            <img
-              src={team.icon_url}
-              alt={team.name}
-              className="w-6 h-6 object-contain"
-            />
-          ) : (
-            <span className="text-white text-xs font-bold">
-              {team.name.charAt(0).toUpperCase()}
-            </span>
-          )}
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="font-medium">{team.name}</p>
-        <p className="text-xs text-muted-foreground">Step {team.position}</p>
-      </TooltipContent>
-    </Tooltip>
+    <div
+      className={`absolute w-3.5 h-3.5 rounded-full border border-white shadow flex items-center justify-center overflow-hidden cursor-default z-10 ${
+        isRolling ? "animate-bounce ring-2 ring-primary ring-offset-1" : ""
+      }`}
+      style={{
+        backgroundColor: team.color,
+        transform: `translateX(calc(-50% + ${offset}px))`,
+        left: "50%",
+      }}
+    >
+      {team.icon_url ? (
+        <img
+          src={team.icon_url}
+          alt={team.name}
+          className="w-2.5 h-2.5 object-contain"
+        />
+      ) : (
+        <span className="text-white text-[7px] font-bold leading-none">
+          {team.name.charAt(0).toUpperCase()}
+        </span>
+      )}
+    </div>
   );
 }

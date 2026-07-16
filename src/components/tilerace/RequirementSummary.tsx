@@ -1,3 +1,4 @@
+import { itemIconUrl } from "@/components/runelite/bankTag";
 import type { RequirementNode } from "@/types/tilerace";
 
 interface RequirementSummaryProps {
@@ -6,9 +7,9 @@ interface RequirementSummaryProps {
 }
 
 const GROUP_LABEL: Record<"and" | "or" | "not", string> = {
-  and: "All of",
-  or: "Any of",
-  not: "Not",
+  and: "Needs all of:",
+  or: "Needs any one of:",
+  not: "Must not have:",
 };
 
 export function RequirementSummary({
@@ -18,13 +19,11 @@ export function RequirementSummary({
   if (node.kind === "item") {
     return (
       <div className="flex items-center gap-1.5">
-        {node.icon_url && (
-          <img
-            src={node.icon_url}
-            alt={node.name}
-            className="h-4 w-4 object-contain shrink-0"
-          />
-        )}
+        <img
+          src={itemIconUrl(node.item_id)}
+          alt={node.name}
+          className="h-4 w-4 object-contain shrink-0"
+        />
         <span className="text-xs truncate">{node.name || `Item ${node.item_id}`}</span>
         {node.quantity > 1 && (
           <span className="text-xs text-muted-foreground shrink-0">
@@ -33,6 +32,10 @@ export function RequirementSummary({
         )}
       </div>
     );
+  }
+
+  if (node.kind === "text") {
+    return <p className="text-xs whitespace-pre-wrap">{node.text}</p>;
   }
 
   const children = node.kind === "not" ? [node.child] : node.children;

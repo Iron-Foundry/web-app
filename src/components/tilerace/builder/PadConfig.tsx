@@ -25,6 +25,7 @@ interface PadRowProps {
   onPlace: (kind: PadKind, width: number, height: number) => void;
   onClear: (kind: PadKind) => void;
   onTrigger: (kind: PadKind, trigger: CellModifier | null) => void;
+  onEndsGameChange?: (endsGame: boolean) => void;
 }
 
 function PadRow({
@@ -36,6 +37,7 @@ function PadRow({
   onPlace,
   onClear,
   onTrigger,
+  onEndsGameChange,
 }: PadRowProps): JSX.Element {
   const [width, setWidth] = useState(String(pad?.width ?? 2));
   const [height, setHeight] = useState(String(pad?.height ?? 2));
@@ -77,6 +79,19 @@ function PadRow({
           </Button>
         )}
       </div>
+      {pad && onEndsGameChange && (
+        <div className="flex items-center justify-between rounded-md border border-border/60 p-2">
+          <span className="text-xs">Ends the game on landing</span>
+          <Button
+            size="sm"
+            variant={pad.ends_game !== false ? "default" : "outline"}
+            className="h-6 px-2 text-[11px]"
+            onClick={() => onEndsGameChange(pad.ends_game === false)}
+          >
+            {pad.ends_game !== false ? "On" : "Off"}
+          </Button>
+        </div>
+      )}
       {pad && (
         <div>
           <p className="text-[10px] text-muted-foreground">{triggerLabel}</p>
@@ -116,6 +131,12 @@ export function PadConfig({
     });
   }
 
+  function setEndsGame(endsGame: boolean): void {
+    if (!endPad) return;
+    const next = { ...endPad, ends_game: endsGame };
+    patchEvent({ id: eventId, data: { end_pad: next } });
+  }
+
   return (
     <div className="space-y-3 rounded-md border border-border/60 p-3">
       <p className="text-sm font-semibold">Start / Finish Pads</p>
@@ -132,12 +153,13 @@ export function PadConfig({
       <PadRow
         kind="end"
         label="Finish pad (width x height)"
-        triggerLabel="Optional trigger. Reaching the finish ends the game."
+        triggerLabel="Optional trigger when a team lands here"
         pad={endPad}
         active={placing === "end"}
         onPlace={onPlace}
         onClear={clear}
         onTrigger={setTrigger}
+        onEndsGameChange={setEndsGame}
       />
     </div>
   );

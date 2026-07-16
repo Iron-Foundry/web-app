@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Maximize } from "lucide-react";
 import { useZoomPan } from "@/hooks/useZoomPan";
@@ -15,11 +16,21 @@ export function BoardViewport({
 }: BoardViewportProps): JSX.Element {
   const { transform, reset, onWheel, onPointerDown, onPointerMove, onPointerUp } =
     useZoomPan({ leftButtonPans });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const preventPageScroll = (e: WheelEvent) => e.preventDefault();
+    el.addEventListener("wheel", preventPageScroll, { passive: false });
+    return () => el.removeEventListener("wheel", preventPageScroll);
+  }, []);
 
   return (
     <div className="relative w-full">
       <div
-        className="relative w-full overflow-hidden rounded-lg border bg-muted touch-none"
+        ref={containerRef}
+        className="relative w-full overflow-hidden rounded-lg border bg-muted touch-none select-none"
         style={{ aspectRatio: "18/9" }}
         onWheel={onWheel}
         onPointerDown={onPointerDown}

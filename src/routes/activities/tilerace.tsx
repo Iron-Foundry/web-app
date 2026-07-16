@@ -1,21 +1,25 @@
-import { createRoute, Link } from "@tanstack/react-router";
+import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "../__root";
 import { registerPage } from "@/lib/permissions";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
+import { useControlPanel } from "@/context/ControlPanelContext";
 import { useQuery } from "@tanstack/react-query";
 import {
   useActiveTileraceEvent,
   useCompletions,
+  useRecentRolls,
   useSignUp,
   useChangeSignup,
   useCancelSignup,
 } from "@/hooks/useTilerace";
+import { useRollAnimations } from "@/hooks/useRollAnimations";
 import { getAccounts } from "@/api/accounts";
 import { TileBoard } from "@/components/tilerace/TileBoard";
 import { TeamCard } from "@/components/tilerace/TeamCard";
 import { DiceRoller } from "@/components/tilerace/DiceRoller";
+import { RecentRollsPanel } from "@/components/tilerace/RecentRollsPanel";
 import { SignupPanel } from "@/components/events/SignupPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +43,7 @@ function TileRacePage(): JSX.Element {
   const { user } = useAuth();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const { hasPermission } = usePermissions();
+  const { openPanel } = useControlPanel();
   const { data: event, isLoading } = useActiveTileraceEvent();
   const { mutate: signUp, isPending: signingUp } = useSignUp();
   const { mutate: changeSignup, isPending: changing } = useChangeSignup();
@@ -50,6 +55,8 @@ function TileRacePage(): JSX.Element {
     staleTime: 1000 * 60 * 5,
   });
   const { data: completions = [] } = useCompletions(user && event ? event.id : "");
+  const { data: rolls = [] } = useRecentRolls(event ? event.id : "");
+  const rollingTeamIds = useRollAnimations(rolls);
 
   const canManage = hasPermission("tilerace", "edit", effectiveRoles);
 
@@ -116,11 +123,9 @@ function TileRacePage(): JSX.Element {
                 />
               )}
               {canManage && (
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/members" search={{ cp: "tilerace" }}>
-                    <Settings className="h-4 w-4 mr-1.5" />
-                    Manage
-                  </Link>
+                <Button size="sm" variant="outline" onClick={() => openPanel("tilerace")}>
+                  <Settings className="h-4 w-4 mr-1.5" />
+                  Manage
                 </Button>
               )}
             </div>
@@ -152,34 +157,43 @@ function TileRacePage(): JSX.Element {
 
       {event && (
         <>
-          <TileBoard event={event} />
+          <TileBoard event={event} rollingTeamIds={rollingTeamIds} />
 
           <Separator />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {event.teams.map((team) => {
-              const currentCell = pathPositionMap.get(team.position);
-              const gated =
-                !!currentCell?.tile_id &&
-                !completions.some(
-                  (c) => c.team_id === team.id && c.path_position === team.position,
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {event.teams.map((team) => {
+                const currentCell = pathPositionMap.get(team.position);
+                const gated =
+                  !!currentCell?.tile_id &&
+                  !completions.some(
+                    (c) => c.team_id === team.id && c.path_position === team.position,
+                  );
+                return (
+                  <TeamCard
+                    key={team.id}
+                    team={team}
+                    currentCell={currentCell}
+                    isRolling={rollingTeamIds.has(team.id)}
+                  >
+                    {user && (
+                      <DiceRoller
+                        eventId={event.id}
+                        team={team}
+                        currentUserId={user.discord_user_id}
+                        diceCount={event.dice_count}
+                        diceSides={event.dice_sides}
+                        gated={gated}
+                        finished={event.is_finished}
+                      />
+                    )}
+                  </TeamCard>
                 );
-              return (
-                <TeamCard key={team.id} team={team} currentCell={currentCell}>
-                  {user && (
-                    <DiceRoller
-                      eventId={event.id}
-                      team={team}
-                      currentUserId={user.discord_user_id}
-                      diceCount={event.dice_count}
-                      diceSides={event.dice_sides}
-                      gated={gated}
-                      finished={event.is_finished}
-                    />
-                  )}
-                </TeamCard>
-              );
-            })}
+              })}
+            </div>
+
+            <RecentRollsPanel rolls={rolls} teams={event.teams} />
           </div>
         </>
       )}

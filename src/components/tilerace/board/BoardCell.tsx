@@ -14,6 +14,7 @@ interface BoardCellProps {
   teams: TileRaceTeam[];
   visible: boolean;
   onCellClick?: (cell: BoardCellType) => void;
+  rollingTeamIds?: Set<string>;
 }
 
 export function BoardCell({
@@ -21,6 +22,7 @@ export function BoardCell({
   teams,
   visible,
   onCellClick,
+  rollingTeamIds,
 }: BoardCellProps): JSX.Element {
   const isOnPath = cell?.path_position !== null && cell?.path_position !== undefined;
   const tile = cell?.tile ?? null;
@@ -32,7 +34,8 @@ export function BoardCell({
 
   const hidden = !visible;
   const modifiers = cell?.modifiers ?? [];
-  const hasTooltip = !hidden && tile && (tile.description || !!tile.requirement);
+  const hasTileInfo = !!tile && (!!tile.description || !!tile.requirement);
+  const hasTooltip = !hidden && (hasTileInfo || teams.length > 0);
 
   const cellEl = (
     <div
@@ -79,9 +82,15 @@ export function BoardCell({
       )}
 
       {teams.length > 0 && !hidden && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute bottom-0.5 left-0 right-0 flex items-center justify-center pointer-events-none">
           {teams.map((team, i) => (
-            <TeamMarker key={team.id} team={team} index={i} total={teams.length} />
+            <TeamMarker
+              key={team.id}
+              team={team}
+              index={i}
+              total={teams.length}
+              isRolling={rollingTeamIds?.has(team.id)}
+            />
           ))}
         </div>
       )}
@@ -94,11 +103,27 @@ export function BoardCell({
     <Tooltip>
       <TooltipTrigger asChild>{cellEl}</TooltipTrigger>
       <TooltipContent side="top" className="max-w-52 space-y-1.5 p-3">
-        <p className="font-semibold text-sm">{tile!.title}</p>
-        {tile!.description && (
-          <p className="text-xs text-muted-foreground">{tile!.description}</p>
+        {tile && <p className="font-semibold text-sm">{tile.title}</p>}
+        {tile?.description && (
+          <p className="text-xs text-muted-foreground">{tile.description}</p>
         )}
-        {tile!.requirement && <RequirementSummary node={tile!.requirement} />}
+        {tile?.requirement && <RequirementSummary node={tile.requirement} />}
+        {teams.length > 0 && (
+          <div className={hasTileInfo ? "pt-1 border-t space-y-1" : "space-y-1"}>
+            {teams.map((team) => (
+              <div key={team.id} className="flex items-center gap-1.5">
+                <span
+                  className="w-2 h-2 rounded-full shrink-0 border border-white/50"
+                  style={{ backgroundColor: team.color }}
+                />
+                <span className="text-xs font-medium">{team.name}</span>
+                <span className="text-xs text-muted-foreground">
+                  Step {team.position}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </TooltipContent>
     </Tooltip>
   );
