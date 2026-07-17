@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Badge } from "@/components/ui/badge";
 import { rankLabel, formatTime } from "@/components/leaderboards/RankRow";
 import { resolveFilterRank, GEM_RANK_COLOR } from "@/lib/leaderboardRanks";
+import { AccountHoverCard } from "@/components/accounts/accountHoverCard";
 import { cn } from "@/lib/utils";
 import type { PbEntry } from "@/types/leaderboard";
 
@@ -74,7 +75,7 @@ function PbSheetList({ variantMap }: { variantMap: Record<string, PbEntry[]> }):
                 return (
                   <div className={cn("grid gap-x-4 items-center border-b border-border last:border-0 hover:bg-muted/40 rounded-sm py-1.5", GRID)}>
                     <span className="text-xs text-muted-foreground">{rankLabel(item.rank)}</span>
-                    <span className="font-medium text-foreground truncate">{item.entry.player_name}</span>
+                    <AccountHoverCard rsn={item.entry.player_name} className="font-medium text-foreground truncate">{item.entry.player_name}</AccountHoverCard>
                     <span className={cn("text-xs shrink-0", gemRank ? GEM_RANK_COLOR[gemRank] : "text-muted-foreground/30")}>
                       {gemRank ?? "-"}
                     </span>

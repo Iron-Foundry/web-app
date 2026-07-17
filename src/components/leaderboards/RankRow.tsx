@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { useOwnRsns } from "@/hooks/useOwnRsns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { GEM_RANK_DOT_COLOR } from "@/lib/leaderboardRanks";
+import { AccountHoverCard } from "@/components/accounts/accountHoverCard";
 
 export function formatTime(s: number): string {
   const h = Math.floor(s / 3600);
@@ -70,7 +71,7 @@ export function RankRow({
           )}
         >
           <span className="text-xs text-muted-foreground">{rankLabel(rank)}</span>
-          <span className={cn("font-medium text-foreground truncate", compact && "text-xs", isOwn && "own-rsn")}>{name}</span>
+          <AccountHoverCard rsn={name} className={cn("font-medium text-foreground truncate", compact && "text-xs", isOwn && "own-rsn")}>{name}</AccountHoverCard>
           {fourCol && (
             compact
               ? <span className={cn("inline-block h-2 w-2 rounded-full shrink-0 self-center", gemRankText ? GEM_RANK_DOT_COLOR[gemRankText] : "opacity-0")} />

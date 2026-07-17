@@ -1,3 +1,5 @@
+import type { PlayerBadge } from "@/types/members";
+
 export interface PbEntry {
   player_name: string;
   activity: string;
@@ -98,3 +100,29 @@ export interface PlayerBreakdown {
 }
 
 export type LeaderboardTab = "pb" | "clog" | "kc" | "leagues" | "ranking";
+
+export interface AccountRanking {
+  rsn: string;
+  rank: string;
+  points: number;
+  boss_points: number;
+  skill_points: number;
+}
+
+export interface LatestAchievement {
+  type: string;
+  label: string;
+  detail: string | null;
+  timestamp: string;
+}
+
+export interface PlayerProfile {
+  rsn: string;
+  discord_username: string | null;
+  discord_avatar_url: string | null;
+  join_date: string | null;
+  stats_opt_out: boolean;
+  accounts: AccountRanking[];
+  badges: PlayerBadge[];
+  latest_achievement: LatestAchievement | null;
+}

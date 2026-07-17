@@ -14,6 +14,7 @@ import { useOwnRsns } from "@/hooks/useOwnRsns";
 import { ALL_WOM_RANKS, WOM_RANK_COLOR, WOM_RANK_BAR_COLOR, GEM_RANK_COLOR } from "@/lib/leaderboardRanks";
 import { fmtNum } from "@/components/leaderboards/RankRow";
 import type { RankingPlayer } from "@/types/leaderboard";
+import { AccountHoverCard } from "@/components/accounts/accountHoverCard";
 
 const PAGE_SIZE = 50;
 
@@ -129,7 +130,9 @@ function RankingLeaderboardTab(): React.ReactElement {
                     <td className={cn("px-3 py-2 text-muted-foreground tabular-nums", compact && "py-1")}>
                       {page * PAGE_SIZE + i + 1}
                     </td>
-                    <td className={cn("px-3 py-2 font-mono font-medium", compact && "py-1 text-xs", ownRsns.has(p.rsn.toLowerCase()) && "own-rsn")}>{p.rsn}</td>
+                    <td className={cn("px-3 py-2 font-mono font-medium", compact && "py-1 text-xs")}>
+                      <AccountHoverCard rsn={p.rsn} className={cn(ownRsns.has(p.rsn.toLowerCase()) && "own-rsn")}>{p.rsn}</AccountHoverCard>
+                    </td>
                     <td className={cn("px-3 py-2", compact && "py-1", GEM_RANK_COLOR[p.clan_rank ?? ""] ?? "text-muted-foreground")}>
                       <span className="text-xs">{p.clan_rank ?? "-"}</span>
                     </td>

@@ -77,6 +77,7 @@ export const queryKeys = {
     results: (params: string) => ["ranking", "results", params] as const,
     stats: () => ["ranking", "stats"] as const,
     breakdown: (rsn: string) => ["ranking", "breakdown", rsn] as const,
+    profile: (rsn: string) => ["ranking", "profile", rsn] as const,
   },
   services: {
     status: () => ["services", "status"] as const,

@@ -6,6 +6,7 @@ import { fmtGained, rankEmoji, fmtCompetitionLabel, VARIANT_LABELS } from "@/lib
 import type { RaidPlayerRow, RaidTeamRow } from "@/lib/competitions";
 import type { TeamRow, MetricParticipation } from "@/types/competitions";
 import { useOwnRsns } from "@/hooks/useOwnRsns";
+import { AccountHoverCard } from "@/components/accounts/accountHoverCard";
 
 function fmtDiff(diff: number, metric: string): string {
   if (diff === 0) return "-";
@@ -49,7 +50,7 @@ export function ClassicTable({ participations, metric }: { participations: Metri
         return (
           <div key={p.player_name} className={cn("shine-row grid gap-x-2 sm:gap-x-4 px-3 py-2 items-center text-sm border-b border-border/50 last:border-0 hover:bg-muted/30", colsBase, colsSm)}>
             <span className="font-medium text-muted-foreground">{rankEmoji(p.rank)}</span>
-            <span className={cn("truncate font-medium", ownRsns.has(p.player_name.toLowerCase()) && "own-rsn")}>{p.player_name}</span>
+            <AccountHoverCard rsn={p.player_name} className={cn("truncate font-medium", ownRsns.has(p.player_name.toLowerCase()) && "own-rsn")}>{p.player_name}</AccountHoverCard>
             <span className="text-right text-muted-foreground text-xs">{fmtGained(p.start, metric)}</span>
             <span className="text-right text-muted-foreground text-xs">{fmtGained(p.end, metric)}</span>
             <span className="text-right">
@@ -95,7 +96,7 @@ export function TeamTable({ teams, metric }: { teams: TeamRow[]; metric: string 
               <div className="bg-muted/20 border-b border-border/50">
                 {team.members.map((m) => (
                   <div key={m.player_name} className="grid grid-cols-[2.5rem_1fr_auto] gap-x-4 pl-10 pr-3 py-1.5 items-center text-xs text-muted-foreground">
-                    <span /><span className={cn(ownRsns.has(m.player_name.toLowerCase()) && "own-rsn")}>{m.player_name}</span>
+                    <span /><AccountHoverCard rsn={m.player_name} className={cn(ownRsns.has(m.player_name.toLowerCase()) && "own-rsn")}>{m.player_name}</AccountHoverCard>
                     <span className="text-right font-mono text-primary">+{fmtGained(m.gained, metric)}</span>
                   </div>
                 ))}
@@ -127,7 +128,7 @@ export function RaidClassicTable({ rows, variants }: { rows: RaidPlayerRow[]; va
           return (
           <div key={r.player_name} className="shine-row gap-x-4 px-3 py-2 items-center text-sm border-b border-border/50 last:border-0 hover:bg-muted/30" style={{ display: "grid", gridTemplateColumns: gridCols }}>
             <span className="font-medium text-muted-foreground">{rankEmoji(r.rank)}</span>
-            <span className={cn("truncate font-medium", ownRsns.has(r.player_name.toLowerCase()) && "own-rsn")}>{r.player_name}</span>
+            <AccountHoverCard rsn={r.player_name} className={cn("truncate font-medium", ownRsns.has(r.player_name.toLowerCase()) && "own-rsn")}>{r.player_name}</AccountHoverCard>
             {variants.map((v) => <span key={v} className="text-right text-muted-foreground text-xs">{(r.variants[v] ?? 0).toLocaleString()}</span>)}
             <span className="text-right">
               <Badge variant="outline" className="font-mono text-xs" style={rankGainStyle(r.rank, r.total)}>+{r.total.toLocaleString()}</Badge>
@@ -180,7 +181,7 @@ export function RaidTeamTable({ teams, variants }: { teams: RaidTeamRow[]; varia
                 <div className="bg-muted/20 border-b border-border/50">
                   {team.members.map((m) => (
                     <div key={m.player_name} className="gap-x-4 pl-10 pr-3 py-1.5 items-center text-xs text-muted-foreground" style={{ display: "grid", gridTemplateColumns: memberGridCols }}>
-                      <span /><span className={cn(ownRsns.has(m.player_name.toLowerCase()) && "own-rsn")}>{m.player_name}</span>
+                      <span /><AccountHoverCard rsn={m.player_name} className={cn(ownRsns.has(m.player_name.toLowerCase()) && "own-rsn")}>{m.player_name}</AccountHoverCard>
                       {variants.map((v) => <span key={v} className="text-right font-mono text-primary/70">{(m.variants[v] ?? 0).toLocaleString()}</span>)}
                       <span className="text-right font-mono font-semibold text-primary">+{m.total.toLocaleString()}</span>
                     </div>

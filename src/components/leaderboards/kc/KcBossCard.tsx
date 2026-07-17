@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { cn } from "@/lib/utils";
 import { RankRow, RankHeader, rankLabel } from "@/components/leaderboards/RankRow";
 import { resolveFilterRank, GEM_RANK_COLOR } from "@/lib/leaderboardRanks";
+import { AccountHoverCard } from "@/components/accounts/accountHoverCard";
 import type { KcBoss } from "@/types/leaderboard";
 
 const KC_CLAMP = 10;
@@ -41,7 +42,7 @@ function KcSheetList({ entries }: { entries: KcEntry[] }): React.ReactElement {
                 return (
                   <div className="grid grid-cols-[2rem_1fr_5rem_5rem] gap-x-4 items-center border-b border-border last:border-0 hover:bg-muted/40 rounded-sm py-1.5">
                     <span className="text-xs text-muted-foreground">{rankLabel(vItem.index)}</span>
-                    <span className="font-medium text-foreground truncate">{entry.player_name}</span>
+                    <AccountHoverCard rsn={entry.player_name} className="font-medium text-foreground truncate">{entry.player_name}</AccountHoverCard>
                     <span className={cn("text-xs shrink-0", gemRank ? GEM_RANK_COLOR[gemRank] : "text-muted-foreground/30")}>
                       {gemRank ?? "-"}
                     </span>
