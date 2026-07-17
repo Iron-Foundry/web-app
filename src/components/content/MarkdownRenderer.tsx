@@ -100,15 +100,13 @@ const components: Components = {
       const ytId = extractYouTubeId(href);
       if (ytId) {
         return (
-          <div className="relative my-4" style={{ paddingTop: "56.25%" }}>
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${ytId}`}
-              className="absolute inset-0 w-full h-full rounded-md"
-              allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
-          </div>
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${ytId}`}
+            className="block w-full aspect-video rounded-md my-4"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          />
         );
       }
     }

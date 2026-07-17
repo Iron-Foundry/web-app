@@ -757,7 +757,7 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
           </Sheet>
         </div>
 
-        <div className="flex flex-col flex-1 min-h-0 overflow-auto">
+        <div className="flex flex-col flex-1 min-h-0 min-w-0 overflow-auto">
           <div className="flex flex-col flex-1 px-6 pt-6 pb-6">
             <Outlet />
           </div>

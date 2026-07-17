@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Tabs } from "radix-ui";
 import { API_URL } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ interface IconResult {
 }
 
 const ICON_WIDTHS = [20, 24, 32, 48, 64] as const;
+const PAGE_SIZE = 60;
 
 const tabTrigger = cn(
   "flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
@@ -37,45 +38,112 @@ export function OsrsIconPickerDialog({ open, onClose, onSelect }: OsrsIconPicker
   const [inline, setInline] = useState(true);
   const [width, setWidth] = useState(24);
 
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const offsetRef = useRef(0);
+  const hasMoreRef = useRef(true);
+  const fetchingRef = useRef(false);
+  const intersectingRef = useRef(false);
+  const generationRef = useRef(0);
+
   useEffect(() => {
     if (!open) return;
     setQuery("");
-    setResults([]);
     setSelected(null);
     setInline(true);
     setWidth(24);
   }, [open, tab]);
 
+  const fetchPage = useCallback(
+    async (offset: number): Promise<{ rows: IconResult[]; rawLength: number }> => {
+      const q = query.trim();
+      if (tab === "items") {
+        const items = await osrsCacheApi.listItems(PAGE_SIZE, offset, q || undefined);
+        const rows = items
+          .filter((i) => i.icon_url)
+          .map((i) => ({
+            key: `i${i.item_id}`,
+            name: i.name,
+            url: `${API_URL}/osrs-cache${i.icon_url}`,
+          }));
+        return { rows, rawLength: items.length };
+      }
+      const sprites = await osrsCacheApi.listSprites(PAGE_SIZE, offset, { search: q || undefined });
+      const rows = sprites.map((s) => ({
+        key: `s${s.sprite_id}-${s.frame_index}`,
+        name: s.name ?? `Sprite ${s.sprite_id}`,
+        url: `${API_URL}/osrs-cache${s.png_url}`,
+      }));
+      return { rows, rawLength: sprites.length };
+    },
+    [tab, query],
+  );
+
+  const loadMore = useCallback(() => {
+    if (fetchingRef.current || !hasMoreRef.current) return;
+    fetchingRef.current = true;
+    const generation = generationRef.current;
+    fetchPage(offsetRef.current)
+      .then(({ rows, rawLength }) => {
+        if (generation !== generationRef.current) return;
+        offsetRef.current += rawLength;
+        if (rawLength < PAGE_SIZE) hasMoreRef.current = false;
+        setResults((prev) => [...prev, ...rows]);
+      })
+      .catch(() => {
+        if (generation === generationRef.current) hasMoreRef.current = false;
+      })
+      .finally(() => {
+        if (generation !== generationRef.current) return;
+        fetchingRef.current = false;
+        if (intersectingRef.current) loadMore();
+      });
+  }, [fetchPage]);
+
   useEffect(() => {
     if (!open) return;
-    const q = query.trim();
-    let active = true;
+    const generation = ++generationRef.current;
+    offsetRef.current = 0;
+    hasMoreRef.current = true;
+    fetchingRef.current = true;
     setLoading(true);
-    const load = tab === "items"
-      ? osrsCacheApi.listItems(60, 0, q || undefined).then((items) =>
-          items
-            .filter((i) => i.icon_url)
-            .map((i) => ({
-              key: `i${i.item_id}`,
-              name: i.name,
-              url: `${API_URL}/osrs-cache${i.icon_url}`,
-            })),
-        )
-      : osrsCacheApi.listSprites(60, 0, { search: q || undefined }).then((sprites) =>
-          sprites.map((s) => ({
-            key: `s${s.sprite_id}-${s.frame_index}`,
-            name: s.name ?? `Sprite ${s.sprite_id}`,
-            url: `${API_URL}/osrs-cache${s.png_url}`,
-          })),
-        );
-    load
-      .then((r) => active && setResults(r))
-      .catch(() => active && setResults([]))
-      .finally(() => active && setLoading(false));
+    if (gridRef.current) gridRef.current.scrollTop = 0;
+    fetchPage(0)
+      .then(({ rows, rawLength }) => {
+        if (generation !== generationRef.current) return;
+        setResults(rows);
+        offsetRef.current = rawLength;
+        hasMoreRef.current = rawLength === PAGE_SIZE;
+      })
+      .catch(() => {
+        if (generation === generationRef.current) setResults([]);
+      })
+      .finally(() => {
+        if (generation !== generationRef.current) return;
+        fetchingRef.current = false;
+        setLoading(false);
+        if (intersectingRef.current) loadMore();
+      });
+  }, [open, tab, query, fetchPage, loadMore]);
+
+  useEffect(() => {
+    if (!open) return;
+    const node = sentinelRef.current;
+    const rootEl = gridRef.current;
+    if (!node || !rootEl) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        intersectingRef.current = entries[0]?.isIntersecting ?? false;
+        if (intersectingRef.current) loadMore();
+      },
+      { root: rootEl, rootMargin: "200px" },
+    );
+    observer.observe(node);
     return () => {
-      active = false;
+      intersectingRef.current = false;
+      observer.disconnect();
     };
-  }, [open, tab, query]);
+  }, [open, loadMore]);
 
   function handleInsert() {
     if (!selected) return;
@@ -105,7 +173,7 @@ export function OsrsIconPickerDialog({ open, onClose, onSelect }: OsrsIconPicker
           autoFocus
         />
 
-        <div className="grid grid-cols-8 gap-1 h-56 overflow-y-auto rounded-md border border-border p-2 content-start">
+        <div ref={gridRef} className="grid grid-cols-8 gap-1 h-56 overflow-y-auto rounded-md border border-border p-2 content-start">
           {loading ? (
             <p className="col-span-8 py-8 text-center text-sm text-muted-foreground">Loading…</p>
           ) : results.length === 0 ? (
@@ -128,6 +196,7 @@ export function OsrsIconPickerDialog({ open, onClose, onSelect }: OsrsIconPicker
               </button>
             ))
           )}
+          <div ref={sentinelRef} className="col-span-8 h-px" />
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">

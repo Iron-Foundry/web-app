@@ -25,6 +25,7 @@ export function OsrsSpriteTab(): React.JSX.Element {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const generationRef = useRef(0);
+  const scrollElementRef = useRef<Element | null>(null);
 
   const trimmedFilter = filter.trim();
   const filterIsId = trimmedFilter !== "" && /^\d+$/.test(trimmedFilter);
@@ -73,6 +74,7 @@ export function OsrsSpriteTab(): React.JSX.Element {
     offsetRef.current = 0;
     bufferRef.current = null;
     hasMoreRef.current = paginated;
+    if (scrollElementRef.current) scrollElementRef.current.scrollTop = 0;
 
     if (filterIsId) {
       fetchingRef.current = false;
@@ -113,7 +115,9 @@ export function OsrsSpriteTab(): React.JSX.Element {
   }, [filterIsId, trimmedFilter, category, nameSearch, paginated]);
 
   useEffect(() => {
-    setScrollElement(findScrollParent(rootRef.current));
+    const el = findScrollParent(rootRef.current);
+    scrollElementRef.current = el;
+    setScrollElement(el);
   }, []);
 
   useEffect(() => {
