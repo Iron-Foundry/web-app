@@ -4,6 +4,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { shineHandlers } from "@/hooks/useShineEffect";
 import { leaderboardsApi } from "@/api/leaderboards";
 import { queryKeys } from "@/lib/queryKeys";
+import { BadgeIcon } from "@/components/badges/badgeHoverCard";
 import type { PlayerProfile } from "@/types/leaderboard";
 
 /**
@@ -74,6 +75,7 @@ function ProfileBadges({ badges }: { badges: PlayerProfile["badges"] }): React.J
             className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
             style={{ background: b.color, color: b.text_color }}
           >
+            {b.icon && <BadgeIcon icon={b.icon} textColor={b.text_color} className="h-3 w-3 shrink-0" />}
             {b.name}
           </span>
         ))}

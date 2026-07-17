@@ -7,7 +7,7 @@ interface BadgeHoverCardProps {
   className?: string;
 }
 
-function BadgeIcon({ icon, textColor, className }: { icon: string; textColor: string; className: string }): React.JSX.Element {
+export function BadgeIcon({ icon, textColor, className }: { icon: string; textColor: string; className: string }): React.JSX.Element {
   const isSvg = icon.trimStart().startsWith("<");
   return isSvg ? (
     <span
