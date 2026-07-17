@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import DOMPurify from "dompurify";
 import { createRoute, Link } from "@tanstack/react-router";
 import { membersLayoutRoute } from "./_layout";
 import { useAuth } from "@/context/AuthContext";
@@ -17,6 +16,7 @@ import { MemberDashboardSkeleton } from "@/components/skeletons/MemberDashboardS
 import { ActivityFeedSheet } from "@/components/members/ActivityFeedSheet";
 import { NameChangesSheet } from "@/components/members/NameChangesSheet";
 import { CompetitionsSheet } from "@/components/members/CompetitionsSheet";
+import { BadgeHoverCard } from "@/components/badges/badgeHoverCard";
 import {
   FEED_META, FALLBACK_META, FeedIcon,
   formatValue, formatGp, timeAgo, fmtFullDate,
@@ -277,21 +277,13 @@ function DashboardPage() {
               ? <p className="text-xs text-muted-foreground italic">No badges earned yet.</p>
               : (
                 <div className="flex flex-wrap gap-2">
-                  {playerBadges.map((b) => {
-                    const isSvg = b.icon?.trimStart().startsWith("<");
-                    return (
-                      <span key={b.id} title={b.description}
-                        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                        style={{ background: b.color, color: b.text_color }}
-                      >
-                        {b.icon && (isSvg
-                          ? <span className="h-3.5 w-3.5 shrink-0" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(b.icon, { USE_PROFILES: { svg: true, svgFilters: true } }) }} style={{ color: b.text_color }} />
-                          : <img src={b.icon} alt="" className="h-3.5 w-3.5 shrink-0 object-contain" />
-                        )}
-                        {b.name}
-                      </span>
-                    );
-                  })}
+                  {playerBadges.map((b) => (
+                    <BadgeHoverCard
+                      key={b.id}
+                      badge={b}
+                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium cursor-default"
+                    />
+                  ))}
                 </div>
               )
             }

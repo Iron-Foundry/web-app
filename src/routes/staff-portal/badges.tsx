@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Pencil, Trash2, Plus, UserPlus, UserMinus, Upload } from "lucide-react";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
+import { ColorPicker } from "@/components/badges/colorPicker";
+import { GradientBuilder } from "@/components/badges/gradientBuilder";
 
 registerPage({
   id: "staff.badges",
@@ -63,17 +65,6 @@ function BadgePreview({ badge, size = "md" }: { badge: Partial<BadgeEntry>; size
   );
 }
 
-const GRADIENT_PRESETS = [
-  { label: "Indigo",   value: "#6366f1" },
-  { label: "Gold",     value: "linear-gradient(135deg, #f59e0b, #d97706)" },
-  { label: "Emerald",  value: "linear-gradient(135deg, #10b981, #059669)" },
-  { label: "Rose",     value: "linear-gradient(135deg, #f43f5e, #e11d48)" },
-  { label: "Sky",      value: "linear-gradient(135deg, #0ea5e9, #0284c7)" },
-  { label: "Purple",   value: "linear-gradient(135deg, #a855f7, #7c3aed)" },
-  { label: "Sunset",   value: "linear-gradient(135deg, #f97316, #ec4899)" },
-  { label: "Ocean",    value: "linear-gradient(135deg, #06b6d4, #6366f1)" },
-];
-
 function BadgeEditorDialog({
   open,
   initial,
@@ -96,6 +87,7 @@ function BadgeEditorDialog({
   const [textColor, setTextColor] = useState("#ffffff");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   useEffect(() => {
     if (open) {
@@ -105,6 +97,7 @@ function BadgeEditorDialog({
       setColor(initial?.color ?? "#6366f1");
       setTextColor(initial?.text_color ?? "#ffffff");
       setError(null);
+      setFormKey((k) => k + 1);
     }
   }, [open, initial]);
 
@@ -183,39 +176,16 @@ function BadgeEditorDialog({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Background color / gradient</label>
-            <div className="mt-1 flex flex-wrap gap-1.5 mb-2">
-              {GRADIENT_PRESETS.map((p) => (
-                <button
-                  key={p.label}
-                  title={p.label}
-                  onClick={() => setColor(p.value)}
-                  className="h-6 w-6 rounded-full border-2 transition-all"
-                  style={{
-                    background: p.value,
-                    borderColor: color === p.value ? "white" : "transparent",
-                    boxShadow: color === p.value ? "0 0 0 1px #6366f1" : undefined,
-                  }}
-                />
-              ))}
+            <label className="text-xs font-medium text-muted-foreground">Background</label>
+            <div className="mt-1">
+              <GradientBuilder key={formKey} initialValue={color} onChange={setColor} />
             </div>
-            <Input
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              placeholder="e.g. #6366f1 or linear-gradient(135deg, #f59e0b, #d97706)"
-              className="font-mono text-xs"
-            />
           </div>
 
           <div>
             <label className="text-xs font-medium text-muted-foreground">Text color</label>
             <div className="mt-1 flex items-center gap-2">
-              <input
-                type="color"
-                value={textColor}
-                onChange={(e) => setTextColor(e.target.value)}
-                className="h-8 w-12 cursor-pointer rounded border border-border bg-transparent"
-              />
+              <ColorPicker value={textColor} onChange={setTextColor} label="Text color" />
               <Input value={textColor} onChange={(e) => setTextColor(e.target.value)} className="font-mono text-xs" />
             </div>
           </div>

@@ -16,6 +16,7 @@ import { WomSnapshotCard } from "@/components/profile/WomSnapshotCard";
 import { SkillsCard } from "@/components/profile/SkillsCard";
 import { BallotTokensCard } from "@/components/profile/BallotTokensCard";
 import type { PlayerBadge } from "@/types/members";
+import { BadgeHoverCard } from "@/components/badges/badgeHoverCard";
 
 export const membersProfileRoute = createRoute({
   getParentRoute: () => membersLayoutRoute,
@@ -137,27 +138,9 @@ function BadgesCard(): React.JSX.Element | null {
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2">
-          {badges.map((b: PlayerBadge) => {
-            const isSvg = b.icon?.trimStart().startsWith("<");
-            const iconSrc = b.icon
-              ? isSvg
-                ? `data:image/svg+xml,${encodeURIComponent(b.icon)}`
-                : b.icon
-              : null;
-            return (
-              <span
-                key={b.id}
-                title={b.description}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium"
-                style={{ background: b.color, color: b.text_color }}
-              >
-                {iconSrc && (
-                  <img src={iconSrc} alt="" className="h-4 w-4 shrink-0 object-contain" />
-                )}
-                {b.name}
-              </span>
-            );
-          })}
+          {badges.map((b: PlayerBadge) => (
+            <BadgeHoverCard key={b.id} badge={b} />
+          ))}
         </div>
       </CardContent>
     </Card>

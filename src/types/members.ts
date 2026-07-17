@@ -5,6 +5,7 @@ export interface PlayerBadge {
   icon: string | null;
   color: string;
   text_color: string;
+  assigned_at?: string | null;
 }
 
 export interface FeedItem {
