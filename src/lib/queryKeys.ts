@@ -9,7 +9,7 @@ export const queryKeys = {
     pb: () => ["leaderboards", "pb"] as const,
     clog: () => ["leaderboards", "clog"] as const,
     killcounts: () => ["leaderboards", "killcounts"] as const,
-    leagues: () => ["leaderboards", "leagues"] as const,
+    cluescrolls: () => ["leaderboards", "cluescrolls"] as const,
   },
   competitions: {
     list: () => ["competitions"] as const,

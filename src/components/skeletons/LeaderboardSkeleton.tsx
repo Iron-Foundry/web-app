@@ -13,7 +13,7 @@ function CardSkeleton({ rows = 5, compact = false }: { rows?: number; compact?: 
   );
 }
 
-/** Grid of cards - used for PB / KC tabs. */
+/** Grid of cards - used for PB / KC / Cluescrolls tabs. */
 export function LeaderboardSkeleton({ compact = false }: { compact?: boolean }) {
   const cols = compact ? 5 : 3;
   return (
@@ -25,7 +25,7 @@ export function LeaderboardSkeleton({ compact = false }: { compact?: boolean }) 
   );
 }
 
-/** Single-card list skeleton - used for Clog / Leagues tabs. */
+/** Single-card list skeleton - used for Clog tab. */
 export function LeaderboardListSkeleton({ compact = false }: { compact?: boolean }) {
   return (
     <div className="rounded-lg border border-border bg-card p-4 space-y-2">

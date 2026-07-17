@@ -10,7 +10,7 @@ import { leaderboardsRoute } from "./leaderboards";
 import { leaderboardsPbRoute } from "./leaderboards/pb";
 import { leaderboardsKcRoute } from "./leaderboards/kc";
 import { leaderboardsClogRoute } from "./leaderboards/clog";
-import { leaderboardsLeaguesRoute } from "./leaderboards/leagues";
+import { leaderboardsCluescrollsRoute } from "./leaderboards/cluescrolls";
 import { leaderboardsRankingRoute } from "./leaderboards/ranking";
 import { partiesRoute } from "./parties";
 import { competitionsRoute } from "./competitions";
@@ -81,7 +81,7 @@ const leaderboardsTree = leaderboardsRoute.addChildren([
   leaderboardsPbRoute,
   leaderboardsKcRoute,
   leaderboardsClogRoute,
-  leaderboardsLeaguesRoute,
+  leaderboardsCluescrollsRoute,
   leaderboardsRankingRoute,
 ]);
 

@@ -15,7 +15,7 @@ const TABS = [
   { to: "/leaderboards/pb", label: "Personal Bests" },
   { to: "/leaderboards/clog", label: "Collection Logs" },
   { to: "/leaderboards/kc", label: "Killcounts" },
-  { to: "/leaderboards/leagues", label: "Cluescrolls" },
+  { to: "/leaderboards/cluescrolls", label: "Cluescrolls" },
   { to: "/leaderboards/ranking", label: "Ranking" },
 ] as const;
 

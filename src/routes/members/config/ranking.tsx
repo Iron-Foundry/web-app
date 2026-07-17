@@ -10,7 +10,7 @@ import { BarChart2, RefreshCw, TrendingUp, TrendingDown, Minus, X } from "lucide
 registerPage({
   id: "staff.ranking",
   label: "Ranking",
-  description: "Daily WOM-based clan member ranking by boss KC and skill XP.",
+  description: "Hourly WOM-based clan member ranking by boss KC and skill XP.",
 });
 
 
@@ -813,7 +813,7 @@ export function RankingPage() {
         <div>
           <h1 className="text-xl font-semibold">Ranking</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Daily WOM-based clan ranking - boss KC and skill XP.
+            Hourly WOM-based clan ranking - boss KC and skill XP.
           </p>
         </div>
       </div>

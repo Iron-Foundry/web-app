@@ -28,10 +28,10 @@ export function useKillcountLeaderboard() {
   });
 }
 
-export function useLeagueLeaderboard() {
+export function useCluescrollLeaderboard() {
   return useQuery({
-    queryKey: queryKeys.leaderboards.leagues(),
-    queryFn: leaderboardsApi.getLeagues,
+    queryKey: queryKeys.leaderboards.cluescrolls(),
+    queryFn: leaderboardsApi.getCluescrolls,
     staleTime: STALE,
   });
 }

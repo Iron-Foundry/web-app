@@ -30,11 +30,17 @@ export interface KcBoss {
   entries: KcEntry[];
 }
 
-export interface LeaguesEntry {
+export interface ClueEntry {
   player_name: string;
   score: number;
   clan_rank?: string | null;
   discord_rank?: string | null;
+}
+
+export interface ClueTier {
+  metric: string;
+  display_name: string;
+  entries: ClueEntry[];
 }
 
 export interface RankingPlayer {
@@ -99,7 +105,7 @@ export interface PlayerBreakdown {
   total_points: number;
 }
 
-export type LeaderboardTab = "pb" | "clog" | "kc" | "leagues" | "ranking";
+export type LeaderboardTab = "pb" | "clog" | "kc" | "cluescrolls" | "ranking";
 
 export interface AccountRanking {
   rsn: string;
