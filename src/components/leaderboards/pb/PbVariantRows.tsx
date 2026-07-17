@@ -10,14 +10,14 @@ function EmptyRankRow({ compact }: { compact: boolean }): React.ReactElement {
   return (
     <div
       className={cn(
-        compact ? "grid grid-cols-[1.5rem_1fr_auto_auto] gap-x-3 items-center border-b border-border" : "grid grid-cols-[2rem_1fr_5rem_5rem] gap-x-3 items-center border-b border-border",
+        compact ? "grid grid-cols-[1.5rem_1fr_auto_auto] gap-x-3 items-center border-b border-border" : "grid grid-cols-[2rem_1fr_5rem_4rem] gap-x-3 items-center border-b border-border",
         compact ? "py-0.5" : "py-1.5",
       )}
     >
       <span className="text-xs text-muted-foreground/25">-</span>
       <span className="text-xs text-muted-foreground/25">-</span>
-      <span className="text-xs invisible">Dragonstone</span>
-      <div className="flex justify-end">
+      <span className="text-xs invisible truncate self-center">Dragonstone</span>
+      <div className="flex items-center justify-end overflow-hidden">
         <Badge variant="secondary" className={cn("font-rs-bold tabular-nums invisible", compact ? "text-xs px-1.5 py-0" : "text-xs")}>
           0:00.00
         </Badge>

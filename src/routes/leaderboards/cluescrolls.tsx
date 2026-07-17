@@ -43,9 +43,18 @@ function CluescrollsLeaderboardTab(): React.ReactElement {
       )
     : filteredTiers;
 
+  // This page's container caps at max-w-7xl (1280px) and never gets wider,
+  // and the root layout adds px-6 (48px) around it - so available width
+  // plateaus well under 1280px regardless of viewport. Comfortable mode's
+  // fixed row overhead (rank + CC Rank + value + gaps = 188px) doesn't
+  // leave a 12-char RSN enough room in 4 columns at any container width
+  // this page can reach, so comfortable stays single-column. Compact's
+  // overhead is much cheaper (auto-sized CC Rank/value), so 4 columns only
+  // once the container is near its 1280px ceiling; a 5th column would only
+  // ever shrink cards further since the container can't grow past that cap.
   const cols = compact
-    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
-    : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3";
+    ? "grid-cols-1 xl:grid-cols-4"
+    : "grid-cols-1";
 
   return (
     <div className="space-y-4">
