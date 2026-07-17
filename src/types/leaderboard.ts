@@ -125,4 +125,7 @@ export interface PlayerProfile {
   accounts: AccountRanking[];
   badges: PlayerBadge[];
   latest_achievement: LatestAchievement | null;
+  total_loot_value: number;
+  collection_log_slots: number;
+  collection_log_slots_max: number;
 }

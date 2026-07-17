@@ -21,6 +21,13 @@ interface AccountHoverCardProps {
   className?: string;
 }
 
+function formatGp(v: number): string {
+  if (v >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(1)}B`;
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `${Math.round(v / 1_000)}K`;
+  return v.toLocaleString();
+}
+
 function formatDate(value: string | null): string | null {
   if (!value) return null;
   const date = new Date(value);
@@ -99,6 +106,22 @@ function ProfileLatestAchievement({ achievement }: { achievement: PlayerProfile[
   );
 }
 
+function ProfileFooter({ profile }: { profile: PlayerProfile }): React.JSX.Element | null {
+  if (profile.total_loot_value <= 0 && profile.collection_log_slots_max <= 0) return null;
+  return (
+    <div className="flex items-center justify-between border-t border-border pt-2 text-xs">
+      <span className="text-muted-foreground">
+        Loot: <span className="font-medium text-foreground">{formatGp(profile.total_loot_value)}</span>
+      </span>
+      {profile.collection_log_slots_max > 0 && (
+        <span className="text-muted-foreground">
+          Clog: <span className="font-medium text-foreground">{profile.collection_log_slots}/{profile.collection_log_slots_max}</span>
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function AccountHoverCard({ rsn, children, className }: AccountHoverCardProps): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const { data: profile, isLoading } = useQuery({
@@ -131,6 +154,7 @@ export function AccountHoverCard({ rsn, children, className }: AccountHoverCardP
                   <ProfileRankings accounts={profile.accounts} />
                   <ProfileBadges badges={profile.badges} />
                   <ProfileLatestAchievement achievement={profile.latest_achievement} />
+                  <ProfileFooter profile={profile} />
                 </>
               )}
             </>
