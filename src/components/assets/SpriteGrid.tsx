@@ -1,6 +1,8 @@
+import { useCallback, useState } from "react";
 import type { OsrsSprite } from "@/types/osrsCache";
 import { SpriteCell } from "@/components/assets/SpriteCell";
 import { SpriteHoverPreview } from "@/components/assets/SpriteHoverPreview";
+import { SpriteRenderDialog } from "@/components/assets/SpriteRenderDialog";
 import { useHoverPreview } from "@/components/assets/useHoverPreview";
 import { GRID_GAP, useVirtualLaneGrid } from "@/components/assets/useVirtualLaneGrid";
 
@@ -24,6 +26,10 @@ export function SpriteGrid({
     scrollElement,
   );
   const preview = useHoverPreview<OsrsSprite>();
+  const [renderTarget, setRenderTarget] = useState<OsrsSprite | null>(null);
+
+  const openRender = useCallback((sprite: OsrsSprite) => setRenderTarget(sprite), []);
+  const closeRender = useCallback(() => setRenderTarget(null), []);
 
   return (
     <div ref={containerRef} style={{ position: "relative", height: virtualizer.getTotalSize() }}>
@@ -41,12 +47,14 @@ export function SpriteGrid({
               copied={copied === sprite.sprite_id}
               onCopy={onCopy}
               onDownload={onDownload}
+              onOpenRender={openRender}
               onHoverStart={preview.start}
               onHoverEnd={preview.end}
             />
           );
         })}
 
+      {renderTarget && <SpriteRenderDialog sprite={renderTarget} onClose={closeRender} />}
       {preview.target && <SpriteHoverPreview sprite={preview.target} />}
     </div>
   );

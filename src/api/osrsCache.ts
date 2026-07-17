@@ -11,6 +11,10 @@ export const ITEM_RENDER_SIZES = [32, 64, 128, 256, 512, 1024, 2048, 4096] as co
 
 export type ItemRenderSize = (typeof ITEM_RENDER_SIZES)[number];
 
+export const SPRITE_RENDER_SCALES = Array.from({ length: 32 }, (_, i) => i + 1);
+
+export type SpriteRenderScale = number;
+
 export const osrsCacheApi = {
   meta: () => apiFetch<OsrsCacheMeta>("/osrs-cache/meta"),
 
@@ -69,5 +73,19 @@ export const osrsCacheApi = {
       if (err instanceof ApiRequestError && err.status === 404) return [];
       throw err;
     }
+  },
+
+  renderSprite: async (
+    spriteId: number,
+    frameIndex: number,
+    scale: SpriteRenderScale,
+  ): Promise<Blob> => {
+    const res = await fetch(
+      `${API_URL}/osrs-cache/sprites/${spriteId}/${frameIndex}?format=webp&scale=${scale}`,
+    );
+    if (!res.ok) {
+      throw new ApiRequestError(res.status, "RENDER_FAILED", "Sprite render failed");
+    }
+    return res.blob();
   },
 };

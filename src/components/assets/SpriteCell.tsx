@@ -1,8 +1,11 @@
 import { memo } from "react";
 import { API_URL } from "@/context/AuthContext";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Download, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { OsrsSprite } from "@/types/osrsCache";
+
+const OVERLAY_BUTTON =
+  "absolute p-0.5 rounded bg-background/80 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity";
 
 export interface SpriteCellProps {
   sprite: OsrsSprite;
@@ -12,6 +15,7 @@ export interface SpriteCellProps {
   copied: boolean;
   onCopy: (sprite: OsrsSprite) => void;
   onDownload: (sprite: OsrsSprite) => void;
+  onOpenRender: (sprite: OsrsSprite) => void;
   onHoverStart: (sprite: OsrsSprite) => void;
   onHoverEnd: () => void;
 }
@@ -24,6 +28,7 @@ function SpriteCellImpl({
   copied,
   onCopy,
   onDownload,
+  onOpenRender,
   onHoverStart,
   onHoverEnd,
 }: SpriteCellProps): React.JSX.Element {
@@ -54,7 +59,7 @@ function SpriteCellImpl({
           e.stopPropagation();
           onDownload(sprite);
         }}
-        className="absolute top-1 left-1 p-0.5 rounded bg-background/80 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+        className={cn(OVERLAY_BUTTON, "top-1 left-1 hover:text-foreground")}
         title="Download PNG"
       >
         <Download className="h-3 w-3" />
@@ -66,6 +71,16 @@ function SpriteCellImpl({
           <Copy className="h-3 w-3 text-muted-foreground" />
         )}
       </div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenRender(sprite);
+        }}
+        className={cn(OVERLAY_BUTTON, "bottom-1 left-1 hover:text-foreground")}
+        title="Render at custom scale"
+      >
+        <Maximize2 className="h-3 w-3" />
+      </button>
     </div>
   );
 }

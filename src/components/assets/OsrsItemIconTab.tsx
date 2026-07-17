@@ -121,7 +121,7 @@ export function OsrsItemIconTab(): React.JSX.Element {
     const observer = new IntersectionObserver(
       (entries) => {
         intersectingRef.current = entries[0]?.isIntersecting ?? false;
-        if (intersectingRef.current) drain();
+        if (intersectingRef.current) drainRef.current();
       },
       { root: findScrollParent(node), rootMargin: "600px" },
     );
@@ -130,7 +130,7 @@ export function OsrsItemIconTab(): React.JSX.Element {
       intersectingRef.current = false;
       observer.disconnect();
     };
-  }, [paginated, drain]);
+  }, [paginated]);
 
   const copyUrl = useCallback(async (item: OsrsItem) => {
     if (!item.icon_url) return;
