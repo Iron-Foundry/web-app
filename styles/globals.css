@@ -198,6 +198,10 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
+.text-shadow-white {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+}
+
 /* Stat cards */
 .stat-card {
   border-radius: 0.75rem;

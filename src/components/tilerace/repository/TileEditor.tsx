@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RequirementBuilder } from "./RequirementBuilder";
+import { AssetPickerDialog } from "@/components/assets/AssetPickerDialog";
 import { useCreateTile, useUpdateTile } from "@/hooks/useTilerace";
 import { TILE_TAGS, collectRequirementItems } from "@/lib/tilerace";
 import type { RepositoryTile, RequirementNode, TileItem, TileTag } from "@/types/tilerace";
@@ -29,6 +31,7 @@ export function TileEditor({ tile, onDone }: TileEditorProps): JSX.Element {
   const [title, setTitle] = useState(tile?.title ?? "");
   const [description, setDescription] = useState(tile?.description ?? "");
   const [iconUrl, setIconUrl] = useState(tile?.icon_url ?? "");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [requirement, setRequirement] = useState<RequirementNode>(
     initialRequirement(tile),
   );
@@ -82,12 +85,30 @@ export function TileEditor({ tile, onDone }: TileEditorProps): JSX.Element {
 
       <div className="space-y-1.5">
         <Label>Icon URL override</Label>
-        <Input
-          value={iconUrl}
-          onChange={(e) => setIconUrl(e.target.value)}
-          placeholder="Leave blank to use first item icon"
-        />
+        <div className="flex gap-1.5">
+          <Input
+            value={iconUrl}
+            onChange={(e) => setIconUrl(e.target.value)}
+            placeholder="Leave blank to use first item icon"
+          />
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            className="shrink-0"
+            onClick={() => setPickerOpen(true)}
+            title="Choose icon from items, sprites, or uploaded assets"
+          >
+            <ImageIcon className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
+
+      <AssetPickerDialog
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={setIconUrl}
+      />
 
       <div className="space-y-2">
         <Label>Requirement</Label>

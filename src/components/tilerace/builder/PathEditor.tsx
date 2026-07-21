@@ -147,8 +147,16 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
   }
 
   return (
-    <div className="flex gap-4">
-      <div className="flex-1 space-y-2">
+    <div className="space-y-4">
+      <PadConfig
+        eventId={event.id}
+        startPad={event.start_pad}
+        endPad={event.end_pad}
+        placing={placing?.kind ?? null}
+        onPlace={(kind, width, height) => setPlacing({ kind, width, height })}
+      />
+
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             {pathLength} step{pathLength !== 1 ? "s" : ""} - drag to draw, shift+drag to erase
@@ -191,19 +199,23 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
                     onMouseEnter={() => onCellEnter(x, y)}
                     className={`relative flex items-center justify-center overflow-hidden min-w-0 min-h-0 rounded-sm cursor-crosshair border transition-colors text-[8px] font-medium ${
                       isSelected
-                        ? "bg-primary/40 border-primary"
+                        ? "bg-primary/50 border-primary"
                         : onPath
-                        ? "bg-primary/20 border-primary/50 hover:bg-primary/30"
+                        ? "bg-primary/35 border-primary/70 hover:bg-primary/45"
                         : "bg-black/20 border-white/10 hover:bg-black/30"
                     }`}
                   >
                     {onPath && (
                       <>
-                        <span className="absolute top-0 left-0.5 leading-none text-primary drop-shadow">
+                        <span className="absolute top-0 left-0.5 leading-none text-[10px] font-bold text-blue-950 text-shadow-white">
                           {cell?.path_position}
                         </span>
                         {iconUrl && (
-                          <img src={iconUrl} alt="" className="h-3 w-3 object-contain opacity-80" />
+                          <img
+                            src={iconUrl}
+                            alt=""
+                            className="h-3 w-3 object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
+                          />
                         )}
                       </>
                     )}
@@ -216,14 +228,7 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
         </div>
       </div>
 
-      <div className="w-52 shrink-0 space-y-2">
-        <PadConfig
-          eventId={event.id}
-          startPad={event.start_pad}
-          endPad={event.end_pad}
-          placing={placing?.kind ?? null}
-          onPlace={(kind, width, height) => setPlacing({ kind, width, height })}
-        />
+      <div className="space-y-2">
         <TilePicker
           selectedPathPosition={selectedCell?.path_position ?? null}
           currentTileId={selectedCell?.tile_id}

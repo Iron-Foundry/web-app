@@ -64,17 +64,19 @@ export function BoardCell({
               ))}
             </span>
           )}
-          {iconUrl ? (
-            <img
-              src={iconUrl}
-              alt={tile?.title ?? ""}
-              className="h-4 w-4 sm:h-5 sm:w-5 object-contain"
-            />
-          ) : (
-            <div className="h-3 w-3 rounded-full bg-primary/30" />
-          )}
+          <div className="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden">
+            {iconUrl ? (
+              <img
+                src={iconUrl}
+                alt={tile?.title ?? ""}
+                className="max-h-full max-w-full object-contain"
+              />
+            ) : (
+              <div className="h-2/5 aspect-square rounded-full bg-primary/30" />
+            )}
+          </div>
           {tile && (
-            <p className="hidden sm:block text-[7px] text-center text-foreground/70 leading-tight px-0.5 mt-0.5 line-clamp-2 max-w-full">
+            <p className="hidden sm:block shrink-0 text-[7px] text-center text-foreground/70 leading-tight px-0.5 pb-0.5 line-clamp-2 max-w-full">
               {tile.title}
             </p>
           )}
