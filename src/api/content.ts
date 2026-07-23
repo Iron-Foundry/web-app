@@ -6,21 +6,6 @@ interface CategoryTree extends ContentCategory {
   entry_count: number;
 }
 
-interface EntryListItem {
-  id: string;
-  title: string;
-  slug: string;
-  category_id: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-}
-
-interface CreateEntryPayload {
-  title: string;
-  body: string;
-  category_id: string | null;
-}
-
 interface UpdateEntryPayload {
   title?: string;
   body?: string;
@@ -44,17 +29,6 @@ export const contentApi = {
 
   getEntryById: (pageType: string, id: string) =>
     apiFetch<EntryDetail>(`/content/${pageType}/entries/${id}`),
-
-  listEntries: (pageType: string, categoryId?: string) =>
-    apiFetch<EntryListItem[]>(
-      `/content/${pageType}/entries${categoryId ? `?category_id=${categoryId}` : ""}`,
-    ),
-
-  createEntry: (pageType: string, data: CreateEntryPayload) =>
-    apiFetch<EntryDetail>(`/content/${pageType}/entries`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
 
   updateEntry: (pageType: string, id: string, data: UpdateEntryPayload) =>
     apiFetch<EntryDetail>(`/content/${pageType}/entries/${id}`, {

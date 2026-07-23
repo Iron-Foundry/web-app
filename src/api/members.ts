@@ -37,9 +37,6 @@ export const membersApi = {
 
   rotateApiKey: () => apiFetch<ApiKey>("/members/me/api-key/rotate", { method: "POST" }),
 
-  updateMe: (data: Record<string, unknown>) =>
-    apiFetch<void>("/members/me", { method: "PATCH", body: JSON.stringify(data) }),
-
   getMySnapshot: (rsn: string) => apiFetch<PlayerSnapshot>(`/members/me/snapshot?rsn=${encodeURIComponent(rsn)}`),
 
   getMyGoals: (rsn: string) =>
