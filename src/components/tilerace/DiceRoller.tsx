@@ -32,12 +32,12 @@ export function DiceRoller({
   const [displayFace, setDisplayFace] = useState<string>("?");
   const [rolling, setRolling] = useState(false);
   const [dropMessage, setDropMessage] = useState<string | null>(null);
-  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const tickRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
-      if (tickRef.current) clearInterval(tickRef.current);
+      if (tickRef.current) clearTimeout(tickRef.current);
       if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
     };
   }, []);
@@ -45,7 +45,7 @@ export function DiceRoller({
   const blocked = gated || finished;
 
   function stopSpin(): void {
-    if (tickRef.current) clearInterval(tickRef.current);
+    if (tickRef.current) clearTimeout(tickRef.current);
     if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
     setRolling(false);
   }
@@ -54,9 +54,11 @@ export function DiceRoller({
     if (rolling || isPending || blocked) return;
     setDropMessage(null);
     setRolling(true);
-    tickRef.current = setInterval(() => {
+    const spin = (): void => {
       setDisplayFace(String(Math.floor(Math.random() * diceSides) + 1));
-    }, TICK_MS);
+      tickRef.current = setTimeout(spin, TICK_MS);
+    };
+    tickRef.current = setTimeout(spin, TICK_MS);
 
     rollDice(
       { eventId, teamId: team.id },

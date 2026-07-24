@@ -48,11 +48,12 @@ export function ViewAsProvider({ children }: { children: React.ReactNode }) {
     return [viewAs];
   }, [viewAs, userOverride]);
 
-  return (
-    <ViewAsContext.Provider value={{ viewAs, setViewAs, viewAsUser, userOverride, overrideRoles }}>
-      {children}
-    </ViewAsContext.Provider>
+  const value = useMemo<ViewAsContextValue>(
+    () => ({ viewAs, setViewAs, viewAsUser, userOverride, overrideRoles }),
+    [viewAs, setViewAs, viewAsUser, userOverride, overrideRoles],
   );
+
+  return <ViewAsContext.Provider value={value}>{children}</ViewAsContext.Provider>;
 }
 
 export function useViewAs(): ViewAsContextValue {

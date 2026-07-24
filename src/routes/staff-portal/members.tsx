@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { staffPortalLayoutRoute } from "./_layout";
 import { API_URL, getAuthToken, useAuth } from "@/context/AuthContext";
@@ -360,7 +360,7 @@ function MemberDetailSheet({
 
 function StaffMembersPage() {
   const { user } = useAuth();
-  const roleLabels = user?.role_labels ?? {};
+  const roleLabels = useMemo(() => user?.role_labels ?? {}, [user]);
   const { pagePermissions, adminBypassRoles } = usePermissions();
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -395,8 +395,10 @@ function StaffMembersPage() {
   }
 
   const q = search.toLowerCase().trim();
-  const filtered = q ? members.filter((m) => rowMatchesSearch(m, q, roleLabels)) : members;
-  const sorted = sortRows(filtered, sortKey, sortDir, roleLabels);
+  const sorted = useMemo(() => {
+    const filtered = q ? members.filter((m) => rowMatchesSearch(m, q, roleLabels)) : members;
+    return sortRows(filtered, sortKey, sortDir, roleLabels);
+  }, [members, q, sortKey, sortDir, roleLabels]);
 
   function Th({ label, col }: { label: string; col: SortKey }) {
     return (

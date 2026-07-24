@@ -635,6 +635,7 @@ function CompareTab() {
 type SortCol = "submitted_at" | "rsn" | "teamName" | "tile_key" | "item_label";
 
 interface FlatSub {
+  id: number;
   submitted_at: string;
   rsn: string;
   teamName: string;
@@ -643,8 +644,9 @@ interface FlatSub {
   item_label: string | null;
 }
 
+let _subId = 0;
 const ALL_SUBS: FlatSub[] = ALL_PLAYERS.flatMap(p =>
-  p.submissions.map(s => ({ ...s, rsn: p.rsn, teamName: p.teamName, teamColor: p.teamColor }))
+  p.submissions.map(s => ({ ...s, id: _subId++, rsn: p.rsn, teamName: p.teamName, teamColor: p.teamColor }))
 ).sort((a, b) => a.submitted_at.localeCompare(b.submitted_at));
 
 function SubmissionsTab() {
@@ -748,8 +750,8 @@ function SubmissionsTab() {
                 ))}
               </div>
               <div className="overflow-y-auto max-h-130">
-                {filtered.slice(0, 500).map((s, i) => (
-                  <div key={i} className="grid grid-cols-[7rem_6rem_7rem_4rem_1fr] gap-x-2 px-3 py-1.5 text-xs border-b border-border/30 hover:bg-muted/30 items-center">
+                {filtered.slice(0, 500).map((s) => (
+                  <div key={s.id} className="grid grid-cols-[7rem_6rem_7rem_4rem_1fr] gap-x-2 px-3 py-1.5 text-xs border-b border-border/30 hover:bg-muted/30 items-center">
                     <span className="text-muted-foreground text-[10px] font-mono">{fmtDate(s.submitted_at)}</span>
                     <span className="truncate font-medium">{s.rsn}</span>
                     <span className="truncate text-[10px]" style={{ color: s.teamColor }}>{s.teamName.split(" ")[0]}</span>

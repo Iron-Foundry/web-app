@@ -7,6 +7,7 @@ import { ClanStatsCard } from "./embed/clan-stats";
 import { CompetitionCard } from "./embed/competition";
 import { MemberCard } from "./embed/member";
 import { FIXTURES } from "./embed/fixtures";
+import { securityHeaders } from "./lib/security";
 
 const PUBLIC_API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL ?? PUBLIC_API_URL;
@@ -155,10 +156,16 @@ function buildPreviewHtml(): string {
 }
 
 const rawHtml = await Bun.file(join(DIST, "index.html")).text();
-const baseHtml = rawHtml.replace(
-  "<head>",
-  `<head><script>window.__API_URL__=${JSON.stringify(PUBLIC_API_URL)};</script>`,
-);
+
+function renderDocument(pathname: string, epoch: number, comp: CompetitionFixture | undefined, nonce: string): string {
+  return rawHtml
+    .replace(`<script type="importmap">`, `<script type="importmap" nonce="${nonce}">`)
+    .replace(
+      "<head>",
+      `<head><script nonce="${nonce}">window.__API_URL__=${JSON.stringify(PUBLIC_API_URL)};</script>`,
+    )
+    .replace(/<title>[^<]*<\/title>/, buildOgTags(pathname, epoch, comp));
+}
 
 serve({
   port: 3000,
@@ -265,11 +272,13 @@ serve({
       } catch { /* fall back to generic meta */ }
     }
 
-    const html = baseHtml.replace(/<title>[^<]*<\/title>/, buildOgTags(pathname, epoch, comp));
+    const nonce = crypto.randomUUID();
+    const html = renderDocument(pathname, epoch, comp, nonce);
     return new Response(html, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control": "no-cache",
+        ...securityHeaders(PUBLIC_API_URL, nonce),
       },
     });
   },

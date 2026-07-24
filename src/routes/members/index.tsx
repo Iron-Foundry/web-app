@@ -303,7 +303,7 @@ function DashboardPage() {
                     {nameChanges.slice(0, ncCount).map((nc, i) => (
                       <li
                         ref={i === 0 ? ncItemRef : undefined}
-                        key={i}
+                        key={`${nc.old_name}-${nc.new_name}-${nc.resolved_at ?? ""}`}
                         className="flex items-center gap-2 px-6 py-1 text-sm"
                       >
                         <span className="font-medium text-muted-foreground truncate flex-1 min-w-0">{nc.old_name}</span>
@@ -356,7 +356,7 @@ function DashboardPage() {
                       const Icon = meta.icon;
                       const value = formatValue(item);
                       return (
-                        <Tooltip key={i}>
+                        <Tooltip key={`${item.timestamp}-${item.type}-${item.label}`}>
                           <TooltipTrigger asChild>
                             <li
                               ref={i === 0 ? feedItemRef : undefined}

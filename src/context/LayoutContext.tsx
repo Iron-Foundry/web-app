@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
 interface LayoutCtx {
   hasSidebar: boolean;
@@ -19,9 +19,9 @@ export const useLayout = () => useContext(LayoutContext);
 export function LayoutProvider({ children }: { children: ReactNode }) {
   const [hasSidebar, setHasSidebar] = useState(false);
   const [hasNestedLayout, setHasNestedLayout] = useState(false);
-  return (
-    <LayoutContext.Provider value={{ hasSidebar, setHasSidebar, hasNestedLayout, setHasNestedLayout }}>
-      {children}
-    </LayoutContext.Provider>
+  const value = useMemo<LayoutCtx>(
+    () => ({ hasSidebar, setHasSidebar, hasNestedLayout, setHasNestedLayout }),
+    [hasSidebar, hasNestedLayout],
   );
+  return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>;
 }

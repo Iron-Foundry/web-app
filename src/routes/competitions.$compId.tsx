@@ -39,8 +39,13 @@ export const competitionDetailRoute = createRoute({
 function useCountdown(targetIso: string): string {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = (): void => {
+      setNow(Date.now());
+      timer = setTimeout(tick, 1000);
+    };
+    timer = setTimeout(tick, 1000);
+    return () => clearTimeout(timer);
   }, []);
   const diff = new Date(targetIso).getTime() - now;
   if (diff <= 0) return "0s";

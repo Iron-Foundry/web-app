@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
 import { createRoute } from "@tanstack/react-router";
@@ -299,7 +299,7 @@ interface PartyCardProps {
   onEdit: (party: Party) => void;
 }
 
-function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
+function PartyCardImpl({ party, currentUserId, onEdit }: PartyCardProps) {
   const [chatOpen, setChatOpen] = useState(false);
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const [selectedRsn, setSelectedRsn] = useState<string>("");
@@ -436,6 +436,8 @@ function PartyCard({ party, currentUserId, onEdit }: PartyCardProps) {
     </div>
   );
 }
+
+const PartyCard = memo(PartyCardImpl);
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 

@@ -139,11 +139,24 @@ function StatusCard() {
     fetchStatus();
   }, []);
 
-  // Poll every 3s while a run is in progress
+  // Poll every 3s while a run is in progress. Recursive setTimeout, not
+  // setInterval: the next poll is scheduled only after the fetch resolves, so a
+  // slow response never lets ticks pile up on the event loop.
   useEffect(() => {
     if (!status?.is_running) return;
-    const id = setInterval(fetchStatus, 3000);
-    return () => clearInterval(id);
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const schedule = (): void => {
+      timer = setTimeout(async () => {
+        await fetchStatus();
+        if (!cancelled) schedule();
+      }, 3000);
+    };
+    schedule();
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [status?.is_running]);
 
   async function triggerRun() {

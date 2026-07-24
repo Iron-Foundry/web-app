@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
 export type Density = "comfortable" | "compact";
 
@@ -18,9 +18,11 @@ export function useLeaderboardContext(): LeaderboardContextValue {
 
 export function LeaderboardProvider({ children }: { children: React.ReactNode }): React.ReactElement {
   const [density, setDensity] = useState<Density>("comfortable");
+  const value = useMemo<LeaderboardContextValue>(
+    () => ({ density, setDensity, compact: density === "compact" }),
+    [density],
+  );
   return (
-    <LeaderboardContext.Provider value={{ density, setDensity, compact: density === "compact" }}>
-      {children}
-    </LeaderboardContext.Provider>
+    <LeaderboardContext.Provider value={value}>{children}</LeaderboardContext.Provider>
   );
 }

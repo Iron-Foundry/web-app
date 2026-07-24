@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { leaderboardsRoute } from "@/routes/leaderboards";
 import { cn } from "@/lib/utils";
@@ -17,48 +17,53 @@ export const leaderboardsPbRoute = createRoute({
   component: PbLeaderboardTab,
 });
 
+type CardItem =
+  | { type: "raid"; group: RaidGroup; sortKey: string }
+  | { type: "non-raid"; activity: string; sortKey: string };
+
 function PbLeaderboardTab(): React.ReactElement {
   const { compact, setDensity, density } = useLeaderboardContext();
   const [rankFilter, setRankFilter] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const { data: entries = [], isLoading } = usePbLeaderboard();
 
-  if (isLoading) return <LeaderboardSkeleton />;
+  const counts = useMemo(() => gemRankCounts(entries), [entries]);
 
-  const counts = gemRankCounts(entries);
-  const filtered = rankFilter ? entries.filter((e) => resolveFilterRank(e) === rankFilter) : entries;
-  const grouped = groupPbs(filtered);
-  const activities = Object.keys(grouped).sort();
-  const raidGroups = buildRaidGroups(grouped);
+  const { grouped, cards } = useMemo(() => {
+    const filtered = rankFilter ? entries.filter((e) => resolveFilterRank(e) === rankFilter) : entries;
+    const grouped = groupPbs(filtered);
+    const activities = Object.keys(grouped).sort();
+    const raidGroups = buildRaidGroups(grouped);
 
-  type CardItem =
-    | { type: "raid"; group: RaidGroup; sortKey: string }
-    | { type: "non-raid"; activity: string; sortKey: string };
-
-  const cards: CardItem[] = [];
-  for (const group of raidGroups.values()) {
-    cards.push({ type: "raid", group, sortKey: group.activities[0] ?? group.groupKey });
-  }
-  for (const activity of activities) {
-    if (raidGroupKey(activity) === null) cards.push({ type: "non-raid", activity, sortKey: activity });
-  }
-  cards.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+    const cards: CardItem[] = [];
+    for (const group of raidGroups.values()) {
+      cards.push({ type: "raid", group, sortKey: group.activities[0] ?? group.groupKey });
+    }
+    for (const activity of activities) {
+      if (raidGroupKey(activity) === null) cards.push({ type: "non-raid", activity, sortKey: activity });
+    }
+    cards.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+    return { grouped, cards };
+  }, [entries, rankFilter]);
 
   const q = search.trim().toLowerCase();
-  const visibleCards = q
-    ? cards.filter((card) => {
-        if (card.type === "non-raid") {
-          if (card.activity.toLowerCase().includes(q)) return true;
-          return Object.values((grouped as Grouped)[card.activity] ?? {}).flat()
-            .some((e) => e.player_name.toLowerCase().includes(q));
-        }
-        return card.group.activities.some((act) => {
-          if (act.toLowerCase().includes(q)) return true;
-          return Object.values((grouped as Grouped)[act] ?? {}).flat()
-            .some((e) => e.player_name.toLowerCase().includes(q));
-        });
-      })
-    : cards;
+  const visibleCards = useMemo(() => {
+    if (!q) return cards;
+    return cards.filter((card) => {
+      if (card.type === "non-raid") {
+        if (card.activity.toLowerCase().includes(q)) return true;
+        return Object.values((grouped as Grouped)[card.activity] ?? {}).flat()
+          .some((e) => e.player_name.toLowerCase().includes(q));
+      }
+      return card.group.activities.some((act) => {
+        if (act.toLowerCase().includes(q)) return true;
+        return Object.values((grouped as Grouped)[act] ?? {}).flat()
+          .some((e) => e.player_name.toLowerCase().includes(q));
+      });
+    });
+  }, [cards, grouped, q]);
+
+  if (isLoading) return <LeaderboardSkeleton />;
 
   const cols = compact
     ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"

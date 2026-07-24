@@ -7,7 +7,7 @@ export function useParties() {
   return useQuery({
     queryKey: queryKeys.parties.list(),
     queryFn: partiesApi.list,
-    refetchInterval: 500,
+    refetchInterval: 1000,
     staleTime: 0,
   });
 }
@@ -16,7 +16,7 @@ export function usePartyChat(partyId: string, enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.parties.chat(partyId),
     queryFn: () => partiesApi.getChat(partyId),
-    refetchInterval: enabled ? 500 : false,
+    refetchInterval: enabled ? 1000 : false,
     staleTime: 0,
     enabled,
   });

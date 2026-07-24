@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const realRoles = realUser?.effective_roles ?? [];
+  const realRoles = useMemo(() => realUser?.effective_roles ?? [], [realUser]);
   const user = useMemo<AuthUser | null>(
     () =>
       realUser && overrideRoles
@@ -133,11 +133,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [realUser, overrideRoles],
   );
 
-  return (
-    <AuthContext.Provider value={{ user, realRoles, loading, login, logout, refresh }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextValue>(
+    () => ({ user, realRoles, loading, login, logout, refresh }),
+    [user, realRoles, loading, login, logout, refresh],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextValue {

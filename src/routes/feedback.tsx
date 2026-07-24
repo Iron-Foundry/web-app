@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
@@ -88,8 +88,14 @@ function FeedbackBoardPage() {
   }
 
   const archived = ARCHIVED_STATUSES[tab];
-  const activeItems = sortActive(items.filter((i) => !archived.has(i.status)));
-  const archivedItems = items.filter((i) => archived.has(i.status));
+  const activeItems = useMemo(
+    () => sortActive(items.filter((i) => !archived.has(i.status))),
+    [items, archived],
+  );
+  const archivedItems = useMemo(
+    () => items.filter((i) => archived.has(i.status)),
+    [items, archived],
+  );
 
   return (
     <div className="mx-auto max-w-7xl w-full space-y-6 py-6">

@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useCallback, useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { useViewAs } from "@/context/ViewAsContext";
@@ -66,18 +66,27 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
     gcTime: 1000 * 60 * 30,
   });
 
-  const pagePermissions: PagePermissionsMap = data?.pages ?? {};
-  const adminBypassRoles: string[] = data?.admin_bypass_roles ?? [];
+  const pagePermissions: PagePermissionsMap = useMemo(() => data?.pages ?? {}, [data]);
+  const adminBypassRoles: string[] = useMemo(
+    () => data?.admin_bypass_roles ?? [],
+    [data],
+  );
 
-  const hasPermission = (pageId: string, action: PermAction, effectiveRoles: string[]) => {
-    const roles = overrideRoles ?? effectiveRoles;
-    return checkPermission(pageId, action, roles, pagePermissions, adminBypassRoles);
-  };
+  const hasPermission = useCallback(
+    (pageId: string, action: PermAction, effectiveRoles: string[]) => {
+      const roles = overrideRoles ?? effectiveRoles;
+      return checkPermission(pageId, action, roles, pagePermissions, adminBypassRoles);
+    },
+    [overrideRoles, pagePermissions, adminBypassRoles],
+  );
+
+  const value = useMemo<PermissionsContextValue>(
+    () => ({ pagePermissions, adminBypassRoles, hasPermission, loading: isLoading }),
+    [pagePermissions, adminBypassRoles, hasPermission, isLoading],
+  );
 
   return (
-    <PermissionsContext.Provider value={{ pagePermissions, adminBypassRoles, hasPermission, loading: isLoading }}>
-      {children}
-    </PermissionsContext.Provider>
+    <PermissionsContext.Provider value={value}>{children}</PermissionsContext.Provider>
   );
 }
 

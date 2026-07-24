@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { API_URL, getAuthHeaders } from "@/context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
@@ -191,15 +191,19 @@ export function PermissionsPage() {
     }
   }
 
+  const sortedRoles = useMemo(
+    () =>
+      [...roleOptions].sort((a, b) => {
+        const ai = (DISCORD_ROLE_ORDER as readonly string[]).indexOf(a.label);
+        const bi = (DISCORD_ROLE_ORDER as readonly string[]).indexOf(b.label);
+        return (bi === -1 ? -999 : bi) - (ai === -1 ? -999 : ai);
+      }),
+    [roleOptions],
+  );
+
   if (loading) {
     return <p className="text-muted-foreground">Loading...</p>;
   }
-
-  const sortedRoles = [...roleOptions].sort((a, b) => {
-    const ai = (DISCORD_ROLE_ORDER as readonly string[]).indexOf(a.label);
-    const bi = (DISCORD_ROLE_ORDER as readonly string[]).indexOf(b.label);
-    return (bi === -1 ? -999 : bi) - (ai === -1 ? -999 : ai);
-  });
 
   return (
     <div className="mx-auto max-w-3xl w-full space-y-5 py-6">
