@@ -49,6 +49,7 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/prod-server.ts ./src/
 COPY --from=builder /app/src/embed ./src/embed
+COPY --from=builder /app/src/lib/security.ts ./src/lib/security.ts
 COPY --from=builder /app/src/assets/fonts ./src/assets/fonts
 
 EXPOSE 3000
