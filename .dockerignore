@@ -1,8 +1,22 @@
+# Deps and build output (regenerated in build)
 node_modules/
 dist/
+
+# VCS, editor, OS cruft
 .git/
 .gitignore
+.dockerignore
+.vscode/
+.idea/
+**/.DS_Store
+Thumbs.db
+*.log
+
+# Secrets
 .env
 .env.*
 !.env.example
+
+# Docs and container defs
 *.md
+Dockerfile
