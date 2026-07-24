@@ -9,6 +9,13 @@ import { securityHeaders } from "./lib/security";
 import { buildSitemap } from "./lib/sitemap";
 import { apiCatalog, linkHeader } from "./lib/agent-discovery";
 import { wantsMarkdown, pageMarkdown, markdownHeaders } from "./lib/markdown-negotiation";
+import {
+  organizationLd,
+  websiteLd,
+  breadcrumbLd,
+  articleLd,
+  renderJsonLd,
+} from "./lib/structured-data";
 
 const PUBLIC_API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL ?? PUBLIC_API_URL;
@@ -47,40 +54,48 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+const KEYWORDS =
+  "Iron Foundry, OSRS clan, Ironman clan, OSRS Ironman clan, Old School RuneScape clan, " +
+  "iron clan, PvM clan, social clan, mixed PvM, Ironman, Ironwoman, OSRS";
+
 const PAGE_META: Record<string, PageMeta> = {
   "/": {
-    title: "Iron Foundry",
+    title: "Iron Foundry - OSRS Ironman Clan",
     description:
-      "An Ironman focused Mixed PvM Clan for Old School RuneScape. All skill levels welcome - come join the forge.",
+      "Iron Foundry is a social OSRS Ironman clan - mixed PvM, all skill levels welcome. " +
+      "Old School RuneScape Ironmen and Ironwomen, come join the forge.",
   },
   "/about": {
-    title: "About | Iron Foundry",
-    description: "Meet the Iron Foundry community - Ironmen and Ironwomen united by a love of OSRS.",
+    title: "About | Iron Foundry OSRS Ironman Clan",
+    description:
+      "Meet Iron Foundry - a social OSRS Ironman clan of Ironmen and Ironwomen who love " +
+      "mixed PvM in Old School RuneScape.",
   },
   "/rules": {
-    title: "Clan Rules | Iron Foundry",
+    title: "Clan Rules | Iron Foundry OSRS Clan",
     description:
-      "Iron Foundry's community guidelines. No requirements to join - just bring good vibes.",
+      "Iron Foundry's community guidelines. No requirements to join our OSRS Ironman clan - " +
+      "just bring good vibes.",
   },
   "/staff": {
-    title: "Staff | Iron Foundry",
-    description: "Meet the Iron Foundry staff team keeping the clan running.",
+    title: "Staff | Iron Foundry OSRS Clan",
+    description: "Meet the Iron Foundry staff team keeping our OSRS Ironman clan running.",
   },
   "/events": {
-    title: "Events | Iron Foundry",
-    description: "Upcoming and past clan events for Iron Foundry members.",
+    title: "Events | Iron Foundry OSRS Clan",
+    description: "Upcoming and past clan events for Iron Foundry, a social OSRS Ironman clan.",
   },
   "/members": {
     title: "Members Area | Iron Foundry",
     description: "Your Iron Foundry member dashboard.",
   },
   "/competitions": {
-    title: "Competitions | Iron Foundry",
-    description: "Active and upcoming clan competitions for Iron Foundry members.",
+    title: "Competitions | Iron Foundry OSRS Clan",
+    description: "Active and upcoming clan competitions for Iron Foundry, an OSRS Ironman clan.",
   },
   "/leaderboards": {
-    title: "Leaderboards | Iron Foundry",
-    description: "Iron Foundry clan leaderboards - boss kills, collection log, and more.",
+    title: "Leaderboards | Iron Foundry OSRS Clan",
+    description: "Iron Foundry OSRS clan leaderboards - boss kills, collection log, and more.",
   },
 };
 
@@ -137,24 +152,66 @@ function buildOgTags(
 
   const url = `${SITE_URL}${pathname === "/" ? "" : pathname}`;
   const ogImage = getOgImage(pathname, epoch, compId, content);
+  const isArticle = Boolean(content?.entry);
   const twitterCard = isDynamicOg(pathname, content) ? "summary_large_image" : "summary";
   const safeTitle = escapeHtml(title);
   const safeDescription = escapeHtml(description);
-  return [
+  const tags = [
     `<title>${safeTitle}</title>`,
     `<meta name="description" content="${safeDescription}">`,
+    `<meta name="keywords" content="${KEYWORDS}">`,
+    `<link rel="canonical" href="${escapeHtml(url)}">`,
     `<meta property="og:site_name" content="Iron Foundry">`,
-    `<meta property="og:type" content="website">`,
+    `<meta property="og:type" content="${isArticle ? "article" : "website"}">`,
     `<meta property="og:title" content="${safeTitle}">`,
     `<meta property="og:description" content="${safeDescription}">`,
     `<meta property="og:image" content="${ogImage}">`,
-    `<meta property="og:url" content="${url}">`,
+    `<meta property="og:url" content="${escapeHtml(url)}">`,
     `<meta property="og:logo" content="${OG_IMAGE}">`,
     `<meta name="twitter:card" content="${twitterCard}">`,
     `<meta name="twitter:title" content="${safeTitle}">`,
     `<meta name="twitter:description" content="${safeDescription}">`,
     `<meta name="twitter:image" content="${ogImage}">`,
-  ].join("\n    ");
+  ];
+
+  if (content?.entry) {
+    const entry = content.entry;
+    if (entry.created_at)
+      tags.push(`<meta property="article:published_time" content="${escapeHtml(entry.created_at)}">`);
+    if (entry.updated_at)
+      tags.push(`<meta property="article:modified_time" content="${escapeHtml(entry.updated_at)}">`);
+    const authorName = entry.author?.rsn ?? entry.author?.discord_username;
+    if (authorName)
+      tags.push(`<meta property="article:author" content="${escapeHtml(authorName)}">`);
+  }
+
+  return tags.join("\n    ");
+}
+
+function buildStructuredData(
+  pathname: string,
+  epoch: number,
+  comp: CompetitionFixture | undefined,
+  content: ContentOg | undefined,
+  nonce: string,
+): string {
+  const url = `${SITE_URL}${pathname === "/" ? "" : pathname}`;
+  const compId = comp ? String(comp.id) : undefined;
+  const ogImage = getOgImage(pathname, epoch, compId, content);
+  const nodes = [];
+
+  if (pathname === "/") {
+    nodes.push(organizationLd(SITE_URL, OG_IMAGE), websiteLd(SITE_URL));
+  }
+
+  if (content?.entry) {
+    nodes.push(articleLd(url, ogImage, content.entry));
+    nodes.push(breadcrumbLd(SITE_URL, pathname, content.entry.title));
+  } else {
+    nodes.push(breadcrumbLd(SITE_URL, pathname, comp?.title));
+  }
+
+  return renderJsonLd(nodes, nonce);
 }
 
 const rawHtml = await Bun.file(join(DIST, "index.html")).text();
@@ -166,13 +223,18 @@ function renderDocument(
   content: ContentOg | undefined,
   nonce: string,
 ): string {
+  const head = buildOgTags(pathname, epoch, comp, content);
+  const structuredData = buildStructuredData(pathname, epoch, comp, content, nonce);
   return rawHtml
     .replace(`<script type="importmap">`, `<script type="importmap" nonce="${nonce}">`)
     .replace(
       "<head>",
       `<head><script nonce="${nonce}">window.__API_URL__=${JSON.stringify(PUBLIC_API_URL)};</script>`,
     )
-    .replace(/<title>[^<]*<\/title>/, buildOgTags(pathname, epoch, comp, content));
+    .replace(
+      /<title>[^<]*<\/title>/,
+      structuredData ? `${head}\n    ${structuredData}` : head,
+    );
 }
 
 serve({
