@@ -131,6 +131,12 @@
   }
 }
 
+/* Rendered content wraps long tokens instead of forcing horizontal scroll */
+.markdown-body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 /* Callout boxes - theme-aware, replaces old hardcoded inline styles */
 .callout-tip,
 .callout-warning,

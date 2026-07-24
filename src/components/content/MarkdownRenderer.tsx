@@ -117,7 +117,7 @@ const components: Components = {
   hr: () => <hr className="border-border my-6" />,
   table: ({ children }) => (
     <div className="overflow-x-auto mb-4">
-      <table className="w-full text-sm border-collapse">{children}</table>
+      <table className="w-max min-w-full text-sm border-collapse">{children}</table>
     </div>
   ),
   th: ({ children }) => <th className="text-left p-2 border-b border-border font-semibold bg-muted/50">{children}</th>,
