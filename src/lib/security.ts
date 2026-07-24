@@ -17,6 +17,7 @@ export function buildCsp(apiOrigin: string, nonce: string): string {
     "frame-src https://www.youtube-nocookie.com https://teamup.com",
     "base-uri 'none'",
     "object-src 'none'",
+    "form-action 'self'",
     "frame-ancestors 'none'",
   ].join("; ");
 }

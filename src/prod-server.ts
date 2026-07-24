@@ -6,6 +6,9 @@ import type { ContentPageType } from "./embed/content-entry";
 import type { CompetitionFixture } from "./embed/types";
 import type { EntryDetail } from "./types/content";
 import { securityHeaders } from "./lib/security";
+import { buildSitemap } from "./lib/sitemap";
+import { apiCatalog, linkHeader } from "./lib/agent-discovery";
+import { wantsMarkdown, pageMarkdown, markdownHeaders } from "./lib/markdown-negotiation";
 
 const PUBLIC_API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL ?? PUBLIC_API_URL;
@@ -183,6 +186,31 @@ serve({
     const embedResponse = await handleEmbedRoutes(req, INTERNAL_API_URL);
     if (embedResponse) return embedResponse;
 
+    // --- Agent discovery: RFC 9727 API catalog (RFC 8288 Link on HTML) ---
+
+    if (pathname === "/.well-known/api-catalog") {
+      return new Response(apiCatalog(PUBLIC_API_URL), {
+        headers: {
+          "Content-Type": "application/linkset+json",
+          "Cache-Control": "public, max-age=3600",
+          "X-Content-Type-Options": "nosniff",
+        },
+      });
+    }
+
+    // --- Sitemap (live: static pages + content entry slugs) ---
+
+    if (pathname === "/sitemap.xml") {
+      const xml = await buildSitemap(SITE_URL, INTERNAL_API_URL);
+      return new Response(xml, {
+        headers: {
+          "Content-Type": "application/xml; charset=utf-8",
+          "Cache-Control": "public, max-age=3600",
+          "X-Content-Type-Options": "nosniff",
+        },
+      });
+    }
+
     // --- Static assets ---
 
     if (pathname !== "/" && pathname.includes(".")) {
@@ -221,12 +249,22 @@ serve({
       content = { ...contentMatch, entry };
     }
 
+    // --- Markdown content negotiation (Accept: text/markdown) ---
+
+    if (wantsMarkdown(req.headers.get("accept"))) {
+      const meta = getMeta(pathname);
+      const md = pageMarkdown(meta.title, meta.description, content?.entry ?? null);
+      return new Response(md, { headers: markdownHeaders(md) });
+    }
+
     const nonce = crypto.randomUUID();
     const html = renderDocument(pathname, epoch, comp, content, nonce);
     return new Response(html, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control": "no-cache",
+        Vary: "Accept",
+        Link: linkHeader(PUBLIC_API_URL),
         ...securityHeaders(PUBLIC_API_URL, nonce),
       },
     });
