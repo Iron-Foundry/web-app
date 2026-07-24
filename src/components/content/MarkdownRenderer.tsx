@@ -159,7 +159,8 @@ const components: Components = {
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   img: ({ src, alt, width, ...props }: any) => {
-    const style = width ? { width: typeof width === "number" ? `${width}px` : width } : undefined;
+    const style: CSSProperties = { maxWidth: "100%", height: "auto" };
+    if (width) style.width = typeof width === "number" ? `${width}px` : width;
     if (props["data-inline"] === "true" || props["data-inline"] === true) {
       return (
         <img

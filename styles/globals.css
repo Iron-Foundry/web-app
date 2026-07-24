@@ -137,6 +137,21 @@
   overflow-wrap: anywhere;
 }
 
+/* Media scales down to the screen keeping aspect ratio */
+.markdown-body :where(img, video, canvas, svg) {
+  max-width: 100%;
+  height: auto;
+}
+.markdown-body :where(iframe) {
+  max-width: 100%;
+}
+
+/* Raw/authored blocks cannot exceed the column; the table scroll wrapper
+   opts out so wide tables still scroll instead of being capped. */
+.markdown-body > :where(*):not(.overflow-x-auto) {
+  max-width: 100%;
+}
+
 /* Callout boxes - theme-aware, replaces old hardcoded inline styles */
 .callout-tip,
 .callout-warning,
