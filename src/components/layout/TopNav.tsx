@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -123,6 +123,7 @@ export function TopNav() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-64 border-border bg-card pt-12 overflow-y-auto">
+              <SheetTitle className="sr-only">Navigation</SheetTitle>
               <div className="flex flex-col gap-4">
                 {NAV_SECTIONS.map((section) => (
                   <div key={section.tab}>
