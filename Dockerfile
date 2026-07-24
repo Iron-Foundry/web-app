@@ -51,6 +51,7 @@ COPY --from=builder /app/src/prod-server.ts ./src/
 COPY --from=builder /app/src/embed ./src/embed
 COPY --from=builder /app/src/lib/security.ts ./src/lib/security.ts
 COPY --from=builder /app/src/lib/sitemap.ts ./src/lib/sitemap.ts
+COPY --from=builder /app/src/lib/structured-data.ts ./src/lib/structured-data.ts
 COPY --from=builder /app/src/lib/agent-discovery.ts ./src/lib/agent-discovery.ts
 COPY --from=builder /app/src/lib/markdown-negotiation.ts ./src/lib/markdown-negotiation.ts
 COPY --from=builder /app/src/assets/fonts ./src/assets/fonts
