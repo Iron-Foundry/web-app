@@ -1,12 +1,10 @@
 import { serve } from "bun";
 import { join } from "path";
-import { serveClanStats, serveCompetition, serveCompetitionById, serveCompetitionTop5, serveMember } from "./embed/handlers";
-import { renderCard, fetchJson } from "./embed/utils";
+import { handleEmbedRoutes } from "./embed/routes";
+import { fetchJson, markdownExcerpt } from "./embed/utils";
+import type { ContentPageType } from "./embed/content-entry";
 import type { CompetitionFixture } from "./embed/types";
-import { ClanStatsCard } from "./embed/clan-stats";
-import { CompetitionCard } from "./embed/competition";
-import { MemberCard } from "./embed/member";
-import { FIXTURES } from "./embed/fixtures";
+import type { EntryDetail } from "./types/content";
 import { securityHeaders } from "./lib/security";
 
 const PUBLIC_API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -19,6 +17,31 @@ const DIST = join(import.meta.dir, "..", "dist");
 interface PageMeta {
   title: string;
   description: string;
+}
+
+const CONTENT_BASES: Record<string, ContentPageType> = {
+  resources: "resource",
+  plugins: "plugin",
+};
+
+interface ContentOg {
+  pageType: ContentPageType;
+  slug: string;
+  entry: EntryDetail | null;
+}
+
+function matchContentEntry(pathname: string): { pageType: ContentPageType; slug: string } | null {
+  const m = pathname.match(/^\/(resources|plugins)\/([^/]+)$/);
+  if (!m) return null;
+  return { pageType: CONTENT_BASES[m[1]!]!, slug: decodeURIComponent(m[2]!) };
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 const PAGE_META: Record<string, PageMeta> = {
@@ -64,7 +87,9 @@ function getMeta(pathname: string): PageMeta {
   return PAGE_META[pathname] ?? PAGE_META["/"]!;
 }
 
-function getOgImage(pathname: string, epoch: number, compId?: string): string {
+function getOgImage(pathname: string, epoch: number, compId?: string, content?: ContentOg): string {
+  if (content)
+    return `${SITE_URL}/embed/content/${content.pageType}/${encodeURIComponent(content.slug)}.png?t=${epoch}`;
   if (pathname === "/" || pathname === "/leaderboards")
     return `${SITE_URL}/embed/clan-stats.png?t=${epoch}`;
   if (compId)
@@ -74,14 +99,20 @@ function getOgImage(pathname: string, epoch: number, compId?: string): string {
   return OG_IMAGE;
 }
 
-function isDynamicOg(pathname: string): boolean {
-  return pathname === "/" || pathname === "/leaderboards" || pathname.startsWith("/competitions");
+function isDynamicOg(pathname: string, content?: ContentOg): boolean {
+  return (
+    content !== undefined ||
+    pathname === "/" ||
+    pathname === "/leaderboards" ||
+    pathname.startsWith("/competitions")
+  );
 }
 
 function buildOgTags(
   pathname: string,
   epoch: number,
   comp?: CompetitionFixture,
+  content?: ContentOg,
 ): string {
   let { title, description } = getMeta(pathname);
   const compId = comp ? String(comp.id) : undefined;
@@ -95,76 +126,50 @@ function buildOgTags(
     description = `${statusLabel} Iron Foundry competition - ${comp.participantCount ?? 0} participants.`;
   }
 
+  if (content?.entry) {
+    const section = content.pageType === "plugin" ? "Plugins" : "Resources & Guides";
+    title = `${content.entry.title} | Iron Foundry`;
+    description = markdownExcerpt(content.entry.body) || `${section} - Iron Foundry.`;
+  }
+
   const url = `${SITE_URL}${pathname === "/" ? "" : pathname}`;
-  const ogImage = getOgImage(pathname, epoch, compId);
-  const twitterCard = isDynamicOg(pathname) ? "summary_large_image" : "summary";
+  const ogImage = getOgImage(pathname, epoch, compId, content);
+  const twitterCard = isDynamicOg(pathname, content) ? "summary_large_image" : "summary";
+  const safeTitle = escapeHtml(title);
+  const safeDescription = escapeHtml(description);
   return [
-    `<title>${title}</title>`,
-    `<meta name="description" content="${description}">`,
+    `<title>${safeTitle}</title>`,
+    `<meta name="description" content="${safeDescription}">`,
     `<meta property="og:site_name" content="Iron Foundry">`,
     `<meta property="og:type" content="website">`,
-    `<meta property="og:title" content="${title}">`,
-    `<meta property="og:description" content="${description}">`,
+    `<meta property="og:title" content="${safeTitle}">`,
+    `<meta property="og:description" content="${safeDescription}">`,
     `<meta property="og:image" content="${ogImage}">`,
     `<meta property="og:url" content="${url}">`,
     `<meta property="og:logo" content="${OG_IMAGE}">`,
     `<meta name="twitter:card" content="${twitterCard}">`,
-    `<meta name="twitter:title" content="${title}">`,
-    `<meta name="twitter:description" content="${description}">`,
+    `<meta name="twitter:title" content="${safeTitle}">`,
+    `<meta name="twitter:description" content="${safeDescription}">`,
     `<meta name="twitter:image" content="${ogImage}">`,
   ].join("\n    ");
 }
 
-function pngResponse(png: Buffer, maxAgeSeconds: number): Response {
-  return new Response(png as unknown as BodyInit, {
-    headers: {
-      "Content-Type": "image/png",
-      "Cache-Control": `public, max-age=${maxAgeSeconds}, s-maxage=0`,
-    },
-  });
-}
-
-function buildPreviewHtml(): string {
-  const cards = [
-    ["/embed/clan-stats.png", "Clan Stats (live)"],
-    ["/embed/competition.png", "Competition (live)"],
-    ["/embed/_fixtures/competition-upcoming.png", "Competition - Upcoming"],
-    ["/embed/_fixtures/competition-none.png", "Competition - None"],
-    ["/embed/member/LD salt.png", "Member (live)"],
-    ["/embed/_fixtures/member-opted-out.png", "Member - Opted Out"],
-    ["/embed/_fixtures/member-unlinked.png", "Member - Unlinked"],
-    ["/embed/_fixtures/member-not-found.png", "Member - Not Found"],
-  ];
-
-  const items = cards
-    .map(
-      ([src, label]) => `
-    <div style="margin-bottom:24px">
-      <div style="font:14px monospace;margin-bottom:6px;color:#888">${label}</div>
-      <img src="${src}" style="width:100%;border:1px solid #333;display:block">
-    </div>`
-    )
-    .join("");
-
-  return `<!DOCTYPE html>
-<html>
-<head><title>Embed Preview</title>
-<style>body{background:#0a0a0a;margin:0;padding:32px;box-sizing:border-box;max-width:900px}</style>
-</head>
-<body>${items}</body>
-</html>`;
-}
-
 const rawHtml = await Bun.file(join(DIST, "index.html")).text();
 
-function renderDocument(pathname: string, epoch: number, comp: CompetitionFixture | undefined, nonce: string): string {
+function renderDocument(
+  pathname: string,
+  epoch: number,
+  comp: CompetitionFixture | undefined,
+  content: ContentOg | undefined,
+  nonce: string,
+): string {
   return rawHtml
     .replace(`<script type="importmap">`, `<script type="importmap" nonce="${nonce}">`)
     .replace(
       "<head>",
       `<head><script nonce="${nonce}">window.__API_URL__=${JSON.stringify(PUBLIC_API_URL)};</script>`,
     )
-    .replace(/<title>[^<]*<\/title>/, buildOgTags(pathname, epoch, comp));
+    .replace(/<title>[^<]*<\/title>/, buildOgTags(pathname, epoch, comp, content));
 }
 
 serve({
@@ -172,79 +177,11 @@ serve({
   async fetch(req) {
     const url = new URL(req.url);
     const { pathname } = url;
-    // --- Embed image routes ---
 
-    if (pathname === "/embed/clan-stats.png") {
-      const png = await serveClanStats(INTERNAL_API_URL);
-      return pngResponse(png, 60);
-    }
+    // --- Embed image + preview routes (shared with the dev server) ---
 
-    if (pathname === "/embed/competition.png") {
-      const png = await serveCompetition(INTERNAL_API_URL);
-      return pngResponse(png, 60);
-    }
-
-    if (pathname === "/embed/competition-top5.png") {
-      const id = url.searchParams.get("id") ?? "";
-      const metrics = url.searchParams.getAll("metric");
-      const label = url.searchParams.get("label") ?? undefined;
-      if (!id || metrics.length === 0) return new Response("Missing id or metric", { status: 400 });
-      try {
-        const png = await serveCompetitionTop5(id, metrics, INTERNAL_API_URL, label);
-        return new Response(png as unknown as BodyInit, {
-          headers: {
-            "Content-Type": "image/png",
-            "Content-Disposition": `attachment; filename="competition-top5.png"`,
-            "Cache-Control": "no-store",
-          },
-        });
-      } catch (err) {
-        console.error("[embed] competition-top5 failed:", err);
-        return new Response("Failed to render", { status: 500 });
-      }
-    }
-
-    const compEmbedMatch = pathname.match(/^\/embed\/competition\/(\d+)\.png$/);
-    if (compEmbedMatch) {
-      const id = compEmbedMatch[1]!;
-      try {
-        const png = await serveCompetitionById(id, INTERNAL_API_URL);
-        return pngResponse(png, 60);
-      } catch (err) {
-        console.error(`[embed] competition/${id} failed:`, err);
-        return new Response("Not found", { status: 404 });
-      }
-    }
-
-    if (pathname.startsWith("/embed/member/") && pathname.endsWith(".png")) {
-      const rsn = decodeURIComponent(pathname.slice("/embed/member/".length, -4));
-      const png = await serveMember(rsn, INTERNAL_API_URL);
-      return pngResponse(png, 60);
-    }
-
-    // --- Fixture routes (preview only, never cached by CDN) ---
-
-    if (pathname === "/embed/_fixtures/competition-upcoming.png") {
-      return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionUpcoming })), 0);
-    }
-    if (pathname === "/embed/_fixtures/competition-none.png") {
-      return pngResponse(await renderCard(CompetitionCard({ competition: FIXTURES.competitionNone })), 0);
-    }
-    if (pathname === "/embed/_fixtures/member-opted-out.png") {
-      return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberOptedOut })), 0);
-    }
-    if (pathname === "/embed/_fixtures/member-unlinked.png") {
-      return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberUnlinked })), 0);
-    }
-    if (pathname === "/embed/_fixtures/member-not-found.png") {
-      return pngResponse(await renderCard(MemberCard({ player: FIXTURES.memberNotFound })), 0);
-    }
-
-    // --- Dev preview page ---
-
-    if (pathname === "/embed/_preview") {
-      return new Response(buildPreviewHtml(), { headers: { "Content-Type": "text/html" } });
-    }
+    const embedResponse = await handleEmbedRoutes(req, INTERNAL_API_URL);
+    if (embedResponse) return embedResponse;
 
     // --- Static assets ---
 
@@ -272,8 +209,20 @@ serve({
       } catch { /* fall back to generic meta */ }
     }
 
+    let content: ContentOg | undefined;
+    const contentMatch = matchContentEntry(pathname);
+    if (contentMatch) {
+      let entry: EntryDetail | null = null;
+      try {
+        entry = await fetchJson<EntryDetail>(
+          `${INTERNAL_API_URL}/content/${contentMatch.pageType}/entries/by-slug/${encodeURIComponent(contentMatch.slug)}`,
+        );
+      } catch { /* fall back to section image + generic meta */ }
+      content = { ...contentMatch, entry };
+    }
+
     const nonce = crypto.randomUUID();
-    const html = renderDocument(pathname, epoch, comp, nonce);
+    const html = renderDocument(pathname, epoch, comp, content, nonce);
     return new Response(html, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",

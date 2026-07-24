@@ -1,9 +1,11 @@
-import { renderCard, fetchJson, getCached, setCached } from "./utils";
+import { renderCard, fetchJson, getCached, setCached, markdownExcerpt } from "./utils";
 import { ClanStatsCard } from "./clan-stats";
 import { CompetitionCard } from "./competition";
 import { CompetitionTop5Card } from "./competition-top5";
 import { MemberCard } from "./member";
+import { ContentEntryCard, type ContentPageType } from "./content-entry";
 import type { WomStats, ClanStats, CompetitionFixture, PlayerPublic } from "./types";
+import type { EntryDetail } from "@/types/content";
 
 interface Participation {
   rank: number;
@@ -18,6 +20,13 @@ interface MetricDetailResponse {
 const TTL_CLAN = 60 * 1000;
 const TTL_COMP = 60 * 1000;
 const TTL_MEMBER = 60 * 1000;
+const TTL_CONTENT = 60 * 1000;
+const TITLE_MAX = 80;
+
+function shortMonthYear(iso: string | null): string | null {
+  if (!iso) return null;
+  return new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+}
 
 export async function serveClanStats(apiUrl: string): Promise<Buffer> {
   const cached = getCached("clan-stats");
@@ -161,5 +170,37 @@ export async function serveMember(rsn: string, apiUrl: string): Promise<Buffer> 
 
   const png = await renderCard(MemberCard({ player }));
   setCached(key, png, TTL_MEMBER);
+  return png;
+}
+
+export async function serveContentEntry(
+  pageType: ContentPageType,
+  slug: string,
+  apiUrl: string,
+): Promise<Buffer> {
+  const key = `content:${pageType}:${slug.toLowerCase()}`;
+  const cached = getCached(key);
+  if (cached) return cached;
+
+  let entry: EntryDetail | null = null;
+  try {
+    entry = await fetchJson<EntryDetail>(
+      `${apiUrl}/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
+    );
+  } catch (err) {
+    console.error(`[embed] content ${pageType}/${slug} fetch failed:`, err);
+  }
+
+  const title = entry ? entry.title.slice(0, TITLE_MAX) : null;
+  const excerpt = entry ? markdownExcerpt(entry.body) : "";
+  const authorName = entry?.author
+    ? entry.author.rsn ?? entry.author.discord_username
+    : null;
+  const updatedLabel = shortMonthYear(entry?.updated_at ?? null);
+
+  const png = await renderCard(
+    ContentEntryCard({ pageType, title, excerpt, authorName, updatedLabel }),
+  );
+  setCached(key, png, TTL_CONTENT);
   return png;
 }

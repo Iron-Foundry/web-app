@@ -4,6 +4,7 @@ import { renderCard } from "../src/embed/utils";
 import { ClanStatsCard } from "../src/embed/clan-stats";
 import { CompetitionCard } from "../src/embed/competition";
 import { MemberCard } from "../src/embed/member";
+import { ContentEntryCard } from "../src/embed/content-entry";
 import { FIXTURES } from "../src/embed/fixtures";
 
 const OUT = join(import.meta.dir, "../dist/embed-preview");
@@ -18,6 +19,8 @@ const cases: Array<[string, unknown]> = [
   ["member-opted-out", MemberCard({ player: FIXTURES.memberOptedOut })],
   ["member-not-found", MemberCard({ player: FIXTURES.memberNotFound })],
   ["member-unlinked", MemberCard({ player: FIXTURES.memberUnlinked })],
+  ["content-resource", ContentEntryCard(FIXTURES.contentResource)],
+  ["content-not-found", ContentEntryCard(FIXTURES.contentNotFound)],
 ];
 
 console.log(`Rendering ${cases.length} cards to ${OUT}\n`);

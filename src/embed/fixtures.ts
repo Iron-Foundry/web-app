@@ -1,4 +1,5 @@
 import type { PlayerPublic, WomStats, ClanStats, CompetitionFixture } from "./types";
+import type { ContentEntryCardProps } from "./content-entry";
 
 export const FIXTURES = {
   clanStats: {
@@ -75,4 +76,21 @@ export const FIXTURES = {
     total_loot_value: null,
     stats_opt_out: false,
   } satisfies PlayerPublic,
+
+  contentResource: {
+    pageType: "resource",
+    title: "Getting Started: Ironman Account Setup",
+    excerpt:
+      "A complete walkthrough for new ironmen - quest priorities, early money makers, and the gear progression to aim for in your first weeks.",
+    authorName: "LD salt",
+    updatedLabel: "Jul 2026",
+  } satisfies ContentEntryCardProps,
+
+  contentNotFound: {
+    pageType: "plugin",
+    title: null,
+    excerpt: "",
+    authorName: null,
+    updatedLabel: null,
+  } satisfies ContentEntryCardProps,
 } as const;

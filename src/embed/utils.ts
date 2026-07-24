@@ -25,6 +25,22 @@ export async function renderCard(node: ReactNode, width = 1200, height = 630): P
   return Buffer.from(resvg.render().asPng());
 }
 
+export function markdownExcerpt(body: string, max = 160): string {
+  const text = body
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/^\s{0,3}>\s?/gm, "")
+    .replace(/^\s{0,3}([-*+]|\d+\.)\s+/gm, "")
+    .replace(/[*_~]{1,3}/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (text.length <= max) return text;
+  return `${text.slice(0, max - 1).trimEnd()}…`;
+}
+
 export async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`${res.status} ${url}`);
