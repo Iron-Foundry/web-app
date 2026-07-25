@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Dices, Zap, Clock, ArrowRight, type LucideIcon } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { shineHandlers } from "@/hooks/useShineEffect";
 import { useActiveTileraceEvent } from "@/hooks/useTilerace";
 import { useActiveEvent } from "@/hooks/useFrenzy";
 import type { TileRaceEvent } from "@/types/tilerace";
@@ -10,24 +12,21 @@ type Phase = "signups" | "running";
 interface Banner {
   key: string;
   name: string;
+  type: string;
   phase: Phase;
   timeText: string | null;
   to: string;
   icon: LucideIcon;
 }
 
-const accents: Record<Phase, { border: string; bar: string; pill: string; icon: string }> = {
+const accents: Record<Phase, { icon: string; pill: string }> = {
   signups: {
-    border: "border-blue-500/40",
-    bar: "bg-blue-500",
-    pill: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
     icon: "text-blue-500",
+    pill: "bg-blue-700/20 text-blue-800 dark:text-blue-300",
   },
   running: {
-    border: "border-green-500/40",
-    bar: "bg-green-500",
-    pill: "bg-green-500/15 text-green-600 dark:text-green-400",
     icon: "text-green-500",
+    pill: "bg-green-700/20 text-green-800 dark:text-green-400",
   },
 };
 
@@ -47,6 +46,7 @@ function tileraceBanner(ev: TileRaceEvent): Banner | null {
     return {
       key: `tilerace-${ev.id}`,
       name: ev.name,
+      type: "Tilerace",
       phase: "signups",
       timeText: ev.starts_at ? `Starts in ${fmtDuration(new Date(ev.starts_at).getTime() - now)}` : null,
       to: "/activities/tilerace",
@@ -57,6 +57,7 @@ function tileraceBanner(ev: TileRaceEvent): Banner | null {
     return {
       key: `tilerace-${ev.id}`,
       name: ev.name,
+      type: "Tilerace",
       phase: "running",
       timeText: ev.ends_at ? `Ends in ${fmtDuration(new Date(ev.ends_at).getTime() - now)}` : null,
       to: "/activities/tilerace",
@@ -75,6 +76,7 @@ function frenzyBanner(ev: FrenzyActiveEvent): Banner | null {
     return {
       key: `frenzy-${ev.id}`,
       name: ev.name,
+      type: "Frenzy",
       phase: "signups",
       timeText: `Starts in ${fmtDuration(start - now)}`,
       to: "/activities/frenzy",
@@ -84,6 +86,7 @@ function frenzyBanner(ev: FrenzyActiveEvent): Banner | null {
   return {
     key: `frenzy-${ev.id}`,
     name: ev.name,
+    type: "Frenzy",
     phase: "running",
     timeText: end ? `Ends in ${fmtDuration(end - now)}` : null,
     to: "/activities/frenzy",
@@ -95,28 +98,29 @@ function EventBannerCard({ banner }: { banner: Banner }): JSX.Element {
   const a = accents[banner.phase];
   const Icon = banner.icon;
   return (
-    <Link
-      to={banner.to}
-      className={`group relative flex items-center gap-3 overflow-hidden rounded-xl border ${a.border} bg-card pl-5 pr-4 py-3 shadow-sm transition-colors hover:bg-accent/40`}
-    >
-      <span className={`absolute inset-y-0 left-0 w-1 ${a.bar}`} />
-      <Icon className={`h-5 w-5 shrink-0 ${a.icon}`} />
-      <div className="min-w-0 flex-1 space-y-0.5">
-        <div className="flex items-center gap-2">
-          <span className="truncate font-rs-bold text-lg text-primary">{banner.name}</span>
-          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${a.pill}`}>
-            {banner.phase === "signups" ? "Signups open" : "Running now"}
-          </span>
-        </div>
-        {banner.timeText && (
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3 shrink-0" />
-            {banner.timeText}
-          </span>
-        )}
-      </div>
-      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-    </Link>
+    <div className="stat-card shine-border" {...shineHandlers}>
+      <Card className="relative overflow-hidden rounded-[10px] border border-border py-0">
+        <Link to={banner.to} className="group flex items-center gap-3 px-4 py-3">
+          <Icon className={`h-5 w-5 shrink-0 ${a.icon}`} />
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <div className="flex items-center gap-2">
+              <span className="truncate font-rs-bold text-lg text-primary">{banner.name}</span>
+              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${a.pill}`}>
+                {banner.phase === "signups" ? "Signups open" : "Running now"}
+              </span>
+              <span className="shrink-0 text-xs text-muted-foreground">{"•"} {banner.type}</span>
+            </div>
+            {banner.timeText && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3 shrink-0" />
+                {banner.timeText}
+              </span>
+            )}
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </Card>
+    </div>
   );
 }
 
@@ -132,7 +136,7 @@ export function EventBanner(): JSX.Element | null {
   if (banners.length === 0) return null;
 
   return (
-    <div className="space-y-2">
+    <div className="mx-auto w-2/3 space-y-2">
       {banners.map((b) => (
         <EventBannerCard key={b.key} banner={b} />
       ))}
