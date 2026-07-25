@@ -10,6 +10,7 @@ import { Trophy, Clock, ExternalLink } from "lucide-react";
 import { StatsSection } from "@/components/home/StatsSection";
 import { AchievementsSection } from "@/components/home/AchievementsSection";
 import { RankSection } from "@/components/home/RankSection";
+import { EventBanner } from "@/components/home/EventBanner";
 import type { Competition } from "@/types/competitions";
 import { shineHandlers } from "@/hooks/useShineEffect";
 import clanPhoto from "@/assets/clan-photo.png";
@@ -142,6 +143,8 @@ function HomePage() {
             </Button>
           </div>
         </section>
+
+        <EventBanner />
 
         <StatsSection {...statsProps} />
         {divider}
