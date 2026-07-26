@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Plus, Search } from "lucide-react";
+import { LayoutGrid, Plus, Search } from "lucide-react";
 import { CategoryRowMenu, EntryRowMenu } from "./ContentRowMenu";
+import { FolderHoverCard } from "./FolderHoverCard";
 import { CategoryDialog } from "./dialogs/CategoryDialog";
 import { NewEntryDialog } from "./dialogs/NewEntryDialog";
 import {
@@ -81,21 +82,24 @@ export function ContentSidebar({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-3">
-        <Link
-          to={routeBase}
-          onClick={onNavigate}
-          className="truncate text-sm font-semibold text-foreground hover:text-primary"
-        >
-          {pageName}
-        </Link>
+        <span className="truncate text-sm font-semibold text-foreground">{pageName}</span>
         <div className="flex shrink-0 items-center gap-0.5">
           <button
             onClick={onOpenSearch}
-            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="Search entries (Ctrl+K)"
+            className="mr-0.5 flex items-center gap-1.5 rounded-md border border-border px-1.5 py-1 text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+            title="Search entries"
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-3.5 w-3.5 shrink-0" />
+            <kbd className="font-mono text-[10px] leading-none tracking-tight">Ctrl K</kbd>
           </button>
+          <Link
+            to={routeBase}
+            onClick={onNavigate}
+            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground [&.active]:text-primary"
+            title={`${pageName} overview`}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Link>
           {canCreate && (
             <button
               onClick={() => setCategoryDialog({ mode: "create", parentId: null })}
@@ -129,30 +133,32 @@ export function ContentSidebar({
                 onMoveDown={() => run(() => moveCategory(siblings, siblingIndex, siblingIndex + 1, pageType))}
                 onDelete={() => handleDelete(cat)}
               >
-                <button
-                  onClick={() => onSelectCategory(cat.id)}
-                  disabled={busy}
-                  className={cn(
-                    "flex w-full items-stretch rounded-sm pr-1.5 pl-1 text-left text-xs leading-snug",
-                    cat.id === selected?.cat.id
-                      ? "bg-primary/10 font-semibold text-primary"
-                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                  )}
-                >
-                  {Array.from({ length: depth }, (_, i) => (
-                    <span
-                      key={i}
-                      aria-hidden
-                      className={cn(
-                        "mr-1.5 w-1.5 shrink-0 border-l",
-                        cat.id === selected?.cat.id
-                          ? "border-primary"
-                          : RAIL_TONES[Math.min(i, RAIL_TONES.length - 1)],
-                      )}
-                    />
-                  ))}
-                  <span className="truncate py-2">{cat.label}</span>
-                </button>
+                <FolderHoverCard cat={cat}>
+                  <button
+                    onClick={() => onSelectCategory(cat.id)}
+                    disabled={busy}
+                    className={cn(
+                      "flex w-full items-stretch rounded-sm pr-1.5 pl-1 text-left text-xs leading-snug",
+                      cat.id === selected?.cat.id
+                        ? "bg-primary/10 font-semibold text-primary"
+                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                    )}
+                  >
+                    {Array.from({ length: depth }, (_, i) => (
+                      <span
+                        key={i}
+                        aria-hidden
+                        className={cn(
+                          "mr-1.5 w-1.5 shrink-0 border-l",
+                          cat.id === selected?.cat.id
+                            ? "border-primary"
+                            : RAIL_TONES[Math.min(i, RAIL_TONES.length - 1)],
+                        )}
+                      />
+                    ))}
+                    <span className="truncate py-2">{cat.label}</span>
+                  </button>
+                </FolderHoverCard>
               </CategoryRowMenu>
             ))
           )}

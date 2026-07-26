@@ -5,6 +5,7 @@ export interface ContentEntry {
   title: string;
   slug: string;
   sort_order: number;
+  updated_at: string | null;
 }
 
 export interface CategoryTree {
@@ -59,6 +60,34 @@ export function flattenEntries(cats: CategoryTree[], trail: string[] = []): Flat
 
 export function findCategoryIdForSlug(cats: CategoryTree[], slug: string): string | null {
   return flattenEntries(cats).find((f) => f.entry.slug === slug)?.categoryId ?? null;
+}
+
+export function countEntries(cats: CategoryTree[]): number {
+  return cats.reduce((n, c) => n + c.entries.length + countEntries(c.children), 0);
+}
+
+export function recentlyUpdated(cats: CategoryTree[], limit: number): FlatEntry[] {
+  return flattenEntries(cats)
+    .filter((f) => f.entry.updated_at !== null)
+    .sort((a, b) => Date.parse(b.entry.updated_at!) - Date.parse(a.entry.updated_at!))
+    .slice(0, limit);
+}
+
+export function shortAge(iso: string | null): string {
+  if (!iso) return "";
+  const ms = Date.now() - Date.parse(iso);
+  if (!Number.isFinite(ms) || ms < 0) return "new";
+  const mins = Math.floor(ms / 60000);
+  if (mins < 60) return `${Math.max(mins, 1)}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks}w`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo`;
+  return `${Math.floor(days / 365)}y`;
 }
 
 function reorderIds<T extends { id: string; sort_order: number }>(

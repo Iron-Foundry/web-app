@@ -20,6 +20,7 @@ interface ContentContextValue {
   categories: CategoryTree[];
   isLoading: boolean;
   refreshTree: () => void;
+  openSearch: () => void;
   pageType: string;
   pageId: string;
   pageName: string;
@@ -30,6 +31,7 @@ const ContentContext = createContext<ContentContextValue>({
   categories: [],
   isLoading: true,
   refreshTree: () => {},
+  openSearch: () => {},
   pageType: "",
   pageId: "",
   pageName: "",
@@ -111,6 +113,8 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
     setRefreshKey((k) => k + 1);
   }, []);
 
+  const openSearch = useCallback(() => setSearchOpen(true), []);
+
   const sidebarProps: ContentSidebarProps = {
     categories,
     pageType,
@@ -121,13 +125,13 @@ export function ContentLayout({ pageType, pageName, pageId, routeBase }: Content
     canDelete,
     selectedCategoryId,
     onSelectCategory: setSelectedCategoryId,
-    onOpenSearch: () => setSearchOpen(true),
+    onOpenSearch: openSearch,
     onRefresh: refreshTree,
   };
 
   const contextValue = useMemo(
-    () => ({ categories, isLoading, refreshTree, pageType, pageId, pageName, routeBase }),
-    [categories, isLoading, refreshTree, pageType, pageId, pageName, routeBase],
+    () => ({ categories, isLoading, refreshTree, openSearch, pageType, pageId, pageName, routeBase }),
+    [categories, isLoading, refreshTree, openSearch, pageType, pageId, pageName, routeBase],
   );
 
   return (

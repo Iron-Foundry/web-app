@@ -34,6 +34,7 @@ export function ContentSearchDialog({
       onOpenChange={onOpenChange}
       title={`Search ${pageName}`}
       description="Search every entry by title or category."
+      className="top-[12vh] translate-y-0 bg-background [&_[data-slot=command]]:bg-background"
     >
       <CommandInput placeholder={`Search ${pageName.toLowerCase()}...`} />
       <CommandList>
@@ -41,6 +42,7 @@ export function ContentSearchDialog({
         {entries.map(({ entry, trail }) => (
           <CommandItem
             key={entry.id}
+            className="gap-3 rounded-md px-2.5 py-2 data-[selected=true]:bg-muted/40 data-[selected=true]:text-foreground [&[data-selected=true]_.cmd-title]:text-primary [&[data-selected=true]_svg]:text-primary"
             value={`${trail.join(" ")} ${entry.title}`}
             onSelect={() => {
               onOpenChange(false);
@@ -49,7 +51,7 @@ export function ContentSearchDialog({
           >
             <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span className="flex min-w-0 flex-col">
-              <span className="truncate">{entry.title}</span>
+              <span className="cmd-title truncate transition-colors">{entry.title}</span>
               <span className="truncate text-xs text-muted-foreground">
                 {trail.join(" / ")}
               </span>
