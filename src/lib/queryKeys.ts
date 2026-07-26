@@ -106,6 +106,11 @@ export const queryKeys = {
     completions: (eventId: string) => ["tilerace", "completions", eventId] as const,
     rolls: (eventId: string) => ["tilerace", "rolls", eventId] as const,
   },
+  reference: {
+    sources: (category: string) => ["reference", "sources", category] as const,
+    source: (slug: string) => ["reference", "source", slug] as const,
+    rates: (kind: string) => ["reference", "rates", kind] as const,
+  },
   frenzy: {
     active: () => ["frenzy", "active"] as const,
     team: (slug: string) => ["frenzy", "active", "team", slug] as const,

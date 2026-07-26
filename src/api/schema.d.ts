@@ -3096,6 +3096,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reference/loot/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sources For Item */
+        get: operations["sources_for_item_reference_loot_items__item_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/loot/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Sources */
+        get: operations["list_sources_reference_loot_sources_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/loot/sources/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Source */
+        get: operations["get_source_reference_loot_sources__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Rates */
+        get: operations["list_rates_reference_rates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/role-panels": {
         parameters: {
             query?: never;
@@ -4306,6 +4374,31 @@ export interface components {
              */
             staff_role_id: string;
         };
+        /** DropOut */
+        DropOut: {
+            /** Drop Group */
+            drop_group: string;
+            /** Ge Price */
+            ge_price?: number | null;
+            /** Item Id */
+            item_id: number | null;
+            /** Item Name */
+            item_name: string;
+            /** Noted */
+            noted: boolean;
+            /** Quantity High */
+            quantity_high: number;
+            /** Quantity Low */
+            quantity_low: number;
+            /** Rarity Denom */
+            rarity_denom: number | null;
+            /** Rarity Num */
+            rarity_num: number | null;
+            /** Rarity Text */
+            rarity_text: string | null;
+            /** Rolls */
+            rolls: number;
+        };
         /** EditCompetitionInput */
         EditCompetitionInput: {
             /** Ends At */
@@ -4413,6 +4506,11 @@ export interface components {
              * @default 30
              */
             refresh_interval_minutes: number;
+        };
+        /** ItemSourceOut */
+        ItemSourceOut: {
+            drop: components["schemas"]["DropOut"];
+            source: components["schemas"]["SourceOut"];
         };
         /** JoinPartyRequest */
         JoinPartyRequest: {
@@ -4773,6 +4871,24 @@ export interface components {
             /** Mappings */
             mappings: components["schemas"]["RankMapping"][];
         };
+        /** RateOut */
+        RateOut: {
+            /** Kind */
+            kind: string;
+            /** Metric */
+            metric: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Rate */
+            rate: number;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /** ReferralUpdate */
         ReferralUpdate: {
             /** Detail */
@@ -4904,6 +5020,64 @@ export interface components {
              * @enum {string}
              */
             type: "snakes_ladders";
+        };
+        /** SourceDetailOut */
+        SourceDetailOut: {
+            /** Category */
+            category: string;
+            /** Display Name */
+            display_name: string;
+            /** Drops */
+            drops: components["schemas"]["DropOut"][];
+            /** Reward Kind */
+            reward_kind: string | null;
+            /** Slug */
+            slug: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Wiki Page */
+            wiki_page: string;
+        };
+        /** SourceListOut */
+        SourceListOut: {
+            /** Category */
+            category: string;
+            /** Display Name */
+            display_name: string;
+            /** Drop Count */
+            drop_count: number;
+            /** Reward Kind */
+            reward_kind: string | null;
+            /** Slug */
+            slug: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Wiki Page */
+            wiki_page: string;
+        };
+        /** SourceOut */
+        SourceOut: {
+            /** Category */
+            category: string;
+            /** Display Name */
+            display_name: string;
+            /** Reward Kind */
+            reward_kind: string | null;
+            /** Slug */
+            slug: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Wiki Page */
+            wiki_page: string;
         };
         /** StaffCascadeBody */
         StaffCascadeBody: {
@@ -12565,6 +12739,130 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sources_for_item_reference_loot_items__item_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemSourceOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sources_reference_loot_sources_get: {
+        parameters: {
+            query?: {
+                category?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceListOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_reference_loot_sources__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceDetailOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_rates_reference_rates_get: {
+        parameters: {
+            query?: {
+                kind?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RateOut"][];
                 };
             };
             /** @description Validation Error */

@@ -17,6 +17,7 @@ import {
   Image,
   Wrench,
   Ticket,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 import type { PermAction } from "@/types/permissions";
@@ -34,6 +35,7 @@ import { TileRepositoryPage } from "@/routes/members/config/tile-repository";
 import { ServicesPage } from "@/routes/members/config/services";
 import { StaffContentPage } from "@/routes/members/config/content";
 import { PanelConfigPage } from "@/routes/members/config/panel";
+import { ReferenceDataPage } from "@/routes/members/config/reference";
 import { BadgesPage } from "@/routes/staff-portal/badges";
 import { AssetManagerPage } from "@/routes/staff-portal/assets";
 import { RuneliteConfigsPage } from "@/routes/staff-portal/runelite-configs";
@@ -78,6 +80,7 @@ export const CONFIG_PAGES: ConfigPage[] = [
   { id: "assets", label: "Asset Library", icon: Image, pageId: "staff.assets", group: "Components & Content", Component: AssetManagerPage },
   { id: "badges", label: "Badges", icon: Award, pageId: "staff.badges", group: "Components & Content", Component: BadgesPage },
   { id: "runelite-configs", label: "RuneLite Configs", icon: Wrench, pageId: "staff.runelite_configs", group: "Components & Content", Component: RuneliteConfigsPage },
+  { id: "reference-data", label: "Reference Data", icon: BookOpen, pageId: "staff.reference-data", group: "Components & Content", redirectTo: "/members", Component: ReferenceDataPage },
 ];
 
 type HasPermission = (pageId: string, action: PermAction, roles: string[]) => boolean;
