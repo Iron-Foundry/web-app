@@ -7,6 +7,7 @@
     "dev": "bun --hot src/index.tsx",
     "start": "NODE_ENV=production bun src/index.tsx",
     "build": "bun run build.ts",
+    "typecheck": "tsc --noEmit",
     "preview-embeds": "bun run scripts/preview-embeds.ts",
     "test": "bun test tests/",
     "test:e2e": "playwright test",
