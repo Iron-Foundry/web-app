@@ -11,7 +11,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Assets */
+        /**
+         * List Assets
+         * @description List uploaded assets with their filenames and content types.
+         */
         get: operations["list_assets_assets_get"];
         put?: never;
         post?: never;
@@ -50,7 +53,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Upload Asset */
+        /**
+         * Upload Asset
+         * @description Upload a file and return the URL it is served from.
+         */
         post: operations["upload_asset_assets_upload_post"];
         delete?: never;
         options?: never;
@@ -68,7 +74,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Asset */
+        /**
+         * Delete Asset
+         * @description Delete an uploaded asset and its cached thumbnails.
+         */
         delete: operations["delete_asset_assets__asset_id__delete"];
         options?: never;
         head?: never;
@@ -82,7 +91,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Callback */
+        /**
+         * Callback
+         * @description Complete the OAuth2 exchange and hand the browser a JWT.
+         *
+         *     Verifies the caller is in the clan's guild, upserts their user record with
+         *     their current Discord roles, then redirects to the frontend with the token
+         *     in the query string. Failures redirect back with an `error` parameter
+         *     rather than returning a status code.
+         */
         get: operations["callback_auth_callback_get"];
         put?: never;
         post?: never;
@@ -99,7 +116,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Login */
+        /**
+         * Login
+         * @description Redirect to Discord's OAuth2 consent screen.
+         *
+         *     A browser redirect, not a JSON endpoint. The signed `state` parameter
+         *     expires after five minutes.
+         */
         get: operations["login_auth_login_get"];
         put?: never;
         post?: never;
@@ -156,10 +179,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Badges */
+        /**
+         * List Badges
+         * @description Page through the badge catalog.
+         */
         get: operations["list_badges_badges__get"];
         put?: never;
-        /** Create Badge */
+        /**
+         * Create Badge
+         * @description Create a badge. Staff only.
+         */
         post: operations["create_badge_badges__post"];
         delete?: never;
         options?: never;
@@ -174,7 +203,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** My Badges */
+        /**
+         * My Badges
+         * @description List the badges held by the signed-in member.
+         */
         get: operations["my_badges_badges_me_get"];
         put?: never;
         post?: never;
@@ -191,12 +223,21 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Badge */
+        /**
+         * Get Badge
+         * @description Return one badge by id.
+         */
         get: operations["get_badge_badges__badge_id__get"];
-        /** Update Badge */
+        /**
+         * Update Badge
+         * @description Update a badge's name, artwork, or description. Staff only.
+         */
         put: operations["update_badge_badges__badge_id__put"];
         post?: never;
-        /** Delete Badge */
+        /**
+         * Delete Badge
+         * @description Delete a badge and revoke it from every holder. Staff only.
+         */
         delete: operations["delete_badge_badges__badge_id__delete"];
         options?: never;
         head?: never;
@@ -212,7 +253,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Assign Badge */
+        /**
+         * Assign Badge
+         * @description Grant this badge to a member. Staff only.
+         */
         post: operations["assign_badge_badges__badge_id__assign_post"];
         delete?: never;
         options?: never;
@@ -230,7 +274,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Revoke Badge */
+        /**
+         * Revoke Badge
+         * @description Revoke this badge from a member. Staff only.
+         */
         delete: operations["revoke_badge_badges__badge_id__assign__user_id__delete"];
         options?: never;
         head?: never;
@@ -244,7 +291,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Badge Members */
+        /**
+         * Badge Members
+         * @description List the members currently holding this badge.
+         */
         get: operations["badge_members_badges__badge_id__members_get"];
         put?: never;
         post?: never;
@@ -263,7 +313,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Dispatch To Clan */
+        /**
+         * Dispatch To Clan
+         * @description Push a Discord message out to the connected in-game clients.
+         *
+         *     Long messages are split into chunks the game chat box accepts.
+         */
         post: operations["dispatch_to_clan_ccdispatch_post"];
         delete?: never;
         options?: never;
@@ -298,7 +353,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get My Ballot Tokens */
+        /**
+         * Get My Ballot Tokens
+         * @description Return the signed-in member's ballot token balance.
+         */
         get: operations["get_my_ballot_tokens_clan_ballot_tokens_me_get"];
         put?: never;
         post?: never;
@@ -315,7 +373,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Bulk Gains Batches */
+        /**
+         * List Bulk Gains Batches
+         * @description List the stored bulk-gains batches, newest first.
+         */
         get: operations["list_bulk_gains_batches_clan_bulk_gains_batches_get"];
         put?: never;
         post?: never;
@@ -332,7 +393,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Bulk Gains Batch */
+        /**
+         * Get Bulk Gains Batch
+         * @description Return every player's gains within one batch.
+         */
         get: operations["get_bulk_gains_batch_clan_bulk_gains_batches__batch_id__get"];
         put?: never;
         post?: never;
@@ -349,7 +413,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Player Bulk Gains */
+        /**
+         * Get Player Bulk Gains
+         * @description Return one player's gains within one batch, by RSN.
+         */
         get: operations["get_player_bulk_gains_clan_bulk_gains_batches__batch_id__players__rsn__get"];
         put?: never;
         post?: never;
@@ -368,7 +435,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Fetch Bulk Gains */
+        /**
+         * Fetch Bulk Gains
+         * @description Fetch a gains snapshot for the whole clan over a date range and store it as a batch.
+         */
         post: operations["fetch_bulk_gains_clan_bulk_gains_fetch_post"];
         delete?: never;
         options?: never;
@@ -383,10 +453,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Schedules */
+        /**
+         * List Schedules
+         * @description List every recurring competition schedule with its active run.
+         */
         get: operations["list_schedules_clan_competition_schedules_get"];
         put?: never;
-        /** Create Schedule */
+        /**
+         * Create Schedule
+         * @description Create a recurring schedule that polls members, then opens the winning competition.
+         */
         post: operations["create_schedule_clan_competition_schedules_post"];
         delete?: never;
         options?: never;
@@ -401,15 +477,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Schedule Endpoint */
+        /**
+         * Get Schedule Endpoint
+         * @description Return one schedule with its currently active run, if any.
+         */
         get: operations["get_schedule_endpoint_clan_competition_schedules__schedule_id__get"];
         put?: never;
         post?: never;
-        /** Delete Schedule */
+        /**
+         * Delete Schedule
+         * @description Delete a schedule and stop any further runs from being created.
+         */
         delete: operations["delete_schedule_clan_competition_schedules__schedule_id__delete"];
         options?: never;
         head?: never;
-        /** Patch Schedule */
+        /**
+         * Patch Schedule
+         * @description Update a schedule's recurrence, poll options, or announcement settings.
+         */
         patch: operations["patch_schedule_clan_competition_schedules__schedule_id__patch"];
         trace?: never;
     };
@@ -422,7 +507,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Adjust Poll */
+        /**
+         * Adjust Poll
+         * @description Shift the active poll's close time, and re-announce it to Discord.
+         *
+         *     Clamped to at least one minute out. Returns 409 when no poll is open.
+         */
         post: operations["adjust_poll_clan_competition_schedules__schedule_id__adjust_poll_post"];
         delete?: never;
         options?: never;
@@ -443,7 +533,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Set Next Poll At */
+        /**
+         * Set Next Poll At
+         * @description Set the schedule's next poll time to an explicit UTC timestamp.
+         */
         patch: operations["set_next_poll_at_clan_competition_schedules__schedule_id__next_poll_at_patch"];
         trace?: never;
     };
@@ -456,7 +549,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Override Options */
+        /**
+         * Override Options
+         * @description Replace the poll options for a run, creating and triggering one if needed.
+         */
         post: operations["override_options_clan_competition_schedules__schedule_id__override_options_post"];
         delete?: never;
         options?: never;
@@ -473,7 +569,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Pause Schedule */
+        /**
+         * Pause Schedule
+         * @description Stop the schedule from opening new polls, leaving existing runs alone.
+         */
         post: operations["pause_schedule_clan_competition_schedules__schedule_id__pause_post"];
         delete?: never;
         options?: never;
@@ -490,7 +589,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Resume Schedule */
+        /**
+         * Resume Schedule
+         * @description Resume a paused schedule from its next due poll.
+         */
         post: operations["resume_schedule_clan_competition_schedules__schedule_id__resume_post"];
         delete?: never;
         options?: never;
@@ -505,7 +607,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Runs */
+        /**
+         * List Runs
+         * @description List a schedule's past and present runs, newest first.
+         */
         get: operations["list_runs_clan_competition_schedules__schedule_id__runs_get"];
         put?: never;
         post?: never;
@@ -528,7 +633,13 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Patch Run */
+        /**
+         * Patch Run
+         * @description Correct a run's status, winning metric, or competition window.
+         *
+         *     Rejects marking a run active with an end time already in the past, which
+         *     would make the scheduler announce results immediately.
+         */
         patch: operations["patch_run_clan_competition_schedules__schedule_id__runs__run_id__patch"];
         trace?: never;
     };
@@ -541,7 +652,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Skip Next */
+        /**
+         * Skip Next
+         * @description Cancel the active run and push the next poll out one full recurrence.
+         *
+         *     Refunds any ballot tokens the cancelled run had already spent.
+         */
         post: operations["skip_next_clan_competition_schedules__schedule_id__skip_next_post"];
         delete?: never;
         options?: never;
@@ -558,7 +674,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Trigger Now */
+        /**
+         * Trigger Now
+         * @description Bring the next poll forward so the scheduler opens it on its next tick.
+         *
+         *     Returns 409 if a poll is already pending or open; skip it first.
+         */
         post: operations["trigger_now_clan_competition_schedules__schedule_id__trigger_now_post"];
         delete?: never;
         options?: never;
@@ -579,7 +700,10 @@ export interface paths {
          */
         get: operations["list_competitions_clan_competitions_get"];
         put?: never;
-        /** Create Competition Endpoint */
+        /**
+         * Create Competition Endpoint
+         * @description Create a WiseOldMan competition for the clan and announce it.
+         */
         post: operations["create_competition_endpoint_clan_competitions_post"];
         delete?: never;
         options?: never;
@@ -643,10 +767,16 @@ export interface paths {
          * @description Return full competition details with participant progress, served from cache.
          */
         get: operations["competition_details_clan_competitions__competition_id__get"];
-        /** Edit Competition Endpoint */
+        /**
+         * Edit Competition Endpoint
+         * @description Edit a WiseOldMan competition's title, metric, or window.
+         */
         put: operations["edit_competition_endpoint_clan_competitions__competition_id__put"];
         post?: never;
-        /** Delete Competition Endpoint */
+        /**
+         * Delete Competition Endpoint
+         * @description Delete a WiseOldMan competition and its cached standings.
+         */
         delete: operations["delete_competition_endpoint_clan_competitions__competition_id__delete"];
         options?: never;
         head?: never;
@@ -880,9 +1010,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Admin Bypass Roles Endpoint */
+        /**
+         * Get Admin Bypass Roles Endpoint
+         * @description Return the roles that bypass every page permission check.
+         */
         get: operations["get_admin_bypass_roles_endpoint_config_admin_bypass_roles_get"];
-        /** Set Admin Bypass Roles */
+        /**
+         * Set Admin Bypass Roles
+         * @description Replace the roles that bypass every page permission check.
+         */
         put: operations["set_admin_bypass_roles_config_admin_bypass_roles_put"];
         post?: never;
         delete?: never;
@@ -898,9 +1034,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Ballot Token Config */
+        /**
+         * Get Ballot Token Config
+         * @description Return how ballot tokens are granted and what they cost to spend.
+         */
         get: operations["get_ballot_token_config_config_ballot_tokens_get"];
-        /** Set Ballot Token Config */
+        /**
+         * Set Ballot Token Config
+         * @description Replace the ballot token grant and spend rules.
+         */
         put: operations["set_ballot_token_config_config_ballot_tokens_put"];
         post?: never;
         delete?: never;
@@ -916,9 +1058,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Action Log Config */
+        /**
+         * Get Action Log Config
+         * @description Return the action-log forum channel and whether logging is on.
+         */
         get: operations["get_action_log_config_config_discord_feature_action_log_get"];
-        /** Set Action Log Config */
+        /**
+         * Set Action Log Config
+         * @description Set the action-log forum channel and toggle logging.
+         */
         put: operations["set_action_log_config_config_discord_feature_action_log_put"];
         post?: never;
         delete?: never;
@@ -934,9 +1082,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Broadcast Config */
+        /**
+         * Get Broadcast Config
+         * @description Return the role pinged by clan broadcast announcements.
+         */
         get: operations["get_broadcast_config_config_discord_feature_broadcast_get"];
-        /** Set Broadcast Config */
+        /**
+         * Set Broadcast Config
+         * @description Set the role pinged by clan broadcast announcements.
+         */
         put: operations["set_broadcast_config_config_discord_feature_broadcast_put"];
         post?: never;
         delete?: never;
@@ -952,9 +1106,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Join Roles Config */
+        /**
+         * Get Join Roles Config
+         * @description Return the roles granted automatically when a member joins the guild.
+         */
         get: operations["get_join_roles_config_config_discord_feature_join_roles_get"];
-        /** Set Join Roles Config */
+        /**
+         * Set Join Roles Config
+         * @description Replace the roles granted automatically on guild join.
+         */
         put: operations["set_join_roles_config_config_discord_feature_join_roles_put"];
         post?: never;
         delete?: never;
@@ -990,9 +1150,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Discord Roles Config */
+        /**
+         * Get Discord Roles Config
+         * @description Return the role ids the Discord services treat as staff, senior staff, and owner.
+         */
         get: operations["get_discord_roles_config_config_discord_roles_get"];
-        /** Set Discord Roles Config */
+        /**
+         * Set Discord Roles Config
+         * @description Replace the staff, senior staff, and owner role bindings.
+         */
         put: operations["set_discord_roles_config_config_discord_roles_put"];
         post?: never;
         delete?: never;
@@ -1008,9 +1174,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Page Permissions */
+        /**
+         * Get Page Permissions
+         * @description Return which roles may read or edit each control-panel page.
+         */
         get: operations["get_page_permissions_config_page_permissions_get"];
-        /** Set Page Permissions */
+        /**
+         * Set Page Permissions
+         * @description Replace the per-page read and edit role requirements.
+         */
         put: operations["set_page_permissions_config_page_permissions_put"];
         post?: never;
         delete?: never;
@@ -1026,9 +1198,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Panel Config */
+        /**
+         * Get Panel Config
+         * @description Return the layout of the Discord info panel.
+         */
         get: operations["get_panel_config_config_panel_get"];
-        /** Set Panel Config */
+        /**
+         * Set Panel Config
+         * @description Replace the layout of the Discord info panel.
+         */
         put: operations["set_panel_config_config_panel_put"];
         post?: never;
         delete?: never;
@@ -1044,9 +1222,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Notification Categories */
+        /**
+         * Get Notification Categories
+         * @description Return the party notification categories members can subscribe to.
+         */
         get: operations["get_notification_categories_config_party_notification_categories_get"];
-        /** Set Notification Categories */
+        /**
+         * Set Notification Categories
+         * @description Replace the party notification categories.
+         */
         put: operations["set_notification_categories_config_party_notification_categories_put"];
         post?: never;
         delete?: never;
@@ -1062,9 +1246,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Rank Mappings */
+        /**
+         * Get Rank Mappings
+         * @description Return the mapping from in-game clan rank to Discord role.
+         */
         get: operations["get_rank_mappings_config_rank_mappings_get"];
-        /** Set Rank Mappings */
+        /**
+         * Set Rank Mappings
+         * @description Replace the clan rank to Discord role mapping.
+         */
         put: operations["set_rank_mappings_config_rank_mappings_put"];
         post?: never;
         delete?: never;
@@ -1080,9 +1270,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Ranking Config */
+        /**
+         * Get Ranking Config
+         * @description Return the point weights and thresholds the rank engine uses.
+         */
         get: operations["get_ranking_config_config_ranking_get"];
-        /** Set Ranking Config */
+        /**
+         * Set Ranking Config
+         * @description Replace the rank engine's point weights and thresholds.
+         */
         put: operations["set_ranking_config_config_ranking_put"];
         post?: never;
         delete?: never;
@@ -1098,7 +1294,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Service Toggles Endpoint */
+        /**
+         * Get Service Toggles Endpoint
+         * @description Return which background services are enabled.
+         */
         get: operations["get_service_toggles_endpoint_config_services_toggles_get"];
         put?: never;
         post?: never;
@@ -1135,9 +1334,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Ticket Features */
+        /**
+         * Get Ticket Features
+         * @description Return the optional behaviours enabled on the ticket system.
+         */
         get: operations["get_ticket_features_config_ticket_features_get"];
-        /** Set Ticket Features */
+        /**
+         * Set Ticket Features
+         * @description Toggle the optional behaviours on the ticket system.
+         */
         put: operations["set_ticket_features_config_ticket_features_put"];
         post?: never;
         delete?: never;
@@ -1153,7 +1358,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Deprecated Entries */
+        /**
+         * Get Deprecated Entries
+         * @description List entries flagged as outdated, for staff to revise or retire.
+         */
         get: operations["get_deprecated_entries_content_deprecated_entries_get"];
         put?: never;
         post?: never;
@@ -1170,10 +1378,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Categories */
+        /**
+         * Get Categories
+         * @description Return the category tree for a page type, with its published entries.
+         */
         get: operations["get_categories_content__page_type__categories_get"];
         put?: never;
-        /** Create Category */
+        /**
+         * Create Category
+         * @description Create a category in a page type's tree. Staff only.
+         */
         post: operations["create_category_content__page_type__categories_post"];
         delete?: never;
         options?: never;
@@ -1191,11 +1405,17 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Category */
+        /**
+         * Delete Category
+         * @description Delete a category. Staff only.
+         */
         delete: operations["delete_category_content__page_type__categories__category_id__delete"];
         options?: never;
         head?: never;
-        /** Patch Category */
+        /**
+         * Patch Category
+         * @description Rename, reorder, or re-parent a category. Staff only.
+         */
         patch: operations["patch_category_content__page_type__categories__category_id__patch"];
         trace?: never;
     };
@@ -1208,7 +1428,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create Entry */
+        /**
+         * Create Entry
+         * @description Create an entry inside a category. Staff only.
+         */
         post: operations["create_entry_content__page_type__categories__category_id__entries_post"];
         delete?: never;
         options?: never;
@@ -1223,7 +1446,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Entry By Slug */
+        /**
+         * Get Entry By Slug
+         * @description Return a published entry by its URL slug. This is what the public site reads.
+         */
         get: operations["get_entry_by_slug_content__page_type__entries_by_slug__slug__get"];
         put?: never;
         post?: never;
@@ -1240,9 +1466,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Entry */
+        /**
+         * Get Entry
+         * @description Return one entry by id, including drafts for callers allowed to see them.
+         */
         get: operations["get_entry_content__page_type__entries__entry_id__get"];
-        /** Update Entry */
+        /**
+         * Update Entry
+         * @description Replace an entry's content, snapshotting the previous version first.
+         */
         put: operations["update_entry_content__page_type__entries__entry_id__put"];
         post?: never;
         /**
@@ -1265,7 +1497,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Permanent Delete Entry */
+        /**
+         * Permanent Delete Entry
+         * @description Erase a soft-deleted entry and its version history. Cannot be undone.
+         */
         delete: operations["permanent_delete_entry_content__page_type__entries__entry_id__permanent_delete"];
         options?: never;
         head?: never;
@@ -1301,7 +1536,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Restore Entry */
+        /**
+         * Restore Entry
+         * @description Bring a soft-deleted entry back into its category.
+         */
         post: operations["restore_entry_content__page_type__entries__entry_id__restore_post"];
         delete?: never;
         options?: never;
@@ -1318,7 +1556,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Revert Entry To Version */
+        /**
+         * Revert Entry To Version
+         * @description Restore an archived version as the entry's current content.
+         */
         post: operations["revert_entry_to_version_content__page_type__entries__entry_id__revert__version_id__post"];
         delete?: never;
         options?: never;
@@ -1333,7 +1574,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Entry Versions */
+        /**
+         * List Entry Versions
+         * @description List an entry's saved versions with who authored each.
+         */
         get: operations["list_entry_versions_content__page_type__entries__entry_id__versions_get"];
         put?: never;
         post?: never;
@@ -1350,7 +1594,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Entry Version */
+        /**
+         * Get Entry Version
+         * @description Return one archived version of an entry in full.
+         */
         get: operations["get_entry_version_content__page_type__entries__entry_id__versions__version_id__get"];
         put?: never;
         post?: never;
@@ -1447,10 +1694,19 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Feedback */
+        /**
+         * List Feedback
+         * @description List feedback threads, optionally filtered by type.
+         *
+         *     Unauthenticated callers see the public view; signing in adds the caller's
+         *     own reactions and any staff-only fields their roles allow.
+         */
         get: operations["list_feedback_feedback__get"];
         put?: never;
-        /** Submit Feedback */
+        /**
+         * Submit Feedback
+         * @description Open a new feedback thread.
+         */
         post: operations["submit_feedback_feedback__post"];
         delete?: never;
         options?: never;
@@ -1485,14 +1741,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Feedback */
+        /**
+         * Get Feedback
+         * @description Return one feedback thread with its replies and reactions.
+         */
         get: operations["get_feedback_feedback__feedback_id__get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Edit Feedback */
+        /**
+         * Edit Feedback
+         * @description Edit a feedback thread. Restricted to its author or staff.
+         */
         patch: operations["edit_feedback_feedback__feedback_id__patch"];
         trace?: never;
     };
@@ -1505,7 +1767,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Toggle React */
+        /**
+         * Toggle React
+         * @description Add or remove the caller's reaction on a feedback thread.
+         */
         post: operations["toggle_react_feedback__feedback_id__react_post"];
         delete?: never;
         options?: never;
@@ -1522,7 +1787,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Post Reply */
+        /**
+         * Post Reply
+         * @description Reply to a feedback thread.
+         */
         post: operations["post_reply_feedback__feedback_id__replies_post"];
         delete?: never;
         options?: never;
@@ -1540,7 +1808,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Reply */
+        /**
+         * Delete Reply
+         * @description Delete a reply. Restricted to its author or staff.
+         */
         delete: operations["delete_reply_feedback__feedback_id__replies__reply_id__delete"];
         options?: never;
         head?: never;
@@ -1584,7 +1855,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update Status */
+        /**
+         * Update Status
+         * @description Move a feedback thread between states, e.g. planned or done. Staff only.
+         */
         patch: operations["update_status_feedback__feedback_id__status_patch"];
         trace?: never;
     };
@@ -1677,7 +1951,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Calculate Points */
+        /**
+         * Calculate Points
+         * @description Preview the per-tier point split for a tier set and total cap.
+         *
+         *     Pure calculation helper for the template editor; it persists nothing.
+         */
         post: operations["calculate_points_frenzy_calculate_points_post"];
         delete?: never;
         options?: never;
@@ -1692,10 +1971,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Events */
+        /**
+         * List Events
+         * @description List every frenzy event with its template and team summary.
+         */
         get: operations["list_events_frenzy_events_get"];
         put?: never;
-        /** Create Event */
+        /**
+         * Create Event
+         * @description Create a frenzy event from a template.
+         */
         post: operations["create_event_frenzy_events_post"];
         delete?: never;
         options?: never;
@@ -1710,15 +1995,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Event */
+        /**
+         * Get Event
+         * @description Return one event with its teams, tasks, and current scores.
+         */
         get: operations["get_event_frenzy_events__event_id__get"];
         put?: never;
         post?: never;
-        /** Delete Event */
+        /**
+         * Delete Event
+         * @description Delete an event along with its teams and submissions.
+         */
         delete: operations["delete_event_frenzy_events__event_id__delete"];
         options?: never;
         head?: never;
-        /** Patch Event */
+        /**
+         * Patch Event
+         * @description Update an event's schedule, settings, or linked WOM competition.
+         */
         patch: operations["patch_event_frenzy_events__event_id__patch"];
         trace?: never;
     };
@@ -1731,7 +2025,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Activate Event */
+        /**
+         * Activate Event
+         * @description Make this the running event, deactivating any other.
+         */
         post: operations["activate_event_frenzy_events__event_id__activate_post"];
         delete?: never;
         options?: never;
@@ -1748,7 +2045,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Deactivate Event */
+        /**
+         * Deactivate Event
+         * @description Stop the running event without deleting its progress.
+         */
         post: operations["deactivate_event_frenzy_events__event_id__deactivate_post"];
         delete?: never;
         options?: never;
@@ -1763,10 +2063,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Submissions */
+        /**
+         * List Submissions
+         * @description List an event's task submissions, filtered by team or review status.
+         */
         get: operations["list_submissions_frenzy_events__event_id__submissions_get"];
         put?: never;
-        /** Create Submission */
+        /**
+         * Create Submission
+         * @description Submit a completed task with its proof for review.
+         */
         post: operations["create_submission_frenzy_events__event_id__submissions_post"];
         delete?: never;
         options?: never;
@@ -1784,11 +2090,17 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Submission */
+        /**
+         * Delete Submission
+         * @description Delete a submission and remove its points from the team's score.
+         */
         delete: operations["delete_submission_frenzy_events__event_id__submissions__submission_id__delete"];
         options?: never;
         head?: never;
-        /** Patch Submission */
+        /**
+         * Patch Submission
+         * @description Approve, reject, or amend a submission. Rescores the team.
+         */
         patch: operations["patch_submission_frenzy_events__event_id__submissions__submission_id__patch"];
         trace?: never;
     };
@@ -1821,7 +2133,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add Team */
+        /**
+         * Add Team
+         * @description Add a team to a frenzy event.
+         */
         post: operations["add_team_frenzy_events__event_id__teams_post"];
         delete?: never;
         options?: never;
@@ -1839,11 +2154,17 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Team */
+        /**
+         * Delete Team
+         * @description Remove a team along with its submissions and points.
+         */
         delete: operations["delete_team_frenzy_events__event_id__teams__team_slug__delete"];
         options?: never;
         head?: never;
-        /** Patch Team */
+        /**
+         * Patch Team
+         * @description Rename a team or change its roster.
+         */
         patch: operations["patch_team_frenzy_events__event_id__teams__team_slug__patch"];
         trace?: never;
     };
@@ -1876,7 +2197,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Refresh Leaderboards */
+        /**
+         * Refresh Leaderboards
+         * @description Recompute the cached frenzy leaderboards in the background.
+         */
         post: operations["refresh_leaderboards_frenzy_leaderboards_refresh_post"];
         delete?: never;
         options?: never;
@@ -1891,7 +2215,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Osrs Activities */
+        /**
+         * Get Osrs Activities
+         * @description List the activity metrics a frenzy task can target. Cached in Valkey.
+         */
         get: operations["get_osrs_activities_frenzy_osrs_activities_get"];
         put?: never;
         post?: never;
@@ -1908,7 +2235,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Osrs Bosses */
+        /**
+         * Get Osrs Bosses
+         * @description List the boss metrics a frenzy task can target. Cached in Valkey.
+         */
         get: operations["get_osrs_bosses_frenzy_osrs_bosses_get"];
         put?: never;
         post?: never;
@@ -1925,7 +2255,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search Osrs Items */
+        /**
+         * Search Osrs Items
+         * @description Search OSRS item names for the frenzy task editor. Cached in Valkey.
+         */
         get: operations["search_osrs_items_frenzy_osrs_items_get"];
         put?: never;
         post?: never;
@@ -1942,10 +2275,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Templates */
+        /**
+         * List Templates
+         * @description List every frenzy template with its tier and scoring summary.
+         */
         get: operations["list_templates_frenzy_templates_get"];
         put?: never;
-        /** Create Template */
+        /**
+         * Create Template
+         * @description Create a reusable frenzy template that events are built from.
+         */
         post: operations["create_template_frenzy_templates_post"];
         delete?: never;
         options?: never;
@@ -1960,12 +2299,21 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Template */
+        /**
+         * Get Template
+         * @description Return one template with its full tier and task definition.
+         */
         get: operations["get_template_frenzy_templates__template_id__get"];
-        /** Update Template */
+        /**
+         * Update Template
+         * @description Replace a template's definition, snapshotting the previous version.
+         */
         put: operations["update_template_frenzy_templates__template_id__put"];
         post?: never;
-        /** Delete Template */
+        /**
+         * Delete Template
+         * @description Delete a template. Refused while events still reference it.
+         */
         delete: operations["delete_template_frenzy_templates__template_id__delete"];
         options?: never;
         head?: never;
@@ -1981,7 +2329,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Revert Template To Version */
+        /**
+         * Revert Template To Version
+         * @description Restore an archived version as the template's current definition.
+         */
         post: operations["revert_template_to_version_frenzy_templates__template_id__revert__version_id__post"];
         delete?: never;
         options?: never;
@@ -1996,7 +2347,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Template Versions */
+        /**
+         * List Template Versions
+         * @description List a template's saved versions with who authored each.
+         */
         get: operations["list_template_versions_frenzy_templates__template_id__versions_get"];
         put?: never;
         post?: never;
@@ -2013,7 +2367,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Template Version */
+        /**
+         * Get Template Version
+         * @description Return one archived version of a template in full.
+         */
         get: operations["get_template_version_frenzy_templates__template_id__versions__version_id__get"];
         put?: never;
         post?: never;
@@ -2030,7 +2387,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Health */
+        /**
+         * Liveness probe
+         * @description Report that the process is up. Polled by the container healthcheck.
+         */
         get: operations["health_health_get"];
         put?: never;
         post?: never;
@@ -2087,10 +2447,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Accounts */
+        /**
+         * List Accounts
+         * @description List the RuneScape accounts linked to the signed-in member.
+         */
         get: operations["list_accounts_members_me_accounts_get"];
         put?: never;
-        /** Add Account */
+        /**
+         * Add Account
+         * @description Link another RuneScape account to the signed-in member.
+         */
         post: operations["add_account_members_me_accounts_post"];
         delete?: never;
         options?: never;
@@ -2108,7 +2474,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Account */
+        /**
+         * Delete Account
+         * @description Unlink an alt account. The primary account cannot be removed this way.
+         */
         delete: operations["delete_account_members_me_accounts__account_id__delete"];
         options?: never;
         head?: never;
@@ -2128,7 +2497,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Set Primary Account */
+        /**
+         * Set Primary Account
+         * @description Make this linked account the member's primary, used for clan rank and stats.
+         */
         patch: operations["set_primary_account_members_me_accounts__account_id__set_primary_patch"];
         trace?: never;
     };
@@ -2139,7 +2511,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Api Key */
+        /**
+         * Get Api Key
+         * @description Return the member's personal API key, creating one on first request.
+         */
         get: operations["get_api_key_members_me_api_key_get"];
         put?: never;
         post?: never;
@@ -2158,7 +2533,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Rotate Api Key */
+        /**
+         * Rotate Api Key
+         * @description Issue a new API key and immediately revoke the old one.
+         */
         post: operations["rotate_api_key_members_me_api_key_rotate_post"];
         delete?: never;
         options?: never;
@@ -2173,7 +2551,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Member Feed */
+        /**
+         * Member Feed
+         * @description Return the member's own activity feed, newest first.
+         */
         get: operations["member_feed_members_me_feed_get"];
         put?: never;
         post?: never;
@@ -2220,7 +2601,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update Privacy */
+        /**
+         * Update Privacy
+         * @description Set whether the member's stats are hidden from public leaderboards.
+         */
         patch: operations["update_privacy_members_me_privacy_patch"];
         trace?: never;
     };
@@ -2231,7 +2615,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Me Rankings */
+        /**
+         * Get Me Rankings
+         * @description Return the member's rank position for each of their linked accounts.
+         */
         get: operations["get_me_rankings_members_me_rankings_get"];
         put?: never;
         post?: never;
@@ -2254,7 +2641,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update Referral */
+        /**
+         * Update Referral
+         * @description Record how the member found the clan.
+         */
         patch: operations["update_referral_members_me_referral_patch"];
         trace?: never;
     };
@@ -2271,7 +2661,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update Rsn */
+        /**
+         * Update Rsn
+         * @description Change the member's primary RuneScape name.
+         */
         patch: operations["update_rsn_members_me_rsn_patch"];
         trace?: never;
     };
@@ -2302,7 +2695,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Me Stats */
+        /**
+         * Get Me Stats
+         * @description Return the signed-in member's own tracked stats.
+         */
         get: operations["get_me_stats_members_me_stats_get"];
         put?: never;
         post?: never;
@@ -2319,7 +2715,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Member Tickets */
+        /**
+         * Member Tickets
+         * @description List the support tickets the signed-in member has opened.
+         */
         get: operations["member_tickets_members_me_tickets_get"];
         put?: never;
         post?: never;
@@ -2460,7 +2859,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Item Icon */
+        /**
+         * Get Item Icon
+         * @description Serve the baked 512px item icon as lossless WebP, immutably cached.
+         */
         get: operations["get_item_icon_osrs_cache_item_icons__item_id__get"];
         put?: never;
         post?: never;
@@ -2477,7 +2879,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Render Item Icon */
+        /**
+         * Render Item Icon
+         * @description Render the item icon at a custom size on demand.
+         *
+         *     Slower than the baked icon and cached for days rather than forever; prefer
+         *     `/item-icons/{item_id}` unless you need a specific size.
+         */
         get: operations["render_item_icon_osrs_cache_item_icons__item_id__render_get"];
         put?: never;
         post?: never;
@@ -2494,7 +2902,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Items */
+        /**
+         * List Items
+         * @description Search item definitions by name, or page through all of them.
+         */
         get: operations["list_items_osrs_cache_items_get"];
         put?: never;
         post?: never;
@@ -2511,7 +2922,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Item Names */
+        /**
+         * List Item Names
+         * @description Return the full item id to name map, for bulk client-side lookups.
+         */
         get: operations["list_item_names_osrs_cache_items_names_get"];
         put?: never;
         post?: never;
@@ -2528,7 +2942,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Item */
+        /**
+         * Get Item
+         * @description Return one item definition, including its 2D render recipe.
+         */
         get: operations["get_item_osrs_cache_items__item_id__get"];
         put?: never;
         post?: never;
@@ -2545,7 +2962,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Item Variants */
+        /**
+         * Get Item Variants
+         * @description List the noted, placeholder, and charged forms sharing this item's name.
+         */
         get: operations["get_item_variants_osrs_cache_items__item_id__variants_get"];
         put?: never;
         post?: never;
@@ -2562,7 +2982,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Map Icons */
+        /**
+         * Get Map Icons
+         * @description List the map icons placed on a plane, joined to their source object.
+         */
         get: operations["get_map_icons_osrs_cache_map_icons_get"];
         put?: never;
         post?: never;
@@ -2579,7 +3002,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Map Labels */
+        /**
+         * Get Map Labels
+         * @description List named areas on a plane. Areas carry no polygon, so these are unplaced.
+         */
         get: operations["get_map_labels_osrs_cache_map_labels_get"];
         put?: never;
         post?: never;
@@ -2596,7 +3022,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Map Locations */
+        /**
+         * Get Map Locations
+         * @description Find placed scenery, either by object id or within a tile bounding box.
+         */
         get: operations["get_map_locations_osrs_cache_map_locations_get"];
         put?: never;
         post?: never;
@@ -2613,7 +3042,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Map Meta */
+        /**
+         * Get Map Meta
+         * @description Return the slippy-map manifest: zoom range, bounds, and coverage bitmap.
+         *
+         *     The relative `tileUrl` is rewritten onto the public tile host, so clients
+         *     can use it directly.
+         */
         get: operations["get_map_meta_osrs_cache_map_meta_get"];
         put?: never;
         post?: never;
@@ -2630,7 +3065,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Map Region */
+        /**
+         * Get Map Region
+         * @description Return one map region's decoded terrain, keyed by region id.
+         */
         get: operations["get_map_region_osrs_cache_map_regions__region_id__get"];
         put?: never;
         post?: never;
@@ -2647,7 +3085,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Map Sections */
+        /**
+         * Get Map Sections
+         * @description List the named map sections used to jump the viewport to a landmark.
+         */
         get: operations["get_map_sections_osrs_cache_map_sections_get"];
         put?: never;
         post?: never;
@@ -2664,7 +3105,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Meta */
+        /**
+         * Get Meta
+         * @description Report the ingested cache build and how many definitions it holds.
+         */
         get: operations["get_meta_osrs_cache_meta_get"];
         put?: never;
         post?: never;
@@ -2681,7 +3125,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Npcs */
+        /**
+         * List Npcs
+         * @description Search NPC definitions by name, or page through all of them.
+         */
         get: operations["list_npcs_osrs_cache_npcs_get"];
         put?: never;
         post?: never;
@@ -2698,7 +3145,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Objects */
+        /**
+         * List Objects
+         * @description Search scenery object definitions by name, or page through all of them.
+         */
         get: operations["list_objects_osrs_cache_objects_get"];
         put?: never;
         post?: never;
@@ -2715,7 +3165,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Sprites */
+        /**
+         * List Sprites
+         * @description Search UI sprites by name or category, or page through all of them.
+         */
         get: operations["list_sprites_osrs_cache_sprites_get"];
         put?: never;
         post?: never;
@@ -2732,7 +3185,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Sprite Categories */
+        /**
+         * List Sprite Categories
+         * @description List the sprite category names, as grouped by RuneLite's SpriteID.
+         */
         get: operations["list_sprite_categories_osrs_cache_sprites_categories_get"];
         put?: never;
         post?: never;
@@ -2749,7 +3205,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Sprite */
+        /**
+         * Get Sprite
+         * @description List the frames in a sprite group. Most groups hold exactly one.
+         */
         get: operations["get_sprite_osrs_cache_sprites__sprite_id__get"];
         put?: never;
         post?: never;
@@ -2766,7 +3225,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Sprite Image */
+        /**
+         * Get Sprite Image
+         * @description Serve one sprite frame as PNG or WebP, optionally scaled up.
+         */
         get: operations["get_sprite_image_osrs_cache_sprites__sprite_id___frame_index__get"];
         put?: never;
         post?: never;
@@ -3103,7 +3565,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Sources For Item */
+        /**
+         * Sources For Item
+         * @description Reverse lookup: list every source that drops this item, with rarities.
+         */
         get: operations["sources_for_item_reference_loot_items__item_id__get"];
         put?: never;
         post?: never;
@@ -3120,7 +3585,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Sources */
+        /**
+         * List Sources
+         * @description List the loot sources scraped from the OSRS Wiki, filtered by category.
+         */
         get: operations["list_sources_reference_loot_sources_get"];
         put?: never;
         post?: never;
@@ -3137,7 +3605,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Source */
+        /**
+         * Get Source
+         * @description Return one loot source with its full drop table.
+         */
         get: operations["get_source_reference_loot_sources__slug__get"];
         put?: never;
         post?: never;
@@ -3154,7 +3625,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Rates */
+        /**
+         * List Rates
+         * @description List WiseOldMan efficiency rates, filtered to EHP or EHB.
+         */
         get: operations["list_rates_reference_rates_get"];
         put?: never;
         post?: never;
@@ -3191,7 +3665,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Role Panel */
+        /**
+         * Get Role Panel
+         * @description Return one self-assign role panel with its buttons and roles.
+         */
         get: operations["get_role_panel_role_panels__panel_id__get"];
         /**
          * Update Role Panel
@@ -3216,10 +3693,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Configs */
+        /**
+         * List Configs
+         * @description List the shared RuneLite config profiles, optionally filtered by type.
+         */
         get: operations["list_configs_runelite_configs__get"];
         put?: never;
-        /** Create Config */
+        /**
+         * Create Config
+         * @description Publish a new shared RuneLite config profile. Staff only.
+         */
         post: operations["create_config_runelite_configs__post"];
         delete?: never;
         options?: never;
@@ -3234,12 +3717,21 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Config */
+        /**
+         * Get Config
+         * @description Return one shared RuneLite config profile with its payload.
+         */
         get: operations["get_config_runelite_configs__config_id__get"];
-        /** Update Config */
+        /**
+         * Update Config
+         * @description Replace a shared RuneLite config profile. Staff only.
+         */
         put: operations["update_config_runelite_configs__config_id__put"];
         post?: never;
-        /** Delete Config */
+        /**
+         * Delete Config
+         * @description Delete a shared RuneLite config profile. Staff only.
+         */
         delete: operations["delete_config_runelite_configs__config_id__delete"];
         options?: never;
         head?: never;
@@ -3473,7 +3965,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Surveys */
+        /**
+         * List Surveys
+         * @description List the surveys open to the signed-in member.
+         */
         get: operations["list_surveys_surveys__get"];
         put?: never;
         /**
@@ -3494,7 +3989,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Applications */
+        /**
+         * List Applications
+         * @description List the clan application forms open to the signed-in member.
+         */
         get: operations["list_applications_surveys_applications_get"];
         put?: never;
         post?: never;
@@ -3511,7 +4009,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Template */
+        /**
+         * Get Template
+         * @description Return one survey's questions, if the member may see it.
+         */
         get: operations["get_template_surveys__template_id__get"];
         /**
          * Update Template
@@ -3596,7 +4097,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Ticket Configs */
+        /**
+         * List Ticket Configs
+         * @description List every ticket type with its prompts, roles, and images.
+         */
         get: operations["list_ticket_configs_tickets_config_get"];
         put?: never;
         post?: never;
@@ -3613,7 +4117,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Panel Config */
+        /**
+         * Get Panel Config
+         * @description Return the layout of the Discord panel members open tickets from.
+         */
         get: operations["get_panel_config_tickets_config_panel_get"];
         put?: never;
         post?: never;
@@ -3630,14 +4137,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Ticket Config */
+        /**
+         * Get Ticket Config
+         * @description Return one ticket type's configuration.
+         */
         get: operations["get_ticket_config_tickets_config__type_id__get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Patch Ticket Config */
+        /**
+         * Patch Ticket Config
+         * @description Update one ticket type's prompts, handling roles, or transcript settings.
+         */
         patch: operations["patch_ticket_config_tickets_config__type_id__patch"];
         trace?: never;
     };
@@ -3650,7 +4163,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Upload Ticket Image */
+        /**
+         * Upload Ticket Image
+         * @description Attach a named image to a ticket type, for use in its Discord embed.
+         */
         post: operations["upload_ticket_image_tickets_config__type_id__images_post"];
         delete?: never;
         options?: never;
@@ -3668,7 +4184,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Ticket Image */
+        /**
+         * Delete Ticket Image
+         * @description Remove a named image from a ticket type.
+         */
         delete: operations["delete_ticket_image_tickets_config__type_id__images__name__delete"];
         options?: never;
         head?: never;
@@ -3682,7 +4201,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Active Event */
+        /**
+         * Get Active Event
+         * @description Return the running tile race with its teams and board. Public.
+         */
         get: operations["get_active_event_tilerace_active_get"];
         put?: never;
         post?: never;
@@ -3699,10 +4221,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Events */
+        /**
+         * List Events
+         * @description List every tile race event, past and present.
+         */
         get: operations["list_events_tilerace_events_get"];
         put?: never;
-        /** Create Event */
+        /**
+         * Create Event
+         * @description Create a tile race event from a board of repository tiles.
+         */
         post: operations["create_event_tilerace_events_post"];
         delete?: never;
         options?: never;
@@ -3717,15 +4245,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Event */
+        /**
+         * Get Event
+         * @description Return one event with its teams, board, and progress.
+         */
         get: operations["get_event_tilerace_events__event_id__get"];
         put?: never;
         post?: never;
-        /** Delete Event */
+        /**
+         * Delete Event
+         * @description Delete an event along with its teams, rolls, and completions.
+         */
         delete: operations["delete_event_tilerace_events__event_id__delete"];
         options?: never;
         head?: never;
-        /** Patch Event */
+        /**
+         * Patch Event
+         * @description Update an event's board, settings, or schedule.
+         */
         patch: operations["patch_event_tilerace_events__event_id__patch"];
         trace?: never;
     };
@@ -3738,7 +4275,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Activate Event */
+        /**
+         * Activate Event
+         * @description Make this the running event, deactivating any other.
+         */
         post: operations["activate_event_tilerace_events__event_id__activate_post"];
         delete?: never;
         options?: never;
@@ -3753,7 +4293,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Completions */
+        /**
+         * List Completions
+         * @description List which board positions each team has completed.
+         */
         get: operations["list_completions_tilerace_events__event_id__completions_get"];
         put?: never;
         post?: never;
@@ -3772,7 +4315,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Deactivate Event */
+        /**
+         * Deactivate Event
+         * @description Stop the running event without deleting its progress.
+         */
         post: operations["deactivate_event_tilerace_events__event_id__deactivate_post"];
         delete?: never;
         options?: never;
@@ -3793,7 +4339,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Set Fog Of War */
+        /**
+         * Set Fog Of War
+         * @description Toggle whether teams can see board positions they have not reached.
+         */
         patch: operations["set_fog_of_war_tilerace_events__event_id__fog_of_war_patch"];
         trace?: never;
     };
@@ -3804,7 +4353,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Rolls */
+        /**
+         * List Rolls
+         * @description List an event's dice rolls, newest first.
+         */
         get: operations["list_rolls_tilerace_events__event_id__rolls_get"];
         put?: never;
         post?: never;
@@ -3823,13 +4375,22 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Sign Up */
+        /**
+         * Sign Up
+         * @description Sign the member up for an event, seeded by their ranking score.
+         */
         post: operations["sign_up_tilerace_events__event_id__signup_post"];
-        /** Cancel Signup */
+        /**
+         * Cancel Signup
+         * @description Withdraw the member's signup from an event.
+         */
         delete: operations["cancel_signup_tilerace_events__event_id__signup_delete"];
         options?: never;
         head?: never;
-        /** Change Signup */
+        /**
+         * Change Signup
+         * @description Change which of the member's accounts their signup uses.
+         */
         patch: operations["change_signup_tilerace_events__event_id__signup_patch"];
         trace?: never;
     };
@@ -3842,7 +4403,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add Team */
+        /**
+         * Add Team
+         * @description Add a team to a tile race event.
+         */
         post: operations["add_team_tilerace_events__event_id__teams_post"];
         delete?: never;
         options?: never;
@@ -3859,7 +4423,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Scramble Teams */
+        /**
+         * Scramble Teams
+         * @description Randomly redistribute the signed-up players across the event's teams.
+         */
         post: operations["scramble_teams_tilerace_events__event_id__teams_scramble_post"];
         delete?: never;
         options?: never;
@@ -3877,11 +4444,17 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Team */
+        /**
+         * Delete Team
+         * @description Remove a team along with its rolls and completions.
+         */
         delete: operations["delete_team_tilerace_events__event_id__teams__team_id__delete"];
         options?: never;
         head?: never;
-        /** Patch Team */
+        /**
+         * Patch Team
+         * @description Rename a team or change its roster.
+         */
         patch: operations["patch_team_tilerace_events__event_id__teams__team_id__patch"];
         trace?: never;
     };
@@ -3893,7 +4466,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Set Completion */
+        /**
+         * Set Completion
+         * @description Mark a board position complete or incomplete for a team.
+         */
         put: operations["set_completion_tilerace_events__event_id__teams__team_id__completions__path_position__put"];
         post?: never;
         delete?: never;
@@ -3911,7 +4487,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Roll Dice */
+        /**
+         * Roll Dice
+         * @description Roll for a team and advance them along the board.
+         *
+         *     Applies whatever modifier the landed tile carries.
+         */
         post: operations["roll_dice_tilerace_events__event_id__teams__team_id__roll_post"];
         delete?: never;
         options?: never;
@@ -3928,7 +4509,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Sabotage */
+        /**
+         * Sabotage
+         * @description Spend a sabotage against a rival team, applying its penalty.
+         */
         post: operations["sabotage_tilerace_events__event_id__teams__team_id__sabotage_post"];
         delete?: never;
         options?: never;
@@ -3943,7 +4527,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search Osrs Npcs */
+        /**
+         * Search Osrs Npcs
+         * @description Search OSRS NPC names for the tile editor. Needs at least two characters.
+         */
         get: operations["search_osrs_npcs_tilerace_osrs_npcs_get"];
         put?: never;
         post?: never;
@@ -3960,10 +4547,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Tiles */
+        /**
+         * List Tiles
+         * @description Search the reusable tile repository by text or tag.
+         */
         get: operations["list_tiles_tilerace_repository_get"];
         put?: never;
-        /** Create Tile */
+        /**
+         * Create Tile
+         * @description Add a tile to the repository for future events to draw on.
+         */
         post: operations["create_tile_tilerace_repository_post"];
         delete?: never;
         options?: never;
@@ -3978,16 +4571,49 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Tile */
+        /**
+         * Get Tile
+         * @description Return one repository tile with its requirements and modifiers.
+         */
         get: operations["get_tile_tilerace_repository__tile_id__get"];
         put?: never;
         post?: never;
-        /** Delete Tile */
+        /**
+         * Delete Tile
+         * @description Delete a repository tile. Boards already built from it are unaffected.
+         */
         delete: operations["delete_tile_tilerace_repository__tile_id__delete"];
         options?: never;
         head?: never;
-        /** Patch Tile */
+        /**
+         * Patch Tile
+         * @description Update a repository tile's text, requirements, or modifiers.
+         */
         patch: operations["patch_tile_tilerace_repository__tile_id__patch"];
+        trace?: never;
+    };
+    "/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Report the running build
+         * @description Identify the deployed build.
+         *
+         *     `version` comes from the package manifest. `git_sha` and `build_time` are
+         *     injected as container build arguments and are `null` for a local run
+         *     outside Docker.
+         */
+        get: operations["version_version_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -4035,7 +4661,10 @@ export interface components {
         };
         /** AddAccount */
         AddAccount: {
-            /** Rsn */
+            /**
+             * Rsn
+             * @example Iron Gim Bob
+             */
             rsn: string;
         };
         /** AdjustPollBody */
@@ -4063,7 +4692,10 @@ export interface components {
         };
         /** ApiKeyRequest */
         ApiKeyRequest: {
-            /** Api Key */
+            /**
+             * Api Key
+             * @example b7f3c1e2-4a6d-4f18-9c05-2ab8d4e17f90
+             */
             api_key: string;
         };
         /** AssignBody */
@@ -4076,20 +4708,29 @@ export interface components {
             /**
              * Color
              * @default #6366f1
+             * @example #6366f1
              */
             color: string;
             /**
              * Description
              * @default
+             * @example Awarded for a first Inferno cape.
              */
             description: string;
-            /** Icon */
+            /**
+             * Icon
+             * @example fire
+             */
             icon?: string | null;
-            /** Name */
+            /**
+             * Name
+             * @example Inferno
+             */
             name: string;
             /**
              * Text Color
              * @default #ffffff
+             * @example #ffffff
              */
             text_color: string;
         };
@@ -4277,9 +4918,15 @@ export interface components {
         };
         /** CreatePartyRequest */
         CreatePartyRequest: {
-            /** Activity */
+            /**
+             * Activity
+             * @example Chambers of Xeric
+             */
             activity: string;
-            /** Description */
+            /**
+             * Description
+             * @example Learner runs, bring your own supplies.
+             */
             description?: string | null;
             /** Max Size */
             max_size: number;
@@ -4422,6 +5069,17 @@ export interface components {
             steps_to_reproduce?: string | null;
             /** Title */
             title?: string | null;
+        };
+        /**
+         * ErrorDetail
+         * @description The body FastAPI returns for a raised `HTTPException`.
+         */
+        ErrorDetail: {
+            /**
+             * Detail
+             * @example Invalid token
+             */
+            detail: string;
         };
         /** FetchBulkGainsBody */
         FetchBulkGainsBody: {
@@ -4847,9 +5505,15 @@ export interface components {
         };
         /** PrivacyUpdate */
         PrivacyUpdate: {
-            /** Hide Presence Notifications */
+            /**
+             * Hide Presence Notifications
+             * @example false
+             */
             hide_presence_notifications?: boolean | null;
-            /** Stats Opt Out */
+            /**
+             * Stats Opt Out
+             * @example false
+             */
             stats_opt_out?: boolean | null;
         };
         /** RankMapping */
@@ -4891,9 +5555,21 @@ export interface components {
         };
         /** ReferralUpdate */
         ReferralUpdate: {
-            /** Detail */
+            /**
+             * Detail
+             * @example Found via the clan's YouTube
+             */
             detail?: string | null;
-            /** Source */
+            /**
+             * Source
+             * @example instagram
+             * @example osrs_discord
+             * @example other
+             * @example prefer_not_to_say
+             * @example recruited_by
+             * @example reddit
+             * @example website
+             */
             source: string;
         };
         /** RolePanelUpdate */
@@ -4915,7 +5591,10 @@ export interface components {
         };
         /** RsnUpdate */
         RsnUpdate: {
-            /** Rsn */
+            /**
+             * Rsn
+             * @example Iron Gim Bob
+             */
             rsn: string;
         };
         /** RuneLiteConfigBody */
@@ -5329,6 +6008,29 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /** VersionInfo */
+        VersionInfo: {
+            /**
+             * Build Time
+             * @example 2026-07-28T09:14:22Z
+             */
+            build_time: string | null;
+            /**
+             * Git Sha
+             * @example a9adca9f3c1e4b7d2f08c5619ab3de7741bc0e52
+             */
+            git_sha: string | null;
+            /**
+             * Service
+             * @example api-backend
+             */
+            service: string;
+            /**
+             * Version
+             * @example 1.0.0
+             */
+            version: string;
+        };
         /** VisibilityUpdate */
         VisibilityUpdate: {
             /** Visibility */
@@ -5581,9 +6283,7 @@ export interface operations {
     list_assets_assets_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5600,13 +6300,22 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -5634,6 +6343,15 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -5648,9 +6366,7 @@ export interface operations {
     upload_asset_assets_upload_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5671,6 +6387,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -5685,9 +6419,7 @@ export interface operations {
     delete_asset_assets__asset_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 asset_id: string;
             };
@@ -5704,6 +6436,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -5773,9 +6523,7 @@ export interface operations {
     me_auth_me_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5790,15 +6538,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -5844,9 +6583,7 @@ export interface operations {
                 skip?: number;
                 limit?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5861,6 +6598,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     }[];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -5877,9 +6632,7 @@ export interface operations {
     create_badge_badges__post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5898,6 +6651,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -5914,9 +6685,7 @@ export interface operations {
     my_badges_badges_me_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5933,13 +6702,22 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -5947,9 +6725,7 @@ export interface operations {
     get_badge_badges__badge_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 badge_id: string;
             };
@@ -5968,6 +6744,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -5982,9 +6776,7 @@ export interface operations {
     update_badge_badges__badge_id__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 badge_id: string;
             };
@@ -6007,6 +6799,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -6021,9 +6831,7 @@ export interface operations {
     delete_badge_badges__badge_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 badge_id: string;
             };
@@ -6042,6 +6850,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -6056,9 +6882,7 @@ export interface operations {
     assign_badge_badges__badge_id__assign_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 badge_id: string;
             };
@@ -6081,6 +6905,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -6095,9 +6937,7 @@ export interface operations {
     revoke_badge_badges__badge_id__assign__user_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 badge_id: string;
                 user_id: number;
@@ -6117,6 +6957,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -6131,9 +6989,7 @@ export interface operations {
     badge_members_badges__badge_id__members_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 badge_id: string;
             };
@@ -6152,6 +7008,24 @@ export interface operations {
                     }[];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -6168,9 +7042,7 @@ export interface operations {
             query?: {
                 conn_id?: string | null;
             };
-            header: {
-                "verification-code": string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6205,9 +7077,7 @@ export interface operations {
     ingest_chat_ccingest_post: {
         parameters: {
             query?: never;
-            header: {
-                "verification-code": string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6242,9 +7112,7 @@ export interface operations {
     get_my_ballot_tokens_clan_ballot_tokens_me_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6259,15 +7127,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -6364,9 +7223,7 @@ export interface operations {
     fetch_bulk_gains_clan_bulk_gains_fetch_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6401,9 +7258,7 @@ export interface operations {
     list_schedules_clan_competition_schedules_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6420,23 +7275,12 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
     create_schedule_clan_competition_schedules_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6471,9 +7315,7 @@ export interface operations {
     get_schedule_endpoint_clan_competition_schedules__schedule_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6506,9 +7348,7 @@ export interface operations {
     delete_schedule_clan_competition_schedules__schedule_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6537,9 +7377,7 @@ export interface operations {
     patch_schedule_clan_competition_schedules__schedule_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6576,9 +7414,7 @@ export interface operations {
     adjust_poll_clan_competition_schedules__schedule_id__adjust_poll_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6615,9 +7451,7 @@ export interface operations {
     set_next_poll_at_clan_competition_schedules__schedule_id__next_poll_at_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6656,9 +7490,7 @@ export interface operations {
     override_options_clan_competition_schedules__schedule_id__override_options_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6695,9 +7527,7 @@ export interface operations {
     pause_schedule_clan_competition_schedules__schedule_id__pause_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6730,9 +7560,7 @@ export interface operations {
     resume_schedule_clan_competition_schedules__schedule_id__resume_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6768,9 +7596,7 @@ export interface operations {
                 status?: string | null;
                 limit?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6803,9 +7629,7 @@ export interface operations {
     patch_run_clan_competition_schedules__schedule_id__runs__run_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
                 run_id: number;
@@ -6843,9 +7667,7 @@ export interface operations {
     skip_next_clan_competition_schedules__schedule_id__skip_next_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6878,9 +7700,7 @@ export interface operations {
     trigger_now_clan_competition_schedules__schedule_id__trigger_now_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 schedule_id: number;
             };
@@ -6935,9 +7755,7 @@ export interface operations {
     create_competition_endpoint_clan_competitions_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6994,9 +7812,7 @@ export interface operations {
     set_competition_metric_map_clan_competitions_metric_map_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7086,9 +7902,7 @@ export interface operations {
     edit_competition_endpoint_clan_competitions__competition_id__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 competition_id: number;
             };
@@ -7125,9 +7939,7 @@ export interface operations {
     delete_competition_endpoint_clan_competitions__competition_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 competition_id: number;
             };
@@ -7450,9 +8262,7 @@ export interface operations {
     get_admin_bypass_roles_endpoint_config_admin_bypass_roles_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7469,13 +8279,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -7483,9 +8302,7 @@ export interface operations {
     set_admin_bypass_roles_config_admin_bypass_roles_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7506,6 +8323,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -7520,9 +8355,7 @@ export interface operations {
     get_ballot_token_config_config_ballot_tokens_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7539,13 +8372,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -7553,9 +8395,7 @@ export interface operations {
     set_ballot_token_config_config_ballot_tokens_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7576,6 +8416,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -7590,9 +8448,7 @@ export interface operations {
     get_action_log_config_config_discord_feature_action_log_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7609,13 +8465,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -7623,9 +8488,7 @@ export interface operations {
     set_action_log_config_config_discord_feature_action_log_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7646,6 +8509,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -7660,9 +8541,7 @@ export interface operations {
     get_broadcast_config_config_discord_feature_broadcast_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7679,13 +8558,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -7693,9 +8581,7 @@ export interface operations {
     set_broadcast_config_config_discord_feature_broadcast_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7716,6 +8602,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -7730,9 +8634,7 @@ export interface operations {
     get_join_roles_config_config_discord_feature_join_roles_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7749,13 +8651,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -7763,9 +8674,7 @@ export interface operations {
     set_join_roles_config_config_discord_feature_join_roles_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7786,6 +8695,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -7800,9 +8727,7 @@ export interface operations {
     get_party_panel_config_config_discord_feature_party_panel_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7819,13 +8744,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -7833,9 +8767,7 @@ export interface operations {
     get_discord_roles_config_config_discord_roles_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7852,13 +8784,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -7866,9 +8807,7 @@ export interface operations {
     set_discord_roles_config_config_discord_roles_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7889,6 +8828,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -7903,9 +8860,7 @@ export interface operations {
     get_page_permissions_config_page_permissions_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7922,13 +8877,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -7936,9 +8900,7 @@ export interface operations {
     set_page_permissions_config_page_permissions_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7959,6 +8921,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -7973,9 +8953,7 @@ export interface operations {
     get_panel_config_config_panel_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7990,13 +8968,22 @@ export interface operations {
                     "application/json": components["schemas"]["InfoPanelConfig"];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -8004,9 +8991,7 @@ export interface operations {
     set_panel_config_config_panel_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8025,6 +9010,24 @@ export interface operations {
                     "application/json": components["schemas"]["InfoPanelConfig"];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -8039,9 +9042,7 @@ export interface operations {
     get_notification_categories_config_party_notification_categories_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8058,13 +9059,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -8072,9 +9082,7 @@ export interface operations {
     set_notification_categories_config_party_notification_categories_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8095,6 +9103,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -8109,9 +9135,7 @@ export interface operations {
     get_rank_mappings_config_rank_mappings_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8128,13 +9152,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -8142,9 +9175,7 @@ export interface operations {
     set_rank_mappings_config_rank_mappings_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8165,6 +9196,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -8179,9 +9228,7 @@ export interface operations {
     get_ranking_config_config_ranking_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8198,13 +9245,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -8212,9 +9268,7 @@ export interface operations {
     set_ranking_config_config_ranking_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8237,6 +9291,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -8251,9 +9323,7 @@ export interface operations {
     get_service_toggles_endpoint_config_services_toggles_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8270,13 +9340,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -8284,9 +9363,7 @@ export interface operations {
     set_service_toggle_config_services_toggles__service_key__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 service_key: string;
             };
@@ -8309,6 +9386,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -8323,9 +9418,7 @@ export interface operations {
     get_ticket_features_config_ticket_features_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8340,13 +9433,22 @@ export interface operations {
                     "application/json": components["schemas"]["TicketFeaturesConfig"];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -8354,9 +9456,7 @@ export interface operations {
     set_ticket_features_config_ticket_features_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8375,6 +9475,24 @@ export interface operations {
                     "application/json": components["schemas"]["TicketFeaturesConfig"];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -8389,9 +9507,7 @@ export interface operations {
     get_deprecated_entries_content_deprecated_entries_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8406,15 +9522,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     }[];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -8455,9 +9562,7 @@ export interface operations {
     create_category_content__page_type__categories_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
             };
@@ -8494,9 +9599,7 @@ export interface operations {
     delete_category_content__page_type__categories__category_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 category_id: string;
@@ -8530,9 +9633,7 @@ export interface operations {
     patch_category_content__page_type__categories__category_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 category_id: string;
@@ -8570,9 +9671,7 @@ export interface operations {
     create_entry_content__page_type__categories__category_id__entries_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 category_id: string;
@@ -8610,9 +9709,7 @@ export interface operations {
     get_entry_by_slug_content__page_type__entries_by_slug__slug__get: {
         parameters: {
             query?: never;
-            header?: {
-                authorization?: string | null;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 slug: string;
@@ -8680,9 +9777,7 @@ export interface operations {
     update_entry_content__page_type__entries__entry_id__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 entry_id: string;
@@ -8720,9 +9815,7 @@ export interface operations {
     delete_entry_content__page_type__entries__entry_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 entry_id: string;
@@ -8756,9 +9849,7 @@ export interface operations {
     permanent_delete_entry_content__page_type__entries__entry_id__permanent_delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 entry_id: string;
@@ -8792,9 +9883,7 @@ export interface operations {
     toggle_reaction_content__page_type__entries__entry_id__react_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 entry_id: string;
@@ -8828,9 +9917,7 @@ export interface operations {
     restore_entry_content__page_type__entries__entry_id__restore_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 entry_id: string;
@@ -8864,9 +9951,7 @@ export interface operations {
     revert_entry_to_version_content__page_type__entries__entry_id__revert__version_id__post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 entry_id: string;
@@ -8901,9 +9986,7 @@ export interface operations {
     list_entry_versions_content__page_type__entries__entry_id__versions_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 entry_id: string;
@@ -8937,9 +10020,7 @@ export interface operations {
     get_entry_version_content__page_type__entries__entry_id__versions__version_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 page_type: string;
                 entry_id: string;
@@ -8974,9 +10055,7 @@ export interface operations {
     get_discord_channels_discord_channels_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -8993,13 +10072,13 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -9007,9 +10086,7 @@ export interface operations {
     get_discord_emojis_discord_emojis_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9026,13 +10103,13 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -9042,9 +10119,7 @@ export interface operations {
             query?: {
                 q?: string;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9059,6 +10134,15 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     }[];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -9075,9 +10159,7 @@ export interface operations {
     get_discord_roles_discord_roles_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9094,13 +10176,13 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -9110,9 +10192,7 @@ export interface operations {
             query?: {
                 type?: string | null;
             };
-            header?: {
-                authorization?: string | null;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9129,6 +10209,24 @@ export interface operations {
                     }[];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9143,9 +10241,7 @@ export interface operations {
     submit_feedback_feedback__post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9166,6 +10262,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9180,9 +10294,7 @@ export interface operations {
     upload_attachment_feedback_upload_attachment_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9203,6 +10315,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9217,9 +10347,7 @@ export interface operations {
     get_feedback_feedback__feedback_id__get: {
         parameters: {
             query?: never;
-            header?: {
-                authorization?: string | null;
-            };
+            header?: never;
             path: {
                 feedback_id: number;
             };
@@ -9238,6 +10366,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9252,9 +10398,7 @@ export interface operations {
     edit_feedback_feedback__feedback_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 feedback_id: number;
             };
@@ -9277,6 +10421,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9291,9 +10453,7 @@ export interface operations {
     toggle_react_feedback__feedback_id__react_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 feedback_id: number;
             };
@@ -9312,6 +10472,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9326,9 +10504,7 @@ export interface operations {
     post_reply_feedback__feedback_id__replies_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 feedback_id: number;
             };
@@ -9351,6 +10527,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9365,9 +10559,7 @@ export interface operations {
     delete_reply_feedback__feedback_id__replies__reply_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 feedback_id: number;
                 reply_id: number;
@@ -9383,6 +10575,24 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9397,9 +10607,7 @@ export interface operations {
     unpin_reply_feedback__feedback_id__replies__reply_id__pin_delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 feedback_id: number;
                 reply_id: number;
@@ -9417,6 +10625,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -9433,9 +10659,7 @@ export interface operations {
     pin_reply_feedback__feedback_id__replies__reply_id__pin_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 feedback_id: number;
                 reply_id: number;
@@ -9455,6 +10679,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9469,9 +10711,7 @@ export interface operations {
     update_status_feedback__feedback_id__status_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 feedback_id: number;
             };
@@ -9494,6 +10734,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -9508,9 +10766,7 @@ export interface operations {
     get_active_event_frenzy_active_get: {
         parameters: {
             query?: never;
-            header?: {
-                authorization?: string | null;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9525,15 +10781,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -9629,9 +10876,7 @@ export interface operations {
     calculate_points_frenzy_calculate_points_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9666,9 +10911,7 @@ export interface operations {
     list_events_frenzy_events_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9685,23 +10928,12 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
     create_event_frenzy_events_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -9736,9 +10968,7 @@ export interface operations {
     get_event_frenzy_events__event_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -9771,9 +11001,7 @@ export interface operations {
     delete_event_frenzy_events__event_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -9806,9 +11034,7 @@ export interface operations {
     patch_event_frenzy_events__event_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -9845,9 +11071,7 @@ export interface operations {
     activate_event_frenzy_events__event_id__activate_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -9880,9 +11104,7 @@ export interface operations {
     deactivate_event_frenzy_events__event_id__deactivate_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -9927,9 +11149,7 @@ export interface operations {
                 limit?: number;
                 offset?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -9962,9 +11182,7 @@ export interface operations {
     create_submission_frenzy_events__event_id__submissions_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -10001,9 +11219,7 @@ export interface operations {
     delete_submission_frenzy_events__event_id__submissions__submission_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 submission_id: number;
@@ -10037,9 +11253,7 @@ export interface operations {
     patch_submission_frenzy_events__event_id__submissions__submission_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 submission_id: number;
@@ -10077,9 +11291,7 @@ export interface operations {
     sync_event_from_wom_frenzy_events__event_id__sync_wom_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -10112,9 +11324,7 @@ export interface operations {
     add_team_frenzy_events__event_id__teams_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -10151,9 +11361,7 @@ export interface operations {
     delete_team_frenzy_events__event_id__teams__team_slug__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 team_slug: string;
@@ -10187,9 +11395,7 @@ export interface operations {
     patch_team_frenzy_events__event_id__teams__team_slug__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 team_slug: string;
@@ -10249,9 +11455,7 @@ export interface operations {
     refresh_leaderboards_frenzy_leaderboards_refresh_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -10266,15 +11470,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -10359,9 +11554,7 @@ export interface operations {
     list_templates_frenzy_templates_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -10378,23 +11571,12 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
     create_template_frenzy_templates_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -10429,9 +11611,7 @@ export interface operations {
     get_template_frenzy_templates__template_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: number;
             };
@@ -10464,9 +11644,7 @@ export interface operations {
     update_template_frenzy_templates__template_id__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: number;
             };
@@ -10503,9 +11681,7 @@ export interface operations {
     delete_template_frenzy_templates__template_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: number;
             };
@@ -10538,9 +11714,7 @@ export interface operations {
     revert_template_to_version_frenzy_templates__template_id__revert__version_id__post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: number;
                 version_id: number;
@@ -10574,9 +11748,7 @@ export interface operations {
     list_template_versions_frenzy_templates__template_id__versions_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: number;
             };
@@ -10609,9 +11781,7 @@ export interface operations {
     get_template_version_frenzy_templates__template_id__versions__version_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: number;
                 version_id: number;
@@ -10718,9 +11888,7 @@ export interface operations {
     list_accounts_members_me_accounts_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -10737,23 +11905,12 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
     add_account_members_me_accounts_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -10788,9 +11945,7 @@ export interface operations {
     delete_account_members_me_accounts__account_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 account_id: number;
             };
@@ -10819,9 +11974,7 @@ export interface operations {
     set_primary_account_members_me_accounts__account_id__set_primary_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 account_id: number;
             };
@@ -10854,9 +12007,7 @@ export interface operations {
     get_api_key_members_me_api_key_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -10871,15 +12022,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -10887,9 +12029,7 @@ export interface operations {
     rotate_api_key_members_me_api_key_rotate_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -10904,15 +12044,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -10923,9 +12054,7 @@ export interface operations {
                 limit?: number;
                 skip?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -10956,9 +12085,7 @@ export interface operations {
     get_my_goals_members_me_goals__rsn__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 rsn: string;
             };
@@ -10991,9 +12118,7 @@ export interface operations {
     save_my_goals_members_me_goals__rsn__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 rsn: string;
             };
@@ -11030,9 +12155,7 @@ export interface operations {
     update_privacy_members_me_privacy_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11067,9 +12190,7 @@ export interface operations {
     get_me_rankings_members_me_rankings_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11086,23 +12207,12 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
     update_referral_members_me_referral_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11137,9 +12247,7 @@ export interface operations {
     update_rsn_members_me_rsn_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11176,9 +12284,7 @@ export interface operations {
             query?: {
                 rsn?: string | null;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11209,9 +12315,7 @@ export interface operations {
     get_me_stats_members_me_stats_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11228,23 +12332,12 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
     member_tickets_members_me_tickets_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11261,23 +12354,12 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
     member_ticket_transcript_members_me_tickets__ticket_id__transcript_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 ticket_id: number;
             };
@@ -11310,9 +12392,7 @@ export interface operations {
     user_avatar_members__user_id__avatar_get: {
         parameters: {
             query?: never;
-            header?: {
-                authorization?: string | null;
-            };
+            header?: never;
             path: {
                 user_id: number;
             };
@@ -11348,9 +12428,7 @@ export interface operations {
                 service?: string;
                 module?: string;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11365,6 +12443,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -11387,9 +12483,7 @@ export interface operations {
                 to?: string;
                 max_points?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11406,6 +12500,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11420,9 +12532,7 @@ export interface operations {
     report_metrics_metrics_report_post: {
         parameters: {
             query?: never;
-            header: {
-                "verification-code": string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11443,6 +12553,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11459,9 +12587,7 @@ export interface operations {
             query?: {
                 minutes?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -11476,6 +12602,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     }[];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -11509,6 +12653,15 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11516,6 +12669,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11542,6 +12704,15 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11549,6 +12720,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11575,6 +12755,15 @@ export interface operations {
                     "application/json": unknown[];
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11582,6 +12771,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11604,6 +12802,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11630,6 +12846,15 @@ export interface operations {
                     };
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11637,6 +12862,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11661,6 +12895,15 @@ export interface operations {
                     "application/json": unknown[];
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11668,6 +12911,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11694,6 +12946,15 @@ export interface operations {
                     };
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11701,6 +12962,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11727,6 +12997,15 @@ export interface operations {
                     };
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11734,6 +13013,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11766,6 +13054,15 @@ export interface operations {
                     };
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11773,6 +13070,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11795,6 +13101,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11821,6 +13145,15 @@ export interface operations {
                     };
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11828,6 +13161,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11852,6 +13194,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
         };
     };
     get_meta_osrs_cache_meta_get: {
@@ -11872,6 +13232,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11898,6 +13276,15 @@ export interface operations {
                     "application/json": unknown[];
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11905,6 +13292,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11931,6 +13327,15 @@ export interface operations {
                     "application/json": unknown[];
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11938,6 +13343,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11965,6 +13379,15 @@ export interface operations {
                     "application/json": unknown[];
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -11972,6 +13395,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -11992,6 +13424,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown[];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -12016,6 +13466,15 @@ export interface operations {
                     "application/json": unknown[];
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12023,6 +13482,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -12051,6 +13519,15 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12060,14 +13537,21 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
         };
     };
     get_parties_parties__get: {
         parameters: {
             query?: never;
-            header?: {
-                authorization?: string | null;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -12084,13 +13568,22 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -12098,9 +13591,7 @@ export interface operations {
     create_new_party_parties__post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -12121,6 +13612,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12135,9 +13644,7 @@ export interface operations {
     get_notification_preferences_parties_notifications_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -12154,13 +13661,22 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -12168,9 +13684,7 @@ export interface operations {
     update_notification_preferences_parties_notifications_put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -12191,6 +13705,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12205,9 +13737,7 @@ export interface operations {
     get_party_endpoint_parties__party_id__get: {
         parameters: {
             query?: never;
-            header?: {
-                authorization?: string | null;
-            };
+            header?: never;
             path: {
                 party_id: string;
             };
@@ -12224,6 +13754,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -12240,9 +13788,7 @@ export interface operations {
     close_party_endpoint_parties__party_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 party_id: string;
             };
@@ -12261,6 +13807,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12275,9 +13839,7 @@ export interface operations {
     update_party_parties__party_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 party_id: string;
             };
@@ -12300,6 +13862,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12314,9 +13894,7 @@ export interface operations {
     get_chat_parties__party_id__chat_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 party_id: string;
             };
@@ -12335,6 +13913,24 @@ export interface operations {
                     }[];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12349,9 +13945,7 @@ export interface operations {
     send_chat_parties__party_id__chat_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 party_id: string;
             };
@@ -12374,6 +13968,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12388,9 +14000,7 @@ export interface operations {
     join_party_parties__party_id__join_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 party_id: string;
             };
@@ -12413,6 +14023,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12427,9 +14055,7 @@ export interface operations {
     leave_party_parties__party_id__leave_delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 party_id: string;
             };
@@ -12448,6 +14074,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12462,9 +14106,7 @@ export interface operations {
     kick_member_parties__party_id__members__user_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 party_id: string;
                 user_id: string;
@@ -12482,6 +14124,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -12593,9 +14253,7 @@ export interface operations {
     preview_ranking_ranking_preview_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -12667,9 +14325,7 @@ export interface operations {
     trigger_ranking_run_ranking_run_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -12684,15 +14340,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -12722,9 +14369,7 @@ export interface operations {
     get_ranking_status_ranking_status_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -12739,15 +14384,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -12770,6 +14406,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ItemSourceOut"][];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -12803,6 +14448,15 @@ export interface operations {
                     "application/json": components["schemas"]["SourceListOut"][];
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12832,6 +14486,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SourceDetailOut"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -12865,6 +14528,15 @@ export interface operations {
                     "application/json": components["schemas"]["RateOut"][];
                 };
             };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12879,9 +14551,7 @@ export interface operations {
     list_role_panels_role_panels_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -12898,13 +14568,31 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -12912,9 +14600,7 @@ export interface operations {
     get_role_panel_role_panels__panel_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 panel_id: string;
             };
@@ -12933,6 +14619,33 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12947,9 +14660,7 @@ export interface operations {
     update_role_panel_role_panels__panel_id__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 panel_id: string;
             };
@@ -12972,6 +14683,33 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -12986,9 +14724,7 @@ export interface operations {
     delete_role_panel_role_panels__panel_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 panel_id: string;
             };
@@ -13005,6 +14741,33 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -13054,9 +14817,7 @@ export interface operations {
     create_config_runelite_configs__post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13124,9 +14885,7 @@ export interface operations {
     update_config_runelite_configs__config_id__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 config_id: string;
             };
@@ -13163,9 +14922,7 @@ export interface operations {
     delete_config_runelite_configs__config_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 config_id: string;
             };
@@ -13198,9 +14955,7 @@ export interface operations {
     services_status_services_status_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13217,13 +14972,22 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -13233,9 +14997,7 @@ export interface operations {
             query?: {
                 days?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13250,6 +15012,24 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     }[];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -13269,9 +15049,7 @@ export interface operations {
                 search?: string | null;
                 limit?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13288,6 +15066,33 @@ export interface operations {
                     }[];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13302,9 +15107,7 @@ export interface operations {
     staff_member_detail_staff_members__discord_user_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 discord_user_id: number;
             };
@@ -13323,6 +15126,33 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13337,9 +15167,7 @@ export interface operations {
     update_member_rsn_staff_members__user_id__rsn_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 user_id: number;
             };
@@ -13362,6 +15190,33 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13376,9 +15231,7 @@ export interface operations {
     force_rsn_cascade_staff_members__user_id__rsn_cascade_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 user_id: number;
             };
@@ -13401,6 +15254,33 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13415,9 +15295,7 @@ export interface operations {
     staff_overview_staff_overview_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13434,13 +15312,31 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -13448,9 +15344,7 @@ export interface operations {
     referral_details_staff_referral_details_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13467,13 +15361,31 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -13481,9 +15393,7 @@ export interface operations {
     referral_stats_staff_referral_stats_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13500,13 +15410,31 @@ export interface operations {
                     };
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -13518,9 +15446,7 @@ export interface operations {
                 skip?: number;
                 status?: ("open" | "closed") | null;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13535,6 +15461,33 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     }[];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description Validation Error */
@@ -13551,9 +15504,7 @@ export interface operations {
     staff_ticket_transcript_staff_tickets__ticket_id__transcript_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 ticket_id: number;
             };
@@ -13572,6 +15523,33 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13586,9 +15564,7 @@ export interface operations {
     list_surveys_surveys__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13605,13 +15581,22 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -13619,9 +15604,7 @@ export interface operations {
     create_template_surveys__post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13642,6 +15625,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13656,9 +15657,7 @@ export interface operations {
     list_applications_surveys_applications_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13675,13 +15674,22 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -13689,9 +15697,7 @@ export interface operations {
     get_template_surveys__template_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: string;
             };
@@ -13710,6 +15716,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13724,9 +15748,7 @@ export interface operations {
     update_template_surveys__template_id__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: string;
             };
@@ -13749,6 +15771,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13763,9 +15803,7 @@ export interface operations {
     set_open_surveys__template_id__open_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: string;
             };
@@ -13788,6 +15826,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13802,9 +15858,7 @@ export interface operations {
     get_template_responses_surveys__template_id__responses_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: string;
             };
@@ -13823,6 +15877,24 @@ export interface operations {
                     }[];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13837,9 +15909,7 @@ export interface operations {
     submit_response_surveys__template_id__responses_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: string;
             };
@@ -13862,6 +15932,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13876,9 +15964,7 @@ export interface operations {
     set_visibility_surveys__template_id__visibility_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 template_id: string;
             };
@@ -13901,6 +15987,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -13915,9 +16019,7 @@ export interface operations {
     list_ticket_configs_tickets_config_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13932,13 +16034,31 @@ export interface operations {
                     "application/json": components["schemas"]["TicketTypeConfigOut"][];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -13946,9 +16066,7 @@ export interface operations {
     get_panel_config_tickets_config_panel_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -13963,13 +16081,31 @@ export interface operations {
                     "application/json": components["schemas"]["PanelConfigOut"];
                 };
             };
-            /** @description Validation Error */
-            422: {
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -13977,9 +16113,7 @@ export interface operations {
     get_ticket_config_tickets_config__type_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 type_id: string;
             };
@@ -13996,6 +16130,33 @@ export interface operations {
                     "application/json": components["schemas"]["TicketTypeConfigOut"];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -14010,9 +16171,7 @@ export interface operations {
     patch_ticket_config_tickets_config__type_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 type_id: string;
             };
@@ -14033,6 +16192,33 @@ export interface operations {
                     "application/json": components["schemas"]["TicketTypeConfigOut"];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -14047,9 +16233,7 @@ export interface operations {
     upload_ticket_image_tickets_config__type_id__images_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 type_id: string;
             };
@@ -14070,6 +16254,33 @@ export interface operations {
                     "application/json": components["schemas"]["ImageInfo"];
                 };
             };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -14084,9 +16295,7 @@ export interface operations {
     delete_ticket_image_tickets_config__type_id__images__name__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 type_id: string;
                 name: string;
@@ -14101,6 +16310,33 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Authenticated, but the caller's Discord roles do not grant this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -14138,9 +16374,7 @@ export interface operations {
     list_events_tilerace_events_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -14157,23 +16391,12 @@ export interface operations {
                     }[];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
     create_event_tilerace_events_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -14208,9 +16431,7 @@ export interface operations {
     get_event_tilerace_events__event_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14243,9 +16464,7 @@ export interface operations {
     delete_event_tilerace_events__event_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14278,9 +16497,7 @@ export interface operations {
     patch_event_tilerace_events__event_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14317,9 +16534,7 @@ export interface operations {
     activate_event_tilerace_events__event_id__activate_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14352,9 +16567,7 @@ export interface operations {
     list_completions_tilerace_events__event_id__completions_get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14387,9 +16600,7 @@ export interface operations {
     deactivate_event_tilerace_events__event_id__deactivate_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14422,9 +16633,7 @@ export interface operations {
     set_fog_of_war_tilerace_events__event_id__fog_of_war_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14463,9 +16672,7 @@ export interface operations {
             query?: {
                 limit?: number;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14498,9 +16705,7 @@ export interface operations {
     sign_up_tilerace_events__event_id__signup_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14537,9 +16742,7 @@ export interface operations {
     cancel_signup_tilerace_events__event_id__signup_delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14572,9 +16775,7 @@ export interface operations {
     change_signup_tilerace_events__event_id__signup_patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14611,9 +16812,7 @@ export interface operations {
     add_team_tilerace_events__event_id__teams_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14650,9 +16849,7 @@ export interface operations {
     scramble_teams_tilerace_events__event_id__teams_scramble_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
             };
@@ -14685,9 +16882,7 @@ export interface operations {
     delete_team_tilerace_events__event_id__teams__team_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 team_id: number;
@@ -14721,9 +16916,7 @@ export interface operations {
     patch_team_tilerace_events__event_id__teams__team_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 team_id: number;
@@ -14761,9 +16954,7 @@ export interface operations {
     set_completion_tilerace_events__event_id__teams__team_id__completions__path_position__put: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 team_id: number;
@@ -14802,9 +16993,7 @@ export interface operations {
     roll_dice_tilerace_events__event_id__teams__team_id__roll_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 team_id: number;
@@ -14838,9 +17027,7 @@ export interface operations {
     sabotage_tilerace_events__event_id__teams__team_id__sabotage_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 event_id: number;
                 team_id: number;
@@ -14914,9 +17101,7 @@ export interface operations {
                 q?: string;
                 tag?: string;
             };
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -14947,9 +17132,7 @@ export interface operations {
     create_tile_tilerace_repository_post: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -14984,9 +17167,7 @@ export interface operations {
     get_tile_tilerace_repository__tile_id__get: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 tile_id: number;
             };
@@ -15019,9 +17200,7 @@ export interface operations {
     delete_tile_tilerace_repository__tile_id__delete: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 tile_id: number;
             };
@@ -15054,9 +17233,7 @@ export interface operations {
     patch_tile_tilerace_repository__tile_id__patch: {
         parameters: {
             query?: never;
-            header: {
-                authorization: string;
-            };
+            header?: never;
             path: {
                 tile_id: number;
             };
@@ -15086,6 +17263,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    version_version_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionInfo"];
                 };
             };
         };

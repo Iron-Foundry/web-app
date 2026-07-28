@@ -26,3 +26,38 @@ jobs:
 
       - name: Unit and contract tests
         run: bun test tests/
+
+  version:
+    # Semantic versioning gate: a change to shipped code must bump the version
+    # in package.json. Docs- and CI-only changes are exempt.
+    if: github.event_name == 'pull_request'
+    runs-on: codeberg-small
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require a version bump when shipped code changes
+        run: |
+          set -eu
+          base="origin/${{ github.base_ref }}"
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          changed=$(git diff --name-only "$base"...HEAD)
+          if [ -z "$changed" ]; then
+            echo "No file changes."
+            exit 0
+          fi
+          if ! printf '%s\n' "$changed" | grep -qvE '^(\.forgejo/|.*\.md)$'; then
+            echo "Only docs and CI changed - version bump not required."
+            exit 0
+          fi
+          old=$(git show "$base:package.json" | grep -m1 '"version"' | cut -d'"' -f4)
+          new=$(grep -m1 '"version"' package.json | cut -d'"' -f4)
+          if [ "$old" = "$new" ]; then
+            echo "::error::Shipped code changed but the version is still $new."
+            echo "Bump it with: npm version --no-git-tag-version patch|minor."
+            echo "A major bump is a maintainer decision - ask before making one."
+            exit 1
+          fi
+          echo "Version bumped: $old -> $new"
