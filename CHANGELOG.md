@@ -10,7 +10,7 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
-## [Unreleased]
+## [1.1.0] - 2026-07-29
 
 ### Added
 
