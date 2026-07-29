@@ -2852,6 +2852,359 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/music/bot/{discord_user_id}/playlists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Playlists For User
+         * @description Playlists this Discord user can load: their own, plus the public ones.
+         */
+        get: operations["playlists_for_user_music_bot__discord_user_id__playlists_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/bot/{discord_user_id}/playlists/{playlist_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Playlist For User
+         * @description One playlist with its tracks, if this user is allowed to see it.
+         */
+        get: operations["playlist_for_user_music_bot__discord_user_id__playlists__playlist_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/playlists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Playlists
+         * @description List playlists: your own, the public ones, or both.
+         */
+        get: operations["list_playlists_music_playlists_get"];
+        put?: never;
+        /**
+         * Create Playlist
+         * @description Create a playlist, optionally with its tracks in one call.
+         */
+        post: operations["create_playlist_music_playlists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/playlists/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Playlist
+         * @description Save every track behind a playlist link as a new playlist.
+         *
+         *     A link to a single track imports that one track, so a mistyped link makes a
+         *     one-track playlist rather than an error nobody can act on.
+         */
+        post: operations["import_playlist_music_playlists_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/playlists/{playlist_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Playlist
+         * @description A playlist and its tracks. Public ones are readable by anyone.
+         */
+        get: operations["get_playlist_music_playlists__playlist_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Playlist
+         * @description Delete a playlist and its tracks. Owner only.
+         */
+        delete: operations["delete_playlist_music_playlists__playlist_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Playlist
+         * @description Rename a playlist or change whether it is public. Owner only.
+         */
+        patch: operations["update_playlist_music_playlists__playlist_id__patch"];
+        trace?: never;
+    };
+    "/music/playlists/{playlist_id}/tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace Tracks
+         * @description Replace the whole track list. Owner only.
+         *
+         *     A whole-list replace rather than per-track edits, because that is what
+         *     saving a queue or reordering one actually is, and it keeps positions
+         *     contiguous without a renumbering pass.
+         */
+        put: operations["replace_tracks_music_playlists__playlist_id__tracks_put"];
+        /**
+         * Append Tracks
+         * @description Add tracks to the end of a playlist. Owner only.
+         */
+        post: operations["append_tracks_music_playlists__playlist_id__tracks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Tracks
+         * @description Resolve a query, or a link, into tracks that can be queued or saved.
+         *
+         *     A link is loaded as itself; anything else is searched on the named source.
+         *     A link to a playlist comes back as all of its tracks.
+         */
+        get: operations["search_tracks_music_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Sessions
+         * @description Every live session, so the website can offer a channel to watch.
+         */
+        get: operations["list_sessions_music_sessions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/sessions/{voice_channel_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Session
+         * @description One session, or 404 once its bot has left the channel.
+         */
+        get: operations["get_session_music_sessions__voice_channel_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/sessions/{voice_channel_id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Activity
+         * @description Who did what to this session, newest first.
+         */
+        get: operations["get_activity_music_sessions__voice_channel_id__activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/sessions/{voice_channel_id}/commands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send Command
+         * @description Ask the bot serving this channel to do one thing.
+         */
+        post: operations["send_command_music_sessions__voice_channel_id__commands_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/sessions/{voice_channel_id}/control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Control
+         * @description Whether the caller may drive this session.
+         *
+         *     Its own endpoint rather than a field on the session: the session payload is
+         *     broadcast to every watcher over the socket, and this answer differs per
+         *     viewer.
+         */
+        get: operations["get_control_music_sessions__voice_channel_id__control_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/sessions/{voice_channel_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get History
+         * @description What has already played here, newest first.
+         *
+         *     The panel shows the last ten; this returns everything the bot still keeps,
+         *     which is what the website's re-queue and save-to-playlist controls act on.
+         */
+        get: operations["get_history_music_sessions__voice_channel_id__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/sessions/{voice_channel_id}/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Queue
+         * @description The pending tracks in play order.
+         */
+        get: operations["get_queue_music_sessions__voice_channel_id__queue_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Clan Stats
+         * @description Clan totals over a window, plus the per-day series behind them.
+         */
+        get: operations["get_clan_stats_music_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/music/stats/top-tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Top Tracks
+         * @description The most-played recordings, keyed on identity rather than on source.
+         */
+        get: operations["get_top_tracks_music_stats_top_tracks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/osrs-cache/item-icons/{item_id}": {
         parameters: {
             query?: never;
@@ -4659,6 +5012,31 @@ export interface components {
              */
             forum_channel_id: string;
         };
+        /**
+         * ActivityOut
+         * @description One recorded interaction with a session.
+         */
+        ActivityOut: {
+            /** Action */
+            action: string;
+            /** Actor Id */
+            actor_id: string;
+            /**
+             * Actor Name
+             * @default
+             */
+            actor_name: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Detail
+             * @default
+             */
+            detail: string;
+        };
         /** AddAccount */
         AddAccount: {
             /**
@@ -4843,6 +5221,96 @@ export interface components {
             /** Sender */
             sender: string;
         };
+        /**
+         * ClanStatsOut
+         * @description What the clan listened to over a window, and how it splits by source.
+         *
+         *     `sources` counts where the audio actually came from rather than where it
+         *     was asked for, which is the only reason `played_source` is tracked at all -
+         *     a Spotify request that streamed from YouTube counts as YouTube.
+         */
+        ClanStatsOut: {
+            /**
+             * Days
+             * @default []
+             */
+            days: components["schemas"]["DayOut"][];
+            /** Days Requested */
+            days_requested: number;
+            /**
+             * Ms Listened
+             * @default 0
+             */
+            ms_listened: number;
+            /**
+             * Sessions
+             * @default 0
+             */
+            sessions: number;
+            /**
+             * Skips
+             * @default 0
+             */
+            skips: number;
+            /**
+             * Sources
+             * @default {}
+             */
+            sources: {
+                [key: string]: number;
+            };
+            /**
+             * Tracks Played
+             * @default 0
+             */
+            tracks_played: number;
+        };
+        /**
+         * CommandAccepted
+         * @description A command was published. Whether it changed anything arrives over the socket.
+         */
+        CommandAccepted: {
+            /**
+             * Accepted
+             * @default true
+             */
+            accepted: boolean;
+            /** Action */
+            action: string;
+            /** Delivered To */
+            delivered_to: number;
+        };
+        /**
+         * CommandRequest
+         * @description A control the website is asking for.
+         *
+         *     One body for every action rather than a route each: the fields a given
+         *     action needs are validated by the router, and the whole thing travels to
+         *     discord-utils as published JSON either way.
+         */
+        CommandRequest: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "pause" | "resume" | "skip" | "stop" | "shuffle" | "seek" | "volume" | "loop" | "add" | "remove" | "move" | "jump" | "load_playlist";
+            /** Destination */
+            destination?: number | null;
+            /** Index */
+            index?: number | null;
+            /** Loop */
+            loop?: ("off" | "track" | "queue") | null;
+            /** Playlist Id */
+            playlist_id?: number | null;
+            /** Position Ms */
+            position_ms?: number | null;
+            /** Shuffle */
+            shuffle?: boolean | null;
+            /** Tracks */
+            tracks?: components["schemas"]["TrackIn"][] | null;
+            /** Volume */
+            volume?: number | null;
+        };
         /** CompetitionMetricMapBody */
         CompetitionMetricMapBody: {
             /** Competition Id */
@@ -4951,6 +5419,18 @@ export interface components {
              */
             vibe: "learning" | "chill" | "sweat";
         };
+        /** CreatePlaylistRequest */
+        CreatePlaylistRequest: {
+            /**
+             * Is Public
+             * @default false
+             */
+            is_public: boolean;
+            /** Name */
+            name: string;
+            /** Tracks */
+            tracks?: components["schemas"]["TrackIn"][];
+        };
         /** CreateScheduleBody */
         CreateScheduleBody: {
             /** Competition Duration Hours */
@@ -4988,6 +5468,37 @@ export interface components {
             token_config_override?: {
                 [key: string]: unknown;
             } | null;
+        };
+        /**
+         * DayOut
+         * @description One day's totals, for the shape of a graph.
+         */
+        DayOut: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /**
+             * Ms Listened
+             * @default 0
+             */
+            ms_listened: number;
+            /**
+             * Sessions
+             * @default 0
+             */
+            sessions: number;
+            /**
+             * Skips
+             * @default 0
+             */
+            skips: number;
+            /**
+             * Tracks Played
+             * @default 0
+             */
+            tracks_played: number;
         };
         /** DiscordMessage */
         DiscordMessage: {
@@ -5146,12 +5657,45 @@ export interface components {
              */
             type: "header_image";
         };
+        /**
+         * HistoryOut
+         * @description One track that already finished, and how it ended.
+         *
+         *     The whole track comes back rather than a rendered line, because the two
+         *     controls on it - queue it again, save it to a playlist - both need the
+         *     metadata. `event` is "played" or "skipped".
+         */
+        HistoryOut: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Event */
+            event: string;
+            track: components["schemas"]["SessionTrack"];
+        };
         /** ImageInfo */
         ImageInfo: {
             /** Filename */
             filename: string;
             /** Name */
             name: string;
+        };
+        /**
+         * ImportPlaylistRequest
+         * @description A link to pull in, and optionally what to call the result.
+         */
+        ImportPlaylistRequest: {
+            /**
+             * Is Public
+             * @default false
+             */
+            is_public: boolean;
+            /** Name */
+            name?: string | null;
+            /** Url */
+            url: string;
         };
         /** InfoPanelConfig */
         InfoPanelConfig: {
@@ -5491,6 +6035,54 @@ export interface components {
             /** Total Loot Value */
             total_loot_value: number | null;
         };
+        /** PlaylistDetailOut */
+        PlaylistDetailOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Is Public */
+            is_public: boolean;
+            /** Name */
+            name: string;
+            /** Owner Discord Id */
+            owner_discord_id: string;
+            /** Track Count */
+            track_count: number;
+            /** Tracks */
+            tracks: components["schemas"]["TrackOut"][];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** PlaylistOut */
+        PlaylistOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Is Public */
+            is_public: boolean;
+            /** Name */
+            name: string;
+            /** Owner Discord Id */
+            owner_discord_id: string;
+            /** Track Count */
+            track_count: number;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /** PollOptionBody */
         PollOptionBody: {
             /** Label */
@@ -5641,6 +6233,38 @@ export interface components {
              */
             type: "sabotage";
         };
+        /**
+         * SearchResult
+         * @description One thing a search found.
+         *
+         *     Extends the shape a playlist is saved with, so a result can be sent straight
+         *     back to either destination - the queue or a playlist - without the browser
+         *     reshaping it. `encoded` is absent on purpose: the audio is resolved at play
+         *     time, and a browser has no use for a playable handle.
+         */
+        SearchResult: {
+            /** Artwork */
+            artwork?: string | null;
+            /** Author */
+            author: string;
+            /** Duration Ms */
+            duration_ms: number;
+            /** Identifier */
+            identifier: string;
+            /**
+             * Is Stream
+             * @default false
+             */
+            is_stream: boolean;
+            /** Isrc */
+            isrc?: string | null;
+            /** Source */
+            source: string;
+            /** Title */
+            title: string;
+            /** Uri */
+            uri?: string | null;
+        };
         /** SelectableRole */
         SelectableRole: {
             /**
@@ -5672,6 +6296,112 @@ export interface components {
         ServiceToggleBody: {
             /** Enabled */
             enabled: boolean;
+        };
+        /**
+         * SessionOut
+         * @description One live playback session, as the website renders it.
+         *
+         *     `position_ms` is paired with `updated_at` rather than being kept current:
+         *     the browser extrapolates from the two while the track is not paused, so a
+         *     progress bar costs no polling and no server-side timer.
+         */
+        SessionOut: {
+            /** Bot Index */
+            bot_index?: number | null;
+            /** Channel Name */
+            channel_name?: string | null;
+            current?: components["schemas"]["SessionTrack"] | null;
+            /** Guild Id */
+            guild_id?: string | null;
+            /**
+             * Listener Count
+             * @default 0
+             */
+            listener_count: number;
+            /**
+             * Loop
+             * @default off
+             */
+            loop: string;
+            /** Nickname */
+            nickname?: string | null;
+            /**
+             * Paused
+             * @default false
+             */
+            paused: boolean;
+            /**
+             * Position Ms
+             * @default 0
+             */
+            position_ms: number;
+            /**
+             * Queue Length
+             * @default 0
+             */
+            queue_length: number;
+            /**
+             * Remaining Ms
+             * @default 0
+             */
+            remaining_ms: number;
+            /**
+             * Shuffle
+             * @default false
+             */
+            shuffle: boolean;
+            /**
+             * Updated At
+             * @default 0
+             */
+            updated_at: number;
+            /** Voice Channel Id */
+            voice_channel_id: string;
+            /**
+             * Volume
+             * @default 0
+             */
+            volume: number;
+        };
+        /**
+         * SessionTrack
+         * @description A track as discord-utils stores it, minus what the web cannot use.
+         *
+         *     The stored row also carries the encoded Lavalink audio and its raw payload.
+         *     Neither is named here, so pydantic drops them: they are large, they are of
+         *     no use to a browser, and echoing them would put playable audio handles into
+         *     a page.
+         */
+        SessionTrack: {
+            /** Artwork */
+            artwork?: string | null;
+            /** Author */
+            author: string;
+            /** Identifier */
+            identifier: string;
+            /** Is Stream */
+            is_stream: boolean;
+            /** Isrc */
+            isrc?: string | null;
+            /** Length Ms */
+            length_ms: number;
+            /** Played Source */
+            played_source?: string | null;
+            /** Requested Source */
+            requested_source: string;
+            /** Requester Id */
+            requester_id: string;
+            /**
+             * Requester Name
+             * @default
+             */
+            requester_name: string;
+            /** Source */
+            source: string;
+            /** Title */
+            title: string;
+            /** Uri */
+            uri?: string | null;
         };
         /** SignupBody */
         SignupBody: {
@@ -5951,6 +6681,83 @@ export interface components {
             /** Title */
             title?: string | null;
         };
+        /**
+         * TopTrackOut
+         * @description One recording and how often it has been played.
+         *
+         *     `has_isrc` is exposed because it says how much to trust the row: an ISRC is
+         *     a real identity, while the fallback key is a digest of the metadata and can
+         *     split one recording that two sources title differently.
+         */
+        TopTrackOut: {
+            /** Author */
+            author: string;
+            /** Has Isrc */
+            has_isrc: boolean;
+            /** Last Played At */
+            last_played_at?: string | null;
+            /** Play Count */
+            play_count: number;
+            /** Skip Count */
+            skip_count: number;
+            /** Title */
+            title: string;
+            /** Track Key */
+            track_key: string;
+        };
+        /**
+         * TrackIn
+         * @description One track being saved into a playlist, or queued into a live session.
+         *
+         *     `artwork` is carried rather than looked up again. A track only re-resolves
+         *     its audio at play time, and the resolved result is a mirror on another
+         *     source whose own cover art is not the one the user picked from, so a cover
+         *     dropped here is gone for good.
+         */
+        TrackIn: {
+            /** Artwork */
+            artwork?: string | null;
+            /** Author */
+            author: string;
+            /** Duration Ms */
+            duration_ms: number;
+            /** Identifier */
+            identifier: string;
+            /** Isrc */
+            isrc?: string | null;
+            /** Source */
+            source: string;
+            /** Title */
+            title: string;
+            /** Uri */
+            uri?: string | null;
+        };
+        /** TrackOut */
+        TrackOut: {
+            /** Artwork */
+            artwork?: string | null;
+            /** Author */
+            author: string;
+            /** Duration Ms */
+            duration_ms: number;
+            /** Identifier */
+            identifier: string;
+            /** Isrc */
+            isrc?: string | null;
+            /** Position */
+            position: number;
+            /** Source */
+            source: string;
+            /** Title */
+            title: string;
+            /** Uri */
+            uri?: string | null;
+        };
+        /** TracksRequest */
+        TracksRequest: {
+            /** Tracks */
+            tracks: components["schemas"]["TrackIn"][];
+        };
         /** UpdateEntryBody */
         UpdateEntryBody: {
             /** Body */
@@ -5986,6 +6793,16 @@ export interface components {
             scheduled_at?: string | null;
             /** Vibe */
             vibe?: ("learning" | "chill" | "sweat") | null;
+        };
+        /**
+         * UpdatePlaylistRequest
+         * @description Only the fields present are changed.
+         */
+        UpdatePlaylistRequest: {
+            /** Is Public */
+            is_public?: boolean | null;
+            /** Name */
+            name?: string | null;
         };
         /** UpdateStatusBody */
         UpdateStatusBody: {
@@ -12615,6 +13432,1003 @@ export interface operations {
             };
             /** @description Authenticated, but the caller's Discord roles do not grant this action. */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    playlists_for_user_music_bot__discord_user_id__playlists_get: {
+        parameters: {
+            query?: {
+                mine_only?: boolean;
+            };
+            header?: never;
+            path: {
+                discord_user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistOut"][];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    playlist_for_user_music_bot__discord_user_id__playlists__playlist_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                discord_user_id: number;
+                playlist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistDetailOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_playlists_music_playlists_get: {
+        parameters: {
+            query?: {
+                scope?: "mine" | "public" | "all";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistOut"][];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_playlist_music_playlists_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePlaylistRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistDetailOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_playlist_music_playlists_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportPlaylistRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistDetailOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_playlist_music_playlists__playlist_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                playlist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistDetailOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_playlist_music_playlists__playlist_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                playlist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_playlist_music_playlists__playlist_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                playlist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePlaylistRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    replace_tracks_music_playlists__playlist_id__tracks_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                playlist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TracksRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistDetailOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    append_tracks_music_playlists__playlist_id__tracks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                playlist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TracksRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaylistDetailOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_tracks_music_search_get: {
+        parameters: {
+            query: {
+                q: string;
+                source?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResult"][];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sessions_music_sessions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"][];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    get_session_music_sessions__voice_channel_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voice_channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_activity_music_sessions__voice_channel_id__activity_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                voice_channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityOut"][];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_command_music_sessions__voice_channel_id__commands_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voice_channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommandRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandAccepted"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_control_music_sessions__voice_channel_id__control_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voice_channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: boolean;
+                    };
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_history_music_sessions__voice_channel_id__history_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                voice_channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistoryOut"][];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_queue_music_sessions__voice_channel_id__queue_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voice_channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionTrack"][];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_clan_stats_music_stats_get: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClanStatsOut"];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_top_tracks_music_stats_top_tracks_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopTrackOut"][];
+                };
+            };
+            /** @description Credentials are missing, malformed, expired, or have been revoked. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

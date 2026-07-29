@@ -128,4 +128,15 @@ export const queryKeys = {
     event: (id: number) => ["frenzy", "event", id] as const,
     submissions: (eventId: number, params?: string) => ["frenzy", "submissions", eventId, params ?? ""] as const,
   },
+  music: {
+    queue: (channelId: string) => ["music", "queue", channelId] as const,
+    activity: (channelId: string) => ["music", "activity", channelId] as const,
+    history: (channelId: string) => ["music", "history", channelId] as const,
+    stats: (days: number) => ["music", "stats", days] as const,
+    topTracks: (limit: number) => ["music", "top-tracks", limit] as const,
+    control: (channelId: string) => ["music", "control", channelId] as const,
+    playlists: () => ["music", "playlists"] as const,
+    playlist: (id: number) => ["music", "playlist", id] as const,
+    search: (query: string, source: string) => ["music", "search", source, query] as const,
+  },
 } as const;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, Settings, LogOut, LayoutDashboard, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, Settings, LogOut, LayoutDashboard, Music2, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ import { ViewAsUserDialog } from "@/components/members/ViewAsUserDialog";
 import { API_URL, getAuthToken, useAuth, type AuthUser } from "@/context/AuthContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useControlPanel } from "@/context/ControlPanelContext";
+import { useMusic } from "@/context/MusicContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { highestRoleDisplay, ROLE_BADGE_CLASS } from "@/lib/ranks";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ export function ProfileMenu({ user, logout }: { user: AuthUser; logout: () => vo
   const effectiveRoles = useEffectiveRoles(user.effective_roles);
   const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
   const { openPanel } = useControlPanel();
+  const { openPanel: openMusic } = useMusic();
   const [viewAsUserOpen, setViewAsUserOpen] = useState(false);
 
   useEffect(() => {
@@ -81,6 +83,10 @@ export function ProfileMenu({ user, logout }: { user: AuthUser; logout: () => vo
               Control Panel
             </DropdownMenuItem>
           )}
+          <DropdownMenuItem onSelect={() => openMusic()}>
+            <Music2 className="h-4 w-4" />
+            Music
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/members/settings">
               <Settings className="h-4 w-4" />

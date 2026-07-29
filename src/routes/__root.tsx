@@ -13,6 +13,9 @@ import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { ViewAsProvider } from "@/context/ViewAsContext";
 import { ControlPanelProvider, useControlPanel } from "@/context/ControlPanelContext";
 import { ControlPanel } from "@/components/members/ControlPanel";
+import { MusicProvider, useMusic } from "@/context/MusicContext";
+import { MiniPlayer } from "@/components/music/MiniPlayer";
+import { MusicPanel } from "@/components/music/MusicPanel";
 import { queryClient } from "@/lib/queryClient";
 
 function ThemedToaster() {
@@ -53,6 +56,19 @@ function GlobalControlPanel() {
   );
 }
 
+function GlobalMusicPanel() {
+  const { open, pageId, closePanel } = useMusic();
+  return (
+    <MusicPanel
+      open={open}
+      initialPageId={pageId}
+      onOpenChange={(next) => {
+        if (!next) closePanel();
+      }}
+    />
+  );
+}
+
 function Root() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -61,17 +77,21 @@ function Root() {
           <AuthProvider>
             <PermissionsProvider>
               <ControlPanelProvider>
-                <ThemedToaster />
-                <LayoutProvider>
-                  <RootLayout>
-                    <Outlet />
-                  </RootLayout>
-                </LayoutProvider>
-                <LinkRsnModal />
-                <ReferralModal />
-                <ControlPanelDeepLink />
-                <GlobalControlPanel />
-                <ReactQueryDevtools initialIsOpen={false} />
+                <MusicProvider>
+                  <ThemedToaster />
+                  <LayoutProvider>
+                    <RootLayout>
+                      <Outlet />
+                    </RootLayout>
+                  </LayoutProvider>
+                  <LinkRsnModal />
+                  <ReferralModal />
+                  <ControlPanelDeepLink />
+                  <GlobalControlPanel />
+                  <GlobalMusicPanel />
+                  <MiniPlayer />
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </MusicProvider>
               </ControlPanelProvider>
             </PermissionsProvider>
           </AuthProvider>
