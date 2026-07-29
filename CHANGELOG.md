@@ -10,6 +10,16 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [Unreleased]
+
+### Fixed
+
+- The music socket is allowed by the Content Security Policy. `connect-src`
+  carried the API's `https` origin only, and a CSP source expression with a
+  scheme matches that scheme alone, so `wss://` to the very same host was
+  refused and the player never connected in production. The websocket origin is
+  now derived from the API origin the same way `musicSocketUrl` derives it.
+
 ## [1.1.0] - 2026-07-29
 
 ### Added

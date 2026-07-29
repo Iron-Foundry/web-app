@@ -20,7 +20,19 @@ describe("buildCsp", () => {
   test("allows esm.sh so the recharts importmap module loads", () => {
     const csp = buildCsp("https://api.ironfoundry.cc", NONCE);
     expect(csp).toContain("script-src 'self' 'nonce-test-nonce-123' https://esm.sh");
-    expect(csp).toContain("connect-src 'self' https://api.ironfoundry.cc https://esm.sh https://cloudflareinsights.com");
+    expect(csp).toContain("connect-src 'self' https://api.ironfoundry.cc wss://api.ironfoundry.cc https://esm.sh https://cloudflareinsights.com");
+  });
+
+  test("allows the music socket alongside the API origin", () => {
+    // A scheme in a CSP source matches only that scheme, so the https entry
+    // does not cover wss and the music socket is refused without its own.
+    const csp = buildCsp("https://api.ironfoundry.cc", NONCE);
+    expect(csp).toContain("wss://api.ironfoundry.cc");
+  });
+
+  test("uses ws for a plain http API origin", () => {
+    const csp = buildCsp("http://localhost:8000", NONCE);
+    expect(csp).toContain("connect-src 'self' http://localhost:8000 ws://localhost:8000");
   });
 
   test("keeps unsafe-inline for styles (React inline style attributes)", () => {

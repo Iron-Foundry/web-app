@@ -6,13 +6,25 @@ function safeOrigin(apiUrl: string): string {
   }
 }
 
+/** The websocket origin for an API origin, matching `musicSocketUrl`.
+ *
+ * A CSP source expression carrying a scheme matches only that scheme, so
+ * `https://api...` does not authorize `wss://api...` and the music socket is
+ * blocked without this. Kept in step with `musicSocketUrl` in `api/music.ts`.
+ */
+function socketOrigin(apiOrigin: string): string {
+  return apiOrigin.replace(/^http/, "ws");
+}
+
 export function buildCsp(apiOrigin: string, nonce: string): string {
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' https://esm.sh https://static.cloudflareinsights.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
-    `connect-src 'self' ${apiOrigin} https://esm.sh https://cloudflareinsights.com`.replace(/\s+/g, " ").trim(),
+    `connect-src 'self' ${apiOrigin} ${socketOrigin(apiOrigin)} https://esm.sh https://cloudflareinsights.com`
+      .replace(/\s+/g, " ")
+      .trim(),
     "font-src 'self' data:",
     "frame-src https://www.youtube-nocookie.com https://teamup.com",
     "base-uri 'none'",
