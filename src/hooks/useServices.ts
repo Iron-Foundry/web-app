@@ -11,9 +11,15 @@ export function useServicesStatus() {
   });
 }
 
-export function useMetricHistory(params: MetricHistoryParams & { range: string }) {
+export function useMetricHistory(
+  params: MetricHistoryParams & { range: string },
+) {
   return useQuery({
-    queryKey: queryKeys.services.history(params.service, params.module, params.range),
+    queryKey: queryKeys.services.history(
+      params.service,
+      params.module,
+      params.range,
+    ),
     queryFn: () => servicesApi.getHistory(params),
     refetchInterval: 60_000,
     enabled: Boolean(params.service && params.module),

@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/api/client";
 
 async function fetchItemNames(): Promise<Map<number, string>> {
-  const mapping = await apiFetch<Record<string, string>>("/osrs-cache/items/names");
+  const mapping = await apiFetch<Record<string, string>>(
+    "/osrs-cache/items/names",
+  );
   const names = new Map<number, string>();
   for (const [id, name] of Object.entries(mapping)) names.set(Number(id), name);
   return names;

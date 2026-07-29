@@ -65,17 +65,29 @@ export function useSubmissionFilters(): SubmissionFilterState {
     ...(sourceFilter && { source: sourceFilter }),
     ...(debouncedPlayerRsn && { player_rsn: debouncedPlayerRsn }),
     ...(autoApprovedFilter && { auto_approved: autoApprovedFilter === "true" }),
-    ...(submittedAfter && { submitted_after: new Date(submittedAfter).toISOString() }),
-    ...(submittedBefore && { submitted_before: new Date(submittedBefore + "T23:59:59").toISOString() }),
+    ...(submittedAfter && {
+      submitted_after: new Date(submittedAfter).toISOString(),
+    }),
+    ...(submittedBefore && {
+      submitted_before: new Date(submittedBefore + "T23:59:59").toISOString(),
+    }),
     ...(debouncedSearch && { q: debouncedSearch }),
   };
 
   const activeFilterCount = [
-    teamFilter, statusFilter, typeFilter, sourceFilter,
-    autoApprovedFilter, submittedAfter, submittedBefore, debouncedPlayerRsn,
+    teamFilter,
+    statusFilter,
+    typeFilter,
+    sourceFilter,
+    autoApprovedFilter,
+    submittedAfter,
+    submittedBefore,
+    debouncedPlayerRsn,
   ].filter(Boolean).length;
 
-  function resetPage() { setPage(0); }
+  function resetPage() {
+    setPage(0);
+  }
 
   function clearAllFilters() {
     setTeamFilter("");
@@ -91,19 +103,32 @@ export function useSubmissionFilters(): SubmissionFilterState {
   }
 
   return {
-    page, setPage,
-    search, setSearch,
-    playerRsn, setPlayerRsn,
-    teamFilter, setTeamFilter,
-    statusFilter, setStatusFilter,
-    typeFilter, setTypeFilter,
-    sourceFilter, setSourceFilter,
-    autoApprovedFilter, setAutoApprovedFilter,
-    submittedAfter, setSubmittedAfter,
-    submittedBefore, setSubmittedBefore,
-    debouncedSearch, debouncedPlayerRsn,
-    params, activeFilterCount,
-    clearAllFilters, resetPage,
+    page,
+    setPage,
+    search,
+    setSearch,
+    playerRsn,
+    setPlayerRsn,
+    teamFilter,
+    setTeamFilter,
+    statusFilter,
+    setStatusFilter,
+    typeFilter,
+    setTypeFilter,
+    sourceFilter,
+    setSourceFilter,
+    autoApprovedFilter,
+    setAutoApprovedFilter,
+    submittedAfter,
+    setSubmittedAfter,
+    submittedBefore,
+    setSubmittedBefore,
+    debouncedSearch,
+    debouncedPlayerRsn,
+    params,
+    activeFilterCount,
+    clearAllFilters,
+    resetPage,
   };
 }
 

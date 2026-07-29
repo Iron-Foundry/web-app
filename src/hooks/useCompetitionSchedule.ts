@@ -41,15 +41,18 @@ export function useScheduleRuns(id: number, status?: string) {
 export function useCreateSchedule() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateScheduleInput) => competitionScheduleApi.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
+    mutationFn: (data: CreateScheduleInput) =>
+      competitionScheduleApi.create(data),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
   });
 }
 
 export function useUpdateSchedule(id: number) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: PatchScheduleInput) => competitionScheduleApi.update(id, data),
+    mutationFn: (data: PatchScheduleInput) =>
+      competitionScheduleApi.update(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["comp-schedule"] }),
   });
 }
@@ -58,7 +61,8 @@ export function useDeleteSchedule() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => competitionScheduleApi.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
   });
 }
 
@@ -66,7 +70,8 @@ export function usePauseSchedule() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => competitionScheduleApi.pause(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
   });
 }
 
@@ -74,7 +79,8 @@ export function useResumeSchedule() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => competitionScheduleApi.resume(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
   });
 }
 
@@ -82,7 +88,8 @@ export function useSkipNext() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => competitionScheduleApi.skipNext(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
   });
 }
 
@@ -90,7 +97,8 @@ export function useTriggerNow() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => competitionScheduleApi.triggerNow(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
     onError: (err: Error) => toast.error(err.message),
   });
 }
@@ -100,7 +108,8 @@ export function useAdjustPoll() {
   return useMutation({
     mutationFn: ({ id, deltaHours }: { id: number; deltaHours: number }) =>
       competitionScheduleApi.adjustPoll(id, deltaHours),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.compSchedule.list() }),
     onError: (err: Error) => toast.error(err.message),
   });
 }

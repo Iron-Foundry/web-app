@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { competitionsApi } from "@/api/competitions";
-import type { CreateCompetitionInput, EditCompetitionInput } from "@/types/competitions";
+import type {
+  CreateCompetitionInput,
+  EditCompetitionInput,
+} from "@/types/competitions";
 import { queryKeys } from "@/lib/queryKeys";
-
 
 const STALE = 1000 * 60 * 5;
 
@@ -22,9 +24,15 @@ export function useCompetitionMetricMap() {
   });
 }
 
-export function useMetricDetail(competitionId: number | undefined, metric: string | undefined) {
+export function useMetricDetail(
+  competitionId: number | undefined,
+  metric: string | undefined,
+) {
   return useQuery({
-    queryKey: queryKeys.competitions.metricDetail(competitionId ?? 0, metric ?? ""),
+    queryKey: queryKeys.competitions.metricDetail(
+      competitionId ?? 0,
+      metric ?? "",
+    ),
     queryFn: () => competitionsApi.getMetricDetail(competitionId!, metric!),
     enabled: !!competitionId && !!metric,
     staleTime: STALE,
@@ -37,7 +45,11 @@ export function useCompetitionOvertime(
   limit?: number,
 ) {
   return useQuery({
-    queryKey: queryKeys.competitions.overtime(competitionId ?? 0, metric ?? "", limit),
+    queryKey: queryKeys.competitions.overtime(
+      competitionId ?? 0,
+      metric ?? "",
+      limit,
+    ),
     queryFn: () => competitionsApi.getOvertime(competitionId!, metric!, limit),
     enabled: !!competitionId && !!metric,
     staleTime: STALE,
@@ -52,7 +64,10 @@ export function useCompetitionOvertime(
         // Keep first + last of each run so flat segments still draw correctly.
         const deduped = clamped.filter((point, i, arr) => {
           if (i === 0 || i === arr.length - 1) return true;
-          return point.value !== arr[i - 1]!.value || point.value !== arr[i + 1]!.value;
+          return (
+            point.value !== arr[i - 1]!.value ||
+            point.value !== arr[i + 1]!.value
+          );
         });
         return { ...player, history: deduped };
       }),

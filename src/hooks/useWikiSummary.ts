@@ -42,7 +42,12 @@ async function fetchWikiSummary(title: string): Promise<WikiSummary> {
   const data = await res.json();
   const pages = data?.query?.pages ?? {};
   const page = Object.values(pages)[0] as
-    | { title: string; extract?: string; missing?: string; thumbnail?: { source: string } }
+    | {
+        title: string;
+        extract?: string;
+        missing?: string;
+        thumbnail?: { source: string };
+      }
     | undefined;
   if (!page || page.missing !== undefined) throw new Error("Page not found");
   return {

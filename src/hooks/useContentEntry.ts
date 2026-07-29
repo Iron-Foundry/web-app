@@ -6,7 +6,10 @@ import { apiFetch } from "@/api/client";
 import type { EntryDetail } from "@/types/content";
 
 export function toDiscordMarkdown(body: string): string {
-  const safe = DOMPurify.sanitize(body, { ALLOWED_TAGS: ["kbd", "br"], ALLOWED_ATTR: [] });
+  const safe = DOMPurify.sanitize(body, {
+    ALLOWED_TAGS: ["kbd", "br"],
+    ALLOWED_ATTR: [],
+  });
   return safe
     .replace(/<kbd>(.*?)<\/kbd>/gi, (_, t) => `\`${t}\``)
     .replace(/<br\s*\/?>/gi, "\n")
@@ -14,15 +17,29 @@ export function toDiscordMarkdown(body: string): string {
 }
 
 export function downloadMd(title: string, body: string): void {
-  const filename = title.trim().replace(/[^a-z0-9\s-]/gi, "").replace(/\s+/g, "-").replace(/-+/g, "-").toLowerCase() + ".md";
+  const filename =
+    title
+      .trim()
+      .replace(/[^a-z0-9\s-]/gi, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .toLowerCase() + ".md";
   const blob = new Blob([body], { type: "text/markdown" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = filename; a.click();
+  a.href = url;
+  a.download = filename;
+  a.click();
   URL.revokeObjectURL(url);
 }
 
-export function useContentEntry(slug: string, pageType: string, canEdit: boolean, routeBase: string, refreshTree: () => void) {
+export function useContentEntry(
+  slug: string,
+  pageType: string,
+  canEdit: boolean,
+  routeBase: string,
+  refreshTree: () => void,
+) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -67,12 +84,17 @@ export function useContentEntry(slug: string, pageType: string, canEdit: boolean
         setConflictDetected(false);
         setReacted(data.user_has_reacted ?? false);
         setReactionCount(data.reaction_count ?? 0);
-        if (!data.body && canEdit) { latestBodyRef.current = data.body; setEditMode(true); }
+        if (!data.body && canEdit) {
+          latestBodyRef.current = data.body;
+          setEditMode(true);
+        }
       })
-      .catch((e: Error) => { if (e.name !== "AbortError") setError(e.message); })
+      .catch((e: Error) => {
+        if (e.name !== "AbortError") setError(e.message);
+      })
       .finally(() => setLoading(false));
     return () => controller.abort();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, pageType]);
 
   async function handleSave(newBody: string, skipConflictCheck = false) {
@@ -83,29 +105,41 @@ export function useContentEntry(slug: string, pageType: string, canEdit: boolean
     try {
       const payload: Record<string, string | null> = { body: newBody };
       const trimmedTitle = editTitle.trim();
-      if (trimmedTitle && trimmedTitle !== entry.title) payload.title = trimmedTitle;
+      if (trimmedTitle && trimmedTitle !== entry.title)
+        payload.title = trimmedTitle;
       const trimmedSlug = editSlug.trim();
       if (trimmedSlug && trimmedSlug !== entry.slug) payload.slug = trimmedSlug;
       if (!skipConflictCheck) payload.expected_updated_at = loadedUpdatedAt;
 
-      const res = await fetch(`${API_URL}/content/${pageType}/entries/${entryId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `${API_URL}/content/${pageType}/entries/${entryId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify(payload),
+        },
+      );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        if (res.status === 409 && data.detail === "edit_conflict") { setConflictDetected(true); return; }
+        if (res.status === 409 && data.detail === "edit_conflict") {
+          setConflictDetected(true);
+          return;
+        }
         setSaveError(data.detail ?? "Failed to save.");
         return;
       }
-      const saved = await res.json() as { slug: string; updated_at: string | null };
+      const saved = (await res.json()) as {
+        slug: string;
+        updated_at: string | null;
+      };
       setEditMode(false);
       refreshTree();
       if (saved.slug !== slug) {
         navigate({ to: `${routeBase}/$slug`, params: { slug: saved.slug } });
       } else {
-        const updated = await apiFetch<EntryDetail>(`/content/${pageType}/entries/by-slug/${encodeURIComponent(saved.slug)}`);
+        const updated = await apiFetch<EntryDetail>(
+          `/content/${pageType}/entries/by-slug/${encodeURIComponent(saved.slug)}`,
+        );
         setEntry(updated);
         setEditTitle(updated.title);
         setEditSlug(updated.slug);
@@ -129,7 +163,9 @@ export function useContentEntry(slug: string, pageType: string, canEdit: boolean
       });
       refreshTree();
       navigate({ to: routeBase });
-    } catch { /* swallow */ }
+    } catch {
+      /* swallow */
+    }
   }
 
   async function handleReact() {
@@ -140,12 +176,19 @@ export function useContentEntry(slug: string, pageType: string, canEdit: boolean
     setReactionCount(reacted ? reactionCount - 1 : reactionCount + 1);
     setReacting(true);
     try {
-      const res = await fetch(`${API_URL}/content/${pageType}/entries/${entryId}/react`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-      });
-      if (!res.ok) { setReacted(prevReacted); setReactionCount(prevCount); return; }
-      const data = await res.json() as { reacted: boolean; count: number };
+      const res = await fetch(
+        `${API_URL}/content/${pageType}/entries/${entryId}/react`,
+        {
+          method: "POST",
+          headers: getAuthHeaders(),
+        },
+      );
+      if (!res.ok) {
+        setReacted(prevReacted);
+        setReactionCount(prevCount);
+        return;
+      }
+      const data = (await res.json()) as { reacted: boolean; count: number };
       setReacted(data.reacted);
       setReactionCount(data.count);
     } catch {
@@ -158,7 +201,8 @@ export function useContentEntry(slug: string, pageType: string, canEdit: boolean
 
   function handleCopy(variant: "raw" | "discord") {
     if (!entry) return;
-    const text = variant === "discord" ? toDiscordMarkdown(entry.body) : entry.body;
+    const text =
+      variant === "discord" ? toDiscordMarkdown(entry.body) : entry.body;
     navigator.clipboard.writeText(text).then(() => {
       setCopied(variant);
       setTimeout(() => setCopied(null), 2000);
@@ -169,7 +213,9 @@ export function useContentEntry(slug: string, pageType: string, canEdit: boolean
     setConflictDetected(false);
     setSaveError(null);
     setEditMode(false);
-    const fresh = await apiFetch<EntryDetail>(`/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`);
+    const fresh = await apiFetch<EntryDetail>(
+      `/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
+    );
     setEntry(fresh);
     setEditTitle(fresh.title);
     setEditSlug(fresh.slug);
@@ -178,7 +224,9 @@ export function useContentEntry(slug: string, pageType: string, canEdit: boolean
   }
 
   async function onRestored() {
-    const updated = await apiFetch<EntryDetail>(`/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`);
+    const updated = await apiFetch<EntryDetail>(
+      `/content/${pageType}/entries/by-slug/${encodeURIComponent(slug)}`,
+    );
     setEntry(updated);
     setEntryId(updated.id);
     setEditTitle(updated.title);
@@ -188,17 +236,31 @@ export function useContentEntry(slug: string, pageType: string, canEdit: boolean
   }
 
   return {
-    entry, loading, error,
-    editMode, setEditMode,
-    editTitle, setEditTitle,
-    editSlug, setEditSlug,
-    slugEdited, setSlugEdited,
-    saving, saveError,
+    entry,
+    loading,
+    error,
+    editMode,
+    setEditMode,
+    editTitle,
+    setEditTitle,
+    editSlug,
+    setEditSlug,
+    slugEdited,
+    setSlugEdited,
+    saving,
+    saveError,
     conflictDetected,
     latestBodyRef,
     entryId,
-    reacted, reactionCount, reacting,
+    reacted,
+    reactionCount,
+    reacting,
     copied,
-    handleSave, handleDelete, handleReact, handleCopy, discardChanges, onRestored,
+    handleSave,
+    handleDelete,
+    handleReact,
+    handleCopy,
+    discardChanges,
+    onRestored,
   };
 }

@@ -3,7 +3,9 @@ import type { TileRaceRoll } from "@/types/tilerace";
 
 const ANIMATION_MS = 10000;
 
-export function useRollAnimations(rolls: TileRaceRoll[] | undefined): Set<string> {
+export function useRollAnimations(
+  rolls: TileRaceRoll[] | undefined,
+): Set<string> {
   const seenIds = useRef<Set<string>>(new Set());
   const initialized = useRef(false);
   const [rollingTeamIds, setRollingTeamIds] = useState<Set<string>>(new Set());

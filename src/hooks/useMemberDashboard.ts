@@ -63,7 +63,11 @@ export function useDashboardCompetitions() {
     staleTime: 1000 * 60 * 5,
     select: (data) =>
       [...data].sort((a, b) => {
-        const o: Record<string, number> = { ongoing: 0, upcoming: 1, finished: 2 };
+        const o: Record<string, number> = {
+          ongoing: 0,
+          upcoming: 1,
+          finished: 2,
+        };
         return (o[a.status] ?? 3) - (o[b.status] ?? 3);
       }),
   });

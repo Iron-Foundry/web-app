@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { frenzyApi } from "@/api/frenzy";
 import { queryKeys } from "@/lib/queryKeys";
-import type { FrenzySubmissionCreate, FrenzyTemplateUpdate, FrenzyTierData } from "@/types/frenzy";
+import type {
+  FrenzySubmissionCreate,
+  FrenzyTemplateUpdate,
+  FrenzyTierData,
+} from "@/types/frenzy";
 
 const STALE_5M = 1000 * 60 * 5;
 const STALE_24H = 1000 * 60 * 60 * 24;
@@ -98,7 +102,8 @@ export function useCreateTemplate() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: FrenzyTemplateUpdate) => frenzyApi.createTemplate(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.frenzy.templates() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.frenzy.templates() }),
   });
 }
 
@@ -119,21 +124,25 @@ export function useDeleteTemplate() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => frenzyApi.deleteTemplate(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.frenzy.templates() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.frenzy.templates() }),
   });
 }
 
 export function useCalculatePoints() {
   return useMutation({
-    mutationFn: (data: { tiers: Record<string, FrenzyTierData>; total_point_cap: number }) =>
-      frenzyApi.calculatePoints(data),
+    mutationFn: (data: {
+      tiers: Record<string, FrenzyTierData>;
+      total_point_cap: number;
+    }) => frenzyApi.calculatePoints(data),
   });
 }
 
 export function useRevertTemplate() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, vid }: { id: number; vid: number }) => frenzyApi.revertTemplate(id, vid),
+    mutationFn: ({ id, vid }: { id: number; vid: number }) =>
+      frenzyApi.revertTemplate(id, vid),
     onSuccess: (_result, { id }) => {
       qc.invalidateQueries({ queryKey: queryKeys.frenzy.template(id) });
       qc.invalidateQueries({ queryKey: queryKeys.frenzy.templateVersions(id) });
@@ -163,15 +172,21 @@ export function useCreateEvent() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: frenzyApi.createEvent,
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.frenzy.events() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.frenzy.events() }),
   });
 }
 
 export function usePatchEvent() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Parameters<typeof frenzyApi.patchEvent>[1] }) =>
-      frenzyApi.patchEvent(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: Parameters<typeof frenzyApi.patchEvent>[1];
+    }) => frenzyApi.patchEvent(id, data),
     onSuccess: (_result, { id }) => {
       qc.invalidateQueries({ queryKey: queryKeys.frenzy.events() });
       qc.invalidateQueries({ queryKey: queryKeys.frenzy.event(id) });
@@ -320,8 +335,13 @@ export function useSubmissions(eventId: number, params?: SubmissionFilters) {
 function useCreateSubmission() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ eventId, data }: { eventId: number; data: FrenzySubmissionCreate }) =>
-      frenzyApi.createSubmission(eventId, data),
+    mutationFn: ({
+      eventId,
+      data,
+    }: {
+      eventId: number;
+      data: FrenzySubmissionCreate;
+    }) => frenzyApi.createSubmission(eventId, data),
     onSuccess: (_result, { eventId }) => {
       qc.invalidateQueries({ queryKey: queryKeys.frenzy.submissions(eventId) });
       qc.invalidateQueries({ queryKey: queryKeys.frenzy.active() });
@@ -352,8 +372,13 @@ export function usePatchSubmission() {
 export function useDeleteSubmission() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ eventId, submissionId }: { eventId: number; submissionId: number }) =>
-      frenzyApi.deleteSubmission(eventId, submissionId),
+    mutationFn: ({
+      eventId,
+      submissionId,
+    }: {
+      eventId: number;
+      submissionId: number;
+    }) => frenzyApi.deleteSubmission(eventId, submissionId),
     onSuccess: (_result, { eventId }) => {
       qc.invalidateQueries({ queryKey: queryKeys.frenzy.submissions(eventId) });
       qc.invalidateQueries({ queryKey: queryKeys.frenzy.active() });

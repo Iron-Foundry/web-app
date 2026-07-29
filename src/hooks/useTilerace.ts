@@ -44,7 +44,9 @@ export function useSignUp() {
       tileraceApi.signUp(vars.eventId, vars.accountId, vars.wantsCaptain),
     onSuccess: (_result, vars) => {
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
-      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(vars.eventId) });
+      qc.invalidateQueries({
+        queryKey: queryKeys.tilerace.event(vars.eventId),
+      });
     },
   });
 }
@@ -56,7 +58,9 @@ export function useChangeSignup() {
       tileraceApi.changeSignup(vars.eventId, vars.accountId, vars.wantsCaptain),
     onSuccess: (_result, vars) => {
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
-      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(vars.eventId) });
+      qc.invalidateQueries({
+        queryKey: queryKeys.tilerace.event(vars.eventId),
+      });
     },
   });
 }
@@ -94,8 +98,9 @@ export function useTile(id: string) {
 export function useCreateTile() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<RepositoryTile, "id" | "created_at" | "updated_at">) =>
-      tileraceApi.createTile(data),
+    mutationFn: (
+      data: Omit<RepositoryTile, "id" | "created_at" | "updated_at">,
+    ) => tileraceApi.createTile(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["tilerace", "tiles"] }),
   });
 }
@@ -138,7 +143,8 @@ export function useCreateTileraceEvent() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: TileRaceEventCreate) => tileraceApi.createEvent(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.tilerace.events() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.events() }),
   });
 }
 
@@ -192,8 +198,13 @@ export function useDeactivateTileraceEvent() {
 export function useAddTileraceTeam() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ eventId, data }: { eventId: string; data: TileRaceTeamCreate }) =>
-      tileraceApi.addTeam(eventId, data),
+    mutationFn: ({
+      eventId,
+      data,
+    }: {
+      eventId: string;
+      data: TileRaceTeamCreate;
+    }) => tileraceApi.addTeam(eventId, data),
     onSuccess: (_result, { eventId }) => {
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
@@ -304,9 +315,12 @@ export function useToggleCompletion() {
       teamId: string;
       pathPosition: number;
       completed: boolean;
-    }) => tileraceApi.toggleCompletion(eventId, teamId, pathPosition, completed),
+    }) =>
+      tileraceApi.toggleCompletion(eventId, teamId, pathPosition, completed),
     onSuccess: (_result, { eventId }) => {
-      qc.invalidateQueries({ queryKey: queryKeys.tilerace.completions(eventId) });
+      qc.invalidateQueries({
+        queryKey: queryKeys.tilerace.completions(eventId),
+      });
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
       qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
     },

@@ -26,7 +26,11 @@ function clampPan(value: number, viewport: number, scale: number): number {
   return Math.min(0, Math.max(viewport * (1 - scale), value));
 }
 
-function clampTransform(t: Transform, width: number, height: number): Transform {
+function clampTransform(
+  t: Transform,
+  width: number,
+  height: number,
+): Transform {
   return {
     scale: t.scale,
     x: clampPan(t.x, width, t.scale),
@@ -40,7 +44,11 @@ interface ZoomPanOptions {
 
 export function useZoomPan(options: ZoomPanOptions = {}): ZoomPan {
   const { leftButtonPans = true } = options;
-  const [transform, setTransform] = useState<Transform>({ x: 0, y: 0, scale: 1 });
+  const [transform, setTransform] = useState<Transform>({
+    x: 0,
+    y: 0,
+    scale: 1,
+  });
   const dragging = useRef(false);
   const last = useRef({ x: 0, y: 0 });
 
@@ -82,7 +90,11 @@ export function useZoomPan(options: ZoomPanOptions = {}): ZoomPan {
     const dy = e.clientY - last.current.y;
     last.current = { x: e.clientX, y: e.clientY };
     setTransform((t) =>
-      clampTransform({ ...t, x: t.x + dx, y: t.y + dy }, rect.width, rect.height),
+      clampTransform(
+        { ...t, x: t.x + dx, y: t.y + dy },
+        rect.width,
+        rect.height,
+      ),
     );
   }, []);
 
@@ -91,5 +103,12 @@ export function useZoomPan(options: ZoomPanOptions = {}): ZoomPan {
     e.currentTarget.releasePointerCapture(e.pointerId);
   }, []);
 
-  return { transform, reset, onWheel, onPointerDown, onPointerMove, onPointerUp };
+  return {
+    transform,
+    reset,
+    onWheel,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+  };
 }

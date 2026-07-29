@@ -36,7 +36,11 @@ export function useCluescrollLeaderboard() {
   });
 }
 
-export function useRankingResults(skip: number, limit: number, rankFilter?: string) {
+export function useRankingResults(
+  skip: number,
+  limit: number,
+  rankFilter?: string,
+) {
   return useQuery({
     queryKey: queryKeys.ranking.results(`${skip}-${limit}-${rankFilter ?? ""}`),
     queryFn: () => leaderboardsApi.getRankingResults(skip, limit, rankFilter),

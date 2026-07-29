@@ -63,7 +63,8 @@ export function useCreateParty() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: CreatePartyPayload) => partiesApi.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
   });
 }
 
@@ -72,7 +73,8 @@ export function useUpdateParty() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdatePartyPayload }) =>
       partiesApi.update(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
   });
 }
 
@@ -80,16 +82,23 @@ export function useDeleteParty() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => partiesApi.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
   });
 }
 
 export function useJoinParty() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, rsn_override }: { id: string; rsn_override?: string | null }) =>
-      partiesApi.join(id, rsn_override),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
+    mutationFn: ({
+      id,
+      rsn_override,
+    }: {
+      id: string;
+      rsn_override?: string | null;
+    }) => partiesApi.join(id, rsn_override),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
   });
 }
 
@@ -97,7 +106,8 @@ export function useLeaveParty() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => partiesApi.leave(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
   });
 }
 
@@ -106,7 +116,8 @@ export function useKickPartyMember() {
   return useMutation({
     mutationFn: ({ partyId, userId }: { partyId: string; userId: string }) =>
       partiesApi.kickMember(partyId, userId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.parties.list() }),
   });
 }
 
@@ -114,7 +125,8 @@ export function useSendPartyMessage(partyId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (text: string) => partiesApi.sendMessage(partyId, text),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.parties.chat(partyId) }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.parties.chat(partyId) }),
   });
 }
 
