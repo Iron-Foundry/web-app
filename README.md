@@ -25,17 +25,31 @@ bun dev
 
 Starts the Bun server with HMR on `http://localhost:3000`.
 
-## Production
+## Build and production
 
 ```bash
-bun start
+bun run build.ts   # production build to dist/
+bun start          # production server
 ```
 
-## Build
+## Checks
 
 ```bash
-bun run build.ts
+bun run typecheck        # tsc --noEmit (strict)
+bun test tests/          # unit tests
+bun run test:e2e         # Playwright
+bun run gen:api-types    # regenerate src/api/schema.d.ts from ../api-backend/openapi.json
 ```
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `BUN_PUBLIC_API_URL` | `http://localhost:8000` | API base URL, inlined into the client bundle |
+| `INTERNAL_API_URL` | `BUN_PUBLIC_API_URL` | Server-side API URL the prod server uses for OG meta prefetch |
+| `SITE_URL` | `https://ironfoundry.cc` | Canonical site URL for OG tags |
 
 ---
 
@@ -44,7 +58,7 @@ bun run build.ts
 | Technology | Purpose |
 |---|---|
 | React 19 | UI framework |
-| TanStack Router | File-based client-side routing |
+| TanStack Router | Client-side routing (routes registered in `src/routes/routeTree.ts`) |
 | Tailwind CSS 4 | Utility-first styling |
 | Shadcn/ui (Radix UI) | Accessible UI component primitives |
 | Recharts | Data visualisation |
@@ -58,19 +72,25 @@ bun run build.ts
 ```
 src/
   index.tsx          - Bun server entry point (serves HTML + HMR in dev)
+  prod-server.ts     - Production server; injects API_URL and per-route OG meta into dist/index.html
   frontend.tsx       - Client hydration entry point
   App.tsx            - Root React component
   index.css          - Global styles
-  routes/            - TanStack Router pages
+  routes/            - Page routes, one per file
+    routeTree.ts     - Route manifest; every route is imported and registered here
     __root.tsx       - Root layout
-    home.tsx         - Home page
-    about.tsx        - About page
-    rules.tsx        - Rules page
+    leaderboards/, members/, plugins/, resources/, staff-portal/, activities/ - nested sections
+  api/               - Typed API clients, one per resource
+    client.ts        - apiFetch wrapper
+    schema.d.ts      - generated from ../api-backend/openapi.json (bun run gen:api-types)
   components/
     layout/          - RootLayout, TopNav, SideNav, NavLinks, LayoutSwitcher
     ui/              - Shadcn component library (button, card, dialog, table, chart, …)
+  hooks/             - Shared React hooks
   context/           - React context providers (LayoutContext)
+  embed/             - Server-rendered OG/embed images
   lib/               - Shared utilities (navigation.ts, utils.ts)
+  types/             - Shared type declarations
   assets/            - Images, logos, gem icons, fonts
 ```
 
