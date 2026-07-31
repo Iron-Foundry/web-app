@@ -1,14 +1,19 @@
 import { apiFetch } from "@/api/client";
 import type {
   DiceRollResult,
+  GenerateTeamsOptions,
   RepositoryTile,
+  RosterAdd,
+  RosterPatch,
   SabotageAction,
   TileCompletion,
+  TileRaceCandidate,
   TileRaceEvent,
   TileRaceEventCreate,
   TileRaceEventPatch,
   TileRaceEventSummary,
   TileRaceRoll,
+  TileRaceSignup,
   TileRaceTeamCreate,
   TileTag,
 } from "@/types/tilerace";
@@ -100,8 +105,39 @@ export const tileraceApi = {
     apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/teams/${teamId}`, {
       method: "DELETE",
     }),
-  scrambleTeams: (eventId: string) =>
-    apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/teams/scramble`, { method: "POST" }),
+  generateTeams: (eventId: string, options: GenerateTeamsOptions) =>
+    apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/teams/generate`, {
+      method: "POST",
+      body: JSON.stringify(options),
+    }),
+  resetTeams: (eventId: string) =>
+    apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/teams/reset`, {
+      method: "POST",
+    }),
+
+  // Admin - Roster
+  listCandidates: (eventId: string, search: string) => {
+    const qs = new URLSearchParams({ limit: "25" });
+    if (search) qs.set("search", search);
+    return apiFetch<TileRaceCandidate[]>(
+      `/tilerace/events/${eventId}/roster/candidates?${qs}`,
+    );
+  },
+  addRosterMember: (eventId: string, data: RosterAdd) =>
+    apiFetch<TileRaceSignup>(`/tilerace/events/${eventId}/roster`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  patchRosterMember: (eventId: string, discordUserId: string, data: RosterPatch) =>
+    apiFetch<TileRaceSignup>(
+      `/tilerace/events/${eventId}/roster/${discordUserId}`,
+      { method: "PATCH", body: JSON.stringify(data) },
+    ),
+  removeRosterMember: (eventId: string, discordUserId: string) =>
+    apiFetch<{ ok: boolean }>(
+      `/tilerace/events/${eventId}/roster/${discordUserId}`,
+      { method: "DELETE" },
+    ),
 
   // Controls
   rollDice: (eventId: string, teamId: string) =>

@@ -10,10 +10,23 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
-## [Unreleased]
+## [1.2.0] - 2026-07-31
 
 ### Added
 
+- The tile race admin Teams tab is now a two-column roster board: the unassigned
+  pool on the left, team cards on the right. Set a team size and hit Generate
+  Teams to build the teams from the signup pool - no more creating each team by
+  hand first - and Reset to Signups puts everyone back in the pool. Every member
+  row carries a team dropdown, a captain toggle and a remove button, so rosters
+  can be adjusted by hand at any point. Members can be added who never signed
+  up, for replacements. An optional "every team gets a raider" pass balances
+  CoX/ToB/ToA kill count across teams at a threshold you set; qualifying members
+  are marked and any team the constraint could not satisfy shows a "no raider"
+  warning. The crown on each member row appoints that member as captain,
+  replacing the team's current one, so a shortage of captain volunteers at
+  signup no longer matters; a team left without one shows a "no captain"
+  warning.
 - The profile's WOM Stats card shows overall XP, the player's top three skills
   by XP, and their ironman EHP/EHB. Overall XP had a slot in the card already
   but never rendered: the snapshot the API stores kept only the skills the

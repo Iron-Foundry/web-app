@@ -1,77 +1,21 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Shuffle, Crown, Lock, LockOpen } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Plus, Lock, LockOpen } from "lucide-react";
 import { TEAM_COLORS } from "@/lib/tilerace";
-import {
-  useAddTileraceTeam,
-  useDeleteTileraceTeam,
-  useScrambleTileraceTeams,
-  usePatchTileraceEvent,
-} from "@/hooks/useTilerace";
-import type { TileRaceEvent, TileRaceTeam } from "@/types/tilerace";
+import { useAddTileraceTeam, usePatchTileraceEvent } from "@/hooks/useTilerace";
+import { GenerateTeamsBar } from "./GenerateTeamsBar";
+import { TeamRosterCard } from "./TeamRosterCard";
+import { RosterMemberRow } from "./RosterMemberRow";
+import { AddRosterMember } from "./AddRosterMember";
+import type { TileRaceEvent } from "@/types/tilerace";
 
 interface TeamManagerProps {
   event: TileRaceEvent;
-}
-
-function TeamRow({
-  team,
-  eventId,
-  signupCount,
-}: {
-  team: TileRaceTeam;
-  eventId: string;
-  signupCount: number;
-}): JSX.Element {
-  const { mutate: deleteTeam, isPending: deleting } = useDeleteTileraceTeam();
-
-  return (
-    <Card>
-      <CardContent className="p-3 space-y-2">
-        <div className="flex items-center gap-2">
-          <div
-            className="h-4 w-4 rounded-full shrink-0"
-            style={{ backgroundColor: team.color }}
-          />
-          <span className="font-medium text-sm flex-1 truncate">{team.name}</span>
-          <Badge variant="outline" className="text-xs">{team.members.length} members</Badge>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-7 w-7"
-            disabled={deleting}
-            onClick={() => {
-              if (confirm(`Delete team "${team.name}"?`)) {
-                deleteTeam({ eventId, teamId: team.id });
-              }
-            }}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-
-        {team.members.length > 0 && (
-          <ul className="space-y-1">
-            {team.members.map((m) => (
-              <li key={m.discord_user_id} className="flex items-center gap-1.5 text-xs">
-                {m.is_captain && <Crown className="h-3 w-3 text-amber-500 shrink-0" />}
-                <span className={m.is_captain ? "font-medium" : "text-muted-foreground"}>
-                  {m.rsn}
-                </span>
-                <span className="text-muted-foreground/50 text-[10px] ml-auto">
-                  score: {m.ranking_score}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
-  );
 }
 
 function AddTeamForm({
@@ -86,7 +30,7 @@ function AddTeamForm({
   const [name, setName] = useState("");
   const { mutate: addTeam, isPending } = useAddTileraceTeam();
 
-  function handleSubmit() {
+  function handleSubmit(): void {
     if (!name.trim()) return;
     const color = TEAM_COLORS[teamCount % TEAM_COLORS.length] ?? "#888";
     addTeam(
@@ -128,16 +72,44 @@ function AddTeamForm({
 
 export function TeamManager({ event }: TeamManagerProps): JSX.Element {
   const [adding, setAdding] = useState(false);
-  const { mutate: scramble, isPending: scrambling } = useScrambleTileraceTeams();
+  const [threshold, setThreshold] = useState(1);
   const { mutate: patchEvent, isPending: patching } = usePatchTileraceEvent();
 
+  const { byTeam, unassigned } = useMemo(() => {
+    const grouped = new Map<string, typeof event.signups>();
+    const pool: typeof event.signups = [];
+    for (const s of event.signups) {
+      if (s.team_id) {
+        const list = grouped.get(s.team_id) ?? [];
+        list.push(s);
+        grouped.set(s.team_id, list);
+      } else {
+        pool.push(s);
+      }
+    }
+    for (const list of grouped.values()) {
+      list.sort(
+        (a, b) =>
+          Number(b.is_captain) - Number(a.is_captain) ||
+          b.ranking_score - a.ranking_score,
+      );
+    }
+    pool.sort((a, b) => b.ranking_score - a.ranking_score);
+    return { byTeam: grouped, unassigned: pool };
+  }, [event.signups]);
+
+  const assignedCount = event.signups.length - unassigned.length;
+  const showRaidWarning = assignedCount > 0;
+
   return (
+    <TooltipProvider delayDuration={300}>
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold">Teams</p>
           <p className="text-xs text-muted-foreground">
-            {event.signups.length} signed up, {event.teams.reduce((n, t) => n + t.members.length, 0)} assigned
+            {event.signups.length} on the roster, {assignedCount} assigned,{" "}
+            {unassigned.length} unassigned
           </p>
         </div>
         <div className="flex gap-2">
@@ -162,22 +134,19 @@ export function TeamManager({ event }: TeamManagerProps): JSX.Element {
               </>
             )}
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => scramble(event.id)}
-            disabled={scrambling || event.signups.length === 0 || event.teams.length === 0}
-            className="gap-1.5"
-          >
-            <Shuffle className="h-3.5 w-3.5" />
-            Scramble
-          </Button>
           <Button size="sm" onClick={() => setAdding(true)} disabled={adding} className="gap-1.5">
             <Plus className="h-3.5 w-3.5" />
             Add Team
           </Button>
         </div>
       </div>
+
+      <GenerateTeamsBar
+        event={event}
+        assignedCount={assignedCount}
+        threshold={threshold}
+        onThresholdChange={setThreshold}
+      />
 
       {adding && (
         <AddTeamForm
@@ -187,40 +156,55 @@ export function TeamManager({ event }: TeamManagerProps): JSX.Element {
         />
       )}
 
-      {event.teams.length === 0 && !adding && (
-        <p className="text-sm text-muted-foreground">No teams yet.</p>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,18rem)_1fr] gap-4 items-start">
+        <Card>
+          <CardContent className="p-3 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Unassigned ({unassigned.length})
+            </p>
+            <AddRosterMember eventId={event.id} />
+            <Separator />
+            {unassigned.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Everyone is on a team.</p>
+            ) : (
+              <ul className="space-y-1">
+                {unassigned.map((m) => (
+                  <RosterMemberRow
+                    key={m.discord_user_id}
+                    eventId={event.id}
+                    member={m}
+                    teams={event.teams}
+                    threshold={threshold}
+                  />
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {event.teams.map((team) => (
-          <TeamRow
-            key={team.id}
-            team={team}
-            eventId={event.id}
-            signupCount={event.signups.length}
-          />
-        ))}
-      </div>
-
-      {event.signups.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Unassigned Signups
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {event.signups.map((s) => (
-              <Badge
-                key={s.discord_user_id}
-                variant="outline"
-                className="text-xs gap-1"
-              >
-                {s.wants_captain && <Crown className="h-3 w-3 text-amber-500" />}
-                {s.rsn}
-              </Badge>
-            ))}
-          </div>
+        <div className="space-y-3">
+          {event.teams.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No teams yet. Set a team size and hit Generate Teams.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+              {event.teams.map((team) => (
+                <TeamRosterCard
+                  key={team.id}
+                  eventId={event.id}
+                  team={team}
+                  members={byTeam.get(team.id) ?? []}
+                  teams={event.teams}
+                  threshold={threshold}
+                  showRaidWarning={showRaidWarning}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
+    </TooltipProvider>
   );
 }

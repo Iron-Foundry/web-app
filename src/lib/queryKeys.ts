@@ -105,6 +105,8 @@ export const queryKeys = {
     tile: (id: string) => ["tilerace", "tile", id] as const,
     completions: (eventId: string) => ["tilerace", "completions", eventId] as const,
     rolls: (eventId: string) => ["tilerace", "rolls", eventId] as const,
+    candidates: (eventId: string, search = "") =>
+      ["tilerace", "candidates", eventId, search] as const,
   },
   reference: {
     sources: (category: string) => ["reference", "sources", category] as const,

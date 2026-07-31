@@ -4719,6 +4719,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tilerace/events/{event_id}/roster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Roster Member
+         * @description Place a member on the roster on their behalf, signed up or not.
+         */
+        post: operations["add_roster_member_tilerace_events__event_id__roster_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/roster/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Candidates
+         * @description Clan members not on this event's roster yet, for the add picker.
+         */
+        get: operations["list_candidates_tilerace_events__event_id__roster_candidates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/roster/{discord_user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Roster Member
+         * @description Drop a member from the event entirely, team assignment and all.
+         */
+        delete: operations["remove_roster_member_tilerace_events__event_id__roster__discord_user_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch Roster Member
+         * @description Move a member between teams, unassign them, or set them as captain.
+         *
+         *     A team holds at most one captain: moving a captain to another team drops the
+         *     badge unless the same request re-appoints them, and appointing a captain
+         *     demotes whoever held it.
+         */
+        patch: operations["patch_roster_member_tilerace_events__event_id__roster__discord_user_id__patch"];
+        trace?: never;
+    };
     "/tilerace/events/{event_id}/signup": {
         parameters: {
             query?: never;
@@ -4767,7 +4835,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/tilerace/events/{event_id}/teams/scramble": {
+    "/tilerace/events/{event_id}/teams/generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -4777,10 +4845,34 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Scramble Teams
-         * @description Randomly redistribute the signed-up players across the event's teams.
+         * Generate Teams
+         * @description Build teams from the signup pool at the given team size and draft them.
+         *
+         *     Teams are sized so none exceeds `team_size`; existing teams keep their name,
+         *     colour and icon, surplus teams are removed. Signups are never deleted, so
+         *     `POST .../teams/reset` returns the event to bare signups.
          */
-        post: operations["scramble_teams_tilerace_events__event_id__teams_scramble_post"];
+        post: operations["generate_teams_tilerace_events__event_id__teams_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/teams/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset Teams
+         * @description Return the event to bare signups: every member is unassigned, teams stay.
+         */
+        post: operations["reset_teams_tilerace_events__event_id__teams_reset_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4799,14 +4891,14 @@ export interface paths {
         post?: never;
         /**
          * Delete Team
-         * @description Remove a team along with its rolls and completions.
+         * @description Remove a team; its members fall back to the unassigned signup pool.
          */
         delete: operations["delete_team_tilerace_events__event_id__teams__team_id__delete"];
         options?: never;
         head?: never;
         /**
          * Patch Team
-         * @description Rename a team or change its roster.
+         * @description Rename a team or restyle it. Rosters are edited through /roster.
          */
         patch: operations["patch_team_tilerace_events__event_id__teams__team_id__patch"];
         trace?: never;
@@ -5632,6 +5724,24 @@ export interface components {
              */
             type: "free_text";
         };
+        /** GenerateTeamsBody */
+        GenerateTeamsBody: {
+            /**
+             * Balance Raids Kc
+             * @default false
+             */
+            balance_raids_kc: boolean;
+            /**
+             * Raids Kc Threshold
+             * @default 1
+             */
+            raids_kc_threshold: number;
+            /**
+             * Team Size
+             * @default 5
+             */
+            team_size: number;
+        };
         /** GoalsSaveRequest */
         GoalsSaveRequest: {
             /** Goals */
@@ -6180,6 +6290,24 @@ export interface components {
             roles: components["schemas"]["SelectableRole"][];
             /** Title */
             title: string;
+        };
+        /** RosterAddBody */
+        RosterAddBody: {
+            /** Discord User Id */
+            discord_user_id: string;
+            /** Rsn */
+            rsn?: string | null;
+            /** Team Id */
+            team_id?: number | null;
+        };
+        /** RosterPatch */
+        RosterPatch: {
+            /** Is Captain */
+            is_captain?: boolean | null;
+            /** Rsn */
+            rsn?: string | null;
+            /** Team Id */
+            team_id?: number | null;
         };
         /** RsnUpdate */
         RsnUpdate: {
@@ -7021,6 +7149,11 @@ export interface components {
             start_pad?: components["schemas"]["Pad"] | null;
             /** Starts At */
             starts_at?: string | null;
+            /**
+             * Team Size
+             * @default 5
+             */
+            team_size: number;
         };
         /** EventPatch */
         app__routers__tilerace__schemas__EventPatch: {
@@ -7050,6 +7183,8 @@ export interface components {
             start_pad?: components["schemas"]["Pad"] | null;
             /** Starts At */
             starts_at?: string | null;
+            /** Team Size */
+            team_size?: number | null;
         };
         /** TeamBody */
         app__routers__tilerace__schemas__TeamBody: {
@@ -18516,6 +18651,151 @@ export interface operations {
             };
         };
     };
+    add_roster_member_tilerace_events__event_id__roster_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RosterAddBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_candidates_tilerace_events__event_id__roster_candidates_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_roster_member_tilerace_events__event_id__roster__discord_user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+                discord_user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_roster_member_tilerace_events__event_id__roster__discord_user_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+                discord_user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RosterPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     sign_up_tilerace_events__event_id__signup_post: {
         parameters: {
             query?: never;
@@ -18660,7 +18940,44 @@ export interface operations {
             };
         };
     };
-    scramble_teams_tilerace_events__event_id__teams_scramble_post: {
+    generate_teams_tilerace_events__event_id__teams_generate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateTeamsBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_teams_tilerace_events__event_id__teams_reset_post: {
         parameters: {
             query?: never;
             header?: never;

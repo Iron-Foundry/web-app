@@ -67,6 +67,7 @@ export interface TileRaceEventSummary {
   grid_rows: number;
   dice_count: number;
   dice_sides: number;
+  team_size: number;
   is_finished: boolean;
   winner_team_id: string | null;
   start_pad: BoardPad | null;
@@ -100,16 +101,45 @@ export interface TileRaceParticipant {
   discord_user_id: string;
   rsn: string;
   ranking_score: number;
+  raids_kc: number;
   is_captain: boolean;
 }
 
 export interface TileRaceSignup {
   discord_user_id: string;
+  team_id: string | null;
   account_id: number | null;
   rsn: string;
   ranking_score: number;
+  raids_kc: number;
   wants_captain: boolean;
+  is_captain: boolean;
+  added_by_staff: boolean;
   signed_up_at: string;
+}
+
+export interface TileRaceCandidate {
+  discord_user_id: string;
+  discord_username: string | null;
+  rsn: string | null;
+}
+
+export interface GenerateTeamsOptions {
+  team_size: number;
+  balance_raids_kc: boolean;
+  raids_kc_threshold: number;
+}
+
+export interface RosterAdd {
+  discord_user_id: string;
+  rsn?: string | null;
+  team_id?: number | null;
+}
+
+export interface RosterPatch {
+  team_id?: number | null;
+  is_captain?: boolean;
+  rsn?: string;
 }
 
 export interface DiceRollResult {
@@ -165,6 +195,7 @@ export interface TileRaceEventPatch {
   grid_rows?: number;
   dice_count?: number;
   dice_sides?: number;
+  team_size?: number;
   start_pad?: BoardPad | null;
   end_pad?: BoardPad | null;
   background_asset_id?: string | null;

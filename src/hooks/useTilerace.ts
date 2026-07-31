@@ -2,7 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { tileraceApi } from "@/api/tilerace";
 import { queryKeys } from "@/lib/queryKeys";
 import type {
+  GenerateTeamsOptions,
   RepositoryTile,
+  RosterAdd,
+  RosterPatch,
   SabotageAction,
   TileRaceEventCreate,
   TileRaceEventPatch,
@@ -243,14 +246,83 @@ export function useDeleteTileraceTeam() {
   });
 }
 
-export function useScrambleTileraceTeams() {
+function useRosterInvalidation() {
   const qc = useQueryClient();
+  return (eventId: string): void => {
+    qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+    qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
+    qc.invalidateQueries({ queryKey: ["tilerace", "candidates", eventId] });
+  };
+}
+
+export function useGenerateTileraceTeams() {
+  const invalidate = useRosterInvalidation();
   return useMutation({
-    mutationFn: (eventId: string) => tileraceApi.scrambleTeams(eventId),
-    onSuccess: (_result, eventId) => {
-      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
-      qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
-    },
+    mutationFn: ({
+      eventId,
+      options,
+    }: {
+      eventId: string;
+      options: GenerateTeamsOptions;
+    }) => tileraceApi.generateTeams(eventId, options),
+    onSuccess: (_result, { eventId }) => invalidate(eventId),
+  });
+}
+
+export function useResetTileraceTeams() {
+  const invalidate = useRosterInvalidation();
+  return useMutation({
+    mutationFn: (eventId: string) => tileraceApi.resetTeams(eventId),
+    onSuccess: (_result, eventId) => invalidate(eventId),
+  });
+}
+
+// Admin - Roster
+export function useTileraceCandidates(eventId: string, search: string) {
+  return useQuery({
+    queryKey: queryKeys.tilerace.candidates(eventId, search),
+    queryFn: () => tileraceApi.listCandidates(eventId, search),
+    staleTime: STALE_5M,
+    enabled: !!eventId,
+  });
+}
+
+export function useAddRosterMember() {
+  const invalidate = useRosterInvalidation();
+  return useMutation({
+    mutationFn: ({ eventId, data }: { eventId: string; data: RosterAdd }) =>
+      tileraceApi.addRosterMember(eventId, data),
+    onSuccess: (_result, { eventId }) => invalidate(eventId),
+  });
+}
+
+export function usePatchRosterMember() {
+  const invalidate = useRosterInvalidation();
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      discordUserId,
+      data,
+    }: {
+      eventId: string;
+      discordUserId: string;
+      data: RosterPatch;
+    }) => tileraceApi.patchRosterMember(eventId, discordUserId, data),
+    onSuccess: (_result, { eventId }) => invalidate(eventId),
+  });
+}
+
+export function useRemoveRosterMember() {
+  const invalidate = useRosterInvalidation();
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      discordUserId,
+    }: {
+      eventId: string;
+      discordUserId: string;
+    }) => tileraceApi.removeRosterMember(eventId, discordUserId),
+    onSuccess: (_result, { eventId }) => invalidate(eventId),
   });
 }
 
