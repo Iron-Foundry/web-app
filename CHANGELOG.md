@@ -10,6 +10,15 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.2.1] - 2026-07-31
+
+### Changed
+
+- The public tile race page fits a third team card per row from 1280px up, and
+  widens from 1152px to 1408px there to keep the cards readable at that count.
+  A seventeen-team event drops from nine rows of teams to six. Nothing changes
+  below 1280px.
+
 ## [1.2.0] - 2026-07-31
 
 ### Added

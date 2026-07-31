@@ -79,7 +79,7 @@ function TileRacePage(): JSX.Element {
   const pathPositionMap = event ? buildPathPositionMap(event.cells) : new Map();
 
   return (
-    <div className="mx-auto max-w-6xl w-full space-y-6 py-6 px-4">
+    <div className="mx-auto max-w-6xl xl:max-w-[88rem] w-full space-y-6 py-6 px-4">
       <div className="rounded-xl border bg-card p-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="space-y-1">
@@ -162,7 +162,7 @@ function TileRacePage(): JSX.Element {
           <Separator />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {event.teams.map((team) => {
                 const currentCell = pathPositionMap.get(team.position);
                 const gated =
