@@ -53,6 +53,8 @@ export interface PlayerSnapshot {
   skills: Record<string, number>;
   bosses: Record<string, number>;
   activities: Record<string, number>;
+  ehp: number | null;
+  ehb: number | null;
   fetched_at: string | null;
 }
 

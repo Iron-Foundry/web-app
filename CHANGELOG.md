@@ -12,6 +12,13 @@ component. Entries land under Unreleased until then.
 
 ## [Unreleased]
 
+### Added
+
+- The profile's WOM Stats card shows overall XP, the player's top three skills
+  by XP, and their ironman EHP/EHB. Overall XP had a slot in the card already
+  but never rendered: the snapshot the API stores kept only the skills the
+  ranking config scores, and `overall` is not one of them.
+
 ### Fixed
 
 - The music socket is allowed by the Content Security Policy. `connect-src`
