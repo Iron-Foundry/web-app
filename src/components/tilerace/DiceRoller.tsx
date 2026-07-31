@@ -15,6 +15,7 @@ interface DiceRollerProps {
   diceSides: number;
   gated?: boolean;
   finished?: boolean;
+  paused?: boolean;
 }
 
 export function DiceRoller({
@@ -25,6 +26,7 @@ export function DiceRoller({
   diceSides,
   gated = false,
   finished = false,
+  paused = false,
 }: DiceRollerProps): JSX.Element | null {
   const isMember = team.members.some((m) => m.discord_user_id === currentUserId);
 
@@ -42,7 +44,7 @@ export function DiceRoller({
     };
   }, []);
 
-  const blocked = gated || finished;
+  const blocked = gated || finished || paused;
 
   function stopSpin(): void {
     if (tickRef.current) clearTimeout(tickRef.current);
@@ -104,6 +106,8 @@ export function DiceRoller({
           title={
             finished
               ? "Game over"
+              : paused
+              ? "Rolling is paused by staff"
               : gated
               ? "Complete the current tile first"
               : undefined

@@ -352,6 +352,31 @@ export function useRecentRolls(eventId: string) {
   });
 }
 
+function useDiscordProvisioning(
+  action: (eventId: string) => Promise<unknown>,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (eventId: string) => action(eventId),
+    onSuccess: (_result, eventId) => {
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
+    },
+  });
+}
+
+export function useSetupTileraceDiscord() {
+  return useDiscordProvisioning(tileraceApi.setupDiscord);
+}
+
+export function useSyncTileraceDiscord() {
+  return useDiscordProvisioning(tileraceApi.syncDiscord);
+}
+
+export function useTeardownTileraceDiscord() {
+  return useDiscordProvisioning(tileraceApi.teardownDiscord);
+}
+
 export function useSetFogOfWar() {
   const qc = useQueryClient();
   return useMutation({

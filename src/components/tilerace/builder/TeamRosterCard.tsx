@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, Crown, Trash2 } from "lucide-react";
+import { AlertTriangle, Crown, Pencil, Trash2 } from "lucide-react";
 import { useDeleteTileraceTeam } from "@/hooks/useTilerace";
 import { RosterMemberRow } from "./RosterMemberRow";
+import { TeamIdentityDialog } from "./TeamIdentityDialog";
 import type { TileRaceSignup, TileRaceTeam } from "@/types/tilerace";
 
 interface Props {
@@ -13,6 +15,7 @@ interface Props {
   teams: TileRaceTeam[];
   threshold: number;
   showRaidWarning: boolean;
+  discordProvisioned: boolean;
 }
 
 export function TeamRosterCard({
@@ -22,8 +25,10 @@ export function TeamRosterCard({
   teams,
   threshold,
   showRaidWarning,
+  discordProvisioned,
 }: Props): JSX.Element {
   const { mutate: deleteTeam, isPending: deleting } = useDeleteTileraceTeam();
+  const [editing, setEditing] = useState(false);
   const avg = members.length
     ? Math.round(
         members.reduce((n, m) => n + m.ranking_score, 0) / members.length,
@@ -36,10 +41,18 @@ export function TeamRosterCard({
     <Card>
       <CardContent className="p-3 space-y-2">
         <div className="flex items-center gap-2">
-          <div
-            className="h-4 w-4 rounded-full shrink-0"
-            style={{ backgroundColor: team.color }}
-          />
+          {team.icon_url ? (
+            <img
+              src={team.icon_url}
+              alt=""
+              className="h-5 w-5 shrink-0 object-contain"
+            />
+          ) : (
+            <div
+              className="h-4 w-4 rounded-full shrink-0"
+              style={{ backgroundColor: team.color }}
+            />
+          )}
           <span className="font-medium text-sm flex-1 truncate">{team.name}</span>
 
           {members.length > 0 && !hasCaptain && (
@@ -65,6 +78,16 @@ export function TeamRosterCard({
           <Badge variant="outline" className="text-[10px]">
             {members.length} - avg {avg}
           </Badge>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-7 w-7"
+            onClick={() => setEditing(true)}
+            title="Rename or restyle this team"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
 
           <Button
             size="icon"
@@ -100,6 +123,14 @@ export function TeamRosterCard({
             ))}
           </ul>
         )}
+
+        <TeamIdentityDialog
+          eventId={eventId}
+          team={team}
+          open={editing}
+          onOpenChange={setEditing}
+          discordProvisioned={discordProvisioned}
+        />
       </CardContent>
     </Card>
   );

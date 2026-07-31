@@ -10,6 +10,35 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.3.0] - 2026-07-31
+
+### Added
+
+- A Pause toggle on the tile race Controls tab blocks every team from rolling
+  without ending the game. The roll button goes dead for everyone with a reason
+  in its tooltip, the public page carries a "Rolls paused" badge, and the API
+  refuses a roll regardless of what the browser sends.
+- A Discord Channels card on Controls creates and tears down the event's
+  Discord shape: one category holding a captains channel plus a text and voice
+  channel per team, each locked to that team's role. The buttons only queue the
+  work, so the card re-reads the event on a timer until the bot reports back and
+  says so if it never does.
+- Teams can be renamed and given an icon from the Teams tab. Item icons come
+  from the cache service by id, NPC art from the wiki. A rename reaches Discord
+  straight away when the event is provisioned, so the role and both channels
+  cannot drift from the name shown on the site.
+
+### Fixed
+
+- Dice count and sides now save. Both inputs were uncontrolled and committed on
+  blur only, so a value the server clamped kept being displayed as typed and a
+  change made without leaving the field was silently dropped. They are
+  controlled, re-sync to the event, and commit through an explicit Save.
+- The board redraws for everyone when any team rolls, not only for whoever
+  clicked. Only the roll list was polled; team positions and the fog of war
+  horizon derived from them sat in a five-minute cache, so other viewers kept
+  the board they loaded with and the fog never lifted.
+
 ## [1.2.1] - 2026-07-31
 
 ### Changed

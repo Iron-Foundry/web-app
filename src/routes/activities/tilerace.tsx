@@ -15,6 +15,7 @@ import {
   useCancelSignup,
 } from "@/hooks/useTilerace";
 import { useRollAnimations } from "@/hooks/useRollAnimations";
+import { useBoardRedraw } from "@/hooks/useBoardRedraw";
 import { getAccounts } from "@/api/accounts";
 import { TileBoard } from "@/components/tilerace/TileBoard";
 import { TeamCard } from "@/components/tilerace/TeamCard";
@@ -57,6 +58,7 @@ function TileRacePage(): JSX.Element {
   const { data: completions = [] } = useCompletions(user && event ? event.id : "");
   const { data: rolls = [] } = useRecentRolls(event ? event.id : "");
   const rollingTeamIds = useRollAnimations(rolls);
+  useBoardRedraw(event ? event.id : "", rolls);
 
   const canManage = hasPermission("tilerace", "edit", effectiveRoles);
 
@@ -99,6 +101,9 @@ function TileRacePage(): JSX.Element {
           </div>
 
           <div className="flex flex-col items-end gap-2">
+            {event?.rolls_paused && !event.is_finished && (
+              <Badge variant="destructive">Rolls paused</Badge>
+            )}
             {daysLeft !== null && (
               <Badge variant={daysLeft <= 3 ? "destructive" : "secondary"}>
                 {daysLeft === 0 ? "Ends today" : `${daysLeft}d remaining`}
@@ -186,6 +191,7 @@ function TileRacePage(): JSX.Element {
                         diceSides={event.dice_sides}
                         gated={gated}
                         finished={event.is_finished}
+                        paused={event.rolls_paused}
                       />
                     )}
                   </TeamCard>

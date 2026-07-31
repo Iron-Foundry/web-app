@@ -69,7 +69,12 @@ export interface TileRaceEventSummary {
   dice_sides: number;
   team_size: number;
   is_finished: boolean;
+  rolls_paused: boolean;
   winner_team_id: string | null;
+  discord_provisioned: boolean;
+  discord_category_id: string | null;
+  discord_captains_role_id: string | null;
+  discord_captains_channel_id: string | null;
   start_pad: BoardPad | null;
   end_pad: BoardPad | null;
   background_asset_id: string | null;
@@ -93,6 +98,9 @@ export interface TileRaceTeam {
   icon_url: string;
   color: string;
   position: number;
+  discord_role_id: string | null;
+  discord_text_channel_id: string | null;
+  discord_voice_channel_id: string | null;
   members: TileRaceParticipant[];
   pending_effects?: { skip_next?: boolean; extra_rolls?: number };
 }
@@ -202,6 +210,7 @@ export interface TileRaceEventPatch {
   background_url?: string | null;
   fog_of_war?: boolean;
   is_finished?: boolean;
+  rolls_paused?: boolean;
   signups_open?: boolean;
   starts_at?: string | null;
   ends_at?: string | null;

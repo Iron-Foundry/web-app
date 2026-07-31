@@ -4679,6 +4679,88 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tilerace/events/{event_id}/discord/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Discord Result
+         * @description Service-key callback: discord-server reports the ids it created or cleared.
+         *
+         *     A teardown reports every id as null, which is what clears them here.
+         */
+        post: operations["record_discord_result_tilerace_events__event_id__discord_result_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/discord/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Setup Discord
+         * @description Ask discord-server to build the category, roles and per-team channels.
+         */
+        post: operations["setup_discord_tilerace_events__event_id__discord_setup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/discord/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync Discord
+         * @description Push current team names onto the existing roles and channels.
+         */
+        post: operations["sync_discord_tilerace_events__event_id__discord_sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/discord/teardown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Teardown Discord
+         * @description Ask discord-server to delete everything it created for this event.
+         */
+        post: operations["teardown_discord_tilerace_events__event_id__discord_teardown_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tilerace/events/{event_id}/fog-of-war": {
         parameters: {
             query?: never;
@@ -4892,6 +4974,9 @@ export interface paths {
         /**
          * Delete Team
          * @description Remove a team; its members fall back to the unassigned signup pool.
+         *
+         *     Its Discord role and channels go with it, or they would sit in the guild
+         *     with nothing left to point at them.
          */
         delete: operations["delete_team_tilerace_events__event_id__teams__team_id__delete"];
         options?: never;
@@ -4899,6 +4984,9 @@ export interface paths {
         /**
          * Patch Team
          * @description Rename a team or restyle it. Rosters are edited through /roster.
+         *
+         *     A name change is pushed straight to Discord when the event is provisioned,
+         *     so the role and channels can never drift from the name shown on the site.
          */
         patch: operations["patch_team_tilerace_events__event_id__teams__team_id__patch"];
         trace?: never;
@@ -5601,6 +5689,20 @@ export interface components {
             /** Sender */
             sender: string;
         };
+        /** DiscordProvisionResult */
+        DiscordProvisionResult: {
+            /** Captains Channel Id */
+            captains_channel_id?: number | null;
+            /** Captains Role Id */
+            captains_role_id?: number | null;
+            /** Category Id */
+            category_id?: number | null;
+            /**
+             * Teams
+             * @default []
+             */
+            teams: components["schemas"]["DiscordTeamResult"][];
+        };
         /** DiscordRolesConfig */
         DiscordRolesConfig: {
             /**
@@ -5623,6 +5725,17 @@ export interface components {
              * @default
              */
             staff_role_id: string;
+        };
+        /** DiscordTeamResult */
+        DiscordTeamResult: {
+            /** Role Id */
+            role_id?: number | null;
+            /** Team Id */
+            team_id: number;
+            /** Text Channel Id */
+            text_channel_id?: number | null;
+            /** Voice Channel Id */
+            voice_channel_id?: number | null;
         };
         /** DropOut */
         DropOut: {
@@ -7178,6 +7291,8 @@ export interface components {
             is_finished?: boolean | null;
             /** Name */
             name?: string | null;
+            /** Rolls Paused */
+            rolls_paused?: boolean | null;
             /** Signups Open */
             signups_open?: boolean | null;
             start_pad?: components["schemas"]["Pad"] | null;
@@ -18547,6 +18662,142 @@ export interface operations {
         };
     };
     deactivate_event_tilerace_events__event_id__deactivate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_discord_result_tilerace_events__event_id__discord_result_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscordProvisionResult"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    setup_discord_tilerace_events__event_id__discord_setup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sync_discord_tilerace_events__event_id__discord_sync_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teardown_discord_tilerace_events__event_id__discord_teardown_post: {
         parameters: {
             query?: never;
             header?: never;

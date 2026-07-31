@@ -198,6 +198,7 @@ export function TeamManager({ event }: TeamManagerProps): JSX.Element {
                   teams={event.teams}
                   threshold={threshold}
                   showRaidWarning={showRaidWarning}
+                  discordProvisioned={event.discord_provisioned}
                 />
               ))}
             </div>

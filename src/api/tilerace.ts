@@ -152,6 +152,23 @@ export const tileraceApi = {
   listRolls: (eventId: string, limit = 25) =>
     apiFetch<TileRaceRoll[]>(`/tilerace/events/${eventId}/rolls?limit=${limit}`),
 
+  // Admin - Discord provisioning
+  setupDiscord: (eventId: string) =>
+    apiFetch<{ ok: boolean; queued: string; team_count: number }>(
+      `/tilerace/events/${eventId}/discord/setup`,
+      { method: "POST" },
+    ),
+  syncDiscord: (eventId: string) =>
+    apiFetch<{ ok: boolean; queued: string }>(
+      `/tilerace/events/${eventId}/discord/sync`,
+      { method: "POST" },
+    ),
+  teardownDiscord: (eventId: string) =>
+    apiFetch<{ ok: boolean; queued: string }>(
+      `/tilerace/events/${eventId}/discord/teardown`,
+      { method: "POST" },
+    ),
+
   // Completions
   listCompletions: (eventId: string) =>
     apiFetch<TileCompletion[]>(`/tilerace/events/${eventId}/completions`),
