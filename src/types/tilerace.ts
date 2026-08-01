@@ -57,6 +57,24 @@ export interface BoardCell {
   tile?: RepositoryTile;
 }
 
+/**
+ * Elevated permissions a team's role holds inside its own managed channels.
+ *
+ * Every toggle only ever grants: switching one off returns the flag to
+ * inherited, it never denies. Applied onto the existing channels by the next
+ * sync, so a change never rebuilds a channel or loses its history.
+ */
+export interface TileRaceDiscordPermissions {
+  pin_messages: boolean;
+  manage_messages: boolean;
+  mention_everyone: boolean;
+  manage_threads: boolean;
+  manage_channel: boolean;
+  voice_moderation: boolean;
+}
+
+export type TileRaceDiscordPermission = keyof TileRaceDiscordPermissions;
+
 export interface TileRaceEventSummary {
   id: string;
   name: string;
@@ -75,6 +93,7 @@ export interface TileRaceEventSummary {
   discord_category_id: string | null;
   discord_captains_role_id: string | null;
   discord_captains_channel_id: string | null;
+  discord_permissions: TileRaceDiscordPermissions;
   start_pad: BoardPad | null;
   end_pad: BoardPad | null;
   background_asset_id: string | null;
@@ -147,7 +166,16 @@ export interface RosterAdd {
 export interface RosterPatch {
   team_id?: number | null;
   is_captain?: boolean;
+  account_id?: number;
   rsn?: string;
+}
+
+/** One RSN linked to a member, offered when switching a mistaken signup. */
+export interface TileRaceLinkedAccount {
+  id: number;
+  rsn: string;
+  is_primary: boolean;
+  in_use: boolean;
 }
 
 export interface DiceRollResult {

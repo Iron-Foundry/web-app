@@ -10,6 +10,20 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [Unreleased]
+
+### Added
+
+- The RSN on a tile race roster row is now a picker over the member's linked
+  accounts, so a signup made on the wrong account can be corrected after the
+  teams are drawn without moving anyone off their team. A typed name covers
+  staff-added members who have no linked account.
+- A "Channel Permissions" card on the tile race Controls tab toggles what each
+  team's role may do in its own Discord channels: pin messages, delete
+  messages, mention everyone and roles, threads, edit their channels, and voice
+  moderation. Changes apply to the channels that already exist, so a live event
+  keeps its channels and their history.
+
 ## [1.3.1] - 2026-08-01
 
 ### Changed

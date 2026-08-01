@@ -4679,6 +4679,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tilerace/events/{event_id}/discord/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Patch Discord Permissions
+         * @description Toggle the elevated permissions teams hold in their own channels.
+         *
+         *     The toggles are applied by the following sync, which edits the overwrite on
+         *     the existing channels: nothing is torn down and no channel is recreated, so
+         *     a live event keeps its history.
+         */
+        patch: operations["patch_discord_permissions_tilerace_events__event_id__discord_permissions_patch"];
+        trace?: never;
+    };
     "/tilerace/events/{event_id}/discord/result": {
         parameters: {
             query?: never;
@@ -4860,13 +4884,34 @@ export interface paths {
         head?: never;
         /**
          * Patch Roster Member
-         * @description Move a member between teams, unassign them, or set them as captain.
+         * @description Move a member between teams, set them as captain, or switch their RSN.
          *
          *     A team holds at most one captain: moving a captain to another team drops the
          *     badge unless the same request re-appoints them, and appointing a captain
-         *     demotes whoever held it.
+         *     demotes whoever held it. `account_id` repoints the entry at another of the
+         *     member's linked accounts; `rsn` sets a raw name and drops the link.
          */
         patch: operations["patch_roster_member_tilerace_events__event_id__roster__discord_user_id__patch"];
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/roster/{discord_user_id}/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Member Accounts
+         * @description The member's linked RSNs, for switching a signup made on the wrong one.
+         */
+        get: operations["list_member_accounts_tilerace_events__event_id__roster__discord_user_id__accounts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/tilerace/events/{event_id}/signup": {
@@ -5689,6 +5734,24 @@ export interface components {
             /** Sender */
             sender: string;
         };
+        /**
+         * DiscordPermissionsPatch
+         * @description Elevated permissions a team's role gets in its own managed channels.
+         */
+        DiscordPermissionsPatch: {
+            /** Manage Channel */
+            manage_channel?: boolean | null;
+            /** Manage Messages */
+            manage_messages?: boolean | null;
+            /** Manage Threads */
+            manage_threads?: boolean | null;
+            /** Mention Everyone */
+            mention_everyone?: boolean | null;
+            /** Pin Messages */
+            pin_messages?: boolean | null;
+            /** Voice Moderation */
+            voice_moderation?: boolean | null;
+        };
         /** DiscordProvisionResult */
         DiscordProvisionResult: {
             /** Captains Channel Id */
@@ -6415,6 +6478,8 @@ export interface components {
         };
         /** RosterPatch */
         RosterPatch: {
+            /** Account Id */
+            account_id?: number | null;
             /** Is Captain */
             is_captain?: boolean | null;
             /** Rsn */
@@ -18694,6 +18759,43 @@ export interface operations {
             };
         };
     };
+    patch_discord_permissions_tilerace_events__event_id__discord_permissions_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscordPermissionsPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     record_discord_result_tilerace_events__event_id__discord_result_post: {
         parameters: {
             query?: never;
@@ -19034,6 +19136,40 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_member_accounts_tilerace_events__event_id__roster__discord_user_id__accounts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+                discord_user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
                 };
             };
             /** @description Validation Error */

@@ -9,6 +9,7 @@ import {
 import { CompletionsPanel } from "./CompletionsPanel";
 import { DiceSettingsCard } from "./DiceSettingsCard";
 import { DiscordCard } from "./DiscordCard";
+import { DiscordPermissionsCard } from "./DiscordPermissionsCard";
 import { TeamPositions } from "./TeamPositions";
 
 interface ControlsTabProps {
@@ -91,6 +92,8 @@ export function ControlsTab({ eventId }: ControlsTabProps): JSX.Element {
       <DiceSettingsCard event={event} />
 
       <DiscordCard event={event} />
+
+      <DiscordPermissionsCard event={event} />
 
       {event.is_finished && (
         <Card>

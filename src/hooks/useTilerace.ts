@@ -7,6 +7,7 @@ import type {
   RosterAdd,
   RosterPatch,
   SabotageAction,
+  TileRaceDiscordPermissions,
   TileRaceEventCreate,
   TileRaceEventPatch,
   TileRaceTeamCreate,
@@ -312,6 +313,19 @@ export function usePatchRosterMember() {
   });
 }
 
+export function useTileraceMemberAccounts(
+  eventId: string,
+  discordUserId: string,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: queryKeys.tilerace.memberAccounts(eventId, discordUserId),
+    queryFn: () => tileraceApi.listMemberAccounts(eventId, discordUserId),
+    staleTime: STALE_5M,
+    enabled: enabled && !!eventId && !!discordUserId,
+  });
+}
+
 export function useRemoveRosterMember() {
   const invalidate = useRosterInvalidation();
   return useMutation({
@@ -375,6 +389,23 @@ export function useSyncTileraceDiscord() {
 
 export function useTeardownTileraceDiscord() {
   return useDiscordProvisioning(tileraceApi.teardownDiscord);
+}
+
+export function usePatchTileraceDiscordPermissions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      data,
+    }: {
+      eventId: string;
+      data: Partial<TileRaceDiscordPermissions>;
+    }) => tileraceApi.patchDiscordPermissions(eventId, data),
+    onSuccess: (_result, { eventId }) => {
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
+    },
+  });
 }
 
 export function useSetFogOfWar() {

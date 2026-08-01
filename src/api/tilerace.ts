@@ -12,6 +12,8 @@ import type {
   TileRaceEventCreate,
   TileRaceEventPatch,
   TileRaceEventSummary,
+  TileRaceDiscordPermissions,
+  TileRaceLinkedAccount,
   TileRaceRoll,
   TileRaceSignup,
   TileRaceTeamCreate,
@@ -133,6 +135,10 @@ export const tileraceApi = {
       `/tilerace/events/${eventId}/roster/${discordUserId}`,
       { method: "PATCH", body: JSON.stringify(data) },
     ),
+  listMemberAccounts: (eventId: string, discordUserId: string) =>
+    apiFetch<TileRaceLinkedAccount[]>(
+      `/tilerace/events/${eventId}/roster/${discordUserId}/accounts`,
+    ),
   removeRosterMember: (eventId: string, discordUserId: string) =>
     apiFetch<{ ok: boolean }>(
       `/tilerace/events/${eventId}/roster/${discordUserId}`,
@@ -168,6 +174,18 @@ export const tileraceApi = {
       `/tilerace/events/${eventId}/discord/teardown`,
       { method: "POST" },
     ),
+  patchDiscordPermissions: (
+    eventId: string,
+    data: Partial<TileRaceDiscordPermissions>,
+  ) =>
+    apiFetch<{
+      ok: boolean;
+      discord_permissions: TileRaceDiscordPermissions;
+      synced: boolean;
+    }>(`/tilerace/events/${eventId}/discord/permissions`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
 
   // Completions
   listCompletions: (eventId: string) =>

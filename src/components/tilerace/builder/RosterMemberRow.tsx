@@ -16,6 +16,7 @@ import {
   usePatchRosterMember,
   useRemoveRosterMember,
 } from "@/hooks/useTilerace";
+import { RsnSwitcher } from "./RsnSwitcher";
 import type { TileRaceSignup, TileRaceTeam } from "@/types/tilerace";
 
 const UNASSIGNED = "unassigned";
@@ -82,11 +83,7 @@ export function RosterMemberRow({
         </TooltipContent>
       </Tooltip>
 
-      <span
-        className={`truncate ${member.is_captain ? "font-medium" : "text-muted-foreground"}`}
-      >
-        {member.rsn}
-      </span>
+      <RsnSwitcher eventId={eventId} member={member} disabled={busy} />
 
       {member.added_by_staff && (
         <span className="text-[10px] text-muted-foreground/60">(added)</span>

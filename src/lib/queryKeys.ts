@@ -107,6 +107,8 @@ export const queryKeys = {
     rolls: (eventId: string) => ["tilerace", "rolls", eventId] as const,
     candidates: (eventId: string, search = "") =>
       ["tilerace", "candidates", eventId, search] as const,
+    memberAccounts: (eventId: string, discordUserId: string) =>
+      ["tilerace", "accounts", eventId, discordUserId] as const,
   },
   reference: {
     sources: (category: string) => ["reference", "sources", category] as const,
