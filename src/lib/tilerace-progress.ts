@@ -4,12 +4,14 @@ export interface ProgressMarker {
   team: TileRaceTeam;
   percent: number;
   offset: number;
+  offsetY: number;
   step: number;
   totalSteps: number;
 }
 
 const CLUSTER_THRESHOLD_PERCENT = 3;
-const MARKER_SPACING_PX = 26;
+const MARKER_SPACING_PX = 18;
+const STAGGER_PX = 13;
 
 export function getMaxPathPosition(cells: BoardCell[]): number {
   let max = 0;
@@ -22,8 +24,10 @@ export function getMaxPathPosition(cells: BoardCell[]): number {
 }
 
 /**
- * Places every team on a 0-100 track and nudges overlapping markers apart so
- * teams sharing a step stay individually clickable.
+ * Places every team on a 0-100 track and pulls overlapping markers apart so
+ * teams sharing a step stay individually clickable. A cluster zigzags above and
+ * below the track, which lets neighbours sit closer together horizontally than
+ * a single row would allow.
  */
 export function buildProgressMarkers(
   cells: BoardCell[],
@@ -38,6 +42,7 @@ export function buildProgressMarkers(
         team,
         percent: totalSteps > 0 ? (step / totalSteps) * 100 : 0,
         offset: 0,
+        offsetY: 0,
         step,
         totalSteps,
       };
@@ -57,8 +62,11 @@ export function buildProgressMarkers(
     const size = i - clusterStart;
     for (let j = clusterStart; j < i; j++) {
       const marker = markers[j];
-      if (marker) {
-        marker.offset = (j - clusterStart - (size - 1) / 2) * MARKER_SPACING_PX;
+      if (!marker) continue;
+      const rank = j - clusterStart;
+      marker.offset = (rank - (size - 1) / 2) * MARKER_SPACING_PX;
+      if (size > 1) {
+        marker.offsetY = rank % 2 === 0 ? -STAGGER_PX : STAGGER_PX;
       }
     }
     clusterStart = i;

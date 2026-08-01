@@ -13,7 +13,7 @@ interface ProgressTeamMarkerProps {
 export function ProgressTeamMarker({ marker }: ProgressTeamMarkerProps): JSX.Element {
   const [open, setOpen] = useState(false);
   const [pinned, setPinned] = useState(false);
-  const { team, percent, offset, step, totalSteps } = marker;
+  const { team, percent, offset, offsetY, step, totalSteps } = marker;
 
   function handleOpenChange(next: boolean): void {
     setOpen(next);
@@ -49,7 +49,7 @@ export function ProgressTeamMarker({ marker }: ProgressTeamMarkerProps): JSX.Ele
           style={{
             left: `${percent}%`,
             backgroundColor: team.color,
-            transform: `translate(calc(-50% + ${offset}px), -50%)`,
+            transform: `translate(calc(-50% + ${offset}px), calc(-50% + ${offsetY}px))`,
           }}
         >
           {team.icon_url ? (

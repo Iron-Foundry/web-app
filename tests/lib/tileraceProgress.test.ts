@@ -43,6 +43,7 @@ describe("buildProgressMarkers", () => {
     expect(marker?.step).toBe(5);
     expect(marker?.totalSteps).toBe(10);
     expect(marker?.offset).toBe(0);
+    expect(marker?.offsetY).toBe(0);
   });
 
   test("clamps a position past the finish and below the start", () => {
@@ -67,7 +68,17 @@ describe("buildProgressMarkers", () => {
     ]);
 
     expect(markers.map((m) => m.percent)).toEqual([50, 50, 50]);
-    expect(markers.map((m) => m.offset)).toEqual([-26, 0, 26]);
+    expect(markers.map((m) => m.offset)).toEqual([-18, 0, 18]);
+  });
+
+  test("a cluster zigzags above and below the track", () => {
+    const markers = buildProgressMarkers(BOARD, [
+      team("A", 5),
+      team("B", 5),
+      team("C", 5),
+    ]);
+
+    expect(markers.map((m) => m.offsetY)).toEqual([-13, 13, -13]);
   });
 
   test("teams far apart are not nudged", () => {
@@ -75,6 +86,7 @@ describe("buildProgressMarkers", () => {
 
     expect(markers.map((m) => m.team.name)).toEqual(["Back", "Front"]);
     expect(markers.map((m) => m.offset)).toEqual([0, 0]);
+    expect(markers.map((m) => m.offsetY)).toEqual([0, 0]);
   });
 
   test("no teams means no markers", () => {

@@ -16,7 +16,7 @@ export function BoardProgressBar({ event }: BoardProgressBarProps): JSX.Element 
   if (markers.length === 0) return null;
 
   return (
-    <div className="relative w-full px-6 py-6">
+    <div className="relative w-full px-6 py-8">
       <div
         aria-hidden
         className="tilerace-progress-glow pointer-events-none absolute inset-x-6 top-1/2 h-4 -translate-y-1/2"
