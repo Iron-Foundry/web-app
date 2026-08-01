@@ -10,6 +10,21 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.5.0] - 2026-08-01
+
+### Added
+
+- A "Submissions" review queue on the tile race Controls tab: proof thumbnails,
+  the requirement each submission covers, and Approve / Reject / Delete per row,
+  filtered by review status. Rejecting takes a reason.
+- Team cards show a "Rolled back" badge when a rejected submission has sent a
+  team behind the point it had reached.
+
+### Changed
+
+- The roll button now unlocks on a claim rather than a staff tick, and its
+  blocked tooltip reads "Submit proof for the current tile first".
+
 ## [1.4.0] - 2026-08-01
 
 ### Added

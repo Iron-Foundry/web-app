@@ -117,6 +117,7 @@ export interface TileRaceTeam {
   icon_url: string;
   color: string;
   position: number;
+  furthest_position: number;
   discord_role_id: string | null;
   discord_text_channel_id: string | null;
   discord_voice_channel_id: string | null;
@@ -201,11 +202,41 @@ export interface TileRaceRoll {
   rolled_at: string;
 }
 
+export type TileClaimStatus = "claimed" | "approved" | "rejected";
+
 export interface TileCompletion {
   team_id: string;
   path_position: number;
+  status: TileClaimStatus;
   completed_by: string | null;
   completed_at: string;
+}
+
+export type SubmissionStatus = "pending" | "approved" | "rejected";
+
+export interface TileRaceSubmission {
+  id: string;
+  team_id: string;
+  path_position: number;
+  tile_id: string | null;
+  leaf_key: string;
+  leaf_label: string;
+  discord_user_id: string;
+  player_rsn: string;
+  proof_urls: string[];
+  discord_thread_id: string | null;
+  status: SubmissionStatus;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  review_notes: string | null;
+  submitted_at: string;
+}
+
+export interface TileRaceSubmissionPage {
+  total: number;
+  limit: number;
+  offset: number;
+  submissions: TileRaceSubmission[];
 }
 
 export interface TileRaceTeamCreate {

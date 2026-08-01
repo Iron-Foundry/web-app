@@ -10,6 +10,7 @@ import { CompletionsPanel } from "./CompletionsPanel";
 import { DiceSettingsCard } from "./DiceSettingsCard";
 import { DiscordCard } from "./DiscordCard";
 import { DiscordPermissionsCard } from "./DiscordPermissionsCard";
+import { SubmissionsPanel } from "./SubmissionsPanel";
 import { TeamPositions } from "./TeamPositions";
 
 interface ControlsTabProps {
@@ -112,6 +113,8 @@ export function ControlsTab({ eventId }: ControlsTabProps): JSX.Element {
           </CardContent>
         </Card>
       )}
+
+      <SubmissionsPanel event={event} />
 
       <CompletionsPanel event={event} />
 

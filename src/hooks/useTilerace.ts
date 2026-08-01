@@ -7,6 +7,7 @@ import type {
   RosterAdd,
   RosterPatch,
   SabotageAction,
+  SubmissionStatus,
   TileRaceDiscordPermissions,
   TileRaceEventCreate,
   TileRaceEventPatch,
@@ -446,6 +447,62 @@ export function useToggleCompletion() {
     }) =>
       tileraceApi.toggleCompletion(eventId, teamId, pathPosition, completed),
     onSuccess: (_result, { eventId }) => {
+      qc.invalidateQueries({
+        queryKey: queryKeys.tilerace.completions(eventId),
+      });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+    },
+  });
+}
+
+export function useSubmissions(eventId: string, status?: SubmissionStatus) {
+  return useQuery({
+    queryKey: queryKeys.tilerace.submissions(eventId, status),
+    queryFn: () => tileraceApi.listSubmissions(eventId, { status }),
+    staleTime: STALE_5M,
+    enabled: !!eventId,
+  });
+}
+
+export function useReviewSubmission() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      submissionId,
+      status,
+      reviewNotes,
+    }: {
+      eventId: string;
+      submissionId: string;
+      status: SubmissionStatus;
+      reviewNotes?: string;
+    }) =>
+      tileraceApi.reviewSubmission(eventId, submissionId, status, reviewNotes),
+    onSuccess: (_result, { eventId }) => {
+      qc.invalidateQueries({ queryKey: ["tilerace", "submissions", eventId] });
+      qc.invalidateQueries({
+        queryKey: queryKeys.tilerace.completions(eventId),
+      });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.active() });
+      qc.invalidateQueries({ queryKey: queryKeys.tilerace.event(eventId) });
+    },
+  });
+}
+
+export function useDeleteSubmission() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      submissionId,
+    }: {
+      eventId: string;
+      submissionId: string;
+    }) => tileraceApi.deleteSubmission(eventId, submissionId),
+    onSuccess: (_result, { eventId }) => {
+      qc.invalidateQueries({ queryKey: ["tilerace", "submissions", eventId] });
       qc.invalidateQueries({
         queryKey: queryKeys.tilerace.completions(eventId),
       });

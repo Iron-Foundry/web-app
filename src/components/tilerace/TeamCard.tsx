@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Crown, Dice6 } from "lucide-react";
+import { ChevronDown, ChevronUp, Crown, Dice6, Undo2 } from "lucide-react";
 import type { BoardCell, RepositoryTile, TileRaceTeam } from "@/types/tilerace";
 import { getEffectiveTileIcon } from "@/lib/tilerace";
 
@@ -21,6 +21,7 @@ export function TeamCard({
   const [membersExpanded, setMembersExpanded] = useState(false);
   const tile = currentCell?.tile ?? null;
   const tileIcon = tile ? getEffectiveTileIcon(tile) : null;
+  const rolledBack = team.furthest_position > team.position;
 
   return (
     <Card className="overflow-hidden">
@@ -47,6 +48,16 @@ export function TeamCard({
             <Badge variant="outline" className="gap-1 shrink-0 animate-pulse">
               <Dice6 className="h-3 w-3 animate-spin" />
               Rolling
+            </Badge>
+          )}
+          {rolledBack && (
+            <Badge
+              variant="destructive"
+              className="gap-1 shrink-0"
+              title={`A submission was rejected. Redo this tile to return to step ${team.furthest_position}.`}
+            >
+              <Undo2 className="h-3 w-3" />
+              Rolled back
             </Badge>
           )}
           {tile && tileIcon && (

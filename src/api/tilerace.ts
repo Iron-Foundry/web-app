@@ -6,6 +6,7 @@ import type {
   RosterAdd,
   RosterPatch,
   SabotageAction,
+  SubmissionStatus,
   TileCompletion,
   TileRaceCandidate,
   TileRaceEvent,
@@ -16,6 +17,7 @@ import type {
   TileRaceLinkedAccount,
   TileRaceRoll,
   TileRaceSignup,
+  TileRaceSubmissionPage,
   TileRaceTeamCreate,
   TileTag,
 } from "@/types/tilerace";
@@ -199,6 +201,38 @@ export const tileraceApi = {
     apiFetch<{ ok: boolean; completed: boolean }>(
       `/tilerace/events/${eventId}/teams/${teamId}/completions/${pathPosition}`,
       { method: "PUT", body: JSON.stringify({ completed }) },
+    ),
+
+  // Submissions
+  listSubmissions: (
+    eventId: string,
+    params?: { status?: SubmissionStatus; teamId?: string },
+  ) => {
+    const qs = new URLSearchParams({ limit: "200" });
+    if (params?.status) qs.set("status", params.status);
+    if (params?.teamId) qs.set("team_id", params.teamId);
+    return apiFetch<TileRaceSubmissionPage>(
+      `/tilerace/events/${eventId}/submissions?${qs}`,
+    );
+  },
+  reviewSubmission: (
+    eventId: string,
+    submissionId: string,
+    status: SubmissionStatus,
+    reviewNotes?: string,
+  ) =>
+    apiFetch<{ ok: boolean; status: string; tile_status: string }>(
+      `/tilerace/events/${eventId}/submissions/${submissionId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ status, review_notes: reviewNotes ?? null }),
+      },
+    ),
+
+  deleteSubmission: (eventId: string, submissionId: string) =>
+    apiFetch<{ ok: boolean; tile_status: string }>(
+      `/tilerace/events/${eventId}/submissions/${submissionId}`,
+      { method: "DELETE" },
     ),
 
   // Sabotage

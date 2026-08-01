@@ -109,7 +109,7 @@ export function DiceRoller({
               : paused
               ? "Rolling is paused by staff"
               : gated
-              ? "Complete the current tile first"
+              ? "Submit proof for the current tile first"
               : undefined
           }
           className="gap-1.5"

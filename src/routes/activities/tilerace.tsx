@@ -173,7 +173,10 @@ function TileRacePage(): JSX.Element {
                 const gated =
                   !!currentCell?.tile_id &&
                   !completions.some(
-                    (c) => c.team_id === team.id && c.path_position === team.position,
+                    (c) =>
+                      c.team_id === team.id &&
+                      c.path_position === team.position &&
+                      (c.status === "claimed" || c.status === "approved"),
                   );
                 return (
                   <TeamCard

@@ -4942,6 +4942,80 @@ export interface paths {
         patch: operations["change_signup_tilerace_events__event_id__signup_patch"];
         trace?: never;
     };
+    "/tilerace/events/{event_id}/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Submissions
+         * @description List an event's proof submissions for review, newest first.
+         */
+        get: operations["list_submissions_tilerace_events__event_id__submissions_get"];
+        put?: never;
+        /**
+         * Create Submissions
+         * @description Service-key create: one row per requirement leaf the proof covers.
+         */
+        post: operations["create_submissions_tilerace_events__event_id__submissions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/submissions/threads/{thread_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Submission Thread
+         * @description Service-key review: the Approve/Reject buttons in a Discord thread.
+         *
+         *     Staff judge the proof post as a whole, so every leaf submitted in that
+         *     thread takes the same verdict.
+         */
+        post: operations["review_submission_thread_tilerace_events__event_id__submissions_threads__thread_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tilerace/events/{event_id}/submissions/{submission_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Submission
+         * @description Remove a submission entirely and recompute the tile it belonged to.
+         *
+         *     Rejecting keeps the audit trail; deleting is for a submission that should
+         *     never have been logged, such as one filed against the wrong tile.
+         */
+        delete: operations["delete_submission_tilerace_events__event_id__submissions__submission_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Review Submission
+         * @description Staff review. Approving keeps the claim, rejecting rolls the team back.
+         */
+        patch: operations["review_submission_tilerace_events__event_id__submissions__submission_id__patch"];
+        trace?: never;
+    };
     "/tilerace/events/{event_id}/teams": {
         parameters: {
             query?: never;
@@ -5098,6 +5172,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tilerace/events/{event_id}/teams/{team_id}/tile-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Tile Status
+         * @description Which leaves of a team's current tile still need proof.
+         */
+        get: operations["get_tile_status_tilerace_events__event_id__teams__team_id__tile_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tilerace/osrs/npcs": {
         parameters: {
             query?: never;
@@ -5168,6 +5262,29 @@ export interface paths {
          * @description Update a repository tile's text, requirements, or modifiers.
          */
         patch: operations["patch_tile_tilerace_repository__tile_id__patch"];
+        trace?: never;
+    };
+    "/tilerace/submissions/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Submission Context
+         * @description Service-key lookup: what the caller's team currently has to prove.
+         *
+         *     discord-server holds no tile race state, so the Submit button asks for the
+         *     team, the tile it is standing on, and which leaves still need proof.
+         */
+        get: operations["get_submission_context_tilerace_submissions_context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/version": {
@@ -5760,6 +5877,8 @@ export interface components {
             captains_role_id?: number | null;
             /** Category Id */
             category_id?: number | null;
+            /** Submissions Channel Id */
+            submissions_channel_id?: number | null;
             /**
              * Teams
              * @default []
@@ -6821,10 +6940,38 @@ export interface components {
             /** Submitted At */
             submitted_at?: string | null;
         };
+        /**
+         * SubmissionCreateBody
+         * @description One proof post covering one or more of a tile's requirement leaves.
+         */
+        SubmissionCreateBody: {
+            /** Discord Thread Id */
+            discord_thread_id?: string | null;
+            /** Discord User Id */
+            discord_user_id: string;
+            /** Leaf Keys */
+            leaf_keys: string[];
+            /** Path Position */
+            path_position: number;
+            /**
+             * Proof Urls
+             * @default []
+             */
+            proof_urls: string[];
+        };
         /** SubmissionPatch */
         SubmissionPatch: {
             /** Review Notes */
             review_notes?: string | null;
+            /** Status */
+            status: string;
+        };
+        /** SubmissionReviewBody */
+        SubmissionReviewBody: {
+            /** Review Notes */
+            review_notes?: string | null;
+            /** Reviewed By */
+            reviewed_by?: string | null;
             /** Status */
             status: string;
         };
@@ -19290,6 +19437,192 @@ export interface operations {
             };
         };
     };
+    list_submissions_tilerace_events__event_id__submissions_get: {
+        parameters: {
+            query?: {
+                team_id?: number | null;
+                status?: string | null;
+                path_position?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_submissions_tilerace_events__event_id__submissions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmissionCreateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_submission_thread_tilerace_events__event_id__submissions_threads__thread_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+                thread_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmissionReviewBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_submission_tilerace_events__event_id__submissions__submission_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+                submission_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_submission_tilerace_events__event_id__submissions__submission_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+                submission_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmissionReviewBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     add_team_tilerace_events__event_id__teams_post: {
         parameters: {
             query?: never;
@@ -19580,6 +19913,40 @@ export interface operations {
             };
         };
     };
+    get_tile_status_tilerace_events__event_id__teams__team_id__tile_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+                team_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     search_osrs_npcs_tilerace_osrs_npcs_get: {
         parameters: {
             query?: {
@@ -19762,6 +20129,39 @@ export interface operations {
                 "application/json": components["schemas"]["TilePatch"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_submission_context_tilerace_submissions_context_get: {
+        parameters: {
+            query: {
+                discord_user_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
