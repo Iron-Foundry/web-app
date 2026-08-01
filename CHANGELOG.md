@@ -12,12 +12,21 @@ component. Entries land under Unreleased until then.
 
 ## [Unreleased]
 
+### Changed
+
+- The competition metric tabs are split into labelled rows - Skills, Bosses,
+  Raids, Activities, Computed - each sorted alphabetically and wrapping instead
+  of running off the page. Raid metrics are lifted out of the boss list, and a
+  metric the config does not know shows up under Other rather than disappearing.
+
 ### Added
 
 - A slim team progress bar above the tile race board. Every team sits on it as a
   circular icon puck at its share of the path, and hovering or clicking a puck
   opens a popover with the team's percent complete and its step out of the
-  board's total. Teams sharing a step spread apart so each stays clickable. The
+  board's total. Teams sharing a step zigzag above and below the track, which
+  keeps each one clickable on a tighter horizontal spread than a single row
+  allows. The
   track is a rounded multi-hue gradient that pans and hue-cycles on two
   out-of-phase timers, over a blurred primary-gold backdrop glow.
 

@@ -4,6 +4,8 @@ import { rootRoute } from "./__root";
 import { registerPage } from "@/lib/permissions";
 import { fmtCompDate, buildMetricTabs, fmtCompetitionLabel, statusColor } from "@/lib/competitions";
 import type { TabDescriptor } from "@/lib/competitions";
+import { tabKey } from "@/lib/competition-metric-groups";
+import { MetricTabGroups } from "@/components/competitions/MetricTabGroups";
 import { useCompetitionList, useCompetitionMetricMap } from "@/hooks/useCompetitions";
 import { CompetitionSkeleton } from "@/components/skeletons/CompetitionSkeleton";
 import { MetricTabContent, RaidGroupContent } from "@/components/competitions/TabContent";
@@ -136,10 +138,6 @@ function useExport(selected: Competition | undefined, resolvedId: string, active
   }
 
   return { exportMetrics, handleExport, exporting, exportError };
-}
-
-function tabKey(t: TabDescriptor): string {
-  return t.kind === "raid" ? t.groupKey : t.metric;
 }
 
 function CompetitionCard({
@@ -339,12 +337,14 @@ export default function CompetitionsPage() {
 
       {selected && (tabs.length > 0 || isPreviewMode) && (
         <div className="space-y-4">
+          {tabs.length > 0 && (
+            <MetricTabGroups
+              tabs={tabs}
+              value={isPreviewMode ? "" : effectiveTab}
+              onValueChange={handleTabChange}
+            />
+          )}
           <div className="flex flex-wrap items-center gap-3">
-            {tabs.length > 0 && (
-              <ToggleGroup type="single" variant="outline" value={isPreviewMode ? "" : effectiveTab} onValueChange={handleTabChange}>
-                {tabs.map((t) => <ToggleGroupItem key={tabKey(t)} value={tabKey(t)}>{t.label}</ToggleGroupItem>)}
-              </ToggleGroup>
-            )}
             <PreviewAsSelect onSelect={handleTabChange} />
             <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={() => void handleExport()} disabled={exportMetrics.length === 0 || exporting}>
               <Download className="h-3.5 w-3.5" />
