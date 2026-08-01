@@ -18,6 +18,7 @@ import { useRollAnimations } from "@/hooks/useRollAnimations";
 import { useBoardRedraw } from "@/hooks/useBoardRedraw";
 import { getAccounts } from "@/api/accounts";
 import { TileBoard } from "@/components/tilerace/TileBoard";
+import { BoardProgressBar } from "@/components/tilerace/BoardProgressBar";
 import { TeamCard } from "@/components/tilerace/TeamCard";
 import { DiceRoller } from "@/components/tilerace/DiceRoller";
 import { RecentRollsPanel } from "@/components/tilerace/RecentRollsPanel";
@@ -162,6 +163,8 @@ function TileRacePage(): JSX.Element {
 
       {event && (
         <>
+          <BoardProgressBar event={event} />
+
           <TileBoard event={event} rollingTeamIds={rollingTeamIds} />
 
           <Separator />

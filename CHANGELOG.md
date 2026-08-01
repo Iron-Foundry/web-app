@@ -10,6 +10,17 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [Unreleased]
+
+### Added
+
+- A slim team progress bar above the tile race board. Every team sits on it as a
+  circular icon puck at its share of the path, and hovering or clicking a puck
+  opens a popover with the team's percent complete and its step out of the
+  board's total. Teams sharing a step spread apart so each stays clickable. The
+  track is a rounded multi-hue gradient that pans and hue-cycles on two
+  out-of-phase timers, over a blurred primary-gold backdrop glow.
+
 ## [1.6.0] - 2026-08-01
 
 ### Added

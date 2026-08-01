@@ -243,3 +243,42 @@
 .achievement-card:hover {
   transition-delay: 0ms;
 }
+
+/* Tile race progress bar - the pan wraps exactly once per cycle because the
+   image is twice the track width, and the slower hue cycle runs out of phase
+   with it so the colours never repeat the same pairing twice in a row. */
+@keyframes tilerace-progress-pan {
+  from { background-position: 0% 50%; }
+  to   { background-position: -200% 50%; }
+}
+
+@keyframes tilerace-progress-twist {
+  from { filter: hue-rotate(0deg) saturate(1.1); }
+  to   { filter: hue-rotate(360deg) saturate(1.1); }
+}
+
+.tilerace-progress-track {
+  border-radius: 9999px;
+  background-image: linear-gradient(
+    100deg,
+    hsl(42,  85%, 58%),
+    hsl(150, 60%, 50%),
+    hsl(190, 70%, 55%),
+    hsl(225, 70%, 60%),
+    hsl(280, 65%, 62%),
+    hsl(325, 70%, 60%),
+    hsl(15,  80%, 58%),
+    hsl(42,  85%, 58%)
+  );
+  background-size: 200% 100%;
+  animation:
+    tilerace-progress-pan 24s linear infinite,
+    tilerace-progress-twist 40s linear infinite;
+}
+
+.tilerace-progress-glow {
+  border-radius: 9999px;
+  background: var(--primary);
+  filter: blur(16px);
+  opacity: 0.4;
+}
