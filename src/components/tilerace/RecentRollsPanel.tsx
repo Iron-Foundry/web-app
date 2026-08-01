@@ -26,9 +26,27 @@ export function RecentRollsPanel({ rolls, teams }: RecentRollsPanelProps): JSX.E
               return (
                 <li key={roll.id} className="flex items-center gap-2.5 py-2 text-sm">
                   <span
-                    className="w-2 h-2 rounded-full shrink-0 border border-white/50"
-                    style={{ backgroundColor: team?.color ?? "#888888" }}
-                  />
+                    className="h-6 w-6 shrink-0 rounded-full flex items-center justify-center overflow-hidden border"
+                    style={{
+                      borderColor: team?.color ?? "#888888",
+                      backgroundColor: (team?.color ?? "#888888") + "20",
+                    }}
+                  >
+                    {team?.icon_url ? (
+                      <img
+                        src={team.icon_url}
+                        alt={team.name}
+                        className="h-5 w-5 object-contain"
+                      />
+                    ) : (
+                      <span
+                        className="text-[10px] font-bold leading-none"
+                        style={{ color: team?.color ?? "#888888" }}
+                      >
+                        {(team?.name ?? "?").charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </span>
                   <span className="font-medium truncate">
                     {team?.name ?? "Unknown team"}
                   </span>
@@ -40,7 +58,7 @@ export function RecentRollsPanel({ rolls, teams }: RecentRollsPanelProps): JSX.E
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1">
-                        <Dice6 className="h-3 w-3" />
+                        <Dice6 className="h-3 w-3 text-primary" />
                         rolled {roll.dice.join(" + ")}
                         {roll.dice.length > 1 ? ` = ${roll.roll}` : ""}
                         {" → step "}

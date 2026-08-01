@@ -10,6 +10,14 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.5.1] - 2026-08-01
+
+### Changed
+
+- Recent Rolls rows carry the team's icon instead of a colour dot, falling back
+  to the team initial on its colour when no icon is set, and the dice glyph is
+  drawn in the primary gold.
+
 ## [1.5.0] - 2026-08-01
 
 ### Added
