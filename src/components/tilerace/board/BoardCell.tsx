@@ -1,5 +1,5 @@
 import type { BoardCell as BoardCellType, TileRaceTeam } from "@/types/tilerace";
-import { getEffectiveTileIcon } from "@/lib/tilerace";
+import { getCellPresentation } from "@/lib/tilerace-presentation";
 import { RequirementSummary } from "../RequirementSummary";
 import { ModifierBadge } from "./ModifierBadge";
 import { TeamMarker } from "../TeamMarker";
@@ -25,16 +25,17 @@ export function BoardCell({
   rollingTeamIds,
 }: BoardCellProps): JSX.Element {
   const isOnPath = cell?.path_position !== null && cell?.path_position !== undefined;
-  const tile = cell?.tile ?? null;
-  const iconUrl = tile ? getEffectiveTileIcon(tile) : null;
+  const { source, iconUrl, title, description, requirement } = getCellPresentation(cell);
 
   if (!isOnPath) {
     return <div className="w-full h-full" />;
   }
 
   const hidden = !visible;
-  const modifiers = cell?.modifiers ?? [];
-  const hasTileInfo = !!tile && (!!tile.description || !!tile.requirement);
+  const modifiers = (cell?.modifiers ?? []).filter(
+    (mod) => !(source === "trap" && mod.type === "trap"),
+  );
+  const hasTileInfo = !!description || !!requirement;
   const hasTooltip = !hidden && (hasTileInfo || teams.length > 0);
 
   const cellEl = (
@@ -68,16 +69,16 @@ export function BoardCell({
             {iconUrl ? (
               <img
                 src={iconUrl}
-                alt={tile?.title ?? ""}
+                alt={title ?? ""}
                 className="max-h-full max-w-full object-contain"
               />
             ) : (
               <div className="h-2/5 aspect-square rounded-full bg-primary/30" />
             )}
           </div>
-          {tile && (
+          {title && (
             <p className="hidden sm:block shrink-0 text-[7px] text-center text-foreground/70 leading-tight px-0.5 pb-0.5 line-clamp-2 max-w-full">
-              {tile.title}
+              {title}
             </p>
           )}
         </>
@@ -105,11 +106,9 @@ export function BoardCell({
     <Tooltip>
       <TooltipTrigger asChild>{cellEl}</TooltipTrigger>
       <TooltipContent side="top" className="max-w-52 space-y-1.5 p-3">
-        {tile && <p className="font-semibold text-sm">{tile.title}</p>}
-        {tile?.description && (
-          <p className="text-xs text-muted-foreground">{tile.description}</p>
-        )}
-        {tile?.requirement && <RequirementSummary node={tile.requirement} />}
+        {title && <p className="font-semibold text-sm">{title}</p>}
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        {requirement && <RequirementSummary node={requirement} />}
         {teams.length > 0 && (
           <div className={hasTileInfo ? "pt-1 border-t space-y-1" : "space-y-1"}>
             {teams.map((team) => (

@@ -40,4 +40,5 @@ export type CellModifier =
   | { type: "snakes_ladders"; target_position: number }
   | { type: "fog"; radius: number }
   | { type: "bonus_penalty"; effect: BonusEffect }
-  | { type: "sabotage"; action: SabotageAction; amount: number };
+  | { type: "sabotage"; action: SabotageAction; amount: number }
+  | { type: "trap"; dice_count: number; dice_sides: number };

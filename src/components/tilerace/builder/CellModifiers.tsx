@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import type { BonusEffect, CellModifier, SabotageAction } from "@/types/tilerace";
+import { TrapModifierFields } from "./TrapModifierFields";
 
 interface CellModifiersProps {
   modifiers: CellModifier[];
@@ -14,6 +15,7 @@ const DEFAULTS: Record<CellModifier["type"], CellModifier> = {
   fog: { type: "fog", radius: 1 },
   bonus_penalty: { type: "bonus_penalty", effect: "extra_roll" },
   sabotage: { type: "sabotage", action: "steal_progress", amount: 1 },
+  trap: { type: "trap", dice_count: 1, dice_sides: 6 },
 };
 
 export function CellModifiers({ modifiers, onChange }: CellModifiersProps): JSX.Element {
@@ -77,6 +79,9 @@ export function CellModifiers({ modifiers, onChange }: CellModifiersProps): JSX.
               <option value="reroll">Re-roll</option>
             </select>
           )}
+          {mod.type === "trap" && (
+            <TrapModifierFields modifier={mod} onChange={(next) => update(i, next)} />
+          )}
           {mod.type === "sabotage" && (
             <div className="space-y-1.5">
               <select
@@ -115,6 +120,9 @@ export function CellModifiers({ modifiers, onChange }: CellModifiersProps): JSX.
         </Button>
         <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => add("sabotage")}>
           + Sabotage
+        </Button>
+        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => add("trap")}>
+          + Trap
         </Button>
       </div>
     </div>

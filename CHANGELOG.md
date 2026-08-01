@@ -10,6 +10,18 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.6.0] - 2026-08-01
+
+### Added
+
+- A Trap tile in the board builder. Its dice count and faces are chosen when the
+  trap is placed. A trap-only cell is drawn like any other tile - the bear trap
+  icon from the cache service in the cell body, "Trap" as its caption, and a
+  tooltip stating the dice and that a team springs it once - on the public board
+  and in the builder grid alike. A cell that also carries an assigned tile keeps
+  that tile in the body and shows the trap as a corner badge. Traps never gate
+  the roll button, since they carry no requirements.
+
 ## [1.5.1] - 2026-08-01
 
 ### Changed

@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import { usePatchTileraceEvent } from "@/hooks/useTilerace";
-import { buildCellMap, getEffectiveTileIcon } from "@/lib/tilerace";
+import { buildCellMap } from "@/lib/tilerace";
+import { getCellPresentation } from "@/lib/tilerace-presentation";
 import { TilePicker } from "./TilePicker";
 import { CellModifiers } from "./CellModifiers";
 import { PadConfig, type PadKind } from "./PadConfig";
@@ -189,7 +190,7 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
                 const cell = cellMap.get(key);
                 const onPath = cell?.path_position != null;
                 const isSelected = selectedCell?.cell_x === x && selectedCell?.cell_y === y;
-                const iconUrl = cell?.tile ? getEffectiveTileIcon(cell.tile) : null;
+                const iconUrl = getCellPresentation(cell).iconUrl;
 
                 return (
                   <div

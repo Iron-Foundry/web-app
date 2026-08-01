@@ -6278,7 +6278,7 @@ export interface components {
              */
             height: number;
             /** Trigger */
-            trigger?: (components["schemas"]["SnakesLaddersModifier"] | components["schemas"]["FogModifier"] | components["schemas"]["BonusPenaltyModifier"] | components["schemas"]["SabotageModifier"]) | null;
+            trigger?: (components["schemas"]["SnakesLaddersModifier"] | components["schemas"]["FogModifier"] | components["schemas"]["BonusPenaltyModifier"] | components["schemas"]["SabotageModifier"] | components["schemas"]["TrapModifier"]) | null;
             /**
              * Width
              * @default 1
@@ -7210,6 +7210,31 @@ export interface components {
         TracksRequest: {
             /** Tracks */
             tracks: components["schemas"]["TrackIn"][];
+        };
+        /**
+         * TrapModifier
+         * @description Landing here rolls its own dice and sends the team back that many steps.
+         *
+         *     The dice are chosen when the trap is placed, so a trap can be made harsher
+         *     than the board's own roll. A team springs each trap cell once; the same
+         *     board may carry several traps and every one of them still bites.
+         */
+        TrapModifier: {
+            /**
+             * Dice Count
+             * @default 1
+             */
+            dice_count: number;
+            /**
+             * Dice Sides
+             * @default 6
+             */
+            dice_sides: number;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "trap";
         };
         /** UpdateEntryBody */
         UpdateEntryBody: {

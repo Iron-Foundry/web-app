@@ -16,8 +16,12 @@ export function ModifierBadge({ modifier }: ModifierBadgeProps): JSX.Element {
   return (
     <HoverCard openDelay={100} closeDelay={50}>
       <HoverCardTrigger asChild>
-        <span className="h-3 w-3 rounded-full bg-primary/80 text-[7px] text-primary-foreground flex items-center justify-center leading-none cursor-help">
-          {info.symbol}
+        <span className="h-3 w-3 rounded-full bg-primary/80 text-[7px] text-primary-foreground flex items-center justify-center leading-none cursor-help overflow-hidden">
+          {info.iconUrl ? (
+            <img src={info.iconUrl} alt={info.label} className="h-full w-full object-contain" />
+          ) : (
+            info.symbol
+          )}
         </span>
       </HoverCardTrigger>
       <HoverCardContent side="top" align="start" className="w-64 space-y-2">

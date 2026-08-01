@@ -122,7 +122,11 @@ export interface TileRaceTeam {
   discord_text_channel_id: string | null;
   discord_voice_channel_id: string | null;
   members: TileRaceParticipant[];
-  pending_effects?: { skip_next?: boolean; extra_rolls?: number };
+  pending_effects?: {
+    skip_next?: boolean;
+    extra_rolls?: number;
+    traps_sprung?: number[];
+  };
 }
 
 export interface TileRaceParticipant {
@@ -189,6 +193,8 @@ export interface DiceRollResult {
   reroll?: boolean;
   skip_next?: boolean;
   game_over?: boolean;
+  trap?: { dice: number[]; total: number; from: number; to: number };
+  trap_spent?: number;
 }
 
 export interface TileRaceRoll {
