@@ -10,6 +10,14 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.3.1] - 2026-08-01
+
+### Changed
+
+- Team markers on the tile race board are twice as large, so team colours,
+  icons and initials are readable at a glance. The markers fan out further
+  apart when several teams share a cell.
+
 ## [1.3.0] - 2026-07-31
 
 ### Added
