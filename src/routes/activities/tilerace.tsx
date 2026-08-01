@@ -68,16 +68,9 @@ function TileRacePage(): JSX.Element {
       ? Math.max(0, Math.ceil((new Date(event.ends_at).getTime() - Date.now()) / 86_400_000))
       : null;
 
-  const mySignup = user
-    ? event?.signups.find((s) => s.discord_user_id === user.discord_user_id)
-    : undefined;
+  const mySignup = event?.my_signup ?? null;
   const isSignedUp = !!mySignup;
-
-  const isOnTeam = user
-    ? event?.teams.some((t) =>
-        t.members.some((m) => m.discord_user_id === user.discord_user_id),
-      ) ?? false
-    : false;
+  const isOnTeam = !!event?.my_team_id;
 
   const pathPositionMap = event ? buildPathPositionMap(event.cells) : new Map();
 
@@ -192,7 +185,7 @@ function TileRacePage(): JSX.Element {
                       <DiceRoller
                         eventId={event.id}
                         team={team}
-                        currentUserId={user.discord_user_id}
+                        isMember={event.my_team_id === team.id}
                         diceCount={event.dice_count}
                         diceSides={event.dice_sides}
                         gated={gated}

@@ -1,17 +1,17 @@
-import type { BoardPad, TileRaceTeam } from "@/types/tilerace";
+import type { BoardPad, TileRacePublicTeam } from "@/types/tilerace";
 
 interface BoardPadsProps {
   startPad: BoardPad | null;
   endPad: BoardPad | null;
-  startTeams?: TileRaceTeam[];
-  finishTeams?: TileRaceTeam[];
+  startTeams?: TileRacePublicTeam[];
+  finishTeams?: TileRacePublicTeam[];
 }
 
 interface PadProps {
   pad: BoardPad;
   label: string;
   className: string;
-  teams: TileRaceTeam[];
+  teams: TileRacePublicTeam[];
 }
 
 function Pad({ pad, label, className, teams }: PadProps): JSX.Element {

@@ -1,7 +1,7 @@
-import type { BoardCell, TileRaceTeam } from "@/types/tilerace";
+import type { BoardCell, TileRacePublicTeam } from "@/types/tilerace";
 
 export interface ProgressMarker {
-  team: TileRaceTeam;
+  team: TileRacePublicTeam;
   percent: number;
   offset: number;
   offsetY: number;
@@ -31,7 +31,7 @@ export function getMaxPathPosition(cells: BoardCell[]): number {
  */
 export function buildProgressMarkers(
   cells: BoardCell[],
-  teams: TileRaceTeam[],
+  teams: TileRacePublicTeam[],
 ): ProgressMarker[] {
   const totalSteps = getMaxPathPosition(cells);
 

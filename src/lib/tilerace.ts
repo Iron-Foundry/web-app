@@ -4,7 +4,7 @@ import type {
   RepositoryTile,
   RequirementNode,
   TileItem,
-  TileRaceTeam,
+  TileRacePublicTeam,
   TileTag,
 } from "@/types/tilerace";
 
@@ -40,7 +40,7 @@ export function getTileAtPosition(cells: BoardCell[], pos: number): BoardCell | 
   return cells.find((c) => c.path_position === pos);
 }
 
-export function buildFogMask(teams: TileRaceTeam[]): number {
+export function buildFogMask(teams: TileRacePublicTeam[]): number {
   if (teams.length === 0) return 0;
   return Math.max(...teams.map((t) => t.position));
 }
@@ -96,10 +96,10 @@ export function buildPathPositionMap(cells: BoardCell[]): Map<number, BoardCell>
 }
 
 export function buildTeamsByCell(
-  teams: TileRaceTeam[],
+  teams: TileRacePublicTeam[],
   pathPositionMap: Map<number, BoardCell>,
-): Map<string, TileRaceTeam[]> {
-  const m = new Map<string, TileRaceTeam[]>();
+): Map<string, TileRacePublicTeam[]> {
+  const m = new Map<string, TileRacePublicTeam[]>();
   for (const team of teams) {
     const cell = pathPositionMap.get(team.position);
     if (!cell) continue;

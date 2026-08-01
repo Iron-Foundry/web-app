@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { BoardCell as BoardCellType, TileRaceEvent } from "@/types/tilerace";
+import type { BoardCell as BoardCellType, TileRaceBoardEvent } from "@/types/tilerace";
 import {
   buildCellMap,
   buildFogMask,
@@ -13,7 +13,7 @@ import { BoardViewport } from "./board/BoardViewport";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface TileBoardProps {
-  event: TileRaceEvent;
+  event: TileRaceBoardEvent;
   onCellClick?: (cell: BoardCellType) => void;
   rollingTeamIds?: Set<string>;
 }

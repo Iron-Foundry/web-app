@@ -48,11 +48,17 @@ export interface BoardPad {
   ends_game?: boolean;
 }
 
+/**
+ * A cell in the event grid.
+ *
+ * On the public board a fogged cell arrives as geometry only - the server
+ * withholds `tile_id`, `tile` and `modifiers` until a team reaches it.
+ */
 export interface BoardCell {
   cell_x: number;
   cell_y: number;
   path_position: number | null;
-  tile_id: string | null;
+  tile_id?: string | null;
   modifiers?: CellModifier[];
   tile?: RepositoryTile;
 }
@@ -75,7 +81,8 @@ export interface TileRaceDiscordPermissions {
 
 export type TileRaceDiscordPermission = keyof TileRaceDiscordPermissions;
 
-export interface TileRaceEventSummary {
+/** Event settings any visitor may see. `GET /tilerace/active` returns these. */
+export interface TileRacePublicSummary {
   id: string;
   name: string;
   is_active: boolean;
@@ -89,11 +96,6 @@ export interface TileRaceEventSummary {
   is_finished: boolean;
   rolls_paused: boolean;
   winner_team_id: string | null;
-  discord_provisioned: boolean;
-  discord_category_id: string | null;
-  discord_captains_role_id: string | null;
-  discord_captains_channel_id: string | null;
-  discord_permissions: TileRaceDiscordPermissions;
   start_pad: BoardPad | null;
   end_pad: BoardPad | null;
   background_asset_id: string | null;
@@ -103,13 +105,33 @@ export interface TileRaceEventSummary {
   created_at: string;
 }
 
-export interface TileRaceEvent extends TileRaceEventSummary {
+/** The staff view: everything public plus the Discord wiring. */
+export interface TileRaceEventSummary extends TileRacePublicSummary {
+  discord_provisioned: boolean;
+  discord_category_id: string | null;
+  discord_captains_role_id: string | null;
+  discord_captains_channel_id: string | null;
+  discord_permissions: TileRaceDiscordPermissions;
+}
+
+/** The board and its teams, in whichever detail the caller is entitled to. */
+export interface TileRaceBoardEvent extends TileRacePublicSummary {
   cells: BoardCell[];
+  teams: TileRacePublicTeam[];
+}
+
+export interface TileRacePublicEvent extends TileRaceBoardEvent {
+  signup_count: number;
+  my_signup: TileRaceMySignup | null;
+  my_team_id: string | null;
+}
+
+export interface TileRaceEvent extends TileRaceEventSummary, TileRaceBoardEvent {
   teams: TileRaceTeam[];
   signups: TileRaceSignup[];
 }
 
-export interface TileRaceTeam {
+export interface TileRacePublicTeam {
   id: string;
   name: string;
   slug: string;
@@ -118,6 +140,10 @@ export interface TileRaceTeam {
   color: string;
   position: number;
   furthest_position: number;
+  members: TileRacePublicMember[];
+}
+
+export interface TileRaceTeam extends TileRacePublicTeam {
   discord_role_id: string | null;
   discord_text_channel_id: string | null;
   discord_voice_channel_id: string | null;
@@ -129,12 +155,25 @@ export interface TileRaceTeam {
   };
 }
 
-export interface TileRaceParticipant {
-  discord_user_id: string;
+export interface TileRacePublicMember {
   rsn: string;
+  is_captain: boolean;
+}
+
+export interface TileRaceParticipant extends TileRacePublicMember {
+  discord_user_id: string;
   ranking_score: number;
   raids_kc: number;
+}
+
+/** The caller's own signup, the only one the public board carries. */
+export interface TileRaceMySignup {
+  team_id: string | null;
+  account_id: number | null;
+  rsn: string;
+  wants_captain: boolean;
   is_captain: boolean;
+  signed_up_at: string;
 }
 
 export interface TileRaceSignup {

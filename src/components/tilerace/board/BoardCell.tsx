@@ -1,4 +1,4 @@
-import type { BoardCell as BoardCellType, TileRaceTeam } from "@/types/tilerace";
+import type { BoardCell as BoardCellType, TileRacePublicTeam } from "@/types/tilerace";
 import { getCellPresentation } from "@/lib/tilerace-presentation";
 import { RequirementSummary } from "../RequirementSummary";
 import { ModifierBadge } from "./ModifierBadge";
@@ -11,7 +11,7 @@ import {
 
 interface BoardCellProps {
   cell: BoardCellType | undefined;
-  teams: TileRaceTeam[];
+  teams: TileRacePublicTeam[];
   visible: boolean;
   onCellClick?: (cell: BoardCellType) => void;
   rollingTeamIds?: Set<string>;

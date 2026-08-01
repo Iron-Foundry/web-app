@@ -1,11 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Dice6, SkipForward } from "lucide-react";
 import { timeAgo } from "@/components/members/feedHelpers";
-import type { TileRaceRoll, TileRaceTeam } from "@/types/tilerace";
+import type { TileRacePublicTeam, TileRaceRoll } from "@/types/tilerace";
 
 interface RecentRollsPanelProps {
   rolls: TileRaceRoll[];
-  teams: TileRaceTeam[];
+  teams: TileRacePublicTeam[];
 }
 
 export function RecentRollsPanel({ rolls, teams }: RecentRollsPanelProps): JSX.Element {

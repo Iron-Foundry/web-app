@@ -1,7 +1,7 @@
-import type { TileRaceTeam } from "@/types/tilerace";
+import type { TileRacePublicTeam } from "@/types/tilerace";
 
 interface TeamMarkerProps {
-  team: TileRaceTeam;
+  team: TileRacePublicTeam;
   index: number;
   total: number;
   isRolling?: boolean;

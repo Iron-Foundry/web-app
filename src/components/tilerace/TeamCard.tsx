@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Crown, Dice6, Undo2 } from "lucide-react";
-import type { BoardCell, RepositoryTile, TileRaceTeam } from "@/types/tilerace";
+import type { BoardCell, RepositoryTile, TileRacePublicTeam } from "@/types/tilerace";
 import { getEffectiveTileIcon } from "@/lib/tilerace";
 
 interface TeamCardProps {
-  team: TileRaceTeam;
+  team: TileRacePublicTeam;
   currentCell: BoardCell | undefined;
   isRolling?: boolean;
   children?: React.ReactNode;
@@ -84,7 +84,7 @@ export function TeamCard({
         {membersExpanded && (
           <ul className="space-y-1">
             {team.members.map((m) => (
-              <li key={m.discord_user_id} className="flex items-center gap-1.5 text-xs">
+              <li key={m.rsn} className="flex items-center gap-1.5 text-xs">
                 {m.is_captain && <Crown className="h-3 w-3 text-amber-500 shrink-0" />}
                 <span className={m.is_captain ? "font-medium" : "text-muted-foreground"}>
                   {m.rsn}

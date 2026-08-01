@@ -43,7 +43,7 @@ function serialize(cells: BoardCell[]) {
     cell_x,
     cell_y,
     path_position,
-    tile_id,
+    tile_id: tile_id ?? null,
     modifiers,
   }));
 }

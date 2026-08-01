@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import type { TileRaceEvent } from "@/types/tilerace";
+import type { TileRaceBoardEvent } from "@/types/tilerace";
 import { buildProgressMarkers } from "@/lib/tilerace-progress";
 import { ProgressTeamMarker } from "./ProgressTeamMarker";
 
 interface BoardProgressBarProps {
-  event: TileRaceEvent;
+  event: TileRaceBoardEvent;
 }
 
 export function BoardProgressBar({ event }: BoardProgressBarProps): JSX.Element | null {

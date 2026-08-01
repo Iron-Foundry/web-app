@@ -10,9 +10,15 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
-## [Unreleased]
+## [1.7.0] - 2026-08-02
 
 ### Changed
+
+- The tile race board reads the masked public payload. Fog of war is now the
+  server's call, so the client no longer receives the tiles it draws as `?`.
+  Membership and the signup panel key off `my_team_id` / `my_signup` instead of
+  scanning a roster the response no longer carries, and the shared board
+  components are typed against `TileRacePublicEvent` / `TileRacePublicTeam`.
 
 - The competition metric tabs are split into labelled rows - Skills, Bosses,
   Raids, Activities, Computed - each sorted alphabetically and wrapping instead

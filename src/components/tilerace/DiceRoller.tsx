@@ -2,15 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dice6 } from "lucide-react";
 import { useRollDice } from "@/hooks/useTilerace";
-import type { TileRaceTeam } from "@/types/tilerace";
+import type { TileRacePublicTeam } from "@/types/tilerace";
 
 const ROLL_DURATION_MS = 10000;
 const TICK_MS = 120;
 
 interface DiceRollerProps {
   eventId: string;
-  team: TileRaceTeam;
-  currentUserId: string;
+  team: TileRacePublicTeam;
+  /** The board no longer carries other members' ids; the server tells us ours. */
+  isMember: boolean;
   diceCount: number;
   diceSides: number;
   gated?: boolean;
@@ -21,15 +22,13 @@ interface DiceRollerProps {
 export function DiceRoller({
   eventId,
   team,
-  currentUserId,
+  isMember,
   diceCount,
   diceSides,
   gated = false,
   finished = false,
   paused = false,
 }: DiceRollerProps): JSX.Element | null {
-  const isMember = team.members.some((m) => m.discord_user_id === currentUserId);
-
   const { mutate: rollDice, isPending } = useRollDice();
   const [displayFace, setDisplayFace] = useState<string>("?");
   const [rolling, setRolling] = useState(false);

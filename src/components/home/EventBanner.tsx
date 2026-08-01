@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { shineHandlers } from "@/hooks/useShineEffect";
 import { useActiveTileraceEvent } from "@/hooks/useTilerace";
 import { useActiveEvent } from "@/hooks/useFrenzy";
-import type { TileRaceEvent } from "@/types/tilerace";
+import type { TileRacePublicEvent } from "@/types/tilerace";
 import type { FrenzyActiveEvent } from "@/types/frenzy";
 
 type Phase = "signups" | "running";
@@ -39,7 +39,7 @@ function fmtDuration(ms: number): string {
   return `${Math.max(1, Math.floor(ms / 60_000))}m`;
 }
 
-function tileraceBanner(ev: TileRaceEvent): Banner | null {
+function tileraceBanner(ev: TileRacePublicEvent): Banner | null {
   if (ev.is_finished) return null;
   const now = Date.now();
   if (ev.signups_open) {

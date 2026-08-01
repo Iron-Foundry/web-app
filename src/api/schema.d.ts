@@ -4556,7 +4556,11 @@ export interface paths {
         };
         /**
          * Get Active Event
-         * @description Return the running tile race with its teams and board. Public.
+         * @description Return the running tile race with its teams and board.
+         *
+         *     Public, and masked to match: fogged cells carry grid geometry only, Discord
+         *     ids and per-team effect state are withheld, and the roster is reduced to
+         *     names. A signed-in caller also gets their own signup as `my_signup`.
          */
         get: operations["get_active_event_tilerace_active_get"];
         put?: never;
