@@ -317,7 +317,10 @@ export interface paths {
          * Dispatch To Clan
          * @description Push a Discord message out to the connected in-game clients.
          *
-         *     Long messages are split into chunks the game chat box accepts.
+         *     Published rather than sent directly: the sockets are spread across every
+         *     gunicorn worker and each one's connection manager sees only its own, so
+         *     `CcDispatchService` in each worker does the delivery. Long messages are
+         *     split into chunks the game chat box accepts, on that side.
          */
         post: operations["dispatch_to_clan_ccdispatch_post"];
         delete?: never;
