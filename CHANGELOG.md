@@ -10,6 +10,22 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.8.0] - 2026-08-02
+
+### Changed
+
+- The tile race path editor draws its cells with the same `BoardCell` component
+  as the public board, so a builder cell shows the full-size tile icon, its
+  title, the modifier badges and the description/requirement tooltip instead of
+  a step number and a 12px icon. Tooltips are suppressed while a draw or erase
+  drag is in flight.
+
+### Added
+
+- Tiles already on the board carry an `xN` count in the builder's tile picker,
+  and the tag row gains Placed / Not Placed filters that stack with the tag and
+  search filters.
+
 ## [1.7.0] - 2026-08-02
 
 ### Changed

@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import { usePatchTileraceEvent } from "@/hooks/useTilerace";
 import { buildCellMap } from "@/lib/tilerace";
-import { getCellPresentation } from "@/lib/tilerace-presentation";
 import { TilePicker } from "./TilePicker";
 import { CellModifiers } from "./CellModifiers";
 import { PadConfig, type PadKind } from "./PadConfig";
 import { BoardViewport } from "../board/BoardViewport";
 import { BoardPads } from "../board/BoardPads";
+import { BoardCell as BoardCellView } from "../board/BoardCell";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { BoardCell, CellModifier, TileRaceEvent } from "@/types/tilerace";
 
 interface PathEditorProps {
@@ -175,6 +176,7 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
         </div>
 
         <div className="select-none">
+          <TooltipProvider>
           <BoardViewport backgroundUrl={event.background_url} leftButtonPans={false}>
           <div
             className="absolute inset-0 grid gap-0.5 p-2 sm:p-3"
@@ -190,7 +192,6 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
                 const cell = cellMap.get(key);
                 const onPath = cell?.path_position != null;
                 const isSelected = selectedCell?.cell_x === x && selectedCell?.cell_y === y;
-                const iconUrl = getCellPresentation(cell).iconUrl;
 
                 return (
                   <div
@@ -198,34 +199,26 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
                     style={{ gridColumn: x + 1, gridRow: y + 1 }}
                     onMouseDown={(e) => onCellDown(x, y, e)}
                     onMouseEnter={() => onCellEnter(x, y)}
-                    className={`relative flex items-center justify-center overflow-hidden min-w-0 min-h-0 rounded-sm cursor-crosshair border transition-colors text-[8px] font-medium ${
-                      isSelected
-                        ? "bg-primary/50 border-primary"
-                        : onPath
-                        ? "bg-primary/35 border-primary/70 hover:bg-primary/45"
-                        : "bg-black/20 border-white/10 hover:bg-black/30"
+                    className={`relative min-w-0 min-h-0 cursor-crosshair ${
+                      onPath
+                        ? ""
+                        : "rounded-sm border border-white/10 bg-black/20 transition-colors hover:bg-black/30"
                     }`}
                   >
-                    {onPath && (
-                      <>
-                        <span className="absolute top-0 left-0.5 leading-none text-[10px] font-bold text-blue-950 text-shadow-white">
-                          {cell?.path_position}
-                        </span>
-                        {iconUrl && (
-                          <img
-                            src={iconUrl}
-                            alt=""
-                            className="h-3 w-3 object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
-                          />
-                        )}
-                      </>
-                    )}
+                    <BoardCellView
+                      cell={cell}
+                      teams={[]}
+                      visible
+                      selected={isSelected}
+                      tooltipsEnabled={dragDraft === null}
+                    />
                   </div>
                 );
               }),
             )}
           </div>
           </BoardViewport>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -233,6 +226,7 @@ export function PathEditor({ event }: PathEditorProps): JSX.Element {
         <TilePicker
           selectedPathPosition={selectedCell?.path_position ?? null}
           currentTileId={selectedCell?.tile_id}
+          cells={event.cells}
           onAssign={assignTile}
         />
         {selectedCell?.path_position != null && (

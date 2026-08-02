@@ -15,6 +15,8 @@ interface BoardCellProps {
   visible: boolean;
   onCellClick?: (cell: BoardCellType) => void;
   rollingTeamIds?: Set<string>;
+  selected?: boolean;
+  tooltipsEnabled?: boolean;
 }
 
 export function BoardCell({
@@ -23,6 +25,8 @@ export function BoardCell({
   visible,
   onCellClick,
   rollingTeamIds,
+  selected = false,
+  tooltipsEnabled = true,
 }: BoardCellProps): JSX.Element {
   const isOnPath = cell?.path_position !== null && cell?.path_position !== undefined;
   const { source, iconUrl, title, description, requirement } = getCellPresentation(cell);
@@ -36,7 +40,7 @@ export function BoardCell({
     (mod) => !(source === "trap" && mod.type === "trap"),
   );
   const hasTileInfo = !!description || !!requirement;
-  const hasTooltip = !hidden && (hasTileInfo || teams.length > 0);
+  const hasTooltip = tooltipsEnabled && !hidden && (hasTileInfo || teams.length > 0);
 
   const cellEl = (
     <div
@@ -44,7 +48,9 @@ export function BoardCell({
       className={`relative w-full h-full flex flex-col items-center justify-center rounded-sm border transition-all ${
         onCellClick ? "cursor-pointer" : ""
       } ${
-        hidden
+        selected
+          ? "bg-primary/40 border-primary ring-2 ring-primary"
+          : hidden
           ? "bg-black/60 border-white/10"
           : "bg-card/80 border-white/20 hover:border-white/40"
       }`}

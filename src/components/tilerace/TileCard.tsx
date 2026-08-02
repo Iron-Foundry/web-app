@@ -8,10 +8,17 @@ interface TileCardProps {
   tile: RepositoryTile;
   compact?: boolean;
   selectable?: boolean;
+  trailing?: React.ReactNode;
   onSelect?: (tile: RepositoryTile) => void;
 }
 
-export function TileCard({ tile, compact = false, selectable = false, onSelect }: TileCardProps): JSX.Element {
+export function TileCard({
+  tile,
+  compact = false,
+  selectable = false,
+  trailing,
+  onSelect,
+}: TileCardProps): JSX.Element {
   const [detailOpen, setDetailOpen] = useState(false);
   const iconUrl = getEffectiveTileIcon(tile);
 
@@ -37,7 +44,7 @@ export function TileCard({ tile, compact = false, selectable = false, onSelect }
               <div className="h-8 w-8 bg-muted-foreground/20 rounded" />
             )}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{tile.title}</p>
             <p className="text-xs text-muted-foreground truncate">
               {tile.items.length > 0
@@ -45,6 +52,7 @@ export function TileCard({ tile, compact = false, selectable = false, onSelect }
                 : "Custom requirement"}
             </p>
           </div>
+          {trailing && <div className="shrink-0">{trailing}</div>}
         </button>
         {!selectable && (
           <TileDetail tile={tile} open={detailOpen} onOpenChange={setDetailOpen} />
