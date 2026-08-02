@@ -198,7 +198,9 @@ function TileRacePage(): JSX.Element {
               })}
             </div>
 
-            <RecentRollsPanel rolls={rolls} teams={event.teams} />
+            <div className="relative">
+              <RecentRollsPanel rolls={rolls} teams={event.teams} />
+            </div>
           </div>
         </>
       )}

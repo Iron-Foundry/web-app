@@ -10,6 +10,16 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.9.0] - 2026-08-02
+
+### Changed
+
+- The tile race Recent Rolls panel carries the event's full roll history in its
+  own scroll area. It fetched only the newest 25 rolls and grew the page as they
+  arrived; it now fetches every roll and, on large screens, matches the height of
+  the team-card column beside it, scrolling within that height (capped at 24rem
+  when the layout stacks).
+
 ## [1.8.0] - 2026-08-02
 
 ### Changed

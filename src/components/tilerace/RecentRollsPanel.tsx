@@ -12,15 +12,15 @@ export function RecentRollsPanel({ rolls, teams }: RecentRollsPanelProps): JSX.E
   const teamsById = new Map(teams.map((t) => [t.id, t]));
 
   return (
-    <Card>
-      <CardContent className="p-4 space-y-3">
-        <p className="font-rs-bold text-sm text-primary uppercase tracking-wide">
+    <Card className="lg:absolute lg:inset-0 overflow-hidden">
+      <CardContent className="p-4 space-y-3 flex flex-col min-h-0 flex-1">
+        <p className="font-rs-bold text-sm text-primary uppercase tracking-wide shrink-0">
           Recent Rolls
         </p>
         {rolls.length === 0 ? (
           <p className="text-xs text-muted-foreground">No rolls yet.</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-border overflow-y-auto min-h-0 flex-1 pr-1 max-h-[24rem] lg:max-h-none">
             {rolls.map((roll) => {
               const team = teamsById.get(roll.team_id);
               return (

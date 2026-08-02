@@ -158,8 +158,10 @@ export const tileraceApi = {
       method: "PATCH",
       body: JSON.stringify({ enabled }),
     }),
-  listRolls: (eventId: string, limit = 25) =>
-    apiFetch<TileRaceRoll[]>(`/tilerace/events/${eventId}/rolls?limit=${limit}`),
+  listRolls: (eventId: string, limit?: number) =>
+    apiFetch<TileRaceRoll[]>(
+      `/tilerace/events/${eventId}/rolls${limit ? `?limit=${limit}` : ""}`,
+    ),
 
   // Admin - Discord provisioning
   setupDiscord: (eventId: string) =>

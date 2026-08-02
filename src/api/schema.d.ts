@@ -4826,7 +4826,7 @@ export interface paths {
         };
         /**
          * List Rolls
-         * @description List an event's dice rolls, newest first.
+         * @description List an event's dice rolls, newest first. Omit `limit` for full history.
          */
         get: operations["list_rolls_tilerace_events__event_id__rolls_get"];
         put?: never;
@@ -19156,7 +19156,7 @@ export interface operations {
     list_rolls_tilerace_events__event_id__rolls_get: {
         parameters: {
             query?: {
-                limit?: number;
+                limit?: number | null;
             };
             header?: never;
             path: {
