@@ -1321,6 +1321,11 @@ export interface paths {
         /**
          * Set Service Toggle
          * @description Enable or disable a background service. Persists to DB and applies at runtime.
+         *
+         *     Published rather than applied in place: gunicorn runs several workers, each
+         *     holding its own service registry, so a toggle applied here would reach one
+         *     of them. `ToggleDispatchService` in every worker - including this one - acts
+         *     on the publish.
          */
         put: operations["set_service_toggle_config_services_toggles__service_key__put"];
         post?: never;
