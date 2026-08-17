@@ -101,6 +101,7 @@ export const queryKeys = {
     active: () => ["tilerace", "active"] as const,
     event: (id: string) => ["tilerace", "event", id] as const,
     events: () => ["tilerace", "events"] as const,
+    recap: (eventId: string) => ["tilerace", "recap", eventId] as const,
     tiles: (params?: string) => ["tilerace", "tiles", params ?? ""] as const,
     tile: (id: string) => ["tilerace", "tile", id] as const,
     completions: (eventId: string) => ["tilerace", "completions", eventId] as const,

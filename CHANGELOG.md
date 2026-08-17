@@ -10,6 +10,28 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.10.0] - 2026-08-18
+
+### Added
+
+- The tile race page shows an event recap once the event has ended. When nothing
+  else is running or scheduled the recap takes the place of the board: the
+  winner, five event totals, a stepped chart of every team's position over time,
+  cumulative approved proofs, submissions per day by verdict, final standings,
+  top contributors and the rosters as they stood at close. Racers removed during
+  the event are excluded from every per-racer and per-team proof count, and the
+  contributor panel says how many were dropped.
+- While another event is running or scheduled, the finished board stays and the
+  recap folds away behind a "Show recap" button, with the next event named in
+  the header.
+
+### Fixed
+
+- A finished tile race no longer shows "Ends today" forever, no longer polls for
+  new rolls every three seconds, and no longer plays the roll animation for
+  rolls it loads. The countdown badge is computed from `ends_at` with no upper
+  bound on the past, so any past end date read as ending now.
+
 ## [1.9.0] - 2026-08-02
 
 ### Changed

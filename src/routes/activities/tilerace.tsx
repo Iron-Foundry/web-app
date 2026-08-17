@@ -13,6 +13,7 @@ import {
   useSignUp,
   useChangeSignup,
   useCancelSignup,
+  useTileraceRecap,
 } from "@/hooks/useTilerace";
 import { useRollAnimations } from "@/hooks/useRollAnimations";
 import { useBoardRedraw } from "@/hooks/useBoardRedraw";
@@ -22,6 +23,8 @@ import { BoardProgressBar } from "@/components/tilerace/BoardProgressBar";
 import { TeamCard } from "@/components/tilerace/TeamCard";
 import { DiceRoller } from "@/components/tilerace/DiceRoller";
 import { RecentRollsPanel } from "@/components/tilerace/RecentRollsPanel";
+import { EventRecap } from "@/components/tilerace/recap/EventRecap";
+import { CollapsedRecap } from "@/components/tilerace/recap/CollapsedRecap";
 import { SignupPanel } from "@/components/events/SignupPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,15 +59,24 @@ function TileRacePage(): JSX.Element {
     enabled: !!user,
     staleTime: 1000 * 60 * 5,
   });
+  const ended =
+    !!event &&
+    (event.is_finished ||
+      (!!event.ends_at && new Date(event.ends_at).getTime() < Date.now()));
+  const { data: recap } = useTileraceRecap(ended && event ? event.id : "");
+  const nextScheduled = !!recap?.next_event;
+  const fullRecap = ended && !!recap && !nextScheduled;
+  const showBoard = !fullRecap;
+
   const { data: completions = [] } = useCompletions(user && event ? event.id : "");
-  const { data: rolls = [] } = useRecentRolls(event ? event.id : "");
-  const rollingTeamIds = useRollAnimations(rolls);
-  useBoardRedraw(event ? event.id : "", rolls);
+  const { data: rolls = [] } = useRecentRolls(event ? event.id : "", !ended);
+  const rollingTeamIds = useRollAnimations(ended ? [] : rolls);
+  useBoardRedraw(event && !ended ? event.id : "", rolls);
 
   const canManage = hasPermission("tilerace", "edit", effectiveRoles);
 
   const daysLeft =
-    event?.ends_at
+    !ended && event?.ends_at
       ? Math.max(0, Math.ceil((new Date(event.ends_at).getTime() - Date.now()) / 86_400_000))
       : null;
 
@@ -80,7 +92,7 @@ function TileRacePage(): JSX.Element {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-              Active Event
+              {ended ? "Concluded Event" : "Active Event"}
             </p>
             <h1 className="font-rs-bold text-4xl text-primary">
               {event?.name ?? "Tile Race"}
@@ -95,8 +107,17 @@ function TileRacePage(): JSX.Element {
           </div>
 
           <div className="flex flex-col items-end gap-2">
-            {event?.rolls_paused && !event.is_finished && (
+            {event?.rolls_paused && !ended && (
               <Badge variant="destructive">Rolls paused</Badge>
+            )}
+            {recap?.next_event && (
+              <Badge variant="secondary">
+                {recap.next_event.is_active ? "Now running" : "Next"}:{" "}
+                {recap.next_event.name}
+                {recap.next_event.starts_at
+                  ? `, ${formatTileRaceDate(recap.next_event.starts_at)}`
+                  : ""}
+              </Badge>
             )}
             {daysLeft !== null && (
               <Badge variant={daysLeft <= 3 ? "destructive" : "secondary"}>
@@ -140,7 +161,7 @@ function TileRacePage(): JSX.Element {
         </p>
       )}
 
-      {event?.is_finished && (
+      {event?.is_finished && !fullRecap && (
         <div className="rounded-xl border border-primary/50 bg-primary/10 p-4 text-center">
           <p className="font-rs-bold text-2xl text-primary">Game Over</p>
           <p className="text-sm text-muted-foreground">
@@ -154,7 +175,7 @@ function TileRacePage(): JSX.Element {
         </div>
       )}
 
-      {event && (
+      {event && showBoard && (
         <>
           <BoardProgressBar event={event} />
 
@@ -204,6 +225,10 @@ function TileRacePage(): JSX.Element {
           </div>
         </>
       )}
+
+      {fullRecap && recap && <EventRecap recap={recap} />}
+
+      {ended && recap && nextScheduled && <CollapsedRecap recap={recap} />}
     </div>
   );
 }

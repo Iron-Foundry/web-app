@@ -4817,6 +4817,31 @@ export interface paths {
         patch: operations["set_fog_of_war_tilerace_events__event_id__fog_of_war_patch"];
         trace?: never;
     };
+    "/tilerace/events/{event_id}/recap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Event Recap
+         * @description Return a finished event's graphs, standings and contributors.
+         *
+         *     Public, and aggregated to match: only counts and time series leave the API,
+         *     never a proof URL, a review note or a Discord id. Racers removed from the
+         *     roster during the event are dropped from every submission count, and how
+         *     many were dropped rides along as `totals.removed_racers`.
+         */
+        get: operations["get_event_recap_tilerace_events__event_id__recap_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tilerace/events/{event_id}/rolls": {
         parameters: {
             query?: never;
@@ -19130,6 +19155,39 @@ export interface operations {
                 "application/json": components["schemas"]["FogBody"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_event_recap_tilerace_events__event_id__recap_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

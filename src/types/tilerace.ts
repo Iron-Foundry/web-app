@@ -284,6 +284,85 @@ export interface TileRaceSubmissionPage {
   submissions: TileRaceSubmission[];
 }
 
+/**
+ * The recap of a finished event.
+ *
+ * Aggregated server-side: only counts and time series arrive, never a proof
+ * URL, a review note or a Discord id. Racers removed from the roster during the
+ * event are already dropped from every submission count.
+ */
+export interface TileRaceRecap {
+  event: TileRaceRecapEvent;
+  next_event: TileRaceNextEvent | null;
+  totals: TileRaceRecapTotals;
+  teams: TileRaceRecapTeam[];
+}
+
+export interface TileRaceRecapEvent
+  extends Omit<TileRacePublicSummary, "background_asset_id"> {
+  path_length: number;
+}
+
+/** The event that takes over from this one, running or still to start. */
+export interface TileRaceNextEvent {
+  id: string;
+  name: string;
+  is_active: boolean;
+  starts_at: string | null;
+}
+
+export interface TileRaceRecapTotals {
+  teams: number;
+  racers: number;
+  removed_racers: number;
+  tiles_cleared: number;
+  rolls: number;
+  submitted: number;
+  approved: number;
+  rejected: number;
+  unreviewed: number;
+}
+
+export interface TileRaceRecapTeam {
+  id: string;
+  name: string;
+  slug: string;
+  icon_type: "npc" | "item";
+  icon_url: string;
+  color: string;
+  position: number;
+  furthest_position: number;
+  tiles_cleared: number;
+  rolls: number;
+  submitted: number;
+  approved: number;
+  rejected: number;
+  unreviewed: number;
+  roster: TileRaceRecapRacer[];
+  position_series: TileRaceRecapPoint[];
+  submission_series: TileRaceRecapDay[];
+}
+
+export interface TileRaceRecapRacer {
+  rsn: string;
+  is_captain: boolean;
+  approved: number;
+  rejected: number;
+  tiles_proved: number;
+}
+
+export interface TileRaceRecapPoint {
+  at: string;
+  position: number;
+}
+
+export interface TileRaceRecapDay {
+  day: string;
+  approved: number;
+  rejected: number;
+  unreviewed: number;
+}
+
 export interface TileRaceTeamCreate {
   name: string;
   slug: string;

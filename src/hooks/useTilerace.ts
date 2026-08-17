@@ -36,6 +36,15 @@ export function useTileraceEvent(id: string) {
   });
 }
 
+export function useTileraceRecap(eventId: string) {
+  return useQuery({
+    queryKey: queryKeys.tilerace.recap(eventId),
+    queryFn: () => tileraceApi.getRecap(eventId),
+    staleTime: STALE_5M,
+    enabled: !!eventId,
+  });
+}
+
 interface SignupVars {
   eventId: string;
   accountId: number;
@@ -357,12 +366,12 @@ export function useRollDice() {
 
 const ROLLS_POLL_MS = 3000;
 
-export function useRecentRolls(eventId: string) {
+export function useRecentRolls(eventId: string, live = true) {
   return useQuery({
     queryKey: queryKeys.tilerace.rolls(eventId),
     queryFn: () => tileraceApi.listRolls(eventId),
-    staleTime: 0,
-    refetchInterval: ROLLS_POLL_MS,
+    staleTime: live ? 0 : STALE_5M,
+    refetchInterval: live ? ROLLS_POLL_MS : false,
     enabled: !!eventId,
   });
 }

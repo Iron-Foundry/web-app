@@ -14,6 +14,7 @@ import type {
   TileRaceEventPatch,
   TileRaceEventSummary,
   TileRacePublicEvent,
+  TileRaceRecap,
   TileRaceDiscordPermissions,
   TileRaceLinkedAccount,
   TileRaceRoll,
@@ -27,6 +28,7 @@ export const tileraceApi = {
   // Public
   getActiveEvent: () => apiFetch<TileRacePublicEvent>("/tilerace/active"),
   getEvent: (id: string) => apiFetch<TileRaceEvent>(`/tilerace/events/${id}`),
+  getRecap: (id: string) => apiFetch<TileRaceRecap>(`/tilerace/events/${id}/recap`),
   signUp: (eventId: string, accountId: number, wantsCaptain: boolean) =>
     apiFetch<{ ok: boolean }>(`/tilerace/events/${eventId}/signup`, {
       method: "POST",
