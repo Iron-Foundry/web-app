@@ -14,7 +14,7 @@ function buildStats(totals: TileRaceRecapTotals): Stat[] {
     {
       key: "Teams",
       value: `${totals.teams}`,
-      note: `${totals.racers} racers at close`,
+      note: `${totals.participants} participants at close`,
     },
     {
       key: "Tiles cleared",
@@ -22,7 +22,7 @@ function buildStats(totals: TileRaceRecapTotals): Stat[] {
       note: "claimed or approved",
     },
     {
-      key: "Proofs approved",
+      key: "Tiles approved",
       value: `${totals.approved}`,
       note: `of ${totals.submitted} submitted`,
     },

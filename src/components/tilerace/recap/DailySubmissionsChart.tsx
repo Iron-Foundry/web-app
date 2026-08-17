@@ -29,12 +29,12 @@ export function DailySubmissionsChart({ teams }: Props): JSX.Element {
 
   return (
     <RecapCard
-      title="Submissions per day"
-      description="Every proof filed that day, by the verdict it ended on."
+      title="Tiles submitted per day"
+      description="Every tile submitted that day, by the verdict it ended on."
     >
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">
-          No proofs were filed for this event.
+          No tiles were submitted for this event.
         </p>
       ) : (
         <ChartContainer config={{}} className="h-[240px] w-full">

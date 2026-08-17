@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import {
   approvalRate,
   buildContributors,
-  buildCumulativeRows,
   buildDailyRows,
   buildPositionRows,
   formatRecapDay,
@@ -66,25 +65,6 @@ describe("buildPositionRows", () => {
   });
 });
 
-describe("buildCumulativeRows", () => {
-  test("approved proofs accumulate across the days a team filed on", () => {
-    const rows = buildCumulativeRows([REDS, BLUES]);
-
-    expect(rows.map((r) => r["iron-kings"])).toEqual([2, 2, 5]);
-    expect(rows.map((r) => r["blue-vipers"])).toEqual([0, 1, 1]);
-  });
-
-  test("rejected and unreviewed proofs never move the line", () => {
-    const rows = buildCumulativeRows([
-      team({
-        submission_series: [{ day: "2026-07-02", approved: 0, rejected: 4, unreviewed: 2 }],
-      }),
-    ]);
-
-    expect(rows[0]?.["iron-kings"]).toBe(0);
-  });
-});
-
 describe("buildDailyRows", () => {
   test("every team's verdicts sum into one row per day, oldest first", () => {
     expect(buildDailyRows([REDS, BLUES])).toEqual([
@@ -99,12 +79,12 @@ describe("buildContributors", () => {
   const ROSTERED = team({
     approved: 10,
     roster: [
-      { rsn: "Kaelith", is_captain: false, approved: 3, rejected: 1, tiles_proved: 3 },
-      { rsn: "Zezima", is_captain: true, approved: 7, rejected: 0, tiles_proved: 5 },
+      { rsn: "Kaelith", is_captain: false, approved: 3, rejected: 1, tiles_proven: 3 },
+      { rsn: "Zezima", is_captain: true, approved: 7, rejected: 0, tiles_proven: 5 },
     ],
   });
 
-  test("best first, with each racer's share of their own team", () => {
+  test("best first, with each participant's share of their own team", () => {
     const [first, second] = buildContributors([ROSTERED]);
 
     expect(first?.rsn).toBe("Zezima");
@@ -113,12 +93,12 @@ describe("buildContributors", () => {
     expect(second?.share).toBe(30);
   });
 
-  test("a team with no approved proofs gives everyone a zero share", () => {
+  test("a team with no approved tiles gives everyone a zero share", () => {
     const rows = buildContributors([
       team({
         approved: 0,
         roster: [
-          { rsn: "Vex", is_captain: false, approved: 0, rejected: 2, tiles_proved: 0 },
+          { rsn: "Vex", is_captain: false, approved: 0, rejected: 2, tiles_proven: 0 },
         ],
       }),
     ]);
@@ -128,7 +108,7 @@ describe("buildContributors", () => {
 });
 
 describe("approvalRate", () => {
-  test("counts only reviewed proofs", () => {
+  test("counts only reviewed tiles", () => {
     expect(approvalRate(team({ approved: 3, rejected: 1, unreviewed: 6 }))).toBe(75);
   });
 

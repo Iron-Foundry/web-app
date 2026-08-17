@@ -288,8 +288,8 @@ export interface TileRaceSubmissionPage {
  * The recap of a finished event.
  *
  * Aggregated server-side: only counts and time series arrive, never a proof
- * URL, a review note or a Discord id. Racers removed from the roster during the
- * event are already dropped from every submission count.
+ * URL, a review note or a Discord id. Participants removed from the roster
+ * during the event are already dropped from every submission count.
  */
 export interface TileRaceRecap {
   event: TileRaceRecapEvent;
@@ -313,8 +313,8 @@ export interface TileRaceNextEvent {
 
 export interface TileRaceRecapTotals {
   teams: number;
-  racers: number;
-  removed_racers: number;
+  participants: number;
+  removed_participants: number;
   tiles_cleared: number;
   rolls: number;
   submitted: number;
@@ -338,17 +338,17 @@ export interface TileRaceRecapTeam {
   approved: number;
   rejected: number;
   unreviewed: number;
-  roster: TileRaceRecapRacer[];
+  roster: TileRaceRecapParticipant[];
   position_series: TileRaceRecapPoint[];
   submission_series: TileRaceRecapDay[];
 }
 
-export interface TileRaceRecapRacer {
+export interface TileRaceRecapParticipant {
   rsn: string;
   is_captain: boolean;
   approved: number;
   rejected: number;
-  tiles_proved: number;
+  tiles_proven: number;
 }
 
 export interface TileRaceRecapPoint {

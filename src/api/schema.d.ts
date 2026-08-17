@@ -4839,9 +4839,9 @@ export interface paths {
          * @description Return a finished event's graphs, standings and contributors.
          *
          *     Public, and aggregated to match: only counts and time series leave the API,
-         *     never a proof URL, a review note or a Discord id. Racers removed from the
-         *     roster during the event are dropped from every submission count, and how
-         *     many were dropped rides along as `totals.removed_racers`.
+         *     never a proof URL, a review note or a Discord id. Participants removed from
+         *     the roster during the event are dropped from every submission count, and how
+         *     many were dropped rides along as `totals.removed_participants`.
          */
         get: operations["get_event_recap_tilerace_events__event_id__recap_get"];
         put?: never;

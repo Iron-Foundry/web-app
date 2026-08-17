@@ -13,27 +13,31 @@ import type { TileRaceRecapTeam } from "@/types/tilerace";
 
 interface Props {
   teams: TileRaceRecapTeam[];
-  removedRacers: number;
+  removedParticipants: number;
 }
 
-export function ContributorsTable({ teams, removedRacers }: Props): JSX.Element {
+export function ContributorsTable({
+  teams,
+  removedParticipants,
+}: Props): JSX.Element {
   const contributors = buildContributors(teams);
 
   return (
     <RecapCard
       title="Top contributors"
-      description="Approved proofs per racer. Racers removed during the event are excluded."
+      description="Approved tiles per participant. Participants removed during the event are excluded."
       action={
-        removedRacers > 0 ? (
+        removedParticipants > 0 ? (
           <Badge variant="secondary">
-            {removedRacers} removed {removedRacers === 1 ? "racer" : "racers"} excluded
+            {removedParticipants} removed{" "}
+            {removedParticipants === 1 ? "participant" : "participants"} excluded
           </Badge>
         ) : undefined
       }
     >
       {contributors.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">
-          No racers were on a team when this event closed.
+          No participants were on a team when this event closed.
         </p>
       ) : (
         <div className="overflow-x-auto">
@@ -41,17 +45,17 @@ export function ContributorsTable({ teams, removedRacers }: Props): JSX.Element 
             <TableHeader>
               <TableRow>
                 <TableHead className="w-8">#</TableHead>
-                <TableHead>Racer</TableHead>
+                <TableHead>Participant</TableHead>
                 <TableHead>Team</TableHead>
                 <TableHead className="text-right">Approved</TableHead>
                 <TableHead className="text-right">Rejected</TableHead>
-                <TableHead className="text-right">Tiles proved</TableHead>
+                <TableHead className="text-right">Tiles proven</TableHead>
                 <TableHead className="w-32">Share of team</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contributors.map((racer, index) => (
-                <TableRow key={`${racer.team.id}-${racer.rsn}`}>
+              {contributors.map((participant, index) => (
+                <TableRow key={`${participant.team.id}-${participant.rsn}`}>
                   <TableCell
                     className={index === 0 ? "font-bold text-primary" : undefined}
                   >
@@ -59,8 +63,8 @@ export function ContributorsTable({ teams, removedRacers }: Props): JSX.Element 
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 font-medium">
-                      {racer.rsn}
-                      {racer.is_captain && (
+                      {participant.rsn}
+                      {participant.is_captain && (
                         <Badge variant="outline" className="text-[0.6rem]">
                           captain
                         </Badge>
@@ -71,29 +75,32 @@ export function ContributorsTable({ teams, removedRacers }: Props): JSX.Element 
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <span
                         className="h-2.5 w-2.5 rounded-sm shrink-0"
-                        style={{ background: racer.team.color }}
+                        style={{ background: participant.team.color }}
                       />
-                      {racer.team.name}
+                      {participant.team.name}
                     </div>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {racer.approved}
+                    {participant.approved}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {racer.rejected}
+                    {participant.rejected}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {racer.tiles_proved}
+                    {participant.tiles_proven}
                   </TableCell>
                   <TableCell>
                     <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                       <span
                         className="block h-full rounded-full"
-                        style={{ width: `${racer.share}%`, background: racer.team.color }}
+                        style={{
+                          width: `${participant.share}%`,
+                          background: participant.team.color,
+                        }}
                       />
                     </div>
                     <span className="text-[0.65rem] text-muted-foreground">
-                      {racer.share}%
+                      {participant.share}%
                     </span>
                   </TableCell>
                 </TableRow>

@@ -33,7 +33,7 @@ export function StandingsTable({ teams }: Props): JSX.Element {
               <TableHead className="text-right">Rejected</TableHead>
               <TableHead className="w-28">Approval</TableHead>
               <TableHead className="text-right">Rolls</TableHead>
-              <TableHead className="text-right">Racers</TableHead>
+              <TableHead className="text-right">Participants</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

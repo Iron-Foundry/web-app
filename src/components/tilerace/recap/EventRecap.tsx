@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { RecapStats } from "./RecapStats";
 import { PositionChart } from "./PositionChart";
-import { CumulativeChart } from "./CumulativeChart";
 import { DailySubmissionsChart } from "./DailySubmissionsChart";
 import { StandingsTable } from "./StandingsTable";
 import { ContributorsTable } from "./ContributorsTable";
@@ -37,7 +36,7 @@ function Outcome({
             ? `Reached tile ${team.position}`
             : `No team reached the finish. Led at tile ${team.position}`}
           <br />
-          {team.approved} proofs approved &middot; {team.tiles_cleared} tiles cleared
+          {team.approved} tiles approved &middot; {team.tiles_cleared} tiles cleared
         </p>
       </div>
     </Card>
@@ -57,12 +56,12 @@ export function EventRecap({ recap }: Props): JSX.Element {
       <Outcome winner={winner} leader={teams[0] ?? null} />
       <RecapStats totals={totals} />
       <PositionChart teams={teams} pathLength={event.path_length} />
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <CumulativeChart teams={teams} />
-        <DailySubmissionsChart teams={teams} />
-      </div>
+      <DailySubmissionsChart teams={teams} />
       <StandingsTable teams={teams} />
-      <ContributorsTable teams={teams} removedRacers={totals.removed_racers} />
+      <ContributorsTable
+        teams={teams}
+        removedParticipants={totals.removed_participants}
+      />
       <RosterGrid teams={teams} />
     </div>
   );

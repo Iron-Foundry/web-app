@@ -26,15 +26,17 @@ export function RosterGrid({ teams }: Props): JSX.Element {
               </span>
             </div>
             {team.roster.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No racers on the roster.</p>
+              <p className="text-xs text-muted-foreground">
+                No participants on the roster.
+              </p>
             ) : (
-              team.roster.map((racer) => (
+              team.roster.map((participant) => (
                 <div
-                  key={racer.rsn}
+                  key={participant.rsn}
                   className="flex items-center gap-2 text-sm py-0.5"
                 >
-                  {racer.rsn}
-                  {racer.is_captain && (
+                  {participant.rsn}
+                  {participant.is_captain && (
                     <Badge variant="outline" className="ml-auto text-[0.6rem]">
                       captain
                     </Badge>

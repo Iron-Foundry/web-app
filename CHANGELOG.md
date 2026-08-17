@@ -10,6 +10,19 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.12.0] - 2026-08-18
+
+### Removed
+
+- The recap's "Approved proofs, cumulative" chart. The tiles-per-day chart
+  beside it carried the same story, and now runs full width.
+
+### Changed
+
+- The recap calls a submitted requirement a tile, not a proof: "Tiles approved",
+  "Tiles submitted per day", "Approved tiles per participant". People on a team
+  are participants, not racers, and a participant's count is "Tiles proven".
+
 ## [1.11.1] - 2026-08-18
 
 ### Fixed
