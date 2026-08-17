@@ -61,7 +61,8 @@ function TileRacePage(): JSX.Element {
   });
   const ended =
     !!event &&
-    (event.is_finished ||
+    (!event.is_active ||
+      event.is_finished ||
       (!!event.ends_at && new Date(event.ends_at).getTime() < Date.now()));
   const { data: recap } = useTileraceRecap(ended && event ? event.id : "");
   const nextScheduled = !!recap?.next_event;

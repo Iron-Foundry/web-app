@@ -10,6 +10,16 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.11.1] - 2026-08-18
+
+### Fixed
+
+- A stopped tile race shows its recap. The page only counted an event as over
+  when it was flagged finished or its end date had passed, so an event that was
+  simply stopped kept rendering the board. `/tilerace/active` returns the live
+  event whenever there is one, so `is_active: false` is now taken as the answer
+  rather than re-deriving it from the board state.
+
 ## [1.11.0] - 2026-08-18
 
 ### Added

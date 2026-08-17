@@ -4570,10 +4570,11 @@ export interface paths {
          *     ids and per-team effect state are withheld, and the roster is reduced to
          *     names. A signed-in caller also gets their own signup as `my_signup`.
          *
-         *     With nothing running this falls back to the most recently updated concluded
-         *     event - one a team finished, or one whose `ends_at` has passed - so the page
-         *     can show its recap. A merely deactivated event stays hidden, because
-         *     deactivating is how staff switch which event is live.
+         *     With nothing running this falls back to the most recently updated event that
+         *     actually ran, so the page can show its recap. Stopping an event is enough:
+         *     the board state does not matter and neither does `is_finished`, which only a
+         *     finish pad sets. An event that was never rolled on stays hidden, so a draft
+         *     never takes the page.
          */
         get: operations["get_active_event_tilerace_active_get"];
         put?: never;
@@ -4688,6 +4689,10 @@ export interface paths {
         /**
          * Deactivate Event
          * @description Stop the running event without deleting its progress.
+         *
+         *     The public page falls back to this event's recap, so stopping is how an
+         *     event ends whatever the board looks like. `updated_at` moves so the event
+         *     just stopped is the one that fallback picks.
          */
         post: operations["deactivate_event_tilerace_events__event_id__deactivate_post"];
         delete?: never;

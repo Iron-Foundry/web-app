@@ -19,12 +19,11 @@ interface Props {
 }
 
 /**
- * End the event by hand, or reopen it.
+ * Lock rolls and record who won, or reopen the event.
  *
- * A finish pad only ends the game when its `ends_game` trigger is on, so an
- * event raced to a pad that does not end it has no other way to conclude -
- * deactivating hides it, which is how staff switch which event is live, not how
- * they finish one.
+ * Stopping the event is what puts the recap on the public page; this is how the
+ * winner gets credited, which a finish pad can only do when its `ends_game`
+ * trigger is on - and even then it credits whoever stepped on it first.
  */
 export function EndEventCard({ event }: Props): JSX.Element {
   const { mutate: patchEvent, isPending } = usePatchTileraceEvent();
@@ -60,9 +59,10 @@ export function EndEventCard({ event }: Props): JSX.Element {
       <CardContent className="p-4 space-y-3">
         <p className="text-sm font-semibold">End the event</p>
         <p className="text-xs text-muted-foreground">
-          Locks rolls for every team and swaps the public page over to the recap.
-          A finish pad does this on its own only when it is set to end the game;
-          end it here otherwise. Teams are listed by board position.
+          Locks rolls for every team and credits the winner on the recap.
+          Stopping the event already shows the recap, so use this when you want
+          the win recorded or rolling closed for good. Teams are listed by board
+          position.
         </p>
         <div className="flex gap-2 flex-wrap">
           <Select value={winnerId} onValueChange={setWinnerId}>
