@@ -4569,6 +4569,11 @@ export interface paths {
          *     Public, and masked to match: fogged cells carry grid geometry only, Discord
          *     ids and per-team effect state are withheld, and the roster is reduced to
          *     names. A signed-in caller also gets their own signup as `my_signup`.
+         *
+         *     With nothing running this falls back to the most recently updated concluded
+         *     event - one a team finished, or one whose `ends_at` has passed - so the page
+         *     can show its recap. A merely deactivated event stays hidden, because
+         *     deactivating is how staff switch which event is live.
          */
         get: operations["get_active_event_tilerace_active_get"];
         put?: never;
@@ -7574,6 +7579,8 @@ export interface components {
             starts_at?: string | null;
             /** Team Size */
             team_size?: number | null;
+            /** Winner Team Id */
+            winner_team_id?: number | null;
         };
         /** TeamBody */
         app__routers__tilerace__schemas__TeamBody: {

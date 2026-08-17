@@ -10,6 +10,7 @@ import { CompletionsPanel } from "./CompletionsPanel";
 import { DiceSettingsCard } from "./DiceSettingsCard";
 import { DiscordCard } from "./DiscordCard";
 import { DiscordPermissionsCard } from "./DiscordPermissionsCard";
+import { EndEventCard } from "./EndEventCard";
 import { SubmissionsPanel } from "./SubmissionsPanel";
 import { TeamPositions } from "./TeamPositions";
 
@@ -96,23 +97,7 @@ export function ControlsTab({ eventId }: ControlsTabProps): JSX.Element {
 
       <DiscordPermissionsCard event={event} />
 
-      {event.is_finished && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <p className="text-sm font-semibold">Game Over</p>
-            <p className="text-xs text-muted-foreground">
-              A team reached the finish pad, so rolls are locked. Reset to reopen rolling.
-            </p>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => patchEvent({ id: eventId, data: { is_finished: false } })}
-            >
-              Reset Game
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      <EndEventCard event={event} />
 
       <SubmissionsPanel event={event} />
 

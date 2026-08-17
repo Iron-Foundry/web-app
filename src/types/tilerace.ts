@@ -393,6 +393,7 @@ export interface TileRaceEventPatch {
   background_url?: string | null;
   fog_of_war?: boolean;
   is_finished?: boolean;
+  winner_team_id?: number | null;
   rolls_paused?: boolean;
   signups_open?: boolean;
   starts_at?: string | null;

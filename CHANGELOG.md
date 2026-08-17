@@ -10,6 +10,18 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [1.11.0] - 2026-08-18
+
+### Added
+
+- The tile race Controls tab has an "End the event" card: pick the winning team
+  from a list ordered by board position, or no winner, and end it. Rolls lock
+  and the public page swaps to the recap. Until now the only thing that could
+  end an event was a finish pad with its `ends_game` trigger on; the stop button
+  in the events list deactivates the event, which hides it rather than
+  concluding it. The card takes over the old Game Over panel and still offers
+  Reset Game once the event is finished, now naming the recorded winner.
+
 ## [1.10.0] - 2026-08-18
 
 ### Added
