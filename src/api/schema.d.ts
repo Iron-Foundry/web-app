@@ -5331,6 +5331,10 @@ export interface paths {
         /**
          * Search Osrs Npcs
          * @description Search OSRS NPC names for the tile editor. Needs at least two characters.
+         *
+         *     Names and ids come from our own cache; the wiki supplies only the artwork,
+         *     which the cache cannot render. An NPC with no wiki image still comes back,
+         *     with `icon_url` empty.
          */
         get: operations["search_osrs_npcs_tilerace_osrs_npcs_get"];
         put?: never;
