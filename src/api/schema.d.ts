@@ -2408,26 +2408,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ironclad/sanitize/deaths": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Receive Death
-         * @description Receive, validate, and forward a Dink death notification for Ironclad.
-         */
-        post: operations["receive_death_ironclad_sanitize_deaths_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/members/goals/{token}": {
         parameters: {
             query?: never;
@@ -13270,24 +13250,6 @@ export interface operations {
                         [key: string]: unknown;
                     };
                 };
-            };
-        };
-    };
-    receive_death_ironclad_sanitize_deaths_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
