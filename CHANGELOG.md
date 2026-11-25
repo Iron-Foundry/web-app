@@ -10,6 +10,22 @@ A MAJOR bump is the maintainer's call and is never made automatically. The bump
 happens once, when the accumulated work is about to be pushed - not per
 component. Entries land under Unreleased until then.
 
+## [Unreleased]
+
+### Changed
+
+- The PVM Frenzy event page shows the teams in one standings table, with a column per tier. The points charts sit on the page under it, not in a sheet.
+- The PVM Frenzy team page shows all tiers, activities, milestones, multipliers and charts on one page, with a section rail.
+- A frenzy source card shows its image, a yellow item at the base count and a green item with its duplicate. Its title turns yellow and green by the same rule. The (i) button shows the kill rate and the chance and hours a drop of each item.
+- The staff template editor is a workspace: tiers and cards on the left, the picked card in the middle, and the template fields, budgets and actions on the right.
+- The version history shows both sides of each change.
+
+### Added
+
+- A frenzy card can be a typed group, such as Slayer or Miscellaneous, that holds items from several sources.
+- A frenzy item takes its drop chance and kill rate from a picked OSRSClans loot rate row. A row with no kill rate leaves KPH to set by hand.
+- A frenzy card takes its image from an OSRSClans NPC, an OSRSClans sprite or one of its items. With no image, it shows its item images.
+
 ## [1.12.0] - 2026-08-18
 
 ### Removed

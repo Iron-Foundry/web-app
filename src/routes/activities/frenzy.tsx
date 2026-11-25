@@ -6,9 +6,9 @@ import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useControlPanel } from "@/context/ControlPanelContext";
 import { useActiveEvent } from "@/hooks/useFrenzy";
-import { FrenzyOverview } from "@/components/frenzy/FrenzyOverview";
+import { FrenzyStandings } from "@/components/frenzy/FrenzyStandings";
+import { FrenzyEventCharts } from "@/components/frenzy/FrenzyEventCharts";
 import { FrenzyLeaderboard } from "@/components/frenzy/FrenzyLeaderboard";
-import { FrenzyEventChartsSheet } from "@/components/frenzy/FrenzyEventChartsSheet";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -72,15 +72,12 @@ function FrenzyPage() {
                 {daysLeft === 0 ? "Ends today" : `${daysLeft}d remaining`}
               </Badge>
             )}
-            <div className="flex items-center gap-2">
-              {activeEvent && <FrenzyEventChartsSheet eventName={activeEvent.name} />}
-              {canManage && (
-                <Button size="sm" variant="outline" onClick={() => openPanel("frenzy")}>
-                  <Settings className="h-4 w-4 mr-1.5" />
-                  Manage
-                </Button>
-              )}
-            </div>
+            {canManage && (
+              <Button size="sm" variant="outline" onClick={() => openPanel("frenzy")}>
+                <Settings className="h-4 w-4 mr-1.5" />
+                Manage
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -89,7 +86,8 @@ function FrenzyPage() {
       {!isLoading && !activeEvent && (
         <p className="text-sm text-muted-foreground">No active event right now. Check back later!</p>
       )}
-      {activeEvent && <FrenzyOverview event={activeEvent} />}
+      {activeEvent && <FrenzyStandings teams={activeEvent.teams} />}
+      {activeEvent && <FrenzyEventCharts />}
       <FrenzyLeaderboard />
     </div>
   );

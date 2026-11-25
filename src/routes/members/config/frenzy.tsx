@@ -49,7 +49,7 @@ export function StaffFrenzyPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl w-full space-y-6 py-6">
+    <div className={`mx-auto w-full space-y-6 py-6 ${tab === "templates" ? "max-w-7xl" : "max-w-4xl"}`}>
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">PVM Frenzy</h1>
         <p className="text-sm text-muted-foreground">Manage scoring templates and event instances.</p>

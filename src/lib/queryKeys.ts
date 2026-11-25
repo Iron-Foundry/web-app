@@ -117,6 +117,9 @@ export const queryKeys = {
     sources: (category: string) => ["reference", "sources", category] as const,
     source: (slug: string) => ["reference", "source", slug] as const,
     rates: (kind: string) => ["reference", "rates", kind] as const,
+    itemLootRates: (itemName: string) => ["reference", "loot-rates", "item", itemName] as const,
+    npcSearch: (q: string) => ["reference", "osrs", "npcs", q] as const,
+    spriteSearch: (q: string) => ["reference", "osrs", "sprites", q] as const,
   },
   frenzy: {
     active: () => ["frenzy", "active"] as const,

@@ -7,6 +7,12 @@ export interface FrenzyItem {
   drop_denom: number | null;
   kph: number | null;
   points_locked: boolean;
+  /** OSRSClans source key of the picked loot rate row, e.g. "Vorkath#Post-quest". */
+  rate_source?: string | null;
+  /** OSRSClans killRateSource of the picked row: wom, droptracker, clue_scroll, item_drop, superior, fixed. */
+  kill_rate_source?: string | null;
+  /** OSRSClans category of the picked row; "raid" means kph counts raids, not kills. */
+  rate_category?: string | null;
 }
 
 export interface FrenzySource {

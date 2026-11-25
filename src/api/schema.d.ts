@@ -3981,6 +3981,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reference/loot-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Loot Rates
+         * @description Return loot rates from OSRSClans: each item's chance from each drop source.
+         *
+         *     `item`, `source`, `page`, `category` and `wom_metric` keep one of each. `q`
+         *     keeps the rows whose item or source name holds the text. `level` sets the
+         *     level that a skilling pet or clue nest chance is computed at. `points` and
+         *     `raid_level` set the raid that `chance_per_raid` is computed at.
+         */
+        get: operations["list_loot_rates_reference_loot_rates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/loot-rates/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Loot Sources
+         * @description Return the drop sources from OSRSClans, with each source's kill rate.
+         *
+         *     `page`, `category` and `wom_metric` keep one of each. `q` keeps the sources
+         *     whose name, or the name of an item they drop, holds the text.
+         */
+        get: operations["list_loot_sources_reference_loot_rates_sources_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reference/loot/items/{item_id}": {
         parameters: {
             query?: never;
@@ -4033,6 +4081,46 @@ export interface paths {
          * @description Return one loot source with its full drop table.
          */
         get: operations["get_source_reference_loot_sources__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/osrs/npcs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Npcs
+         * @description Return the NPCs from OSRSClans whose name holds `q`, with each one's still.
+         */
+        get: operations["search_npcs_reference_osrs_npcs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/osrs/sprites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Sprites
+         * @description Return the interface sprites from OSRSClans whose name holds `q`.
+         */
+        get: operations["search_sprites_reference_osrs_sprites_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -6291,6 +6379,161 @@ export interface components {
             /** Url */
             url: string;
         };
+        /**
+         * LootLine
+         * @description One line of a Wiki drop table, with its rarity as the Wiki writes it.
+         *
+         *     `quantity_low` and `quantity_high` are the numbers of the `quantity` range,
+         *     null where the Wiki gives none. `group` is the heading of the drop table.
+         */
+        LootLine: {
+            /** Alt Rarity */
+            alt_rarity: string | null;
+            /** Approximate */
+            approximate: boolean;
+            /** Group */
+            group?: string | null;
+            /**
+             * Noted
+             * @default false
+             */
+            noted: boolean;
+            /** Quantity */
+            quantity: string;
+            /** Quantity High */
+            quantity_high?: number | null;
+            /** Quantity Low */
+            quantity_low?: number | null;
+            /** Rarity */
+            rarity: string;
+            /** Rolls */
+            rolls: number;
+        };
+        /**
+         * LootRate
+         * @description One item from one drop source, with the source's kill rate and the item's price.
+         *
+         *     `chance` is the chance of at least one drop per kill, and null where the Wiki
+         *     gives a word for the rarity. `per_purple` marks a raid unique whose chance is
+         *     per purple. `chance_per_raid` is that chance times the mean uniques a raid at
+         *     the asked `points` and `raid_level`. A null kill rate is unknown.
+         */
+        LootRate: {
+            /** Alt Chance */
+            alt_chance: number | null;
+            /** Category */
+            category: ("raid" | "boss" | "minigame" | "clue" | "skilling" | "monster") | null;
+            /** Chance */
+            chance: number | null;
+            /** Chance Per Raid */
+            chance_per_raid: number | null;
+            /** Drop Type */
+            drop_type: string;
+            /** Ge Price */
+            ge_price: number | null;
+            /** Group */
+            group: string | null;
+            /** High Alchemy */
+            high_alchemy: number | null;
+            /** Item Id */
+            item_id: number | null;
+            /** Item Name */
+            item_name: string;
+            /** Kill Rate Source */
+            kill_rate_source: ("wom" | "droptracker" | "clue_scroll" | "fixed" | "item_drop" | "superior") | null;
+            /** Kills Per Hour */
+            kills_per_hour: number | null;
+            /** Kills Per Hour Ironman */
+            kills_per_hour_ironman: number | null;
+            /** Lines */
+            lines: components["schemas"]["LootLine"][];
+            /** Page */
+            page: string;
+            /** Per Purple */
+            per_purple: boolean;
+            /**
+             * Read At
+             * Format: date-time
+             */
+            read_at: string;
+            /** Section */
+            section: string | null;
+            skill: components["schemas"]["LootSkill"] | null;
+            /** Source */
+            source: string;
+            /** Uniques Per Raid */
+            uniques_per_raid: number | null;
+            /** Wom Metric */
+            wom_metric: string | null;
+        };
+        /**
+         * LootRatePage
+         * @description One window of loot rates, with the count of all rows that match.
+         */
+        LootRatePage: {
+            /** Items */
+            items: components["schemas"]["LootRate"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * LootSkill
+         * @description The level that a skilling pet or clue nest chance is computed at.
+         */
+        LootSkill: {
+            /** Kind */
+            kind: string;
+            /** Level */
+            level: number | null;
+            /** Level Needed */
+            level_needed: number | null;
+        };
+        /**
+         * LootSource
+         * @description One drop source, with its kill rate and its count of loot rate rows.
+         *
+         *     `source` is the value that `/reference/loot-rates?source=` takes.
+         */
+        LootSource: {
+            /** Category */
+            category: ("raid" | "boss" | "minigame" | "clue" | "skilling" | "monster") | null;
+            /** Drop Types */
+            drop_types: string[];
+            /** Kill Rate Source */
+            kill_rate_source: ("wom" | "droptracker" | "clue_scroll" | "fixed" | "item_drop" | "superior") | null;
+            /** Kills Per Hour */
+            kills_per_hour: number | null;
+            /** Kills Per Hour Ironman */
+            kills_per_hour_ironman: number | null;
+            /** Page */
+            page: string;
+            /** Rows */
+            rows: number;
+            /** Section */
+            section: string | null;
+            /** Source */
+            source: string;
+            /** Wom Metric */
+            wom_metric: string | null;
+        };
+        /**
+         * LootSourcePage
+         * @description One window of drop sources, with the count of all sources that match.
+         */
+        LootSourcePage: {
+            /** Items */
+            items: components["schemas"]["LootSource"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
         /** MetricReportBody */
         MetricReportBody: {
             /**
@@ -6366,6 +6609,56 @@ export interface components {
              * @enum {string}
              */
             kind: "or";
+        };
+        /**
+         * OsrsNpc
+         * @description One NPC definition. Some ids have no still, and their image answers 404.
+         */
+        OsrsNpc: {
+            /** Combat Level */
+            combat_level?: number | null;
+            /** Id */
+            id: number;
+            /** Image Url */
+            readonly image_url: string;
+            /** Name */
+            name: string;
+        };
+        /** OsrsNpcPage */
+        OsrsNpcPage: {
+            /** Items */
+            items: components["schemas"]["OsrsNpc"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * OsrsSprite
+         * @description One sprite of the game interface, such as a skill icon.
+         */
+        OsrsSprite: {
+            /** Category */
+            category?: string | null;
+            /** Id */
+            id: number;
+            /** Image Url */
+            readonly image_url: string;
+            /** Name */
+            name: string;
+        };
+        /** OsrsSpritePage */
+        OsrsSpritePage: {
+            /** Items */
+            items: components["schemas"]["OsrsSprite"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
         };
         /** OverrideOptionsBody */
         OverrideOptionsBody: {
@@ -16979,6 +17272,119 @@ export interface operations {
             };
         };
     };
+    list_loot_rates_reference_loot_rates_get: {
+        parameters: {
+            query?: {
+                item?: number | null;
+                source?: string | null;
+                page?: string | null;
+                category?: ("raid" | "boss" | "minigame" | "clue" | "skilling" | "monster") | null;
+                wom_metric?: string | null;
+                q?: string | null;
+                level?: number | null;
+                points?: number | null;
+                raid_level?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LootRatePage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    list_loot_sources_reference_loot_rates_sources_get: {
+        parameters: {
+            query?: {
+                page?: string | null;
+                category?: ("raid" | "boss" | "minigame" | "clue" | "skilling" | "monster") | null;
+                wom_metric?: string | null;
+                q?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LootSourcePage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
     sources_for_item_reference_loot_items__item_id__get: {
         parameters: {
             query?: never;
@@ -17095,6 +17501,108 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_npcs_reference_osrs_npcs_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsrsNpcPage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    search_sprites_reference_osrs_sprites_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OsrsSpritePage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };

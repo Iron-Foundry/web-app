@@ -1,18 +1,16 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { TierEditor } from "./TierEditor";
+import { toast } from "sonner";
 import { ActivityEditor } from "./ActivityEditor";
+import { CardEditor } from "./CardEditor";
 import { MilestoneEditor } from "./MilestoneEditor";
 import { MultiplierEditor } from "./MultiplierEditor";
+import { TemplateSummary } from "./TemplateSummary";
+import { TemplateTree, type CardRef } from "./TemplateTree";
 import { FrenzyVersionHistoryDialog } from "../FrenzyVersionHistoryDialog";
 import { useCalculatePoints, useCreateTemplate, useUpdateTemplate } from "@/hooks/useFrenzy";
-import type { FrenzyTemplate, FrenzyTemplateUpdate } from "@/types/frenzy";
-import { History, RefreshCw, Save } from "lucide-react";
-import { toast } from "sonner";
+import type { FrenzySource, FrenzyTemplate, FrenzyTemplateUpdate } from "@/types/frenzy";
 
-const TABS = ["Tiers", "Activities", "Milestones", "Multipliers"] as const;
+const TABS = ["Items", "Activities", "Milestones", "Multipliers"] as const;
 type Tab = (typeof TABS)[number];
 
 interface Props {
@@ -21,188 +19,119 @@ interface Props {
   onCancel: () => void;
 }
 
-function emptyDraft(): FrenzyTemplateUpdate {
-  return {
-    name: "",
-    description: null,
-    tiers: {},
-    activities: [],
-    milestones: {},
-    multipliers: [],
-    total_point_cap: 0,
-  };
+function draftOf(template?: FrenzyTemplate): FrenzyTemplateUpdate {
+  if (!template) return { name: "", description: null, tiers: {}, activities: [], milestones: {}, multipliers: [], total_point_cap: 0 };
+  const { name, description, tiers, activities, milestones, multipliers, total_point_cap } = template;
+  return { name, description, tiers, activities, milestones, multipliers, total_point_cap };
 }
 
-export function TemplateEditor({ template, onSaved, onCancel }: Props) {
-  const [draft, setDraft] = useState<FrenzyTemplateUpdate>(
-    template
-      ? {
-          name: template.name,
-          description: template.description,
-          tiers: template.tiers,
-          activities: template.activities,
-          milestones: template.milestones,
-          multipliers: template.multipliers,
-          total_point_cap: template.total_point_cap,
-        }
-      : emptyDraft(),
-  );
-  const [activeTab, setActiveTab] = useState<Tab>("Tiers");
-  const [historyOpen, setHistoryOpen] = useState(false);
+function firstCard(tiers: FrenzyTemplateUpdate["tiers"]): CardRef | null {
+  const hit = Object.entries(tiers).find(([, t]) => t.sources.length > 0);
+  return hit ? { tier: hit[0], index: 0 } : null;
+}
 
+export function TemplateEditor({ template, onSaved, onCancel }: Props): React.ReactElement {
+  const [draft, setDraft] = useState<FrenzyTemplateUpdate>(() => draftOf(template));
+  const [tab, setTab] = useState<Tab>("Items");
+  const [selected, setSelected] = useState<CardRef | null>(() => firstCard(draft.tiers));
+  const [historyOpen, setHistoryOpen] = useState(false);
   const createTemplate = useCreateTemplate();
   const updateTemplate = useUpdateTemplate();
   const calculatePoints = useCalculatePoints();
 
-  const isPending = createTemplate.isPending || updateTemplate.isPending;
-  const tierBudgetSum = Object.values(draft.tiers).reduce((s, t) => s + (t.budget_pct ?? 0), 0);
-  const canRecalculate =
-    draft.total_point_cap > 0 &&
-    Math.abs(tierBudgetSum - 100) < 0.01 &&
-    !calculatePoints.isPending;
+  const budgetSum = Object.values(draft.tiers).reduce((s, t) => s + (t.budget_pct ?? 0), 0);
+  const canRecalculate = draft.total_point_cap > 0 && Math.abs(budgetSum - 100) < 0.01 && !calculatePoints.isPending;
+  const card = selected ? draft.tiers[selected.tier]?.sources[selected.index] : undefined;
 
-  async function handleRecalculate() {
+  function set<K extends keyof FrenzyTemplateUpdate>(key: K, value: FrenzyTemplateUpdate[K]): void {
+    setDraft((d) => ({ ...d, [key]: value }));
+  }
+
+  function setCards(tier: string, sources: FrenzySource[]): void {
+    set("tiers", { ...draft.tiers, [tier]: { ...draft.tiers[tier]!, sources } });
+  }
+
+  async function recalculate(): Promise<void> {
     try {
-      const result = await calculatePoints.mutateAsync({
-        tiers: draft.tiers,
-        total_point_cap: draft.total_point_cap,
-      });
-      setDraft((d) => ({ ...d, tiers: result.tiers }));
+      const result = await calculatePoints.mutateAsync({ tiers: draft.tiers, total_point_cap: draft.total_point_cap });
+      set("tiers", result.tiers);
       toast.success("Points recalculated. Review and save to apply.");
     } catch (err) {
       toast.error(String(err));
     }
   }
 
-  async function handleSave() {
+  async function save(): Promise<void> {
     try {
-      if (template) {
-        await updateTemplate.mutateAsync({ id: template.id, data: draft });
-        toast.success("Template saved.");
-      } else {
-        await createTemplate.mutateAsync(draft);
-        toast.success("Template created.");
-      }
+      if (template) await updateTemplate.mutateAsync({ id: template.id, data: draft });
+      else await createTemplate.mutateAsync(draft);
+      toast.success(template ? "Template saved." : "Template created.");
       onSaved();
     } catch (err) {
       toast.error(String(err));
     }
   }
 
-  function set<K extends keyof FrenzyTemplateUpdate>(key: K, value: FrenzyTemplateUpdate[K]) {
-    setDraft((d) => ({ ...d, [key]: value }));
-  }
+  const summary = (
+    <TemplateSummary
+      draft={draft}
+      version={template?.version_number ?? null}
+      set={set}
+      canRecalculate={canRecalculate}
+      isCalculating={calculatePoints.isPending}
+      isSaving={createTemplate.isPending || updateTemplate.isPending}
+      onHistory={template ? () => setHistoryOpen(true) : null}
+      onRecalculate={recalculate}
+      onCancel={onCancel}
+      onSave={save}
+    />
+  );
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <div className="flex-1 grid grid-cols-3 gap-2">
-          <div>
-            <Label>Name</Label>
-            <Input
-              value={draft.name}
-              onChange={(e) => set("name", e.target.value)}
-              placeholder="Template name"
-            />
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Input
-              value={draft.description ?? ""}
-              onChange={(e) => set("description", e.target.value || null)}
-              placeholder="Optional description"
-            />
-          </div>
-          <div>
-            <Label>Point Cap</Label>
-            <Input
-              type="number"
-              min={0}
-              value={draft.total_point_cap}
-              onChange={(e) => set("total_point_cap", Number(e.target.value))}
-              placeholder="Total point budget"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-1.5 shrink-0">
-          {template && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setHistoryOpen(true)}
-              className="gap-1.5"
-            >
-              <History className="h-3.5 w-3.5" />
-              History
-            </Button>
-          )}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleRecalculate}
-            disabled={!canRecalculate}
-            className="gap-1.5"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            {calculatePoints.isPending ? "Calculating..." : "Recalculate"}
-          </Button>
-          <Button size="sm" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button size="sm" onClick={handleSave} disabled={isPending || !draft.name.trim()}>
-            <Save className="h-3.5 w-3.5 mr-1.5" />
-            {isPending ? "Saving..." : "Save"}
-          </Button>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-2 flex-wrap border-b pb-2">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              activeTab === tab
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            {tab}
+      <nav className="flex border-b border-border" aria-label="Template sections">
+        {TABS.map((t) => (
+          <button key={t} type="button" onClick={() => setTab(t)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+            {t}
           </button>
         ))}
-      </div>
-
-      {/* Tab content */}
-      {activeTab === "Tiers" && (
-        <TierEditor tiers={draft.tiers} onChange={(t) => set("tiers", t)} />
+      </nav>
+      {tab === "Items" ? (
+        <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)_16rem]">
+          <TemplateTree tiers={draft.tiers} selected={selected} onSelect={setSelected} onChange={(t) => set("tiers", t)} />
+          {card && selected ? (
+            <CardEditor
+              tierName={selected.tier}
+              source={card}
+              onUpdate={(next) => setCards(selected.tier, draft.tiers[selected.tier]!.sources.map((s, i) => (i === selected.index ? next : s)))}
+              onRemove={() => {
+                setCards(selected.tier, draft.tiers[selected.tier]!.sources.filter((_, i) => i !== selected.index));
+                setSelected(null);
+              }}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">Add a tier and a card to start.</p>
+          )}
+          {summary}
+        </div>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
+          <div className="min-w-0">
+            {tab === "Activities" && <ActivityEditor activities={draft.activities} onChange={(a) => set("activities", a)} />}
+            {tab === "Milestones" && <MilestoneEditor milestones={draft.milestones} onChange={(m) => set("milestones", m)} />}
+            {tab === "Multipliers" && <MultiplierEditor multipliers={draft.multipliers} tiers={draft.tiers} onChange={(m) => set("multipliers", m)} />}
+          </div>
+          {summary}
+        </div>
       )}
-      {activeTab === "Activities" && (
-        <ActivityEditor activities={draft.activities} onChange={(a) => set("activities", a)} />
-      )}
-      {activeTab === "Milestones" && (
-        <MilestoneEditor milestones={draft.milestones} onChange={(m) => set("milestones", m)} />
-      )}
-      {activeTab === "Multipliers" && (
-        <MultiplierEditor
-          multipliers={draft.multipliers}
-          tiers={draft.tiers}
-          onChange={(m) => set("multipliers", m)}
-        />
-      )}
-
       {template && (
         <FrenzyVersionHistoryDialog
           open={historyOpen}
           onOpenChange={setHistoryOpen}
           templateId={template.id}
-          currentData={{
-            tiers: draft.tiers,
-            activities: draft.activities,
-            milestones: draft.milestones,
-            multipliers: draft.multipliers,
-          }}
+          templateName={template.name}
+          currentData={{ tiers: draft.tiers, activities: draft.activities, milestones: draft.milestones, multipliers: draft.multipliers }}
           onRestored={() => {
             setHistoryOpen(false);
             onSaved();
