@@ -1,7 +1,9 @@
 import { apiFetch, ApiRequestError } from "@/api/client";
+import { API_URL } from "@/context/AuthContext";
 import type { OsrsItem, OsrsSprite, OsrsSpriteCategory, OsrsSpritePage } from "@/types/osrsAssets";
 
-const OSRSCLANS = "https://osrsclans.cc/api/v1/osrs";
+/** Foundry's image route: it fetches each OSRSClans image once and serves its own copy after. */
+const OSRS_IMAGES = `${API_URL}/reference/osrs/images`;
 
 /** OSRSClans item image scales: 1x is 36 x 32, max is 512 x 455. */
 export const ITEM_SCALES = [
@@ -19,17 +21,17 @@ export const SPRITE_SCALES = ["1", "2", "4", "8", "16", "max"] as const;
 
 export type SpriteScale = (typeof SPRITE_SCALES)[number];
 
-/** The OSRSClans image of an item, at its largest size unless a scale is given. */
+/** The image of an item, at its largest size unless a scale is given. */
 export function itemImageUrl(itemId: number, scale?: ItemScale): string {
   const query = scale && scale !== "max" ? `?scale=${scale}` : "";
-  return `${OSRSCLANS}/items/${itemId}.webp${query}`;
+  return `${OSRS_IMAGES}/items/${itemId}.webp${query}`;
 }
 
-/** The OSRSClans image of one sprite frame. */
+/** The image of one sprite frame. */
 export function spriteImageUrl(spriteId: number, frame: number, scale: SpriteScale = "1"): string {
   const params = new URLSearchParams({ frame: String(frame) });
   if (scale !== "1") params.set("scale", scale);
-  return `${OSRSCLANS}/sprites/${spriteId}.webp?${params}`;
+  return `${OSRS_IMAGES}/sprites/${spriteId}.webp?${params}`;
 }
 
 async function orEmpty<T>(lookup: Promise<T>, empty: T): Promise<T> {
@@ -68,10 +70,10 @@ export const osrsAssetsApi = {
     orEmpty(apiFetch<OsrsSprite[]>(`/reference/osrs/sprite-frames/${spriteId}`), []),
 };
 
-/** Fetch an OSRSClans image and save it under `filename`. */
+/** Fetch an OSRS image from Foundry's image route and save it under `filename`. */
 export async function downloadImage(url: string, filename: string): Promise<void> {
   const res = await fetch(url);
-  if (!res.ok) throw new ApiRequestError(res.status, "IMAGE_FAILED", "OSRSClans did not send the image");
+  if (!res.ok) throw new ApiRequestError(res.status, "IMAGE_FAILED", "The image did not load");
   const blobUrl = URL.createObjectURL(await res.blob());
   const link = document.createElement("a");
   link.href = blobUrl;

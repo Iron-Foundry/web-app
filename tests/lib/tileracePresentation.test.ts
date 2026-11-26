@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { API_URL } from "@/context/AuthContext";
 import { getCellPresentation } from "@/lib/tilerace-presentation";
 import type { BoardCell, RepositoryTile } from "@/types/tilerace";
 
@@ -33,7 +34,7 @@ describe("getCellPresentation", () => {
 
     expect(shown.source).toBe("trap");
     expect(shown.title).toBe("Trap");
-    expect(shown.iconUrl).toBe("https://osrsclans.cc/api/v1/osrs/items/8144.webp");
+    expect(shown.iconUrl).toBe(`${API_URL}/reference/osrs/images/items/8144.webp`);
     expect(shown.description).toContain("2d6");
     expect(shown.requirement).toBeNull();
   });
