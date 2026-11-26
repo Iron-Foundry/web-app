@@ -116,6 +116,7 @@ export const queryKeys = {
     killRate: (source: string) => ["reference", "kill-rates", source] as const,
     rates: (kind: string) => ["reference", "rates", kind] as const,
     itemLootRates: (itemName: string) => ["reference", "loot-rates", "item", itemName] as const,
+    collectionLogPages: (q: string) => ["reference", "collection-log-pages", q.toLowerCase()] as const,
     collectionLog: (name: string) => ["reference", "loot-rates", "collection-log", name.toLowerCase()] as const,
     npcSearch: (q: string) => ["reference", "osrs", "npcs", q] as const,
     spriteSearch: (q: string) => ["reference", "osrs", "sprites", q] as const,

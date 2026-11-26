@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
-import { osrsclansApi, type LootRateRow, type OsrsNpcPage, type OsrsSpritePage } from "@/api/osrsclans";
+import { osrsclansApi, type CollectionLogPage, type LootRateRow, type OsrsNpcPage, type OsrsSpritePage } from "@/api/osrsclans";
 import { queryKeys } from "@/lib/queryKeys";
 
 const STALE_1H = 1000 * 60 * 60;
@@ -12,6 +12,16 @@ export function useItemLootRates(itemName: string, enabled: boolean): UseQueryRe
     select: (page) => page.items.filter((row) => row.item_name === itemName),
     staleTime: STALE_1H,
     enabled: enabled && itemName.length >= 2,
+  });
+}
+
+/** The collection log pages whose name holds `q`, without regard to case or apostrophes. */
+export function useCollectionLogPages(q: string): UseQueryResult<CollectionLogPage[]> {
+  return useQuery({
+    queryKey: queryKeys.reference.collectionLogPages(q),
+    queryFn: () => osrsclansApi.collectionLogPages(q),
+    staleTime: STALE_1H,
+    enabled: q.length >= 2,
   });
 }
 

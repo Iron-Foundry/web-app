@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -6,32 +6,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FrenzyCardImage } from "../FrenzySourceCard";
 import { CardImagePicker } from "./CardImagePicker";
+import { CardNameField } from "./CardNameField";
 import { FrenzyItemRow } from "./FrenzyItemRow";
 import { useCollectionLogFetch } from "@/hooks/useOsrsClans";
 import { emptyItem } from "@/lib/frenzyCard";
 import { collectionLogItems } from "@/lib/frenzyRate";
 import type { FrenzyItem, FrenzySource } from "@/types/frenzyTemplate";
 
-/** Adds the drops of the collection log page that the card's new name matches. */
-function useCollectionLogFill(source: FrenzySource, onUpdate: (source: FrenzySource) => void): { onFocus: () => void; onBlur: () => void } {
+/** Names the card after a picked collection log page and adds the page's drops it lacks. */
+function usePageFill(source: FrenzySource, onUpdate: (source: FrenzySource) => void): (page: string) => void {
   const fetchCollectionLog = useCollectionLogFetch();
-  const nameAtFocus = useRef(source.name);
-  const onFocus = (): void => {
-    nameAtFocus.current = source.name;
-  };
-  const onBlur = (): void => {
-    const name = source.name.trim();
-    if (name.length < 2 || name === nameAtFocus.current.trim()) return;
-    fetchCollectionLog(name)
+  return (page) => {
+    onUpdate({ ...source, name: page });
+    fetchCollectionLog(page)
       .then((rows) => {
         const added = collectionLogItems(source.items, rows);
-        if (added.length === 0) return;
-        onUpdate({ ...source, items: [...source.items.filter((i) => i.name), ...added] });
-        toast.success(`Added ${added.length} drops from the ${name} collection log`);
+        onUpdate({ ...source, name: page, items: [...source.items.filter((i) => i.name), ...added] });
+        toast.success(`Added ${added.length} drops from the ${page} collection log`);
       })
       .catch((err: unknown) => toast.error(String(err)));
   };
-  return { onFocus, onBlur };
 }
 
 interface Props {
@@ -44,7 +38,7 @@ interface Props {
 /** One card of a tier: a source or a typed group. Its name is free text and its image is picked apart. */
 export function CardEditor({ tierName, source, onUpdate, onRemove }: Props): React.ReactElement {
   const [picking, setPicking] = useState(false);
-  const fill = useCollectionLogFill(source, onUpdate);
+  const pickPage = usePageFill(source, onUpdate);
   const setItems = (items: FrenzyItem[]): void => onUpdate({ ...source, items });
   return (
     <section className="rounded-xl border bg-card p-4 space-y-4">
@@ -58,7 +52,7 @@ export function CardEditor({ tierName, source, onUpdate, onRemove }: Props): Rea
         <div className="space-y-3">
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Card name ({tierName})</Label>
-            <Input value={source.name} onChange={(e) => onUpdate({ ...source, name: e.target.value })} onFocus={fill.onFocus} onBlur={fill.onBlur} placeholder="Zulrah, Slayer, Miscellaneous..." className="h-8 text-sm" />
+            <CardNameField value={source.name} onChange={(name) => onUpdate({ ...source, name })} onPickPage={pickPage} />
           </div>
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Hover text</Label>

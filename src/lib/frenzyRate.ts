@@ -19,11 +19,16 @@ export function byHours<R extends RateFields>(rows: R[]): R[] {
   return [...rows].sort((a, b) => (rowHours(a) ?? Infinity) - (rowHours(b) ?? Infinity));
 }
 
-/** The collection log drops a card lacks, one item each, rated from the fastest source that drops it. */
+/** A drop that comes with every kill, such as the Gauntlet cape, which scores next to nothing. */
+export function isGuaranteed(row: Pick<LootRateRow, "chance">): boolean {
+  return (row.chance ?? 0) >= 1;
+}
+
+/** The collection log drops a card lacks, one item each, rated from the fastest source; guaranteed drops stay out. */
 export function collectionLogItems(existing: FrenzyItem[], rows: LootRateRow[]): FrenzyItem[] {
   const have = new Set(existing.map((i) => i.name.toLowerCase()));
   const fastest = new Map<string, LootRateRow>();
-  for (const row of byHours(rows)) {
+  for (const row of byHours(rows.filter((r) => !isGuaranteed(r)))) {
     const key = row.item_name.toLowerCase();
     if (!have.has(key) && !fastest.has(key)) fastest.set(key, row);
   }

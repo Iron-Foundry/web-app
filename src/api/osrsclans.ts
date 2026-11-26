@@ -8,6 +8,7 @@ export type LootSourcePage = components["schemas"]["LootSourcePage"];
 export type LootCategory = NonNullable<LootSourceRow["category"]>;
 export type KillRate = components["schemas"]["KillRateOut"];
 export type OsrsNpcPage = components["schemas"]["OsrsNpcPage"];
+export type CollectionLogPage = components["schemas"]["CollectionLogPage"];
 export type OsrsSpritePage = components["schemas"]["OsrsSpritePage"];
 
 export interface LootSourceAsk {
@@ -33,6 +34,8 @@ export const osrsclansApi = {
   lootRatesFor: (itemName: string) =>
     apiFetch<LootRatePage>(`/reference/loot-rates?${new URLSearchParams({ q: itemName, limit: "100" })}`),
   lootSources: (ask: LootSourceAsk) => apiFetch<LootSourcePage>(`/reference/loot-rates/sources?${sourceQuery(ask)}`),
+  collectionLogPages: (q: string) =>
+    apiFetch<CollectionLogPage[]>(`/reference/loot-rates/collection-log/pages?${new URLSearchParams({ q })}`),
   collectionLog: (name: string) =>
     apiFetch<LootRatePage>(`/reference/loot-rates/collection-log?${new URLSearchParams({ name })}`),
   sourceRates: (source: string) =>

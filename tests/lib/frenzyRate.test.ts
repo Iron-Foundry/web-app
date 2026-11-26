@@ -66,6 +66,14 @@ describe("collectionLogItems", () => {
     const added = collectionLogItems([ITEM], rows);
     expect(added.map((i) => [i.name, i.rate_source])).toEqual([["Kodai insignia", "Ancient chest#Normal Mode"]]);
   });
+
+  test("leaves out a guaranteed drop such as the Gauntlet cape", () => {
+    const rows = [
+      row({ item_name: "Gauntlet cape", chance: 1, chance_per_raid: null }),
+      row({ item_name: "Youngllef", chance: 0.00125, chance_per_raid: null }),
+    ];
+    expect(collectionLogItems([], rows).map((i) => i.name)).toEqual(["Youngllef"]);
+  });
 });
 
 describe("byHours", () => {
