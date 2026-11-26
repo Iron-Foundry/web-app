@@ -1,10 +1,12 @@
 import { apiFetch } from "@/api/client";
+import type { DraftMember } from "@/types/frenzyDraft";
 import type { FrenzyActiveEvent, FrenzyBoard, FrenzyEventDetail, FrenzyEventHistory, FrenzyEventSummary, FrenzyLeaderboardEntry, FrenzyTeamDetail, FrenzyTeamHistory, OsrsActivity, OsrsBoss, OsrsItem } from "@/types/frenzy";
 
 export const frenzyApi = {
   // Public
   getActiveEvent: () => apiFetch<FrenzyActiveEvent>("/frenzy/active"),
   getActiveBoard: () => apiFetch<FrenzyBoard>("/frenzy/active/board"),
+  getActiveSignups: () => apiFetch<{ event_id: number; members: DraftMember[] }>("/frenzy/active/signups"),
   getTeamDetail: (teamSlug: string) =>
     apiFetch<FrenzyTeamDetail>(`/frenzy/active/teams/${teamSlug}`),
   getLeaderboards: () =>

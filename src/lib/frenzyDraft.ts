@@ -1,6 +1,12 @@
 import type { DraftMember, DraftView } from "@/types/frenzyDraft";
 
 /** The drawn-order position whose turn it is at a 1-based pick number; mirrors the API's snake. */
+/** True once the draft is known to have no picks yet: no draft, or one still in setup or drawn. */
+export function isBeforeDraft(draft: DraftView | null | undefined): boolean {
+  if (draft === undefined) return false;
+  return draft === null || draft.state === "setup" || draft.state === "drawn";
+}
+
 export function snakeSlot(pick: number, teamCount: number): number {
   const round = Math.floor((pick - 1) / teamCount);
   const pos = (pick - 1) % teamCount;

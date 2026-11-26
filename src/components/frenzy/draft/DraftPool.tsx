@@ -19,10 +19,12 @@ interface Props {
   busy: boolean;
   viewer: ViewerZone;
   onPick: (member: DraftMember) => void;
+  /** Replaces the "Available n of m signups" heading. */
+  heading?: React.ReactNode;
 }
 
 /** The signups left to pick, strongest first, in a virtual list with search and a rank filter. */
-export function DraftPool({ pool, signupCount, pickLabel, busy, viewer, onPick }: Props): React.ReactElement {
+export function DraftPool({ pool, signupCount, pickLabel, busy, viewer, onPick, heading }: Props): React.ReactElement {
   const [search, setSearch] = useState("");
   const [rank, setRank] = useState(ALL_RANKS);
   const ranks = useMemo(() => poolRanks(pool), [pool]);
@@ -39,7 +41,7 @@ export function DraftPool({ pool, signupCount, pickLabel, busy, viewer, onPick }
     <section className="min-w-0 space-y-3">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="font-rs-bold text-xl text-foreground">
-          Available <span className="text-sm text-muted-foreground">{pool.length} of {signupCount} signups</span>
+          {heading ?? <>Available <span className="text-sm text-muted-foreground">{pool.length} of {signupCount} signups</span></>}
         </h2>
         <label className="relative min-w-48 flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" aria-hidden />

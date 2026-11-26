@@ -124,6 +124,7 @@ export const queryKeys = {
   frenzy: {
     active: () => ["frenzy", "active"] as const,
     activeBoard: () => ["frenzy", "active", "board"] as const,
+    activeSignups: () => ["frenzy", "active", "signups"] as const,
     team: (slug: string) => ["frenzy", "active", "team", slug] as const,
     teamHistory: (slug: string) => ["frenzy", "active", "team", slug, "history"] as const,
     eventHistory: () => ["frenzy", "active", "history"] as const,

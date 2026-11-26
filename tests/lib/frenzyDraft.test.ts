@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { filterPool, gridRounds, pickAt, recentPicks, snakeSlot } from "@/lib/frenzyDraft";
+import { filterPool, gridRounds, isBeforeDraft, pickAt, recentPicks, snakeSlot } from "@/lib/frenzyDraft";
 import type { DraftMember, DraftView } from "@/types/frenzyDraft";
 
 const FIXTURE = join(import.meta.dir, "../../../fixtures/frenzy_snake.json");
@@ -33,6 +33,19 @@ const view = (members: DraftMember[][], pool: DraftMember[] = []): DraftView => 
     members: m,
   })),
   pool,
+});
+
+describe("isBeforeDraft", () => {
+  test.each([
+    ["loading", undefined, false],
+    ["no draft", null, true],
+    ["setup", { ...view([]), state: "setup" as const }, true],
+    ["drawn", { ...view([]), state: "drawn" as const }, true],
+    ["picking", { ...view([]), state: "picking" as const }, false],
+    ["complete", { ...view([]), state: "complete" as const }, false],
+  ])("%s gives %p", (_label, draft, expected) => {
+    expect(isBeforeDraft(draft)).toBe(expected);
+  });
 });
 
 describe("snakeSlot", () => {

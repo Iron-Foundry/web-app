@@ -23,6 +23,15 @@ export function useActiveBoard(enabled: boolean) {
   });
 }
 
+export function useActiveSignups(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.frenzy.activeSignups(),
+    queryFn: frenzyApi.getActiveSignups,
+    staleTime: 1000 * 60,
+    enabled,
+  });
+}
+
 export function useTeamDetail(teamSlug: string) {
   return useQuery({
     queryKey: queryKeys.frenzy.team(teamSlug),

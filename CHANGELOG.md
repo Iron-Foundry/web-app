@@ -14,6 +14,7 @@ component. Entries land under Unreleased until then.
 
 ### Added
 
+- Until the draft starts picking, the frenzy event page lists the current signups, strongest first, with search, a rank filter, clan rank, points and each member's time offset.
 - While an active frenzy event has signups open, the event page shows the whole event board (all tiers and cards, activities, milestones and multipliers) in place of the standings, charts and leaderboards.
 - In the frenzy template editor, staff move tiers up and down, and the board, the team pages and the editor show the tiers in that order. Each tier has a points multiplier, such as 1.1 for Medium, that scales its items' points above the base.
 - A frenzy card shows up to 9 item rows. A longer card scrolls inside, with a fade and a chevron at the foot until the last row. The chevron scrolls further down.
@@ -77,6 +78,8 @@ component. Entries land under Unreleased until then.
 
 ### Fixed
 
+- A request that fails with 502, 503 or 504 is no longer retried, so a failing OSRSClans gets no extra load from the site.
+- OSRS item and sprite images load from Foundry's image route, which keeps a copy, in place of OSRSClans. The page policy no longer lets the browser fetch from OSRSClans.
 - The frenzy card image picker searches for the current card's name each time it opens. It no longer keeps the first card's name.
 - The card image picker shows "No images found" when no result has an image. It no longer shows an empty grid.
 - The card image and item searches wait until typing stops, so they no longer send a request on each keystroke.

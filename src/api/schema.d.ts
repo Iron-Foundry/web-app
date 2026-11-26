@@ -1932,6 +1932,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/frenzy/active/signups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Active Signups
+         * @description Return the active event's signups with each member's clan rank and points.
+         *
+         *     The order matches the draft pool: highest ranking points first, and ties go to
+         *     the earlier signup. Answers 404 with no active event.
+         */
+        get: operations["get_active_signups_frenzy_active_signups_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/frenzy/active/teams/{team_slug}": {
         parameters: {
             query?: never;
@@ -3820,6 +3843,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reference/osrs/images/{kind}/{image_id}.{fmt}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Osrs Image
+         * @description Return an OSRSClans item, NPC or sprite image, from Foundry's own copy.
+         *
+         *     The first request for an image fetches it from OSRSClans and keeps a copy on
+         *     disk; each later request reads the copy. `scale` and `frame` pass through to
+         *     OSRSClans. Answers 404 for an image OSRSClans does not have, and 503 while
+         *     OSRSClans cools down after a failure.
+         */
+        get: operations["get_osrs_image_reference_osrs_images__kind___image_id___fmt__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reference/osrs/items": {
         parameters: {
             query?: never;
@@ -5425,6 +5473,16 @@ export interface components {
              * @default
              */
             forum_channel_id: string;
+        };
+        /**
+         * ActiveSignups
+         * @description The active event's signups, strongest ranking first, as the draft pool shows them.
+         */
+        ActiveSignups: {
+            /** Event Id */
+            event_id: number;
+            /** Members */
+            members: components["schemas"]["DraftMember"][];
         };
         /**
          * ActivityOut
@@ -12634,6 +12692,26 @@ export interface operations {
             };
         };
     };
+    get_active_signups_frenzy_active_signups_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActiveSignups"];
+                };
+            };
+        };
+    };
     get_active_team_detail_frenzy_active_teams__team_slug__get: {
         parameters: {
             query?: never;
@@ -16946,6 +17024,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LootSourcePage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    get_osrs_image_reference_osrs_images__kind___image_id___fmt__get: {
+        parameters: {
+            query?: {
+                scale?: string | null;
+                frame?: number | null;
+            };
+            header?: never;
+            path: {
+                kind: "items" | "npcs" | "sprites";
+                image_id: number;
+                fmt: "webp" | "svg";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/svg+xml": unknown;
+                    "image/webp": unknown;
                 };
             };
             /** @description No record matches the identifier in the path. */

@@ -11,6 +11,8 @@ import { FrenzyStandings } from "@/components/frenzy/FrenzyStandings";
 import { FrenzyEventCharts } from "@/components/frenzy/FrenzyEventCharts";
 import { FrenzyLeaderboard } from "@/components/frenzy/FrenzyLeaderboard";
 import { FrenzyEventBoard } from "@/components/frenzy/FrenzyEventBoard";
+import { FrenzySignupsPanel } from "@/components/frenzy/FrenzySignupsPanel";
+import { isBeforeDraft } from "@/lib/frenzyDraft";
 import { FrenzySignup } from "@/components/frenzy/FrenzySignup";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -103,6 +105,7 @@ function FrenzyPage() {
       {!isLoading && !activeEvent && (
         <p className="text-sm text-muted-foreground">No active event right now. Check back later!</p>
       )}
+      {activeEvent && isBeforeDraft(draft) && <FrenzySignupsPanel />}
       {activeEvent?.signups_open && <FrenzyEventBoard />}
       {activeEvent && !activeEvent.signups_open && <FrenzyStandings teams={activeEvent.teams} />}
       {activeEvent && !activeEvent.signups_open && <FrenzyEventCharts />}
