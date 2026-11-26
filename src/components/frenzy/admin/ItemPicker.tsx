@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useOsrsItems } from "@/hooks/useFrenzy";
 import type { OsrsItem } from "@/types/frenzy";
 
@@ -13,7 +14,8 @@ export function ItemPicker({ value, onSelect, placeholder = "Search items..." }:
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { data: items } = useOsrsItems(query);
+  const term = useDebounce(query.trim(), 300);
+  const { data: items } = useOsrsItems(term);
 
   useEffect(() => {
     setQuery(value);
@@ -38,6 +40,10 @@ export function ItemPicker({ value, onSelect, placeholder = "Search items..." }:
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
+        onBlur={() => {
+          setQuery(value);
+          setOpen(false);
+        }}
         placeholder={placeholder}
         className="h-8 text-sm"
       />
