@@ -13,17 +13,17 @@ interface Props {
 }
 
 export function FrenzyCardImage({ source }: { source: FrenzySource }): React.ReactElement {
-  if (source.icon_url) return <img src={source.icon_url} alt={source.name} className="h-18 w-18 object-contain" />;
+  if (source.icon_url) return <img src={source.icon_url} alt={source.name} className="h-9 w-9 object-contain" />;
   if (isTypedCard(source)) {
     return (
-      <div role="img" aria-label={`${source.name}: ${source.items.length} items`} className="grid h-18 w-18 grid-cols-2 place-items-center gap-0.5 rounded-md bg-muted p-1">
+      <div role="img" aria-label={`${source.name}: ${source.items.length} items`} className="grid h-9 w-9 grid-cols-2 place-items-center rounded-md bg-muted p-0.5">
         {source.items.slice(0, 4).map((item) =>
-          item.icon_url ? <img key={item.name} src={item.icon_url} alt={item.name} className="h-7 w-7 object-contain" /> : <span key={item.name} />,
+          item.icon_url ? <img key={item.name} src={item.icon_url} alt={item.name} className="h-3.5 w-3.5 object-contain" /> : <span key={item.name} />,
         )}
       </div>
     );
   }
-  return <div role="img" aria-label={`${source.name} has no image`} className="h-18 w-18 rounded-md bg-muted" />;
+  return <div role="img" aria-label={`${source.name} has no image`} className="h-9 w-9 rounded-md bg-muted" />;
 }
 
 function Pips({ total, filled }: { total: number; filled: number }): React.ReactElement {
@@ -60,7 +60,7 @@ export function FrenzySourceCard({ tierName, source, itemProgress, factor }: Pro
   const total = source.items.length;
   return (
     <article className="rounded-xl border bg-card p-4 space-y-3" title={source.hovertext || undefined}>
-      <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-3">
+      <div className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-3">
         <FrenzyCardImage source={source} />
         <div className="flex min-w-0 flex-col justify-between gap-1">
           <div>
