@@ -8,6 +8,7 @@ import { TemplateSummary } from "./TemplateSummary";
 import { TemplateTree, type CardRef } from "./TemplateTree";
 import { FrenzyVersionHistoryDialog } from "../FrenzyVersionHistoryDialog";
 import { useCreateTemplate, useUpdateTemplate } from "@/hooks/useFrenzyTemplates";
+import { orderedTiers } from "@/lib/frenzyCard";
 import { assignItemPoints } from "@/lib/frenzyPoints";
 import type { FrenzySource, FrenzyTemplate, FrenzyTemplateUpdate } from "@/types/frenzyTemplate";
 
@@ -27,7 +28,7 @@ function draftOf(template?: FrenzyTemplate): FrenzyTemplateUpdate {
 }
 
 function firstCard(tiers: FrenzyTemplateUpdate["tiers"]): CardRef | null {
-  const hit = Object.entries(tiers).find(([, t]) => t.sources.length > 0);
+  const hit = orderedTiers(tiers).find(([, t]) => t.sources.length > 0);
   return hit ? { tier: hit[0], index: 0 } : null;
 }
 

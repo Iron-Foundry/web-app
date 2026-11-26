@@ -23,6 +23,10 @@ export interface FrenzySource {
 
 export interface FrenzyTierData {
   sources: FrenzySource[];
+  /** The tier's place on the board, 0 first. The stored key order is not kept. */
+  order?: number;
+  /** Scales the tier's item points above the base from the cap; 1 when unset. */
+  multiplier?: number;
 }
 
 export interface FrenzyActivity {

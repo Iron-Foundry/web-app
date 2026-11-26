@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { cardState, isTypedCard, itemState } from "@/lib/frenzyCard";
+import { cardState, isTypedCard, itemState, movedTier, orderedTiers } from "@/lib/frenzyCard";
 import type { FrenzyItem, FrenzySource } from "@/types/frenzyTemplate";
 
 function item(partial: Partial<FrenzyItem>): FrenzyItem {
@@ -52,5 +52,22 @@ describe("isTypedCard", () => {
 
   test("a card grouping other sources is typed", () => {
     expect(isTypedCard(card("Slayer", ["Kraken", "Abyssal demon#Standard"]))).toBe(true);
+  });
+});
+
+describe("orderedTiers", () => {
+  test("follows order, and a tier with none keeps its place", () => {
+    const tiers = { Hard: { order: 2 }, Easy: { order: 0 }, Elite: {}, Medium: { order: 1 } };
+    expect(orderedTiers(tiers).map(([name]) => name)).toEqual(["Easy", "Medium", "Hard", "Elite"]);
+  });
+});
+
+describe("movedTier", () => {
+  test.each([
+    ["Medium", -1, ["Medium", "Easy", "Hard"]],
+    ["Medium", 1, ["Easy", "Hard", "Medium"]],
+    ["Easy", -1, ["Easy", "Medium", "Hard"]],
+  ] as const)("%s by %i", (name, step, expected) => {
+    expect(movedTier(["Easy", "Medium", "Hard"], name, step)).toEqual([...expected]);
   });
 });

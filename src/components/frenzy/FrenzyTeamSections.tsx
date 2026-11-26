@@ -5,7 +5,7 @@ import { FrenzySourceCard } from "./FrenzySourceCard";
 import { FrenzyTeamCharts } from "./FrenzyTeamCharts";
 import { FrenzyTeamRail, sectionId, type RailEntry } from "./FrenzyTeamRail";
 import { isMultiplierUnlocked } from "@/lib/frenzy";
-import { cardFactor, itemKey } from "@/lib/frenzyCard";
+import { cardFactor, itemKey, orderedTiers } from "@/lib/frenzyCard";
 import type { FrenzyTeamDetail } from "@/types/frenzy";
 import type { FrenzyTierData } from "@/types/frenzyTemplate";
 
@@ -30,7 +30,7 @@ export function Section({ id, title, aside, children }: { id: string; title: str
 export function FrenzyTeamSections({ detail, teamSlug }: { detail: FrenzyTeamDetail; teamSlug: string }): React.ReactElement {
   const { template, progress, scores } = detail;
   const unlocked = template.multipliers.filter((m) => isMultiplierUnlocked(m, progress.item_progress));
-  const tiers = Object.entries(template.tiers);
+  const tiers = orderedTiers(template.tiers);
   const entries: RailEntry[] = [
     ...tiers.map(([name, tier]) => ({ id: sectionId(name), label: name, count: tierCount(name, tier, progress.item_progress), group: "Items" as const })),
     { id: sectionId("Activities"), label: "Activities", count: String(template.activities.length), group: "Goals" },

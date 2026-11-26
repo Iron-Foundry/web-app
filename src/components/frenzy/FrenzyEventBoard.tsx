@@ -5,6 +5,7 @@ import { FrenzySourceCard } from "./FrenzySourceCard";
 import { Section } from "./FrenzyTeamSections";
 import { FrenzyTeamRail, sectionId, type RailEntry } from "./FrenzyTeamRail";
 import { useActiveBoard } from "@/hooks/useFrenzy";
+import { orderedTiers } from "@/lib/frenzyCard";
 import type { FrenzyBoard } from "@/types/frenzy";
 
 const NO_PROGRESS: Record<string, number> = {};
@@ -15,7 +16,7 @@ function itemCount(board: FrenzyBoard, tierName: string): number {
 
 function railEntries(board: FrenzyBoard): RailEntry[] {
   return [
-    ...Object.keys(board.tiers).map((name) => ({ id: sectionId(name), label: name, count: String(itemCount(board, name)), group: "Items" as const })),
+    ...orderedTiers(board.tiers).map(([name]) => ({ id: sectionId(name), label: name, count: String(itemCount(board, name)), group: "Items" as const })),
     { id: sectionId("Activities"), label: "Activities", count: String(board.activities.length), group: "Goals" },
     { id: sectionId("Milestones"), label: "Milestones", count: String(Object.values(board.milestones).flat().length), group: "Goals" },
     { id: sectionId("Multipliers"), label: "Multipliers", count: String(board.multipliers.length), group: "Goals" },
@@ -31,7 +32,7 @@ export function FrenzyEventBoard(): React.ReactElement {
     <div className="grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
       <FrenzyTeamRail entries={railEntries(board)} />
       <div className="min-w-0 space-y-8">
-        {Object.entries(board.tiers).map(([name, tier]) => (
+        {orderedTiers(board.tiers).map(([name, tier]) => (
           <Section key={name} id={sectionId(name)} title={name} aside={`${itemCount(board, name)} items`}>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {tier.sources.map((source) => (

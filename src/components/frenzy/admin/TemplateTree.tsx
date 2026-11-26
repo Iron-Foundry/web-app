@@ -3,7 +3,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { emptyItem } from "@/lib/frenzyCard";
+import { TierControls } from "./TierControls";
+import { emptyItem, movedTier, orderedTiers, reorderTiers } from "@/lib/frenzyCard";
 import type { FrenzyTierData } from "@/types/frenzyTemplate";
 
 export interface CardRef {
@@ -25,8 +26,17 @@ function cardLabel(name: string): string {
 /** The tiers and their cards: a tree at lg widths, a select below. */
 export function TemplateTree({ tiers, selected, onSelect, onChange }: Props): React.ReactElement {
   const [newTier, setNewTier] = useState("");
-  const entries = Object.entries(tiers);
-  const mobileTier = selected?.tier ?? entries[0]?.[0];
+  const entries = orderedTiers(tiers);
+  const names = entries.map(([name]) => name);
+  const mobileTier = selected?.tier ?? names[0];
+
+  const moveTier = (name: string, step: -1 | 1): void => onChange(reorderTiers(tiers, movedTier(names, name, step)));
+  const setMultiplier = (name: string, multiplier: number | undefined): void =>
+    onChange({ ...tiers, [name]: { ...tiers[name]!, multiplier } });
+  const controls = (name: string): React.ReactElement => (
+    <TierControls name={name} data={tiers[name]!} first={names[0] === name} last={names.at(-1) === name}
+      onMove={(step) => moveTier(name, step)} onMultiplier={(m) => setMultiplier(name, m)} />
+  );
 
   function addCard(tier: string): void {
     const data = tiers[tier]!;
@@ -37,7 +47,7 @@ export function TemplateTree({ tiers, selected, onSelect, onChange }: Props): Re
   function addTier(): void {
     const name = newTier.trim();
     if (!name || tiers[name]) return;
-    onChange({ ...tiers, [name]: { sources: [] } });
+    onChange({ ...tiers, [name]: { sources: [], order: names.length } });
     setNewTier("");
   }
 
@@ -64,6 +74,7 @@ export function TemplateTree({ tiers, selected, onSelect, onChange }: Props): Re
         <div className="mt-2 flex flex-wrap gap-2">
           {mobileTier && (
             <>
+              {controls(mobileTier)}
               <Button size="sm" variant="outline" onClick={() => addCard(mobileTier)}><Plus className="h-3 w-3 mr-1" />Add card to {mobileTier}</Button>
               <Button size="sm" variant="outline" className="text-destructive" onClick={() => removeTier(mobileTier)}>Remove tier {mobileTier}</Button>
             </>
@@ -75,12 +86,13 @@ export function TemplateTree({ tiers, selected, onSelect, onChange }: Props): Re
       <nav aria-label="Tiers and cards" className="hidden lg:block self-start rounded-xl border bg-card p-2 text-sm">
         {entries.map(([tier, data]) => (
           <div key={tier} className="pb-2">
-            <div className="flex items-center justify-between gap-2 px-2 pt-2 pb-1 font-semibold">
-              <span>{tier}</span>
+            <div className="flex items-center justify-between gap-2 px-2 pt-2 font-semibold">
+              <span className="truncate">{tier}</span>
               <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeTier(tier)} title={`Remove tier ${tier}`}>
                 <Trash2 className="h-3 w-3" />
               </Button>
             </div>
+            <div className="px-2 pb-1">{controls(tier)}</div>
             {data.sources.map((s, i) => {
               const active = selected?.tier === tier && selected.index === i;
               return (

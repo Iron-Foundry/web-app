@@ -15,8 +15,10 @@ component. Entries land under Unreleased until then.
 ### Added
 
 - While an active frenzy event has signups open, the event page shows the whole event board (all tiers and cards, activities, milestones and multipliers) in place of the standings, charts and leaderboards.
+- In the frenzy template editor, staff move tiers up and down, and the board, the team pages and the editor show the tiers in that order. Each tier has a points multiplier, such as 1.1 for Medium, that scales its items' points above the base.
+- A frenzy card shows up to 9 item rows. A longer card scrolls inside, with a fade and a chevron at the foot until the last row. The chevron scrolls further down.
 - The event board has its own page at `/activities/frenzy/board`. Outside signups, a "Board" button on the event page opens it.
-- In the frenzy template editor, a card name that matches a collection log page, such as Vorkath or Chambers of Xeric, adds that page's drops the card lacks. Each drop takes its rate from the fastest OSRSClans source.
+- In the frenzy template editor, the card name lists the matching collection log pages as you type, without regard to capitals or apostrophes. Picking one, such as K'ril Tsutsaroth or Chambers of Xeric, names the card after it and adds the page's drops the card lacks. Each drop takes its rate from the fastest OSRSClans source, so The Gauntlet takes Corrupted Gauntlet rates. Guaranteed drops, such as the Gauntlet cape, stay out. A free-text name, such as Slayer, adds nothing.
 - The PVM Frenzy draft page at `/activities/frenzy/draft`. It shows whose turn it is, the snake grid of rounds and captains, the pool of signups with search and a rank filter, the recent picks, and every team's full roster. The page updates live on each pick. The captain on turn picks with "Pick", and staff pick for an absent captain. Staff move members between teams after the draft.
 - The frenzy event editor has a captain draft section. Staff choose Full draft or Top Picks, the top picks per captain, and the captains from the signups, then draw the order, start the draft or reset it.
 - The frenzy signup offers "Willing to captain a team", and each signup or change sends the browser's time zone.

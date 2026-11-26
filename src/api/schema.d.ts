@@ -3758,11 +3758,36 @@ export interface paths {
          * List Collection Log Rates
          * @description Return the drops of one collection log page, from every source that fills it.
          *
-         *     `name` matches the page name without regard to case. An item that several
-         *     sources drop has one row per source. A row with no OSRSClans kill rate takes
-         *     the staff-set rate of its source, marked `foundry`.
+         *     `name` matches the page name without regard to case, apostrophes or
+         *     punctuation. An item that several sources drop has one row per source. A row
+         *     with no OSRSClans kill rate takes the staff-set rate of its source, marked
+         *     `foundry`.
          */
         get: operations["list_collection_log_rates_reference_loot_rates_collection_log_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/loot-rates/collection-log/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Collection Log Pages
+         * @description Return the collection log pages whose name holds `q`.
+         *
+         *     The match ignores case, apostrophes and punctuation, so "kril" finds
+         *     "K'ril Tsutsaroth". An exact match comes first, then the names that start
+         *     with `q`. Each page carries the count of drop sources that fill it.
+         */
+        get: operations["search_collection_log_pages_reference_loot_rates_collection_log_pages_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5644,6 +5669,16 @@ export interface components {
              * @default 0
              */
             tracks_played: number;
+        };
+        /**
+         * CollectionLogPage
+         * @description One collection log page and the count of drop sources that fill it.
+         */
+        CollectionLogPage: {
+            /** Name */
+            name: string;
+            /** Sources */
+            sources: number;
         };
         /**
          * CommandAccepted
@@ -16807,6 +16842,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LootRatePage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    search_collection_log_pages_reference_loot_rates_collection_log_pages_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionLogPage"][];
                 };
             };
             /** @description No record matches the identifier in the path. */
