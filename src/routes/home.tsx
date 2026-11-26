@@ -70,19 +70,18 @@ function HomePage() {
         coxKc={positive(womStats?.cox_kc)}
         tobKc={positive(womStats?.tob_kc)}
         toaKc={positive(womStats?.toa_kc)}
+        tfaKc={positive(womStats?.tfa_kc)}
         totalGp={clanStats?.total_gp ?? null}
         clanPhoto={clanPhoto}
       />
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-card p-6">
-          <h2 className="mb-3 font-rs-bold text-3xl text-foreground">Who we are</h2>
-          <div className="space-y-3 leading-relaxed text-mk-body">
-            {WHO_WE_ARE.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}
-          </div>
-        </section>
-        <AchievementsSection achievements={achievements} isLoading={achievementsLoading} />
-      </div>
+      <section className="rounded-xl border border-border bg-card p-6">
+        <h2 className="mb-3 font-rs-bold text-3xl text-foreground">Who we are</h2>
+        <div className="space-y-3 leading-relaxed text-mk-body">
+          {WHO_WE_ARE.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}
+        </div>
+      </section>
       <RankSection />
+      <AchievementsSection achievements={achievements} isLoading={achievementsLoading} />
     </div>
   );
 }

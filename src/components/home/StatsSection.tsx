@@ -58,6 +58,7 @@ interface StatsSectionProps {
   coxKc: number | null;
   tobKc: number | null;
   toaKc: number | null;
+  tfaKc: number | null;
   totalGp: number | null;
   clanPhoto: string;
 }
@@ -65,14 +66,15 @@ interface StatsSectionProps {
 const show = (n: number | null, fmt: (v: number) => string): string => (n === null ? "-" : fmt(n));
 const count = (v: number): string => v.toLocaleString();
 
-/** The seven clan figures, each counting up from zero once its value arrives. */
-export function StatsSection({ memberCount, clanXp, clanEhb, coxKc, tobKc, toaKc, totalGp, clanPhoto }: StatsSectionProps) {
+/** The eight clan figures, each counting up from zero once its value arrives. */
+export function StatsSection({ memberCount, clanXp, clanEhb, coxKc, tobKc, toaKc, tfaKc, totalGp, clanPhoto }: StatsSectionProps) {
   const members = useCountUp(memberCount);
   const xp = useCountUp(clanXp);
   const ehb = useCountUp(clanEhb);
   const cox = useCountUp(coxKc);
   const tob = useCountUp(tobKc);
   const toa = useCountUp(toaKc);
+  const tfa = useCountUp(tfaKc);
   const gp = useCountUp(totalGp);
 
   return (
@@ -82,10 +84,11 @@ export function StatsSection({ memberCount, clanXp, clanEhb, coxKc, tobKc, toaKc
         <StatTile label="Members" value={show(members, count)} icon={Users} tone="text-mk-orange" art={clanPhoto} artAlt="Iron Foundry clan photograph" />
         <StatTile label="Total XP" value={show(xp, formatGp)} icon={TrendingUp} tone="text-mk-yellow" art={`${WIKI}/Forestry-_Part_Two_-_Community_Consultation_%281%29.png/640px-Forestry-_Part_Two_-_Community_Consultation_%281%29.png?b1a37`} artAlt="Forestry artwork" />
         <StatTile label="Total EHB" value={show(ehb, count)} icon={Clock} tone="text-mk-teal" art={`${WIKI}/Araxxor_artwork_3D_no_text.png/614px-Araxxor_artwork_3D_no_text.png?79f22`} artAlt="Araxxor artwork" />
-        <StatTile label="Loot value" value={show(gp, formatGp)} icon={Coins} tone="text-mk-green" art={`${WIKI}/Loot_Chest_%28opened%29.png/489px-Loot_Chest_%28opened%29.png?b8b83`} artAlt="Opened loot chest" />
-        <StatTile label="Chambers of Xeric" value={show(cox, count)} icon={Shield} tone="text-mk-blue" art={`${WIKI}/Chambers_of_Xeric_artwork.jpg/640px-Chambers_of_Xeric_artwork.jpg?090e1`} artAlt="Chambers of Xeric artwork" />
+        <StatTile label="Loot value" value={show(gp, formatGp)} icon={Coins} tone="text-mk-yellow" art={`${WIKI}/Loot_Chest_%28opened%29.png/489px-Loot_Chest_%28opened%29.png?b8b83`} artAlt="Opened loot chest" />
+        <StatTile label="Chambers of Xeric" value={show(cox, count)} icon={Shield} tone="text-mk-green" art={`${WIKI}/Chambers_of_Xeric_artwork.jpg/640px-Chambers_of_Xeric_artwork.jpg?090e1`} artAlt="Chambers of Xeric artwork" />
         <StatTile label="Theatre of Blood" value={show(tob, count)} icon={Shield} tone="text-mk-red" art={`${WIKI}/Theatre_of_Blood_artwork.jpg/640px-Theatre_of_Blood_artwork.jpg?92a5f`} artAlt="Theatre of Blood artwork" />
-        <StatTile label="Tombs of Amascut" value={show(toa, count)} icon={Shield} tone="text-mk-purple" art={`${WIKI}/Tombs_of_Amascut_-_necropolis_concept_art.jpg/640px-Tombs_of_Amascut_-_necropolis_concept_art.jpg?b3e2f`} artAlt="Tombs of Amascut concept art" />
+        <StatTile label="Tombs of Amascut" value={show(toa, count)} icon={Shield} tone="text-mk-yellow" art={`${WIKI}/Tombs_of_Amascut_-_necropolis_concept_art.jpg/640px-Tombs_of_Amascut_-_necropolis_concept_art.jpg?b3e2f`} artAlt="Tombs of Amascut concept art" />
+        <StatTile label="The Fractured Archive" value={show(tfa, count)} icon={Shield} tone="text-mk-purple" art="https://cdn.runescape.com/assets/img/external/oldschool/2026/Newsposts/2026-10-20/tfathumb.png" artAlt="The Fractured Archive artwork" />
       </div>
     </section>
   );

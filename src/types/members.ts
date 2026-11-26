@@ -30,6 +30,7 @@ export interface WomStatsResponse {
   cox_kc: number;
   tob_kc: number;
   toa_kc: number;
+  tfa_kc: number;
 }
 
 export interface MeStats {
