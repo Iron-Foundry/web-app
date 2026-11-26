@@ -3855,9 +3855,10 @@ export interface paths {
          * @description Return an OSRSClans item, NPC or sprite image, from Foundry's own copy.
          *
          *     The first request for an image fetches it from OSRSClans and keeps a copy on
-         *     disk; each later request reads the copy. `scale` and `frame` pass through to
-         *     OSRSClans. Answers 404 for an image OSRSClans does not have, and 503 while
-         *     OSRSClans cools down after a failure.
+         *     disk; each later request reads the copy. `scale` takes the values OSRSClans
+         *     serves for the kind, and only a sprite takes a `frame`; any other ask answers
+         *     422 without a request. Answers 404 for an image OSRSClans does not have, and
+         *     503 while OSRSClans cools down after a failure.
          */
         get: operations["get_osrs_image_reference_osrs_images__kind___image_id___fmt__get"];
         put?: never;
