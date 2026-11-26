@@ -3,7 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { emptyItem } from "./CardEditor";
+import { emptyItem } from "@/lib/frenzyCard";
 import type { FrenzyTierData } from "@/types/frenzyTemplate";
 
 export interface CardRef {
@@ -37,7 +37,7 @@ export function TemplateTree({ tiers, selected, onSelect, onChange }: Props): Re
   function addTier(): void {
     const name = newTier.trim();
     if (!name || tiers[name]) return;
-    onChange({ ...tiers, [name]: { sources: [], budget_pct: 0 } });
+    onChange({ ...tiers, [name]: { sources: [] } });
     setNewTier("");
   }
 
@@ -76,7 +76,7 @@ export function TemplateTree({ tiers, selected, onSelect, onChange }: Props): Re
         {entries.map(([tier, data]) => (
           <div key={tier} className="pb-2">
             <div className="flex items-center justify-between gap-2 px-2 pt-2 pb-1 font-semibold">
-              <span>{tier} <span className="font-normal text-muted-foreground">{data.budget_pct}%</span></span>
+              <span>{tier}</span>
               <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeTier(tier)} title={`Remove tier ${tier}`}>
                 <Trash2 className="h-3 w-3" />
               </Button>

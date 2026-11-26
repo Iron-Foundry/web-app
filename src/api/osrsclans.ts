@@ -33,6 +33,8 @@ export const osrsclansApi = {
   lootRatesFor: (itemName: string) =>
     apiFetch<LootRatePage>(`/reference/loot-rates?${new URLSearchParams({ q: itemName, limit: "100" })}`),
   lootSources: (ask: LootSourceAsk) => apiFetch<LootSourcePage>(`/reference/loot-rates/sources?${sourceQuery(ask)}`),
+  collectionLog: (name: string) =>
+    apiFetch<LootRatePage>(`/reference/loot-rates/collection-log?${new URLSearchParams({ name })}`),
   sourceRates: (source: string) =>
     apiFetch<LootRatePage>(`/reference/loot-rates?${new URLSearchParams({ source, limit: "500" })}`),
   setKillRate: (source: string, killsPerHour: number) =>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAddTeam, useDeleteTeam, usePatchTeam } from "@/hooks/useFrenzy";
+import { useAddTeam, useDeleteTeam, usePatchTeam } from "@/hooks/useFrenzyEvents";
 import type { FrenzyEventDetail } from "@/types/frenzy";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";

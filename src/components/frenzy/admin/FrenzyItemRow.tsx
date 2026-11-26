@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Lock, LockOpen, Trash2 } from "lucide-react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,22 +60,16 @@ export function FrenzyItemRow({ item, onUpdate, onRemove }: Props): React.ReactE
         <div className="flex-1 min-w-0">
           <ItemPicker value={item.name} onSelect={(osrs: OsrsItem) => onUpdate({ ...item, name: osrs.name, icon_url: osrs.icon_url })} />
         </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-8 w-8 shrink-0"
-          onClick={() => onUpdate({ ...item, points_locked: !item.points_locked })}
-          title={item.points_locked ? "Unlock points (allow recalculation)" : "Lock points (exclude from recalculation)"}
-        >
-          {item.points_locked ? <Lock className="h-3.5 w-3.5 text-primary" /> : <LockOpen className="h-3.5 w-3.5" />}
-        </Button>
         <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={onRemove} title="Remove item">
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </div>
       <RateLine item={item} onChange={() => setPicking(true)} />
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <Field label={<>Points{item.points_locked && <Lock className="h-2.5 w-2.5" />}</>} value={item.points} onChange={(v) => onUpdate({ ...item, points: Number(v) })} />
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground">Points</p>
+          <p className="h-8 flex items-center text-sm tabular-nums">{item.points.toLocaleString()}</p>
+        </div>
         <Field label="Required" min={1} value={item.required} onChange={(v) => onUpdate({ ...item, required: Number(v) })} />
         <Field label="Dup required" min={1} value={item.duplicate_required} onChange={(v) => onUpdate({ ...item, duplicate_required: Number(v) })} />
         {byHand && <Field label="Drop denom" value={item.drop_denom ?? ""} onChange={(v) => onUpdate({ ...item, drop_denom: numberOrNull(v) })} />}

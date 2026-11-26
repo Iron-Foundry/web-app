@@ -1892,6 +1892,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/frenzy/active/board": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Active Board
+         * @description Return the active event's tiers, activities, milestones and multipliers.
+         */
+        get: operations["get_active_board_frenzy_active_board_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/frenzy/active/history": {
         parameters: {
             query?: never;
@@ -1946,28 +1966,6 @@ export interface paths {
         get: operations["get_team_history_frenzy_active_teams__team_slug__history_get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/frenzy/calculate-points": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Calculate Points
-         * @description Preview the per-tier point split for a tier set and total cap.
-         *
-         *     Pure calculation helper for the template editor; it persists nothing.
-         */
-        post: operations["calculate_points_frenzy_calculate_points_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2449,7 +2447,7 @@ export interface paths {
         put?: never;
         /**
          * Create Template
-         * @description Create a reusable frenzy template that events are built from.
+         * @description Create a reusable frenzy template. The server sets each item's points.
          */
         post: operations["create_template_frenzy_templates_post"];
         delete?: never;
@@ -2472,7 +2470,7 @@ export interface paths {
         get: operations["get_template_frenzy_templates__template_id__get"];
         /**
          * Update Template
-         * @description Replace a template's definition, snapshotting the previous version.
+         * @description Replace a template's definition. The server sets each item's points.
          */
         put: operations["update_template_frenzy_templates__template_id__put"];
         post?: never;
@@ -3741,6 +3739,30 @@ export interface paths {
          *     `foundry`.
          */
         get: operations["list_loot_rates_reference_loot_rates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/loot-rates/collection-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Collection Log Rates
+         * @description Return the drops of one collection log page, from every source that fills it.
+         *
+         *     `name` matches the page name without regard to case. An item that several
+         *     sources drop has one row per source. A row with no OSRSClans kill rate takes
+         *     the staff-set rate of its source, marked `foundry`.
+         */
+        get: operations["list_collection_log_rates_reference_loot_rates_collection_log_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5530,15 +5552,6 @@ export interface components {
              */
             role_id: string;
         };
-        /** CalculatePointsBody */
-        CalculatePointsBody: {
-            /** Tiers */
-            tiers: {
-                [key: string]: unknown;
-            };
-            /** Total Point Cap */
-            total_point_cap: number;
-        };
         /** ChannelEntry */
         ChannelEntry: {
             /** Channel Id */
@@ -6435,6 +6448,8 @@ export interface components {
          *     gives a word for the rarity. `per_purple` marks a raid unique whose chance is
          *     per purple. `chance_per_raid` is that chance times the mean uniques a raid at
          *     the asked `points` and `raid_level`. A null kill rate is unknown.
+         *     `collection_log` marks an item on the collection log page that this source
+         *     fills, and `collection_log_page` names that page.
          */
         LootRate: {
             /** Alt Chance */
@@ -6445,6 +6460,10 @@ export interface components {
             chance: number | null;
             /** Chance Per Raid */
             chance_per_raid: number | null;
+            /** Collection Log */
+            collection_log: boolean;
+            /** Collection Log Page */
+            collection_log_page: string | null;
             /** Drop Type */
             drop_type: string;
             /** Ge Price */
@@ -6517,10 +6536,16 @@ export interface components {
          * @description One drop source, with its kill rate and its count of loot rate rows.
          *
          *     `source` is the value that `/reference/loot-rates?source=` takes.
+         *     `collection_log_page` is the collection log page the source fills, and
+         *     `collection_log_rows` counts the source's rows on it.
          */
         LootSource: {
             /** Category */
             category: ("raid" | "boss" | "minigame" | "clue" | "skilling" | "monster") | null;
+            /** Collection Log Page */
+            collection_log_page: string | null;
+            /** Collection Log Rows */
+            collection_log_rows: number;
             /** Drop Types */
             drop_types: string[];
             /** Kill Rate Source */
@@ -7888,11 +7913,6 @@ export interface components {
             tiers: {
                 [key: string]: unknown;
             };
-            /**
-             * Total Point Cap
-             * @default 0
-             */
-            total_point_cap: number;
         };
         /** TemplateBody */
         app__routers__surveys__management__TemplateBody: {
@@ -12535,6 +12555,28 @@ export interface operations {
             };
         };
     };
+    get_active_board_frenzy_active_board_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     get_event_history_frenzy_active_history_get: {
         parameters: {
             query?: never;
@@ -12600,41 +12642,6 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    calculate_points_frenzy_calculate_points_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CalculatePointsBody"];
-            };
-        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -16737,6 +16744,55 @@ export interface operations {
                 raid_level?: number | null;
                 limit?: number;
                 offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LootRatePage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    list_collection_log_rates_reference_loot_rates_collection_log_get: {
+        parameters: {
+            query: {
+                name: string;
             };
             header?: never;
             path?: never;

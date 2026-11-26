@@ -2,7 +2,7 @@ import { useState } from "react";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useTemplateVersions, useTemplateVersion, useRevertTemplate } from "@/hooks/useFrenzy";
+import { useTemplateVersions, useTemplateVersion, useRevertTemplate } from "@/hooks/useFrenzyTemplates";
 import { diffLines } from "@/lib/lineDiff";
 import type { FrenzyVersionSummary } from "@/types/frenzyTemplate";
 

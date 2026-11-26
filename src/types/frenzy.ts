@@ -54,6 +54,9 @@ export interface FrenzyTeamDetail {
   player_contribution: Record<string, number>;
 }
 
+/** The active event's board: its tiers, cards and goals, with no team progress. */
+export type FrenzyBoard = FrenzyTeamDetail["template"];
+
 export interface TeamScoreBreakdown {
   tier_points: Record<string, number>;
   activity_points: number;

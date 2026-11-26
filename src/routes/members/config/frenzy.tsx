@@ -3,7 +3,8 @@ import { registerPage } from "@/lib/permissions";
 import { TemplateList } from "@/components/frenzy/admin/TemplateList";
 import { EventList } from "@/components/frenzy/admin/EventEditor";
 import { FrenzySubmissionFeed } from "@/components/frenzy/admin/FrenzySubmissionFeed";
-import { useActiveEvent, useEvent, useEvents } from "@/hooks/useFrenzy";
+import { useActiveEvent } from "@/hooks/useFrenzy";
+import { useEvent, useEvents } from "@/hooks/useFrenzyEvents";
 
 registerPage({
   id: "frenzy.admin",

@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { osrsclansApi, type LootRateRow, type OsrsNpcPage, type OsrsSpritePage } from "@/api/osrsclans";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -13,6 +13,19 @@ export function useItemLootRates(itemName: string, enabled: boolean): UseQueryRe
     staleTime: STALE_1H,
     enabled: enabled && itemName.length >= 2,
   });
+}
+
+/** A fetcher for the drops of one collection log page, cached for an hour per page name. */
+export function useCollectionLogFetch(): (name: string) => Promise<LootRateRow[]> {
+  const qc = useQueryClient();
+  return async (name) => {
+    const page = await qc.fetchQuery({
+      queryKey: queryKeys.reference.collectionLog(name),
+      queryFn: () => osrsclansApi.collectionLog(name),
+      staleTime: STALE_1H,
+    });
+    return page.items;
+  };
 }
 
 export function useNpcSearch(q: string): UseQueryResult<OsrsNpcPage> {

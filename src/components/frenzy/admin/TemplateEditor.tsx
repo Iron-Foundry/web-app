@@ -7,7 +7,8 @@ import { MultiplierEditor } from "./MultiplierEditor";
 import { TemplateSummary } from "./TemplateSummary";
 import { TemplateTree, type CardRef } from "./TemplateTree";
 import { FrenzyVersionHistoryDialog } from "../FrenzyVersionHistoryDialog";
-import { useCalculatePoints, useCreateTemplate, useUpdateTemplate } from "@/hooks/useFrenzy";
+import { useCreateTemplate, useUpdateTemplate } from "@/hooks/useFrenzyTemplates";
+import { assignItemPoints } from "@/lib/frenzyPoints";
 import type { FrenzySource, FrenzyTemplate, FrenzyTemplateUpdate } from "@/types/frenzyTemplate";
 
 const TABS = ["Items", "Activities", "Milestones", "Multipliers"] as const;
@@ -20,9 +21,9 @@ interface Props {
 }
 
 function draftOf(template?: FrenzyTemplate): FrenzyTemplateUpdate {
-  if (!template) return { name: "", description: null, tiers: {}, activities: [], milestones: {}, multipliers: [], total_point_cap: 0 };
-  const { name, description, tiers, activities, milestones, multipliers, total_point_cap } = template;
-  return { name, description, tiers, activities, milestones, multipliers, total_point_cap };
+  if (!template) return { name: "", description: null, tiers: {}, activities: [], milestones: {}, multipliers: [] };
+  const { name, description, tiers, activities, milestones, multipliers } = template;
+  return { name, description, tiers: assignItemPoints(tiers), activities, milestones, multipliers };
 }
 
 function firstCard(tiers: FrenzyTemplateUpdate["tiers"]): CardRef | null {
@@ -37,28 +38,19 @@ export function TemplateEditor({ template, onSaved, onCancel }: Props): React.Re
   const [historyOpen, setHistoryOpen] = useState(false);
   const createTemplate = useCreateTemplate();
   const updateTemplate = useUpdateTemplate();
-  const calculatePoints = useCalculatePoints();
 
-  const budgetSum = Object.values(draft.tiers).reduce((s, t) => s + (t.budget_pct ?? 0), 0);
-  const canRecalculate = draft.total_point_cap > 0 && Math.abs(budgetSum - 100) < 0.01 && !calculatePoints.isPending;
   const card = selected ? draft.tiers[selected.tier]?.sources[selected.index] : undefined;
 
   function set<K extends keyof FrenzyTemplateUpdate>(key: K, value: FrenzyTemplateUpdate[K]): void {
     setDraft((d) => ({ ...d, [key]: value }));
   }
 
-  function setCards(tier: string, sources: FrenzySource[]): void {
-    set("tiers", { ...draft.tiers, [tier]: { ...draft.tiers[tier]!, sources } });
+  function setTiers(tiers: FrenzyTemplateUpdate["tiers"]): void {
+    set("tiers", assignItemPoints(tiers));
   }
 
-  async function recalculate(): Promise<void> {
-    try {
-      const result = await calculatePoints.mutateAsync({ tiers: draft.tiers, total_point_cap: draft.total_point_cap });
-      set("tiers", result.tiers);
-      toast.success("Points recalculated. Review and save to apply.");
-    } catch (err) {
-      toast.error(String(err));
-    }
+  function setCards(tier: string, sources: FrenzySource[]): void {
+    setTiers({ ...draft.tiers, [tier]: { ...draft.tiers[tier]!, sources } });
   }
 
   async function save(): Promise<void> {
@@ -77,11 +69,8 @@ export function TemplateEditor({ template, onSaved, onCancel }: Props): React.Re
       draft={draft}
       version={template?.version_number ?? null}
       set={set}
-      canRecalculate={canRecalculate}
-      isCalculating={calculatePoints.isPending}
       isSaving={createTemplate.isPending || updateTemplate.isPending}
       onHistory={template ? () => setHistoryOpen(true) : null}
-      onRecalculate={recalculate}
       onCancel={onCancel}
       onSave={save}
     />
@@ -99,7 +88,7 @@ export function TemplateEditor({ template, onSaved, onCancel }: Props): React.Re
       </nav>
       {tab === "Items" ? (
         <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)_16rem]">
-          <TemplateTree tiers={draft.tiers} selected={selected} onSelect={setSelected} onChange={(t) => set("tiers", t)} />
+          <TemplateTree tiers={draft.tiers} selected={selected} onSelect={setSelected} onChange={setTiers} />
           {card && selected ? (
             <CardEditor
               tierName={selected.tier}

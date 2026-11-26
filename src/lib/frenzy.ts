@@ -1,5 +1,6 @@
 import type { FrenzyActivity, FrenzyItem, FrenzyMilestone, FrenzyMultiplier, FrenzySource } from "@/types/frenzyTemplate";
 import type { FrenzyTeamProgress, TeamScoreBreakdown } from "@/types/frenzy";
+import { roundHalfUp } from "@/lib/frenzyPoints";
 
 export const TEAM_COLORS = [
   "hsl(220,70%,55%)",
@@ -22,22 +23,23 @@ export function calcItemPoints(item: FrenzyItem, obtained: number): number {
   let pts = 0;
   const required = item.required ?? 1;
   const dupRequired = item.duplicate_required ?? 1;
-  const dupPoints = Math.round(item.points / 2);
+  const basePoints = roundHalfUp(item.points);
+  const dupPoints = roundHalfUp(basePoints / 2);
 
   if (obtained >= required) {
-    pts += item.points;
+    pts += basePoints;
   } else if (required === 2 && obtained === 1) {
-    pts += Math.round(item.points / 2);
+    pts += roundHalfUp(basePoints / 2);
   }
 
   const beyond = obtained - required;
   if (beyond >= dupRequired) {
     pts += dupPoints;
   } else if (dupRequired === 2 && beyond === 1) {
-    pts += Math.round(dupPoints / 2);
+    pts += roundHalfUp(dupPoints / 2);
   }
 
-  return Math.round(pts);
+  return pts;
 }
 
 export function calcTierEntryPoints(
@@ -49,9 +51,9 @@ export function calcTierEntryPoints(
   ).length;
   const base = entry.point_step * tiersDone;
   if (tiersDone === 4) {
-    return Math.round(base * entry.multiplier);
+    return roundHalfUp(base * entry.multiplier);
   }
-  return base;
+  return roundHalfUp(base);
 }
 
 export function isMultiplierUnlocked(
@@ -76,7 +78,7 @@ function calcSourcePoints(
   const factor = unlockedMultipliers
     .filter((m) => m.affects.includes(source.name))
     .reduce((acc, m) => acc * m.factor, 1);
-  return pts * factor;
+  return roundHalfUp(pts * factor);
 }
 
 function calcTotalPoints(

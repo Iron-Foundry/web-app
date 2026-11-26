@@ -116,11 +116,13 @@ export const queryKeys = {
     killRate: (source: string) => ["reference", "kill-rates", source] as const,
     rates: (kind: string) => ["reference", "rates", kind] as const,
     itemLootRates: (itemName: string) => ["reference", "loot-rates", "item", itemName] as const,
+    collectionLog: (name: string) => ["reference", "loot-rates", "collection-log", name.toLowerCase()] as const,
     npcSearch: (q: string) => ["reference", "osrs", "npcs", q] as const,
     spriteSearch: (q: string) => ["reference", "osrs", "sprites", q] as const,
   },
   frenzy: {
     active: () => ["frenzy", "active"] as const,
+    activeBoard: () => ["frenzy", "active", "board"] as const,
     team: (slug: string) => ["frenzy", "active", "team", slug] as const,
     teamHistory: (slug: string) => ["frenzy", "active", "team", slug, "history"] as const,
     eventHistory: () => ["frenzy", "active", "history"] as const,

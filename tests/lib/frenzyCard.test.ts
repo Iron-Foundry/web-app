@@ -11,7 +11,6 @@ function item(partial: Partial<FrenzyItem>): FrenzyItem {
     icon_url: null,
     drop_denom: 512,
     kph: 46,
-    points_locked: false,
     ...partial,
   };
 }

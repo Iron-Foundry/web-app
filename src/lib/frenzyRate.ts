@@ -1,4 +1,5 @@
 import type { LootRateRow } from "@/api/osrsclans";
+import { emptyItem } from "@/lib/frenzyCard";
 import type { FrenzyItem } from "@/types/frenzyTemplate";
 
 type RateFields = Pick<LootRateRow, "chance" | "chance_per_raid" | "kills_per_hour">;
@@ -16,6 +17,19 @@ export function rowHours(row: RateFields): number | null {
 /** Rows with a rate first, fastest first; rows with no kill rate keep their order at the end. */
 export function byHours<R extends RateFields>(rows: R[]): R[] {
   return [...rows].sort((a, b) => (rowHours(a) ?? Infinity) - (rowHours(b) ?? Infinity));
+}
+
+/** The collection log drops a card lacks, one item each, rated from the fastest source that drops it. */
+export function collectionLogItems(existing: FrenzyItem[], rows: LootRateRow[]): FrenzyItem[] {
+  const have = new Set(existing.map((i) => i.name.toLowerCase()));
+  const fastest = new Map<string, LootRateRow>();
+  for (const row of byHours(rows)) {
+    const key = row.item_name.toLowerCase();
+    if (!have.has(key) && !fastest.has(key)) fastest.set(key, row);
+  }
+  return [...fastest.values()].map((row) =>
+    applyRateRow({ ...emptyItem(), name: row.item_name, icon_url: row.image_url ?? null }, row),
+  );
 }
 
 /** Fills the item's rate from one OSRSClans row. A row with no kill rate leaves kph to fill by hand. */

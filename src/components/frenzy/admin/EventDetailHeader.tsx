@@ -2,7 +2,7 @@ import { DoorClosed, DoorOpen, RefreshCw, Save, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useActivateEvent, useDeactivateEvent, useSyncEventFromWom } from "@/hooks/useFrenzy";
+import { useActivateEvent, useDeactivateEvent, useSyncEventFromWom } from "@/hooks/useFrenzyEvents";
 import { useSetFrenzySignupsOpen } from "@/hooks/useFrenzySignups";
 import type { FrenzyEventSummary } from "@/types/frenzy";
 

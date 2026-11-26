@@ -3,7 +3,7 @@ import { Check, X, Trash2, ChevronLeft, ChevronRight, Search, SlidersHorizontal,
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { useSubmissions, usePatchSubmission, useDeleteSubmission } from "@/hooks/useFrenzy";
+import { useSubmissions, usePatchSubmission, useDeleteSubmission } from "@/hooks/useFrenzySubmissions";
 import { useSubmissionFilters, PAGE_SIZE } from "@/hooks/useSubmissionFilters";
 import type { FrenzySubmission, FrenzySubmissionStatus } from "@/types/frenzySubmission";
 

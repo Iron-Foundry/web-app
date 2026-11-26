@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TemplateEditor } from "./TemplateEditor";
-import { useTemplates, useTemplate, useDeleteTemplate } from "@/hooks/useFrenzy";
+import { useTemplates, useTemplate, useDeleteTemplate } from "@/hooks/useFrenzyTemplates";
 import type { FrenzyTemplateSummary } from "@/types/frenzyTemplate";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";

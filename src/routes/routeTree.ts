@@ -29,6 +29,7 @@ import { membersTicketsRoute } from "./members/tickets";
 import { frenzyRoute } from "./activities/frenzy";
 import { frenzyTeamRoute } from "./activities/frenzy.$teamSlug";
 import { frenzyDraftRoute } from "./activities/frenzy.draft";
+import { frenzyBoardRoute } from "./activities/frenzy.board";
 import { tileraceRoute } from "./activities/tilerace";
 import { goalsRsnRoute } from "./goals.$rsn";
 import { membersSurveysRoute } from "./members/surveys";
@@ -98,6 +99,7 @@ export const routeTree = rootRoute.addChildren([
   competitionDetailRoute,
   frenzyRoute,
   frenzyDraftRoute,
+  frenzyBoardRoute,
   frenzyTeamRoute,
   tileraceRoute,
   feedbackRoute,

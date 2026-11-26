@@ -10,6 +10,7 @@ import { useFrenzyDraft } from "@/hooks/useFrenzyDraft";
 import { FrenzyStandings } from "@/components/frenzy/FrenzyStandings";
 import { FrenzyEventCharts } from "@/components/frenzy/FrenzyEventCharts";
 import { FrenzyLeaderboard } from "@/components/frenzy/FrenzyLeaderboard";
+import { FrenzyEventBoard } from "@/components/frenzy/FrenzyEventBoard";
 import { FrenzySignup } from "@/components/frenzy/FrenzySignup";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,11 @@ function FrenzyPage() {
             )}
             <div className="flex items-center gap-2">
               {user && activeEvent && <FrenzySignup event={activeEvent} />}
+              {activeEvent && !activeEvent.signups_open && (
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/activities/frenzy/board">Board</Link>
+                </Button>
+              )}
               {draft && (
                 <Button asChild size="sm" variant="outline">
                   <Link to="/activities/frenzy/draft">Draft</Link>
@@ -97,9 +103,10 @@ function FrenzyPage() {
       {!isLoading && !activeEvent && (
         <p className="text-sm text-muted-foreground">No active event right now. Check back later!</p>
       )}
-      {activeEvent && <FrenzyStandings teams={activeEvent.teams} />}
-      {activeEvent && <FrenzyEventCharts />}
-      <FrenzyLeaderboard />
+      {activeEvent?.signups_open && <FrenzyEventBoard />}
+      {activeEvent && !activeEvent.signups_open && <FrenzyStandings teams={activeEvent.teams} />}
+      {activeEvent && !activeEvent.signups_open && <FrenzyEventCharts />}
+      {!activeEvent?.signups_open && <FrenzyLeaderboard />}
     </div>
   );
 }

@@ -1,11 +1,10 @@
 import { apiFetch } from "@/api/client";
-import type { FrenzyActiveEvent, FrenzyEventDetail, FrenzyEventHistory, FrenzyEventSummary, FrenzyLeaderboardEntry, FrenzyTeamDetail, FrenzyTeamHistory, OsrsActivity, OsrsBoss, OsrsItem } from "@/types/frenzy";
-import type { FrenzySubmission, FrenzySubmissionCreate, FrenzySubmissionList } from "@/types/frenzySubmission";
-import type { FrenzyTemplate, FrenzyTemplateSummary, FrenzyTemplateUpdate, FrenzyTierData, FrenzyVersionDetail, FrenzyVersionSummary } from "@/types/frenzyTemplate";
+import type { FrenzyActiveEvent, FrenzyBoard, FrenzyEventDetail, FrenzyEventHistory, FrenzyEventSummary, FrenzyLeaderboardEntry, FrenzyTeamDetail, FrenzyTeamHistory, OsrsActivity, OsrsBoss, OsrsItem } from "@/types/frenzy";
 
 export const frenzyApi = {
   // Public
   getActiveEvent: () => apiFetch<FrenzyActiveEvent>("/frenzy/active"),
+  getActiveBoard: () => apiFetch<FrenzyBoard>("/frenzy/active/board"),
   getTeamDetail: (teamSlug: string) =>
     apiFetch<FrenzyTeamDetail>(`/frenzy/active/teams/${teamSlug}`),
   getLeaderboards: () =>
@@ -21,31 +20,6 @@ export const frenzyApi = {
     apiFetch<OsrsItem[]>(`/frenzy/osrs/items?q=${encodeURIComponent(q)}`),
   getBosses: () => apiFetch<OsrsBoss[]>("/frenzy/osrs/bosses"),
   getActivities: () => apiFetch<OsrsActivity[]>("/frenzy/osrs/activities"),
-
-  // Admin - Templates
-  listTemplates: () => apiFetch<FrenzyTemplateSummary[]>("/frenzy/templates"),
-  createTemplate: (data: FrenzyTemplateUpdate) =>
-    apiFetch<{ id: number; version_number: number }>("/frenzy/templates", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-  getTemplate: (id: number) => apiFetch<FrenzyTemplate>(`/frenzy/templates/${id}`),
-  updateTemplate: (id: number, data: FrenzyTemplateUpdate) =>
-    apiFetch<{ id: number; version_number: number; updated_at: string }>(
-      `/frenzy/templates/${id}`,
-      { method: "PUT", body: JSON.stringify(data) },
-    ),
-  deleteTemplate: (id: number) =>
-    apiFetch<{ ok: boolean }>(`/frenzy/templates/${id}`, { method: "DELETE" }),
-  listTemplateVersions: (id: number) =>
-    apiFetch<FrenzyVersionSummary[]>(`/frenzy/templates/${id}/versions`),
-  getTemplateVersion: (id: number, vid: number) =>
-    apiFetch<FrenzyVersionDetail>(`/frenzy/templates/${id}/versions/${vid}`),
-  revertTemplate: (id: number, vid: number) =>
-    apiFetch<{ id: number; version_number: number; updated_at: string }>(
-      `/frenzy/templates/${id}/revert/${vid}`,
-      { method: "POST" },
-    ),
 
   // Admin - Events
   listEvents: () => apiFetch<FrenzyEventSummary[]>("/frenzy/events"),
@@ -122,64 +96,4 @@ export const frenzyApi = {
 
   refreshLeaderboards: () =>
     apiFetch<{ ok: boolean }>("/frenzy/leaderboards/refresh", { method: "POST" }),
-
-  calculatePoints: (data: { tiers: Record<string, FrenzyTierData>; total_point_cap: number }) =>
-    apiFetch<{ tiers: Record<string, FrenzyTierData> }>("/frenzy/calculate-points", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-
-  // Admin - Submissions
-  listSubmissions: (
-    eventId: number,
-    params?: {
-      team_id?: number;
-      status?: string;
-      submission_type?: string;
-      source?: string;
-      player_rsn?: string;
-      auto_approved?: boolean;
-      submitted_after?: string;
-      submitted_before?: string;
-      q?: string;
-      limit?: number;
-      offset?: number;
-    },
-  ) => {
-    const qs = new URLSearchParams();
-    if (params?.team_id != null) qs.set("team_id", String(params.team_id));
-    if (params?.status) qs.set("status", params.status);
-    if (params?.submission_type) qs.set("submission_type", params.submission_type);
-    if (params?.source) qs.set("source", params.source);
-    if (params?.player_rsn) qs.set("player_rsn", params.player_rsn);
-    if (params?.auto_approved != null) qs.set("auto_approved", String(params.auto_approved));
-    if (params?.submitted_after) qs.set("submitted_after", params.submitted_after);
-    if (params?.submitted_before) qs.set("submitted_before", params.submitted_before);
-    if (params?.q) qs.set("q", params.q);
-    if (params?.limit != null) qs.set("limit", String(params.limit));
-    if (params?.offset != null) qs.set("offset", String(params.offset));
-    const query = qs.toString();
-    return apiFetch<FrenzySubmissionList>(
-      `/frenzy/events/${eventId}/submissions${query ? `?${query}` : ""}`,
-    );
-  },
-  createSubmission: (eventId: number, data: FrenzySubmissionCreate) =>
-    apiFetch<{ id: number; status: string; auto_approved: boolean }>(
-      `/frenzy/events/${eventId}/submissions`,
-      { method: "POST", body: JSON.stringify(data) },
-    ),
-  patchSubmission: (
-    eventId: number,
-    submissionId: number,
-    data: { status: string; review_notes?: string | null },
-  ) =>
-    apiFetch<{ ok: boolean; status: string }>(
-      `/frenzy/events/${eventId}/submissions/${submissionId}`,
-      { method: "PATCH", body: JSON.stringify(data) },
-    ),
-  deleteSubmission: (eventId: number, submissionId: number) =>
-    apiFetch<{ ok: boolean }>(
-      `/frenzy/events/${eventId}/submissions/${submissionId}`,
-      { method: "DELETE" },
-    ),
 };

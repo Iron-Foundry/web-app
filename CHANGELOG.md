@@ -14,6 +14,9 @@ component. Entries land under Unreleased until then.
 
 ### Added
 
+- While an active frenzy event has signups open, the event page shows the whole event board (all tiers and cards, activities, milestones and multipliers) in place of the standings, charts and leaderboards.
+- The event board has its own page at `/activities/frenzy/board`. Outside signups, a "Board" button on the event page opens it.
+- In the frenzy template editor, a card name that matches a collection log page, such as Vorkath or Chambers of Xeric, adds that page's drops the card lacks. Each drop takes its rate from the fastest OSRSClans source.
 - The PVM Frenzy draft page at `/activities/frenzy/draft`. It shows whose turn it is, the snake grid of rounds and captains, the pool of signups with search and a rank filter, the recent picks, and every team's full roster. The page updates live on each pick. The captain on turn picks with "Pick", and staff pick for an absent captain. Staff move members between teams after the draft.
 - The frenzy event editor has a captain draft section. Staff choose Full draft or Top Picks, the top picks per captain, and the captains from the signups, then draw the order, start the draft or reset it.
 - The frenzy signup offers "Willing to captain a team", and each signup or change sends the browser's time zone.
@@ -22,11 +25,16 @@ component. Entries land under Unreleased until then.
 
 ### Removed
 
+- The frenzy template editor's point cap, tier budget, Recalculate and point lock controls.
 - The Bingo page at `/bingo`, its Community menu link, and its board and team data.
 - The OSRS world map: the tile marker editor, preview and guide embed, and the `/map-test` page.
 
 ### Changed
 
+- The home page clan stats show The Fractured Archive kills in purple. Loot value and Tombs of Amascut are yellow, Chambers of Xeric is green, and Theatre of Blood stays red.
+- Recent achievements sits on its own row beneath Rank structure on the home page.
+- The frenzy template editor shows each item's points as they follow from a fixed cap of 1,000,000 for all items at full completion, by hours per drop. The points change as items and rates change.
+- Frenzy card points are whole numbers, with .5 rounding up.
 - The site wears the Monogram skin: near-black surfaces, an orange accent, neutral borders, a light mode in warm white, and gradient fills on the main buttons and the brand. Cards no longer glow on hover.
 - The top bar carries the I/F logo, the three section menus as plain text, Staff, and the profile menu with the role in its colour. The pages of the current section sit in a row under the bar. On staff pages that row carries the staff pages.
 - The footer lists the three sections as columns beside Links and Follow, with square social buttons.
@@ -64,6 +72,13 @@ component. Entries land under Unreleased until then.
 - A frenzy card can be a typed group, such as Slayer or Miscellaneous, that holds items from several sources.
 - A frenzy item takes its drop chance and kill rate from a picked OSRSClans loot rate row. A row with no kill rate leaves KPH to set by hand.
 - A frenzy card takes its image from an OSRSClans NPC, an OSRSClans sprite or one of its items. With no image, it shows its item images.
+
+### Fixed
+
+- The frenzy card image picker searches for the current card's name each time it opens. It no longer keeps the first card's name.
+- The card image picker shows "No images found" when no result has an image. It no longer shows an empty grid.
+- The card image and item searches wait until typing stops, so they no longer send a request on each keystroke.
+- Leaving the frenzy item search without a pick shows the item's own name again.
 
 ## [1.12.0] - 2026-08-18
 

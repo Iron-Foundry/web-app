@@ -1,5 +1,6 @@
 import { calcItemPoints } from "@/lib/frenzy";
 import { STATE_TEXT, cardState, isTypedCard, itemKey, itemState } from "@/lib/frenzyCard";
+import { roundHalfUp } from "@/lib/frenzyPoints";
 import { FrenzyRatePopover } from "./FrenzyRatePopover";
 import type { FrenzyItem, FrenzySource } from "@/types/frenzyTemplate";
 
@@ -54,7 +55,7 @@ export function FrenzySourceCard({ tierName, source, itemProgress, factor }: Pro
   const obtained = (item: FrenzyItem): number => itemProgress[itemKey(tierName, source.name, item.name)] ?? 0;
   const states = source.items.map((item) => itemState(item, obtained(item)));
   const done = states.filter((s) => s !== "none").length;
-  const points = source.items.reduce((acc, item) => acc + calcItemPoints(item, obtained(item)), 0) * factor;
+  const points = roundHalfUp(source.items.reduce((acc, item) => acc + calcItemPoints(item, obtained(item)), 0) * factor);
   const total = source.items.length;
   return (
     <article className="rounded-xl border bg-card p-4 space-y-3" title={source.hovertext || undefined}>
@@ -66,7 +67,7 @@ export function FrenzySourceCard({ tierName, source, itemProgress, factor }: Pro
             <p className="flex flex-wrap gap-x-3 text-sm text-muted-foreground">
               <span>{done}/{total}</span>
               {factor > 1 && <span className="font-semibold text-yellow-500">{factor.toFixed(2)}x</span>}
-              <span>{Math.floor(points).toLocaleString()} pts</span>
+              <span>{points.toLocaleString()} pts</span>
             </p>
           </div>
           <div className="flex justify-end">

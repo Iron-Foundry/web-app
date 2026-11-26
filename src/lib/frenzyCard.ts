@@ -12,6 +12,10 @@ const MEASURED_BY: Record<string, string> = {
   foundry: "Foundry",
 };
 
+export function emptyItem(): FrenzyItem {
+  return { name: "", points: 0, required: 1, duplicate_required: 1, icon_url: null, drop_denom: null, kph: null };
+}
+
 export function itemKey(tierName: string, cardName: string, itemName: string): string {
   return `${tierName}.${cardName}.${itemName}`;
 }

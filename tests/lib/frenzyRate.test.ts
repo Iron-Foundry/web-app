@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { LootRateRow } from "@/api/osrsclans";
-import { applyRateRow, byHours, rowHours } from "@/lib/frenzyRate";
+import { applyRateRow, byHours, collectionLogItems, rowHours } from "@/lib/frenzyRate";
 import type { FrenzyItem } from "@/types/frenzyTemplate";
 
 function row(partial: Partial<LootRateRow>): LootRateRow {
@@ -26,6 +26,8 @@ function row(partial: Partial<LootRateRow>): LootRateRow {
     skill: null,
     ge_price: null,
     high_alchemy: null,
+    collection_log: true,
+    collection_log_page: "Chambers of Xeric",
     read_at: "2026-11-25T04:33:22Z",
     ...partial,
   } as LootRateRow;
@@ -39,7 +41,6 @@ const ITEM: FrenzyItem = {
   icon_url: null,
   drop_denom: 99,
   kph: 9,
-  points_locked: false,
 };
 
 describe("applyRateRow", () => {
@@ -52,6 +53,18 @@ describe("applyRateRow", () => {
 
   test("a row with no kill rate leaves kph empty", () => {
     expect(applyRateRow(ITEM, row({ kills_per_hour: null, chance_per_raid: null, chance: 0.01 })).kph).toBeNull();
+  });
+});
+
+describe("collectionLogItems", () => {
+  test("adds each missing drop once, from its fastest source", () => {
+    const rows = [
+      row({ item_name: "Kodai insignia", source: "Ancient chest#Challenge Mode", chance_per_raid: 0.001 }),
+      row({ item_name: "Kodai insignia", source: "Ancient chest#Normal Mode", chance_per_raid: 0.002 }),
+      row({ item_name: "TWISTED BOW" }),
+    ];
+    const added = collectionLogItems([ITEM], rows);
+    expect(added.map((i) => [i.name, i.rate_source])).toEqual([["Kodai insignia", "Ancient chest#Normal Mode"]]);
   });
 });
 

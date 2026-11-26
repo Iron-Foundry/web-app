@@ -15,7 +15,7 @@ function tierCount(tierName: string, tier: FrenzyTierData, progress: Record<stri
   return `${done}/${items.length}`;
 }
 
-function Section({ id, title, aside, children }: { id: string; title: string; aside?: string; children: React.ReactNode }): React.ReactElement {
+export function Section({ id, title, aside, children }: { id: string; title: string; aside?: string; children: React.ReactNode }): React.ReactElement {
   return (
     <section id={id} className="scroll-mt-4 space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">

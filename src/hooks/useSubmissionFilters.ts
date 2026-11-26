@@ -1,16 +1,8 @@
-import { useEffect, useState } from "react";
-import type { SubmissionFilters } from "@/hooks/useFrenzy";
+import { useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
+import type { SubmissionFilters } from "@/hooks/useFrenzySubmissions";
 
 const PAGE_SIZE = 50;
-
-function useDebounce<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(t);
-  }, [value, delay]);
-  return debounced;
-}
 
 export interface SubmissionFilterState {
   page: number;
