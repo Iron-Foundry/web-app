@@ -1,109 +1,9 @@
-export interface FrenzyItem {
-  name: string;
-  points: number;
-  required: number;
-  duplicate_required: number;
-  icon_url: string | null;
-  drop_denom: number | null;
-  kph: number | null;
-  points_locked: boolean;
-  /** OSRSClans source key of the picked loot rate row, e.g. "Vorkath#Post-quest". */
-  rate_source?: string | null;
-  /** OSRSClans killRateSource of the picked row: wom, droptracker, clue_scroll, item_drop, superior, fixed. */
-  kill_rate_source?: string | null;
-  /** OSRSClans category of the picked row; "raid" means kph counts raids, not kills. */
-  rate_category?: string | null;
-}
+import type { FrenzyActivity, FrenzyMilestone, FrenzyMultiplier, FrenzyTierData } from "./frenzyTemplate";
+import type { FrenzySubmissionType } from "./frenzySubmission";
+import type { components } from "@/api/schema";
 
-export interface FrenzySource {
-  name: string;
-  hovertext: string;
-  icon_url: string;
-  items: FrenzyItem[];
-}
-
-export interface FrenzyTierData {
-  sources: FrenzySource[];
-  budget_pct: number;
-}
-
-export interface FrenzyActivity {
-  name: string;
-  point_step: number;
-  tier1: number;
-  tier2: number;
-  tier3: number;
-  tier4: number;
-  multiplier: number;
-  unit: string;
-  req_factor: number;
-}
-
-export interface FrenzyMilestone {
-  name: string;
-  point_step: number;
-  tier1: number;
-  tier2: number;
-  tier3: number;
-  tier4: number;
-  multiplier: number;
-  unit: string;
-  req_factor: number;
-}
-
-export interface FrenzyMultiplier {
-  name: string;
-  description: string;
-  affects: string[];
-  factor: number;
-  requirement: string[];
-}
-
-export interface FrenzyTemplate {
-  id: number;
-  name: string;
-  description: string | null;
-  tiers: Record<string, FrenzyTierData>;
-  activities: FrenzyActivity[];
-  milestones: Record<string, FrenzyMilestone[]>;
-  multipliers: FrenzyMultiplier[];
-  total_point_cap: number;
-  version_number: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface FrenzyTemplateSummary {
-  id: number;
-  name: string;
-  description: string | null;
-  version_number: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export type FrenzyTemplateUpdate = Omit<FrenzyTemplate, "id" | "version_number" | "created_at" | "updated_at">;
-
-export interface FrenzyVersionEditor {
-  discord_user_id: number;
-  discord_username: string;
-  rsn: string | null;
-  avatar: string | null;
-}
-
-export interface FrenzyVersionSummary {
-  id: number;
-  version_number: number;
-  created_at: string;
-  edited_by: FrenzyVersionEditor | null;
-}
-
-export interface FrenzyVersionDetail extends FrenzyVersionSummary {
-  tiers: Record<string, FrenzyTierData>;
-  activities: FrenzyActivity[];
-  milestones: Record<string, FrenzyMilestone[]>;
-  multipliers: FrenzyMultiplier[];
-}
+export type FrenzySignupList = components["schemas"]["FrenzySignupList"];
+export type MyFrenzySignup = components["schemas"]["MyFrenzySignup"];
 
 export interface FrenzyTeamSummary {
   id: number;
@@ -125,6 +25,8 @@ export interface FrenzyActiveEvent {
   starts_at: string | null;
   ends_at: string | null;
   template_id: number;
+  signups_open: boolean;
+  my_signup: MyFrenzySignup | null;
   teams: FrenzyTeamSummary[];
 }
 
@@ -167,6 +69,7 @@ export interface FrenzyEventSummary {
   starts_at: string | null;
   ends_at: string | null;
   is_active: boolean;
+  signups_open: boolean;
   created_at: string;
 }
 
@@ -208,52 +111,6 @@ export interface OsrsActivity {
 }
 
 // Submission types
-
-export type FrenzySubmissionSource = "trackscape" | "discord_ocr" | "discord_manual" | "web";
-export type FrenzySubmissionType = "item" | "activity" | "milestone";
-export type FrenzySubmissionStatus = "pending" | "approved" | "rejected";
-
-export interface FrenzySubmissionReviewer {
-  discord_user_id: number;
-  discord_username: string;
-  rsn: string | null;
-}
-
-export interface FrenzySubmission {
-  id: number;
-  event_id: number;
-  team_id: number;
-  discord_user_id: number;
-  player_rsn: string;
-  source: FrenzySubmissionSource;
-  submission_type: FrenzySubmissionType;
-  payload: Record<string, unknown>;
-  status: FrenzySubmissionStatus;
-  auto_approved: boolean;
-  reviewed_by: FrenzySubmissionReviewer | null;
-  reviewed_at: string | null;
-  review_notes: string | null;
-  submitted_at: string;
-  created_at: string;
-}
-
-export interface FrenzySubmissionList {
-  total: number;
-  limit: number;
-  offset: number;
-  submissions: FrenzySubmission[];
-}
-
-export interface FrenzySubmissionCreate {
-  discord_user_id: number;
-  player_rsn: string;
-  source: FrenzySubmissionSource;
-  submission_type: FrenzySubmissionType;
-  payload: Record<string, unknown>;
-  submitted_at?: string | null;
-}
-
-// History / chart types
 
 export interface FrenzyHistoryPoint {
   timestamp: string;

@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
-import { Separator } from "@/components/ui/separator";
-import ifPurple from "@/assets/IF_PURPLE.png";
-import ifElectricBlue from "@/assets/IF_ELECTRIC_BLUE.png";
-import ifBW from "@/assets/LogoTSPSmall-B&W-320x320.png";
-import ifGreen from "@/assets/IF_GREEN.png";
-import ifYellow from "@/assets/IF_YELLOW.png";
 import { API_URL, getAuthToken } from "@/context/AuthContext";
+import { PageHead } from "@/components/layout/PageHead";
+import { STAFF, type StaffMember } from "@/lib/staffRoster";
 
 export const staffRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -15,136 +11,39 @@ export const staffRoute = createRoute({
   component: StaffPage,
 });
 
-interface StaffMember {
-  name: string;
-  position?: string[];
-  discordId?: string;
-}
-
-interface StaffSection {
-  title: string;
-  icon: string;
-  members: StaffMember[];
-}
-
-const STAFF: StaffSection[] = [
-  {
-    title: "Owners",
-    icon: ifPurple,
-    members: [
-      { name: "Martyrs",  position: ["Co-Owner", "Expert Yapper"], discordId: "406502736528408608"    },
-      { name: "Salt",     position: ["Co-Owner", "Lead Developer"], discordId: "225683257146998785"    },
-    ],
-  },
-  {
-    title: "Senior Moderators",
-    icon: ifElectricBlue,
-    members: [
-      { name: "aBtw",     position: ["Lead Mentorships & Ranks"], discordId: "238129189234933761" },
-      { name: "Ethamiel", position: ["Lead Coordinator", "Lead Events", "Lead Recruiting", "Expert Yapper"], discordId: "1266898806985986108" },
-    ],
-  },
-  {
-    title: "Moderators",
-    icon: ifBW,
-    members: [
-      { name: "Dunkies",      position: ["General Moderator"], discordId: "262425953681145867" },
-      { name: "PvM Items",    position: ["General Moderator"], discordId: "257307256016732161" },
-      { name: "Gfe zanothe",  position: ["Mentorships & Ranks"], discordId: "219775913083011072" },
-      { name: "Iron Pyke",    position: ["Mentorships & Ranks"], discordId: "1173045051862036520" },
-      { name: "LD Blowie",       position: ["Mentorships & Ranks", "Tickets & Support"], discordId: "185151555480190976" },
-      { name: "Major Mahi",   position: ["Tickets & Support"], discordId: "117672374362439684" },
-      { name: "Turbobungus",  position: ["Events"], discordId: "526978897586159627" },
-      { name: "Ugly Dipshit",  position: ["Recruiting", "Coordinator", "Social Media"], discordId: "126047413113716736" },
-      { name: "Ponderrr",  position: ["Recruiting", "Tickets & Support"], discordId: "1221565409359040604" },
-      { name: "MadMike887",  position: ["Recruiting"], discordId: "275911716192124929" },
-      { name: "Very Niceuuu",  position: ["Lead Community Activities", "Events"], discordId: "294951214314029056" },
-    ],
-  },
-  {
-    title: "Event Team",
-    icon: ifGreen,
-      members: [
-        { name: "Ursaring",   position: ["Large Scale", "Small Scale"], discordId: "334193733627150338" },
-        { name: "M imik",   position: ["Large Scale", "Community Events"], discordId: "311546073737068546" },
-        { name: "Bimmo",   position: ["Large Scale"], discordId: "147852591244640256" },
-        { name: "Effort Low", position: ["Large Scale"], discordId: "611981968506224640" },
-        {name: "Hard4Huey", position: ["Large Scale", "Small Scale"], discordId: "191741131841601536"}
-    ],
-  },
-  {
-    title: "Mentors",
-    icon: ifYellow,
-      members: [
-        { name: "Soklyve",   position: [], discordId: "1117209236829650984" },
-        { name: "BromieJuan",   position: [], discordId: "241381729187659787" },
-        { name: "Goon Knight",   position: [], discordId: "1419350610200887327" },
-        { name: "Hyuacktuah",   position: [], discordId: "95867178078732288" },
-        { name: "Ursaring",   position: [], discordId: "334193733627150338" },
-        { name: "Sr6",   position: [], discordId: "109446695464497152" },
-        { name: "Bimmo", position: [], discordId: "147852591244640256" },
-        { name: "Jake", position: [], discordId: "701159674829078559"}
-    ],
-    },
-    {
-        title: "Site Editors",
-        icon: ifPurple,
-        members: [
-            { name: "Hyuacktuah", position: [], discordId: "95867178078732288" },
-            { name: "Sorbella", position: [], discordId: "321291670895460354" },
-            { name: "Jake", position: [], discordId: "701159674829078559" },
-            { name: "Fish Tofu", position: [], discordId: "140828842779607040"}
-        ]
-  }
-];
-
-function MemberCard({ name, position, discordId }: StaffMember) {
-  const hasMultiple = position && position.length > 1;
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
-
+function useAvatar(discordId: string | undefined): string | null {
+  const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {
     if (!discordId) return;
     const token = getAuthToken();
-    if (!token) return;
     let cancelled = false;
-    fetch(`${API_URL}/members/${discordId}/avatar`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => (r.ok ? (r.json() as Promise<{ avatar_url: string }>) : Promise.reject()))
-      .then((data) => { if (!cancelled) setAvatarSrc(data.avatar_url); })
-      .catch(() => {});
+    fetch(`${API_URL}/members/${discordId}/avatar`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      .then((r) => (r.ok ? (r.json() as Promise<{ avatar_url: string }>) : Promise.reject(new Error(`${r.status}`))))
+      .then((data) => { if (!cancelled) setSrc(data.avatar_url); }, () => {})
     return () => { cancelled = true; };
   }, [discordId]);
+  return src;
+}
 
+function MemberCard({ name, position, discordId }: StaffMember): React.ReactElement {
+  const avatar = useAvatar(discordId);
+  const extra = position?.slice(1) ?? [];
   return (
-    <div className="group relative rounded-lg border border-border bg-card px-4 py-3 min-w-40">
-      <div className="flex items-center gap-2">
-        {discordId && (
-          <div className="h-7 w-7 shrink-0 rounded-full overflow-hidden bg-muted">
-            {avatarSrc && (
-              <img
-                src={avatarSrc}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            )}
-          </div>
-        )}
-        <div className="flex items-baseline gap-2">
-          <span className="text-sm font-medium text-foreground">{name}</span>
-          {position && position.length > 0 && (
-            <span className="text-xs text-muted-foreground">{position[0]}</span>
-          )}
-        </div>
-      </div>
-      {hasMultiple && (
-        <div className="absolute left-0 top-full z-10 mt-1 hidden w-full rounded-lg border border-border bg-card px-4 py-2 shadow-lg group-hover:block">
-          {position.slice(1).map((p) => (
-            <span key={p} className="block text-xs text-muted-foreground">
-              {p}
-            </span>
-          ))}
-        </div>
+    <div
+      tabIndex={extra.length > 0 ? 0 : undefined}
+      className="group relative flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card px-3.5 py-3 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <span className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-muted">
+        {avatar && <img src={avatar} alt={`${name} avatar`} className="h-full w-full object-cover" />}
+      </span>
+      <span className="grid min-w-0 leading-snug">
+        <span className="truncate font-semibold">{name}</span>
+        {position && position.length > 0 && <span className="truncate text-sm text-muted-foreground">{position[0]}</span>}
+      </span>
+      {extra.length > 0 && (
+        <span className="absolute inset-x-0 top-full z-10 mt-1 hidden rounded-lg border border-border bg-muted px-3.5 py-2 text-sm leading-relaxed text-mk-body shadow-xl group-hover:block group-focus:block">
+          {extra.map((p) => <span key={p} className="block">{p}</span>)}
+        </span>
       )}
     </div>
   );
@@ -152,33 +51,22 @@ function MemberCard({ name, position, discordId }: StaffMember) {
 
 function StaffPage() {
   return (
-    <div className="mx-auto max-w-4xl space-y-10 py-6">
-      <div className="space-y-1">
-        <h1 className="font-rs-bold text-4xl text-primary">Our Team</h1>
-        <p className="text-muted-foreground">
-          The team keeping Iron Foundry running.
-        </p>
-      </div>
-
+    <div className="mx-auto max-w-5xl space-y-10 py-6">
+      <PageHead title="Our Team" lede="The team keeping Iron Foundry running." />
       {STAFF.map((section, i) => (
-        <div key={section.title} className="space-y-4">
-          {i > 0 && <Separator />}
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-3">
-              <img src={section.icon} alt="" className="h-14 w-14 object-contain" />
-              <h2 className="font-rs-bold text-2xl text-primary">{section.title}</h2>
+        <section key={section.title} className={i > 0 ? "space-y-4 border-t border-border pt-8" : "space-y-4"}>
+          <h2 className="flex items-center gap-3.5 font-rs-bold text-2xl text-foreground">
+            <img src={section.icon} alt={`${section.title} emblem`} className="h-13 w-13 object-contain" />
+            {section.title}
+          </h2>
+          {section.members.length > 0 ? (
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+              {section.members.map((m) => <MemberCard key={m.name} {...m} />)}
             </div>
-            {section.members.length > 0 ? (
-              <div className="flex flex-wrap gap-3">
-                {section.members.map((m) => (
-                  <MemberCard key={m.name} {...m} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No members listed.</p>
-            )}
-          </div>
-        </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No members listed.</p>
+          )}
+        </section>
       ))}
     </div>
   );

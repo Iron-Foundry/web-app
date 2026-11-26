@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useSubmissions, usePatchSubmission, useDeleteSubmission } from "@/hooks/useFrenzy";
 import { useSubmissionFilters, PAGE_SIZE } from "@/hooks/useSubmissionFilters";
-import type { FrenzySubmission, FrenzySubmissionStatus } from "@/types/frenzy";
+import type { FrenzySubmission, FrenzySubmissionStatus } from "@/types/frenzySubmission";
 
 const STATUS_COLORS: Record<FrenzySubmissionStatus, string> = {
   pending: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30",

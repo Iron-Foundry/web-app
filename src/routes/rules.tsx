@@ -1,6 +1,6 @@
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
-import { Card, CardContent } from "@/components/ui/card";
+import { PageHead } from "@/components/layout/PageHead";
 
 export const rulesRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -37,28 +37,16 @@ const RULES = [
 
 function RulesPage() {
   return (
-    <div className="mx-auto max-w-3xl space-y-6 py-6">
-      <div className="space-y-1">
-        <h1 className="font-rs-bold text-4xl text-primary">Clan Rules</h1>
-        <p className="text-muted-foreground">
-          By joining Iron Foundry you agree to abide by the following rules.
-        </p>
-      </div>
-
-      <div className="space-y-3">
+    <div className="mx-auto max-w-3xl space-y-8 py-6">
+      <PageHead title="Clan Rules" lede="By joining Iron Foundry you agree to abide by the following rules." />
+      <ol className="space-y-3">
         {RULES.map((rule) => (
-          <Card key={rule.number}>
-            <CardContent className="flex gap-4 py-4">
-              <span className="font-rs-bold text-2xl text-primary shrink-0 w-7 leading-tight">
-                {rule.number}
-              </span>
-              <p className="text-sm text-foreground leading-relaxed pt-0.5">
-                {rule.text}
-              </p>
-            </CardContent>
-          </Card>
+          <li key={rule.number} className="flex gap-5 rounded-xl border border-border bg-card px-5 py-4">
+            <span className="w-8 shrink-0 font-rs-bold text-3xl leading-none text-mark">{rule.number}</span>
+            <p className="leading-relaxed text-mk-body">{rule.text}</p>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 }

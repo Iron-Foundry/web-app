@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { RankingTable } from "@/components/leaderboards/ranking/RankingTable";
 import { createRoute } from "@tanstack/react-router";
 import { leaderboardsRoute } from "@/routes/leaderboards";
 import { cn } from "@/lib/utils";
@@ -11,10 +12,8 @@ import { RankingPlayerSheet } from "@/components/leaderboards/ranking/RankingPla
 import { useLeaderboardContext } from "@/components/leaderboards/LeaderboardContext";
 import { useRankingResults, useRankingStats } from "@/hooks/useLeaderboards";
 import { useOwnRsns } from "@/hooks/useOwnRsns";
-import { ALL_WOM_RANKS, WOM_RANK_COLOR, WOM_RANK_BAR_COLOR, GEM_RANK_COLOR } from "@/lib/leaderboardRanks";
-import { fmtNum } from "@/components/leaderboards/RankRow";
+import { ALL_WOM_RANKS, WOM_RANK_COLOR, WOM_RANK_BAR_COLOR } from "@/lib/leaderboardRanks";
 import type { RankingPlayer } from "@/types/leaderboard";
-import { AccountHoverCard } from "@/components/accounts/accountHoverCard";
 
 const PAGE_SIZE = 50;
 
@@ -44,8 +43,6 @@ function RankingLeaderboardTab(): React.ReactElement {
       <FilterToolbar
         search=""
         onSearchChange={() => {}}
-        rankFilter={null}
-        onRankFilterChange={() => {}}
         compact={compact}
         onCompactToggle={() => setDensity(density === "comfortable" ? "compact" : "comfortable")}
         showSearch={false}
@@ -68,7 +65,7 @@ function RankingLeaderboardTab(): React.ReactElement {
         <button
           onClick={() => { setWomRankFilter(null); setPage(0); }}
           className={cn(
-            "rounded-full px-3 py-0.5 text-xs font-medium transition-colors border",
+            "rounded-md px-3 py-0.5 text-xs font-medium transition-colors border",
             compact && "px-2 py-px",
             !womRankFilter ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary",
           )}
@@ -80,7 +77,7 @@ function RankingLeaderboardTab(): React.ReactElement {
             key={r}
             onClick={() => { setWomRankFilter(r); setPage(0); }}
             className={cn(
-              "rounded-full px-3 py-0.5 text-xs font-medium transition-colors border",
+              "rounded-md px-3 py-0.5 text-xs font-medium transition-colors border",
               compact && "px-2 py-px",
               womRankFilter === r
                 ? "border-primary bg-primary text-primary-foreground"
@@ -100,65 +97,7 @@ function RankingLeaderboardTab(): React.ReactElement {
       {isLoading ? (
         <RankingTabSkeleton compact={compact} />
       ) : (
-        <div className="rounded-lg border border-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">#</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">RSN</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">Clan rank</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">WOM rank</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground uppercase tracking-wide">Points</th>
-                {!compact && (
-                  <>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground uppercase tracking-wide">PvM pts</th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground uppercase tracking-wide">Skill pts</th>
-                  </>
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {visiblePlayers.map((p, i) => {
-                const totalPts = p.boss_points + p.skill_points;
-                const bossPct = totalPts > 0 ? Math.round((p.boss_points / totalPts) * 100) : 0;
-                return (
-                  <tr
-                    key={p.rsn}
-                    className="hover:bg-muted/30 transition-colors cursor-pointer"
-                    onClick={() => setSelectedPlayer(p)}
-                  >
-                    <td className={cn("px-3 py-2 text-muted-foreground tabular-nums", compact && "py-1")}>
-                      {page * PAGE_SIZE + i + 1}
-                    </td>
-                    <td className={cn("px-3 py-2 font-mono font-medium", compact && "py-1 text-xs")}>
-                      <AccountHoverCard rsn={p.rsn} className={cn(ownRsns.has(p.rsn.toLowerCase()) && "own-rsn")}>{p.rsn}</AccountHoverCard>
-                    </td>
-                    <td className={cn("px-3 py-2", compact && "py-1", GEM_RANK_COLOR[p.clan_rank ?? ""] ?? "text-muted-foreground")}>
-                      <span className="text-xs">{p.clan_rank ?? "-"}</span>
-                    </td>
-                    <td className={cn("px-3 py-2", compact && "py-1", WOM_RANK_COLOR[p.rank] ?? "text-muted-foreground")}>
-                      <span className="text-xs">{p.rank}</span>
-                    </td>
-                    <td className={cn("px-3 py-2 text-right tabular-nums", compact && "py-1 text-xs")}>{fmtNum(p.points)}</td>
-                    {!compact && (
-                      <>
-                        <td className="px-3 py-2 text-right tabular-nums text-muted-foreground text-xs">
-                          {fmtNum(p.boss_points)}<span className="ml-1 text-muted-foreground/60">({bossPct}%)</span>
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums text-muted-foreground text-xs">
-                          {fmtNum(p.skill_points)}<span className="ml-1 text-muted-foreground/60">({100 - bossPct}%)</span>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {visiblePlayers.length === 0 && (
-            <p className="py-6 text-center text-sm text-muted-foreground">No players match this filter.</p>
-          )}
-        </div>
+        <RankingTable players={visiblePlayers} offset={page * PAGE_SIZE} compact={compact} ownRsns={ownRsns} onSelect={setSelectedPlayer} />
       )}
 
       {data && data.total > PAGE_SIZE && (

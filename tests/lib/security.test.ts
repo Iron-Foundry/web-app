@@ -20,7 +20,7 @@ describe("buildCsp", () => {
   test("allows esm.sh so the recharts importmap module loads", () => {
     const csp = buildCsp("https://api.ironfoundry.cc", NONCE);
     expect(csp).toContain("script-src 'self' 'nonce-test-nonce-123' https://esm.sh");
-    expect(csp).toContain("connect-src 'self' https://api.ironfoundry.cc wss://api.ironfoundry.cc https://esm.sh https://cloudflareinsights.com");
+    expect(csp).toContain("connect-src 'self' https://api.ironfoundry.cc wss://api.ironfoundry.cc https://esm.sh https://cloudflareinsights.com https://osrsclans.cc");
   });
 
   test("allows the music socket alongside the API origin", () => {

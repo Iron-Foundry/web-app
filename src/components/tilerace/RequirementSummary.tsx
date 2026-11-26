@@ -1,4 +1,4 @@
-import { itemIconUrl } from "@/components/runelite/bankTag";
+import { itemImageUrl } from "@/api/osrsAssets";
 import type { RequirementNode } from "@/types/tilerace";
 
 interface RequirementSummaryProps {
@@ -20,7 +20,7 @@ export function RequirementSummary({
     return (
       <div className="flex items-center gap-1.5">
         <img
-          src={itemIconUrl(node.item_id)}
+          src={itemImageUrl(node.item_id)}
           alt={node.name}
           className="h-4 w-4 object-contain shrink-0"
         />

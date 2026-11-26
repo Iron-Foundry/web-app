@@ -8,6 +8,7 @@ import { runeliteConfigsApi } from "@/api/runeliteConfigs";
 import {
   RUNELITE_OBJECT_TYPES,
   getObjectType,
+  isShownConfig,
   objectTypeLabel,
   objectSummary,
 } from "@/components/runelite/objectTypes";
@@ -53,7 +54,7 @@ export function RuneLiteObjectPickerDialog({
     setLoading(true);
     runeliteConfigsApi
       .list()
-      .then(setConfigs)
+      .then((all) => setConfigs(all.filter(isShownConfig)))
       .catch(() => setConfigs([]))
       .finally(() => setLoading(false));
   }, [open]);

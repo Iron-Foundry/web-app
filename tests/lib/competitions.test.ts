@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { SKILL_METRICS } from "@/lib/bingo";
 import {
   fmtCompetitionLabel,
   fmtGained,
@@ -23,7 +22,7 @@ describe("rankEmoji", () => {
 
 describe("fmtGained", () => {
   test("formats skill xp with M/K suffixes", () => {
-    const skill = [...SKILL_METRICS][0]!;
+    const skill = "attack";
     expect(fmtGained(2_500_000, skill)).toBe("2.50M xp");
     expect(fmtGained(12_000, skill)).toBe("12K xp");
     expect(fmtGained(500, skill)).toBe("500 xp");

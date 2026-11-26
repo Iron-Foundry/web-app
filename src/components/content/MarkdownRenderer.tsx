@@ -7,7 +7,6 @@ import { slugify, headingText } from "@/lib/utils";
 import { EntryRef } from "./EntryRef";
 import { WikiHoverLink } from "./WikiHoverLink";
 import { wikiTitleFromUrl, wikiUrlFromTitle } from "@/hooks/useWikiSummary";
-import { TileMarkerEmbedGroup } from "@/components/runelite/TileMarkerEmbedGroup";
 import { BossHealthEmbed } from "@/components/runelite/BossHealthEmbed";
 import { BankTagEmbed } from "@/components/runelite/BankTagEmbed";
 import { InventorySetupEmbed } from "@/components/runelite/InventorySetupEmbed";
@@ -137,16 +136,6 @@ const components: Components = {
     if (typeof invSetupId === "string" && invSetupId) {
       return <InventorySetupEmbed configId={invSetupId} glow={glow} />;
     }
-    const tilemarkerGroup = (props as Record<string, unknown>)["data-tilemarker-group"];
-    if (typeof tilemarkerGroup === "string" && tilemarkerGroup) {
-      const align = (props as Record<string, unknown>)["data-tilemarker-align"];
-      return (
-        <TileMarkerEmbedGroup
-          ids={tilemarkerGroup.split(",")}
-          align={typeof align === "string" ? align : "left"}
-        />
-      );
-    }
     const s = style as CSSProperties | undefined;
     const border = s?.borderLeft as string | undefined;
     if (border?.includes("#4ade80") || className?.includes("callout-tip"))
@@ -222,14 +211,10 @@ function htmlNode(value: string): MdNode {
 
 function shortcodeToNode(source: string): MdNode {
   let m: RegExpMatchArray | null;
-  if (source.startsWith("[[tilemarker:")) {
-    const items = [
-      ...source.matchAll(/\[\[tilemarker:([a-zA-Z0-9-]+)(?:\|(left|center|right))?\]\]/g),
-    ];
-    const ids = items.map((i) => i[1]).join(",");
-    const align = items.find((i) => i[2])?.[2] ?? "left";
-    return htmlNode(`<div data-tilemarker-group="${ids}" data-tilemarker-align="${align}"></div>`);
-  }
+  // The world map is gone (RDM-1). A stored tile-marker embed stays in the text
+  // and renders as nothing; without this branch the generic [[type:slug]] rule
+  // below would turn it into an entry link.
+  if (source.startsWith("[[tilemarker:")) return htmlNode("");
   if ((m = source.match(/^\[\[bosshealth:([a-zA-Z0-9-]+)\]\]$/))) {
     return htmlNode(`<div data-bosshealth-id="${m[1]}"></div>`);
   }
@@ -299,7 +284,7 @@ function transformShortcodeNodes(node: MdNode): void {
 }
 
 /**
- * Remark plugin that expands Foundry shortcodes ([[tilemarker:...]], [[wiki:...]],
+ * Remark plugin that expands Foundry shortcodes ([[banktag:...]], [[wiki:...]],
  * [toc]{...}, etc.) found in text nodes. Fenced and inline code are separate mdast
  * node types, so shortcodes inside code are skipped structurally and render literally.
  */

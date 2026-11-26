@@ -1,5 +1,5 @@
 import { Bell } from "lucide-react";
-import { argbToCss } from "@/components/map/runeliteTiles";
+import { argbToCss } from "@/components/runelite/argbColor";
 import type { BossHealthData } from "@/types/runeliteConfig";
 
 function formatPct(fraction: number): string {

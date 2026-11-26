@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useTemplateVersions, useTemplateVersion, useRevertTemplate } from "@/hooks/useFrenzy";
 import { diffLines } from "@/lib/lineDiff";
-import type { FrenzyVersionSummary } from "@/types/frenzy";
+import type { FrenzyVersionSummary } from "@/types/frenzyTemplate";
 
 interface Props {
   open: boolean;

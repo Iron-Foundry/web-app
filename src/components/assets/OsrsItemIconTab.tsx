@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { API_URL } from "@/context/AuthContext";
-import { osrsCacheApi } from "@/api/osrsCache";
+import { downloadImage, osrsAssetsApi } from "@/api/osrsAssets";
 import { Input } from "@/components/ui/input";
 import { findScrollParent } from "@/lib/scroll";
-import type { OsrsItem } from "@/types/osrsCache";
+import type { OsrsItem } from "@/types/osrsAssets";
 import { ItemIconGrid } from "@/components/assets/ItemIconGrid";
 
 const PAGE_SIZE = 60;
@@ -35,7 +34,7 @@ export function OsrsItemIconTab(): React.JSX.Element {
     if (fetchingRef.current || !hasMoreRef.current || bufferRef.current) return;
     fetchingRef.current = true;
     const generation = generationRef.current;
-    osrsCacheApi
+    osrsAssetsApi
       .listItems(PAGE_SIZE, offsetRef.current, nameSearch)
       .then((data) => {
         if (generation !== generationRef.current) return;
@@ -75,7 +74,7 @@ export function OsrsItemIconTab(): React.JSX.Element {
     if (filterIsId) {
       fetchingRef.current = false;
       setLoading(true);
-      osrsCacheApi
+      osrsAssetsApi
         .getItem(Number(trimmedFilter))
         .then((data) => {
           if (generation === generationRef.current) setItems(data ? [data] : []);
@@ -91,7 +90,7 @@ export function OsrsItemIconTab(): React.JSX.Element {
 
     fetchingRef.current = true;
     setLoading(true);
-    osrsCacheApi
+    osrsAssetsApi
       .listItems(PAGE_SIZE, 0, nameSearch)
       .then((data) => {
         if (generation !== generationRef.current) return;
@@ -133,23 +132,15 @@ export function OsrsItemIconTab(): React.JSX.Element {
   }, [paginated]);
 
   const copyUrl = useCallback(async (item: OsrsItem) => {
-    if (!item.icon_url) return;
-    await navigator.clipboard.writeText(`${API_URL}/osrs-cache${item.icon_url}`);
+    await navigator.clipboard.writeText(item.icon_url);
     setCopied(item.item_id);
     setTimeout(() => setCopied(null), 2000);
   }, []);
 
-  const downloadIcon = useCallback(async (item: OsrsItem) => {
-    if (!item.icon_url) return;
-    const res = await fetch(`${API_URL}/osrs-cache${item.icon_url}`);
-    const blob = await res.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = `${item.name}.webp`;
-    link.click();
-    URL.revokeObjectURL(blobUrl);
-  }, []);
+  const downloadIcon = useCallback(
+    (item: OsrsItem) => downloadImage(item.icon_url, `${item.name}.webp`),
+    [],
+  );
 
   const selectVariant = useCallback((item: OsrsItem) => setFilter(String(item.item_id)), []);
 

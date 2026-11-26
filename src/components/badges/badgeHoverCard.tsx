@@ -36,7 +36,7 @@ export function BadgeHoverCard({ badge, className }: BadgeHoverCardProps): React
         <span
           className={
             className ??
-            "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium cursor-default"
+            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium cursor-default"
           }
           style={{ background: badge.color, color: badge.text_color }}
         >
@@ -46,7 +46,7 @@ export function BadgeHoverCard({ badge, className }: BadgeHoverCardProps): React
       </HoverCardTrigger>
       <HoverCardContent className="w-72 space-y-3">
         <div
-          className="flex items-center gap-2 rounded-full px-4 py-2 text-base font-medium w-fit"
+          className="flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium w-fit"
           style={{ background: badge.color, color: badge.text_color }}
         >
           {badge.icon && <BadgeIcon icon={badge.icon} textColor={badge.text_color} className="h-6 w-6 shrink-0" />}

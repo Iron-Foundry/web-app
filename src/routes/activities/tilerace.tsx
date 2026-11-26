@@ -20,17 +20,11 @@ import { useBoardRedraw } from "@/hooks/useBoardRedraw";
 import { getAccounts } from "@/api/accounts";
 import { TileBoard } from "@/components/tilerace/TileBoard";
 import { BoardProgressBar } from "@/components/tilerace/BoardProgressBar";
-import { TeamCard } from "@/components/tilerace/TeamCard";
-import { DiceRoller } from "@/components/tilerace/DiceRoller";
-import { RecentRollsPanel } from "@/components/tilerace/RecentRollsPanel";
 import { EventRecap } from "@/components/tilerace/recap/EventRecap";
 import { CollapsedRecap } from "@/components/tilerace/recap/CollapsedRecap";
 import { SignupPanel } from "@/components/events/SignupPanel";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Settings } from "lucide-react";
-import { buildPathPositionMap, formatTileRaceDate } from "@/lib/tilerace";
+import { TileRaceHeader } from "@/components/tilerace/TileRaceHeader";
+import { TeamGrid } from "@/components/tilerace/TeamGrid";
 
 registerPage({
   id: "tilerace",
@@ -74,7 +68,7 @@ function TileRacePage(): JSX.Element {
   const rollingTeamIds = useRollAnimations(ended ? [] : rolls);
   useBoardRedraw(event && !ended ? event.id : "", rolls);
 
-  const canManage = hasPermission("tilerace", "edit", effectiveRoles);
+  const canManage = hasPermission("tilerace.admin", "edit", effectiveRoles);
 
   const daysLeft =
     !ended && event?.ends_at
@@ -85,74 +79,31 @@ function TileRacePage(): JSX.Element {
   const isSignedUp = !!mySignup;
   const isOnTeam = !!event?.my_team_id;
 
-  const pathPositionMap = event ? buildPathPositionMap(event.cells) : new Map();
-
   return (
-    <div className="mx-auto max-w-6xl xl:max-w-[88rem] w-full space-y-6 py-6 px-4">
-      <div className="rounded-xl border bg-card p-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-              {ended ? "Concluded Event" : "Active Event"}
-            </p>
-            <h1 className="font-rs-bold text-4xl text-primary">
-              {event?.name ?? "Tile Race"}
-            </h1>
-            {event?.ends_at && (
-              <p className="text-sm text-muted-foreground">
-                {event.starts_at
-                  ? `${formatTileRaceDate(event.starts_at)} - ${formatTileRaceDate(event.ends_at)}`
-                  : `Ends ${formatTileRaceDate(event.ends_at)}`}
-              </p>
-            )}
-          </div>
-
-          <div className="flex flex-col items-end gap-2">
-            {event?.rolls_paused && !ended && (
-              <Badge variant="destructive">Rolls paused</Badge>
-            )}
-            {recap?.next_event && (
-              <Badge variant="secondary">
-                {recap.next_event.is_active ? "Now running" : "Next"}:{" "}
-                {recap.next_event.name}
-                {recap.next_event.starts_at
-                  ? `, ${formatTileRaceDate(recap.next_event.starts_at)}`
-                  : ""}
-              </Badge>
-            )}
-            {daysLeft !== null && (
-              <Badge variant={daysLeft <= 3 ? "destructive" : "secondary"}>
-                {daysLeft === 0 ? "Ends today" : `${daysLeft}d remaining`}
-              </Badge>
-            )}
-            <div className="flex items-center gap-2">
-              {user && event && !isOnTeam && (
-                <SignupPanel
-                  open={event.signups_open}
-                  accounts={accounts}
-                  signedUp={isSignedUp}
-                  currentAccountId={mySignup?.account_id ?? null}
-                  wantsCaptain={mySignup?.wants_captain ?? false}
-                  busy={signingUp || changing || cancelling}
-                  onSignUp={(accountId, wantsCaptain) =>
-                    signUp({ eventId: event.id, accountId, wantsCaptain })
-                  }
-                  onChange={(accountId, wantsCaptain) =>
-                    changeSignup({ eventId: event.id, accountId, wantsCaptain })
-                  }
-                  onRescind={() => cancelSignup(event.id)}
-                />
-              )}
-              {canManage && (
-                <Button size="sm" variant="outline" onClick={() => openPanel("tilerace")}>
-                  <Settings className="h-4 w-4 mr-1.5" />
-                  Manage
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="mx-auto w-full max-w-7xl space-y-6 py-6">
+      <TileRaceHeader
+        name={event?.name ?? "Tile Race"}
+        ended={ended}
+        startsAt={event?.starts_at}
+        endsAt={event?.ends_at}
+        rollsPaused={!!event?.rolls_paused}
+        nextEvent={recap?.next_event}
+        daysLeft={daysLeft}
+        onManage={canManage ? () => openPanel("tilerace") : null}
+        signup={user && event && !isOnTeam && (
+          <SignupPanel
+            open={event.signups_open}
+            accounts={accounts}
+            signedUp={isSignedUp}
+            currentAccountId={mySignup?.account_id ?? null}
+            wantsCaptain={mySignup?.wants_captain ?? false}
+            busy={signingUp || changing || cancelling}
+            onSignUp={(accountId, wantsCaptain) => signUp({ eventId: event.id, accountId, wantsCaptain })}
+            onChange={(accountId, wantsCaptain) => changeSignup({ eventId: event.id, accountId, wantsCaptain })}
+            onRescind={() => cancelSignup(event.id)}
+          />
+        )}
+      />
 
       {isLoading && <p className="text-sm text-muted-foreground">Loading event...</p>}
 
@@ -163,8 +114,8 @@ function TileRacePage(): JSX.Element {
       )}
 
       {event?.is_finished && !fullRecap && (
-        <div className="rounded-xl border border-primary/50 bg-primary/10 p-4 text-center">
-          <p className="font-rs-bold text-2xl text-primary">Game Over</p>
+        <div className="rounded-xl border border-border bg-card p-5 text-center">
+          <p className="font-rs-bold text-3xl text-mark">Game Over</p>
           <p className="text-sm text-muted-foreground">
             {event.winner_team_id
               ? `${
@@ -182,48 +133,7 @@ function TileRacePage(): JSX.Element {
 
           <TileBoard event={event} rollingTeamIds={rollingTeamIds} />
 
-          <Separator />
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {event.teams.map((team) => {
-                const currentCell = pathPositionMap.get(team.position);
-                const gated =
-                  !!currentCell?.tile_id &&
-                  !completions.some(
-                    (c) =>
-                      c.team_id === team.id &&
-                      c.path_position === team.position &&
-                      (c.status === "claimed" || c.status === "approved"),
-                  );
-                return (
-                  <TeamCard
-                    key={team.id}
-                    team={team}
-                    currentCell={currentCell}
-                    isRolling={rollingTeamIds.has(team.id)}
-                  >
-                    {user && (
-                      <DiceRoller
-                        eventId={event.id}
-                        team={team}
-                        isMember={event.my_team_id === team.id}
-                        diceCount={event.dice_count}
-                        diceSides={event.dice_sides}
-                        gated={gated}
-                        finished={event.is_finished}
-                        paused={event.rolls_paused}
-                      />
-                    )}
-                  </TeamCard>
-                );
-              })}
-            </div>
-
-            <div className="relative">
-              <RecentRollsPanel rolls={rolls} teams={event.teams} />
-            </div>
-          </div>
+          <TeamGrid event={event} completions={completions} rolls={rolls} rollingTeamIds={rollingTeamIds} signedIn={!!user} />
         </>
       )}
 

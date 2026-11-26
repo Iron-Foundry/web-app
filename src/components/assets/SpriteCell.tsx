@@ -1,8 +1,7 @@
 import { memo } from "react";
-import { API_URL } from "@/context/AuthContext";
 import { Check, Copy, Download, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { OsrsSprite } from "@/types/osrsCache";
+import type { OsrsSprite } from "@/types/osrsAssets";
 
 const OVERLAY_BUTTON =
   "absolute p-0.5 rounded bg-background/80 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity";
@@ -44,15 +43,15 @@ function SpriteCellImpl({
       onMouseLeave={onHoverEnd}
     >
       <img
-        src={`${API_URL}/osrs-cache${sprite.png_url}`}
-        alt={sprite.name ?? `Sprite ${sprite.sprite_id}`}
+        src={sprite.webp_url}
+        alt={sprite.name}
         loading="lazy"
         decoding="async"
         className="max-h-10 max-w-full object-contain"
         style={{ imageRendering: "pixelated" }}
       />
       <p className="text-[10px] text-muted-foreground mt-1 truncate w-full text-center">
-        {sprite.name ?? `#${sprite.sprite_id}`}
+        {sprite.name}
       </p>
       <button
         onClick={(e) => {
@@ -60,7 +59,7 @@ function SpriteCellImpl({
           onDownload(sprite);
         }}
         className={cn(OVERLAY_BUTTON, "top-1 left-1 hover:text-foreground")}
-        title="Download PNG"
+        title="Download WebP"
       >
         <Download className="h-3 w-3" />
       </button>

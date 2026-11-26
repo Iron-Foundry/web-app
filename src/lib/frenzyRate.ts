@@ -1,5 +1,5 @@
 import type { LootRateRow } from "@/api/osrsclans";
-import type { FrenzyItem } from "@/types/frenzy";
+import type { FrenzyItem } from "@/types/frenzyTemplate";
 
 type RateFields = Pick<LootRateRow, "chance" | "chance_per_raid" | "kills_per_hour">;
 

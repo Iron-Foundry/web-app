@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { API_URL } from "@/context/AuthContext";
-import { osrsCacheApi } from "@/api/osrsCache";
+import { osrsAssetsApi } from "@/api/osrsAssets";
 import { assetsApi } from "@/api/assets";
 
 export interface AssetResult {
@@ -27,24 +27,18 @@ export function useAssetPickerResults(open: boolean, tab: string, query: string)
     async (offset: number): Promise<{ rows: AssetResult[]; rawLength: number; done: boolean }> => {
       const q = query.trim();
       if (tab === "items") {
-        const items = await osrsCacheApi.listItems(PAGE_SIZE, offset, q || undefined);
-        const rows = items
-          .filter((i) => i.icon_url)
-          .map((i) => ({
-            key: `i${i.item_id}`,
-            name: i.name,
-            url: `${API_URL}/osrs-cache${i.icon_url}`,
-          }));
+        const items = await osrsAssetsApi.listItems(PAGE_SIZE, offset, q || undefined);
+        const rows = items.map((i) => ({ key: `i${i.item_id}`, name: i.name, url: i.icon_url }));
         return { rows, rawLength: items.length, done: false };
       }
       if (tab === "sprites") {
-        const sprites = await osrsCacheApi.listSprites(PAGE_SIZE, offset, { search: q || undefined });
-        const rows = sprites.map((s) => ({
+        const page = await osrsAssetsApi.listSprites(PAGE_SIZE, offset, { search: q || undefined });
+        const rows = page.items.map((s) => ({
           key: `s${s.sprite_id}-${s.frame_index}`,
-          name: s.name ?? `Sprite ${s.sprite_id}`,
-          url: `${API_URL}/osrs-cache${s.png_url}`,
+          name: s.name,
+          url: s.webp_url,
         }));
-        return { rows, rawLength: sprites.length, done: false };
+        return { rows, rawLength: page.sprites, done: false };
       }
       const assets = await assetsApi.list();
       const rows = assets

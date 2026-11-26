@@ -1,7 +1,5 @@
 import type { ComponentType } from "react";
 import type { RuneLiteConfig } from "@/types/runeliteConfig";
-import { TileMarkerEditorDialog } from "./TileMarkerEditorDialog";
-import { TileMarkerPreview } from "./TileMarkerPreview";
 import { BossHealthEditorDialog } from "./BossHealthEditorDialog";
 import { BossHealthPreview } from "./BossHealthPreview";
 import { BankTagEditorDialog } from "./BankTagEditorDialog";
@@ -34,15 +32,6 @@ export interface RuneLiteObjectType {
 }
 
 export const RUNELITE_OBJECT_TYPES: RuneLiteObjectType[] = [
-  {
-    value: "tile_marker",
-    label: "Tile Marker",
-    description: "Colored map tiles exported from RuneLite.",
-    editor: TileMarkerEditorDialog,
-    preview: TileMarkerPreview,
-    embed: (id) => `[[tilemarker:${id}]]`,
-    summary: (config) => `${config.data.length} tiles`,
-  },
   {
     value: "boss_health",
     label: "Boss Health Indicators",
@@ -81,6 +70,11 @@ export const RUNELITE_OBJECT_TYPES: RuneLiteObjectType[] = [
 
 export function getObjectType(value: string): RuneLiteObjectType | undefined {
   return RUNELITE_OBJECT_TYPES.find((type) => type.value === value);
+}
+
+/** Whether the site shows a config. Stored tile_marker configs stay hidden (RDM-1). */
+export function isShownConfig(config: RuneLiteConfig): boolean {
+  return getObjectType(config.type) !== undefined;
 }
 
 export function objectTypeLabel(value: string): string {

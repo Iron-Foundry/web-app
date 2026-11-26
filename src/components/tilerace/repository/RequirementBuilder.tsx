@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ChevronDown, ChevronRight, Plus, X } from "lucide-react";
 import { ItemSearch } from "./ItemSearch";
 import { RequirementEditor } from "./RequirementEditor";
-import { itemIconUrl } from "@/components/runelite/bankTag";
+import { itemImageUrl } from "@/api/osrsAssets";
 import type {
   AndRequirement,
   RequirementNode,
@@ -75,7 +75,7 @@ export function RequirementBuilder({
           child.kind === "item" ? (
             <div key={i} className="flex items-center gap-2">
               <img
-                src={itemIconUrl(child.item_id)}
+                src={itemImageUrl(child.item_id)}
                 alt={child.name}
                 className="h-6 w-6 object-contain"
               />

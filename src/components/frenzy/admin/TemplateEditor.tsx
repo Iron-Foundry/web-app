@@ -8,7 +8,7 @@ import { TemplateSummary } from "./TemplateSummary";
 import { TemplateTree, type CardRef } from "./TemplateTree";
 import { FrenzyVersionHistoryDialog } from "../FrenzyVersionHistoryDialog";
 import { useCalculatePoints, useCreateTemplate, useUpdateTemplate } from "@/hooks/useFrenzy";
-import type { FrenzySource, FrenzyTemplate, FrenzyTemplateUpdate } from "@/types/frenzy";
+import type { FrenzySource, FrenzyTemplate, FrenzyTemplateUpdate } from "@/types/frenzyTemplate";
 
 const TABS = ["Items", "Activities", "Milestones", "Multipliers"] as const;
 type Tab = (typeof TABS)[number];

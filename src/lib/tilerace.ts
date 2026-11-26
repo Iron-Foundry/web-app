@@ -1,4 +1,4 @@
-import { itemIconUrl } from "@/components/runelite/bankTag";
+import { itemImageUrl } from "@/api/osrsAssets";
 import type {
   BoardCell,
   RepositoryTile,
@@ -75,9 +75,9 @@ export function collectRequirementItems(node: RequirementNode | null): TileItem[
 export function getEffectiveTileIcon(tile: RepositoryTile): string | null {
   if (tile.icon_url) return tile.icon_url;
   const firstItem = tile.items[0];
-  if (firstItem) return itemIconUrl(firstItem.item_id);
+  if (firstItem) return itemImageUrl(firstItem.item_id);
   const firstLeaf = collectRequirementItems(tile.requirement)[0];
-  if (firstLeaf) return itemIconUrl(firstLeaf.item_id);
+  if (firstLeaf) return itemImageUrl(firstLeaf.item_id);
   return null;
 }
 

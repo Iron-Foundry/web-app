@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { shineHandlers } from "@/hooks/useShineEffect";
+import { Clock, Coins, Shield, TrendingUp, Users, type LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 function useCountUp(target: number | null, duration = 1200): number | null {
   const [current, setCurrent] = useState<number | null>(null);
@@ -31,27 +31,22 @@ export function formatGp(value: number): string {
   return value.toLocaleString();
 }
 
-const mouseTrackHandlers = shineHandlers;
+const WIKI = "https://oldschool.runescape.wiki/images/thumb";
 
-function StatCard({ label, value, backdrop, backdropOpacity = 0.15 }: {
+function StatTile({ label, value, icon: Icon, art, artAlt, tone }: {
   label: string;
   value: string;
-  backdrop?: string;
-  backdropOpacity?: number;
-}) {
+  icon: LucideIcon;
+  art: string;
+  artAlt: string;
+  tone: string;
+}): React.ReactElement {
   return (
-    <div className="stat-card shine-border" {...mouseTrackHandlers}>
-      <Card className="relative overflow-hidden rounded-[10px] border border-border cursor-default">
-        {backdrop && (
-          <img src={backdrop} alt="" aria-hidden
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-            style={{ opacity: backdropOpacity }} />
-        )}
-        <CardContent className="relative flex flex-col items-center justify-center h-20">
-          <span className="text-2xl font-rs-bold text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]">{value}</span>
-          <span className="mt-1 text-2xl font-rs-quill text-foreground/60">{label}</span>
-        </CardContent>
-      </Card>
+    <div className="relative flex min-h-34 flex-col justify-between gap-6 overflow-hidden rounded-xl border border-border bg-card px-5 py-4">
+      <img src={art} alt={artAlt} className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20" />
+      <div className="absolute inset-0 bg-linear-to-t from-card from-10% to-transparent to-75%" />
+      <span className="relative flex items-center gap-2 text-sm text-muted-foreground"><Icon className={cn("h-4 w-4", tone)} />{label}</span>
+      <b className={cn("relative font-rs-bold text-4xl font-normal leading-none", tone)}>{value}</b>
     </div>
   );
 }
@@ -67,34 +62,30 @@ interface StatsSectionProps {
   clanPhoto: string;
 }
 
+const show = (n: number | null, fmt: (v: number) => string): string => (n === null ? "-" : fmt(n));
+const count = (v: number): string => v.toLocaleString();
+
+/** The seven clan figures, each counting up from zero once its value arrives. */
 export function StatsSection({ memberCount, clanXp, clanEhb, coxKc, tobKc, toaKc, totalGp, clanPhoto }: StatsSectionProps) {
-  const animMemberCount = useCountUp(memberCount);
-  const animClanXp = useCountUp(clanXp);
-  const animClanEhb = useCountUp(clanEhb);
-  const animCoxKc = useCountUp(coxKc);
-  const animTobKc = useCountUp(tobKc);
-  const animToaKc = useCountUp(toaKc);
-  const animTotalGp = useCountUp(totalGp);
+  const members = useCountUp(memberCount);
+  const xp = useCountUp(clanXp);
+  const ehb = useCountUp(clanEhb);
+  const cox = useCountUp(coxKc);
+  const tob = useCountUp(tobKc);
+  const toa = useCountUp(toaKc);
+  const gp = useCountUp(totalGp);
 
   return (
-    <section className="space-y-3">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard label="Loot Value" value={animTotalGp !== null ? formatGp(animTotalGp) : "-"}
-          backdrop="https://oldschool.runescape.wiki/images/thumb/Loot_Chest_%28opened%29.png/489px-Loot_Chest_%28opened%29.png?b8b83" backdropOpacity={0.25} />
-        <StatCard label="Tombs of Amascut" value={animToaKc !== null ? animToaKc.toLocaleString() : "-"}
-          backdrop="https://oldschool.runescape.wiki/images/thumb/Tombs_of_Amascut_-_necropolis_concept_art.jpg/640px-Tombs_of_Amascut_-_necropolis_concept_art.jpg?b3e2f" backdropOpacity={0.25} />
-        <StatCard label="Chambers of Xeric" value={animCoxKc !== null ? animCoxKc.toLocaleString() : "-"}
-          backdrop="https://oldschool.runescape.wiki/images/thumb/Chambers_of_Xeric_artwork.jpg/640px-Chambers_of_Xeric_artwork.jpg?090e1" backdropOpacity={0.25} />
-        <StatCard label="Theatre of Blood" value={animTobKc !== null ? animTobKc.toLocaleString() : "-"}
-          backdrop="https://oldschool.runescape.wiki/images/thumb/Theatre_of_Blood_artwork.jpg/640px-Theatre_of_Blood_artwork.jpg?92a5f" backdropOpacity={0.25} />
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <StatCard label="Member Count" value={animMemberCount !== null ? animMemberCount.toLocaleString() : "-"}
-          backdrop={clanPhoto} backdropOpacity={0.25} />
-        <StatCard label="Total XP" value={animClanXp !== null ? formatGp(animClanXp) : "-"}
-          backdrop="https://oldschool.runescape.wiki/images/thumb/Forestry-_Part_Two_-_Community_Consultation_%281%29.png/640px-Forestry-_Part_Two_-_Community_Consultation_%281%29.png?b1a37" backdropOpacity={0.25} />
-        <StatCard label="Total EHB" value={animClanEhb !== null ? animClanEhb.toLocaleString() : "-"}
-          backdrop="https://oldschool.runescape.wiki/images/thumb/Araxxor_artwork_3D_no_text.png/614px-Araxxor_artwork_3D_no_text.png?79f22" backdropOpacity={0.25} />
+    <section className="space-y-5">
+      <h2 className="font-rs-bold text-3xl text-foreground">Clan stats</h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+        <StatTile label="Members" value={show(members, count)} icon={Users} tone="text-mk-orange" art={clanPhoto} artAlt="Iron Foundry clan photograph" />
+        <StatTile label="Total XP" value={show(xp, formatGp)} icon={TrendingUp} tone="text-mk-yellow" art={`${WIKI}/Forestry-_Part_Two_-_Community_Consultation_%281%29.png/640px-Forestry-_Part_Two_-_Community_Consultation_%281%29.png?b1a37`} artAlt="Forestry artwork" />
+        <StatTile label="Total EHB" value={show(ehb, count)} icon={Clock} tone="text-mk-teal" art={`${WIKI}/Araxxor_artwork_3D_no_text.png/614px-Araxxor_artwork_3D_no_text.png?79f22`} artAlt="Araxxor artwork" />
+        <StatTile label="Loot value" value={show(gp, formatGp)} icon={Coins} tone="text-mk-green" art={`${WIKI}/Loot_Chest_%28opened%29.png/489px-Loot_Chest_%28opened%29.png?b8b83`} artAlt="Opened loot chest" />
+        <StatTile label="Chambers of Xeric" value={show(cox, count)} icon={Shield} tone="text-mk-blue" art={`${WIKI}/Chambers_of_Xeric_artwork.jpg/640px-Chambers_of_Xeric_artwork.jpg?090e1`} artAlt="Chambers of Xeric artwork" />
+        <StatTile label="Theatre of Blood" value={show(tob, count)} icon={Shield} tone="text-mk-red" art={`${WIKI}/Theatre_of_Blood_artwork.jpg/640px-Theatre_of_Blood_artwork.jpg?92a5f`} artAlt="Theatre of Blood artwork" />
+        <StatTile label="Tombs of Amascut" value={show(toa, count)} icon={Shield} tone="text-mk-purple" art={`${WIKI}/Tombs_of_Amascut_-_necropolis_concept_art.jpg/640px-Tombs_of_Amascut_-_necropolis_concept_art.jpg?b3e2f`} artAlt="Tombs of Amascut concept art" />
       </div>
     </section>
   );

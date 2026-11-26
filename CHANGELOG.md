@@ -12,16 +12,55 @@ component. Entries land under Unreleased until then.
 
 ## [Unreleased]
 
+### Added
+
+- The PVM Frenzy draft page at `/activities/frenzy/draft`. It shows whose turn it is, the snake grid of rounds and captains, the pool of signups with search and a rank filter, the recent picks, and every team's full roster. The page updates live on each pick. The captain on turn picks with "Pick", and staff pick for an absent captain. Staff move members between teams after the draft.
+- The frenzy event editor has a captain draft section. Staff choose Full draft or Top Picks, the top picks per captain, and the captains from the signups, then draw the order, start the draft or reset it.
+- The frenzy signup offers "Willing to captain a team", and each signup or change sends the browser's time zone.
+- On the draft page a signed-in viewer sees how far each captain's and member's time is ahead of or behind their own, such as "+2h" or "-5h 30m", in the pool, the snake grid and the rosters.
+- PVM Frenzy signups: while staff have signups open, a signed-in member signs up for the active event from the event page, picks which linked account to compete with, switches it or withdraws. Staff open and close signups from the event editor.
+
+### Removed
+
+- The Bingo page at `/bingo`, its Community menu link, and its board and team data.
+- The OSRS world map: the tile marker editor, preview and guide embed, and the `/map-test` page.
+
 ### Changed
 
+- The site wears the Monogram skin: near-black surfaces, an orange accent, neutral borders, a light mode in warm white, and gradient fills on the main buttons and the brand. Cards no longer glow on hover.
+- The top bar carries the I/F logo, the three section menus as plain text, Staff, and the profile menu with the role in its colour. The pages of the current section sit in a row under the bar. On staff pages that row carries the staff pages.
+- The footer lists the three sections as columns beside Links and Follow, with square social buttons.
+- The members area uses a rail beside the content: your name, the seven pages and Settings. Under the md breakpoint the page row carries the members pages, and the floating menu button is gone.
+- The Dashboard puts your figures in one strip under the welcome line, then Account Ranks, Badges and Name Changes, the activity feed, and competitions with their status as a word.
+- The Profile puts its figures in one strip under your name. The Skills and Goals cards switch accounts with underlined names in place of round buttons.
+- Tickets, Surveys, Applications, Suggestions, Bug Reports and Settings take the same page head and flat panels. A list that fails to load says so in place of showing as empty.
+- Suggestions and Bug Reports in the members area edit your own open post in the Feedback Board's edit dialog.
+- Rotating an API key asks in a dialog of the site, not in the browser's confirm box.
+- Home opens with the live or upcoming competition as a notice above a hero of the logo, the title, the Discord and Wise Old Man buttons and the clan photo. The event banners sit side by side, the seven clan stats show as tiles in their own colours, Who we are sits beside Recent achievements, and the ranks show in their gem colours.
+- About, Rules and Our Team take the gradient page title and flat panels. Our Team shows extra roles on keyboard focus as well as on hover.
+- All page titles use the gradient, and labels and filter buttons are flat in place of round pills.
+- Login shows the I/F mark over the Discord and API key panels. Calendar frames the Teamup calendar in a panel. Shared goals use the flat goal rows.
+- The Feedback Board and Leaderboards switch tabs with underlined text in place of filled buttons. The ToA Overall and Challenge switch is underlined words as well.
+- Parties: the vibe and status are coloured words, the roster is plain names, and the create, edit and notification forms open in the site's dialog. The time picker and the Join-as account choice use the site's own select in place of the browser's.
+- Competitions: the plugin notice, the competition picker with status as words, and the picked competition's head with its countdown take flat panels.
+- Resources and Guide: the category cards, recently updated entries and the article foot (dates, the useful reaction, copy and export) take flat panels.
+- Tile Race: the head shows Rolls paused, the next event and the days left as coloured words.
+- The Feedback Board shows Edit on the author's own open post. Edit opens the Submit form with the post's fields and saves through `PATCH /feedback/{id}`. Edit no longer shows on a post that has left Open, because the API refuses that edit.
+- Signed-out visitors see the staff avatars on the Our Team page.
+- The Ranking page has no Filter button. The button opened an empty control.
+- The Tile Race progress bar stops its loop when the reader sets `prefers-reduced-motion`.
+- The frenzy and tile race pages show Manage to staff with `frenzy.admin` / `tilerace.admin` edit, the same ids the Control Panel pages and the API check.
+- The asset manager, the guide icon picker, the item name map, skill icons, bank tags and tile race item icons read OSRSClans. Item downloads offer the OSRSClans sizes (36 x 32 to 512 x 455) and sprite downloads scale 1x to 16x, all as WebP.
+- RuneLite tile marker configs no longer show on the site, and a `[[tilemarker:...]]` embed in a guide renders as nothing. The stored configs and embeds stay.
+- The Reference Data page reads OSRSClans. It has a tab per OSRSClans category, a search, and each source's kill rate. A source opens a dialog with its drop table, grouped by the Wiki headings, with item images and hours a drop.
 - The PVM Frenzy event page shows the teams in one standings table, with a column per tier. The points charts sit on the page under it, not in a sheet.
 - The PVM Frenzy team page shows all tiers, activities, milestones, multipliers and charts on one page, with a section rail.
 - A frenzy source card shows its image, a yellow item at the base count and a green item with its duplicate. Its title turns yellow and green by the same rule. The (i) button shows the kill rate and the chance and hours a drop of each item.
 - The staff template editor is a workspace: tiers and cards on the left, the picked card in the middle, and the template fields, budgets and actions on the right.
 - The version history shows both sides of each change.
 
-### Added
-
+- The frenzy rate picker names a kill rate that staff set in Foundry as "Foundry".
+- Staff with `frenzy.admin` edit set, change and remove a Foundry kill rate in the Reference Data source dialog, for a source that OSRSClans gives none.
 - A frenzy card can be a typed group, such as Slayer or Miscellaneous, that holds items from several sources.
 - A frenzy item takes its drop chance and kill rate from a picked OSRSClans loot rate row. A row with no kill rate leaves KPH to set by hand.
 - A frenzy card takes its image from an OSRSClans NPC, an OSRSClans sprite or one of its items. With no image, it shows its item images.

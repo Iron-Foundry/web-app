@@ -1,8 +1,7 @@
-import { API_URL } from "@/context/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HoverPreviewLayer } from "@/components/assets/HoverPreviewLayer";
-import type { OsrsItem } from "@/types/osrsCache";
+import type { OsrsItem } from "@/types/osrsAssets";
 
 const PREVIEW_WIDTH = 260;
 const PREVIEW_HEIGHT = 300;
@@ -18,7 +17,7 @@ export function ItemHoverPreview({ item }: ItemHoverPreviewProps): React.JSX.Ele
         <div className="flex items-center justify-center h-44 bg-muted/60">
           {item.icon_url && (
             <img
-              src={`${API_URL}/osrs-cache${item.icon_url}`}
+              src={item.icon_url}
               alt={item.name}
               decoding="async"
               style={{ imageRendering: "pixelated", width: 144, height: 144 }}

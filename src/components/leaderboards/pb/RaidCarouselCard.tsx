@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TeamSizePager, ToaVariantSwitch } from "./RaidCardControls";
 import { PbVariantRows, PB_CLAMP } from "./PbVariantRows";
 import { PbSheet } from "./PbSheet";
 import type { RaidGroup, Grouped } from "@/lib/pbHelpers";
@@ -68,60 +68,14 @@ export function RaidCarouselCard({
 
   return (
     <>
-      <div className="rounded-md border border-border bg-card">
+      <div className="rounded-xl border border-border bg-card">
         <div className={cn("flex items-center justify-between gap-2", compact ? "px-2 pt-1.5 pb-0.5" : "px-3 pt-2.5 pb-1")}>
           <span title={currentActivity} className={cn("font-rs-bold text-primary leading-tight truncate", compact ? "text-sm" : "text-base")}>
             {currentActivity}
           </span>
           <div className="flex items-center gap-1 shrink-0">
-            {hasVariantToggle && (
-              <div className="flex items-center rounded border border-border overflow-hidden">
-                <button
-                  onClick={() => setVariantIdx(1)}
-                  className={cn(
-                    "px-1.5 py-0.5 text-[10px] font-medium transition-colors",
-                    variantIdx === 1
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
-                  )}
-                >
-                  Overall
-                </button>
-                <div className="w-px h-3 bg-border" />
-                <button
-                  onClick={() => setVariantIdx(0)}
-                  className={cn(
-                    "px-1.5 py-0.5 text-[10px] font-medium transition-colors",
-                    variantIdx === 0
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
-                  )}
-                >
-                  Challenge
-                </button>
-              </div>
-            )}
-            {multi && (
-              <div className="flex items-center gap-0.5">
-                <button
-                  onClick={() => go("left")}
-                  className="rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-                  aria-label="Previous team size"
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                </button>
-                <span className="text-xs text-muted-foreground tabular-nums w-8 text-center select-none">
-                  {safeIdx + 1} / {activities.length}
-                </span>
-                <button
-                  onClick={() => go("right")}
-                  className="rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-                  aria-label="Next team size"
-                >
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
+            {hasVariantToggle && <ToaVariantSwitch value={variantIdx} onChange={setVariantIdx} />}
+            {multi && <TeamSizePager index={safeIdx} total={activities.length} onStep={go} />}
           </div>
         </div>
 

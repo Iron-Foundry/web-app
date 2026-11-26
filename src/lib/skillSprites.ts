@@ -1,6 +1,6 @@
-import { API_URL } from "@/context/AuthContext";
+import { spriteImageUrl } from "@/api/osrsAssets";
 
-// OSRS skill stat icons live in the cache "Staticons" sprite group.
+// OSRS skill stat icons are the sprites of the "Staticons" category.
 const STATICON_ID: Record<string, number> = {
   attack: 197,
   strength: 198,
@@ -29,11 +29,11 @@ const STATICON_ID: Record<string, number> = {
 };
 
 /**
- * Resolves a skill (key or wiki slug, any case) to its cache-service sprite
- * icon URL. Returns an empty string for an unknown skill.
+ * Resolves a skill (key or wiki slug, any case) to its OSRSClans sprite image.
+ * Returns an empty string for an unknown skill.
  */
 export function skillSpriteUrl(skill: string): string {
   const key = skill.trim().toLowerCase().replace(/^runecrafting$/, "runecraft");
   const id = STATICON_ID[key];
-  return id ? `${API_URL}/osrs-cache/sprites/${id}/0?format=png` : "";
+  return id ? spriteImageUrl(id, 0) : "";
 }

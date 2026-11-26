@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { FrenzyFilterLine } from "../FrenzyFilterLine";
 import { useNpcSearch, useSpriteSearch } from "@/hooks/useOsrsClans";
-import type { FrenzyItem } from "@/types/frenzy";
+import type { FrenzyItem } from "@/types/frenzyTemplate";
 
 type Kind = "npc" | "sprite" | "item";
 const KINDS: { value: Kind; label: string }[] = [

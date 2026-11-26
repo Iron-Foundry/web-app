@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { emptyItem } from "./CardEditor";
-import type { FrenzyTierData } from "@/types/frenzy";
+import type { FrenzyTierData } from "@/types/frenzyTemplate";
 
 export interface CardRef {
   tier: string;

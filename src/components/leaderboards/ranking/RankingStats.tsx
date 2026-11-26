@@ -60,7 +60,7 @@ function PieBlock({
                 if (!active || !payload?.length) return null;
                 const d = payload[0]!;
                 return (
-                  <div className="rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md">
+                  <div className="rounded-xl border border-border bg-card px-2.5 py-1.5 text-xs shadow-md">
                     <span className={cn("font-medium", colorMap[d.name as string])}>{d.name}</span>
                     <span className="ml-2 tabular-nums text-muted-foreground">{pct(d.value as number)}</span>
                   </div>
@@ -92,7 +92,7 @@ export function RankingStats({ stats, compact }: { stats: RankingStatsType; comp
   });
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch gap-4 rounded-lg border border-border bg-card p-4">
+    <div className="flex flex-col sm:flex-row items-stretch gap-4 rounded-xl border border-border bg-card p-4">
       <div className="flex sm:flex-col justify-center gap-3 shrink-0">
         <div className="rounded-md border border-border bg-muted/40 px-4 py-3 text-center flex-1 sm:flex-none">
           <p className="text-xs text-muted-foreground mb-1">PvM contribution</p>
@@ -121,7 +121,7 @@ export function RankingStats({ stats, compact }: { stats: RankingStatsType; comp
               content={({ active, payload, label }) => {
                 if (!active || !payload?.length) return null;
                 return (
-                  <div className="rounded-md border border-border bg-card px-3 py-2 text-xs shadow-md space-y-0.5">
+                  <div className="rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-md space-y-0.5">
                     <p className={cn("font-medium mb-1", WOM_RANK_COLOR[label as string])}>{label}</p>
                     {[...payload].reverse().map((p) => (
                       <div key={p.dataKey as string} className="flex items-center gap-2">

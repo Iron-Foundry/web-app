@@ -6,7 +6,8 @@ import { FrenzyTeamCharts } from "./FrenzyTeamCharts";
 import { FrenzyTeamRail, sectionId, type RailEntry } from "./FrenzyTeamRail";
 import { isMultiplierUnlocked } from "@/lib/frenzy";
 import { cardFactor, itemKey } from "@/lib/frenzyCard";
-import type { FrenzyTeamDetail, FrenzyTierData } from "@/types/frenzy";
+import type { FrenzyTeamDetail } from "@/types/frenzy";
+import type { FrenzyTierData } from "@/types/frenzyTemplate";
 
 function tierCount(tierName: string, tier: FrenzyTierData, progress: Record<string, number>): string {
   const items = tier.sources.flatMap((s) => s.items.map((i) => ({ i, key: itemKey(tierName, s.name, i.name) })));

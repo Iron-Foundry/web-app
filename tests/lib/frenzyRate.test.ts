@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { LootRateRow } from "@/api/osrsclans";
 import { applyRateRow, byHours, rowHours } from "@/lib/frenzyRate";
-import type { FrenzyItem } from "@/types/frenzy";
+import type { FrenzyItem } from "@/types/frenzyTemplate";
 
 function row(partial: Partial<LootRateRow>): LootRateRow {
   return {

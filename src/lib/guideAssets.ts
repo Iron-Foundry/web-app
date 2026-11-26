@@ -13,10 +13,6 @@ export const ASSET_SIZE_PRESETS: AssetSizePreset[] = [
 
 export const INLINE_ICON_DEFAULT_WIDTH = 24;
 
-export function isOsrsIcon(url: string): boolean {
-  return url.includes("/osrs-cache/");
-}
-
 function escapeAttr(value: string): string {
   return value.replace(/"/g, "&quot;");
 }

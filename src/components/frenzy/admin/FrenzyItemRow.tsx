@@ -7,7 +7,8 @@ import { ItemPicker } from "./ItemPicker";
 import { RatePickerDialog } from "./RatePickerDialog";
 import { hoursPerDrop, measuredBy, rateSourceLabel } from "@/lib/frenzyCard";
 import { applyRateRow } from "@/lib/frenzyRate";
-import type { FrenzyItem, OsrsItem } from "@/types/frenzy";
+import type { FrenzyItem } from "@/types/frenzyTemplate";
+import type { OsrsItem } from "@/types/frenzy";
 
 interface Props {
   item: FrenzyItem;

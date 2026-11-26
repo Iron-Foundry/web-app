@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { API_URL } from "@/context/AuthContext";
 import { getCellPresentation } from "@/lib/tilerace-presentation";
 import type { BoardCell, RepositoryTile } from "@/types/tilerace";
 
@@ -27,14 +26,14 @@ const TILE: RepositoryTile = {
 };
 
 describe("getCellPresentation", () => {
-  test("a trap draws like a tile, with the cache service icon", () => {
+  test("a trap draws like a tile, with the OSRSClans icon", () => {
     const shown = getCellPresentation(
       cell({ modifiers: [{ type: "trap", dice_count: 2, dice_sides: 6 }] }),
     );
 
     expect(shown.source).toBe("trap");
     expect(shown.title).toBe("Trap");
-    expect(shown.iconUrl).toBe(`${API_URL}/osrs-cache/item-icons/8144`);
+    expect(shown.iconUrl).toBe("https://osrsclans.cc/api/v1/osrs/items/8144.webp");
     expect(shown.description).toContain("2d6");
     expect(shown.requirement).toBeNull();
   });

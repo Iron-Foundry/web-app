@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { OsrsItem } from "@/types/osrsCache";
+import type { OsrsItem } from "@/types/osrsAssets";
 import { ItemHoverPreview } from "@/components/assets/ItemHoverPreview";
 import { ItemIconCell } from "@/components/assets/ItemIconCell";
 import { ItemRenderDialog } from "@/components/assets/ItemRenderDialog";

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { tileraceApi } from "@/api/tilerace";
-import { itemIconUrl } from "@/components/runelite/bankTag";
+import { itemImageUrl } from "@/api/osrsAssets";
 
 export interface OsrsIconResult {
   id: number;
@@ -71,7 +71,7 @@ export function OsrsIconSearch({ kind, onKindChange, onPick }: Props): JSX.Eleme
               className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
             >
               <img
-                src={kind === "item" ? itemIconUrl(result.id) : result.icon_url}
+                src={kind === "item" ? itemImageUrl(result.id) : result.icon_url}
                 alt={result.name}
                 className="h-6 w-6 object-contain"
               />

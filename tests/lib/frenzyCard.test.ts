@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { cardState, isTypedCard, itemState } from "@/lib/frenzyCard";
-import type { FrenzyItem, FrenzySource } from "@/types/frenzy";
+import type { FrenzyItem, FrenzySource } from "@/types/frenzyTemplate";
 
 function item(partial: Partial<FrenzyItem>): FrenzyItem {
   return {

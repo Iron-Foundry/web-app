@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { API_URL } from "@/context/AuthContext";
-import { osrsCacheApi } from "@/api/osrsCache";
+import { downloadImage, osrsAssetsApi } from "@/api/osrsAssets";
 import { Input } from "@/components/ui/input";
 import { findScrollParent } from "@/lib/scroll";
-import type { OsrsSprite } from "@/types/osrsCache";
+import type { OsrsSprite, OsrsSpritePage } from "@/types/osrsAssets";
 import { SpriteCategoryPicker } from "@/components/assets/SpriteCategoryPicker";
 import { SpriteGrid } from "@/components/assets/SpriteGrid";
 
@@ -18,7 +17,7 @@ export function OsrsSpriteTab(): React.JSX.Element {
   const [scrollElement, setScrollElement] = useState<Element | null>(null);
 
   const offsetRef = useRef(0);
-  const bufferRef = useRef<OsrsSprite[] | null>(null);
+  const bufferRef = useRef<OsrsSpritePage | null>(null);
   const hasMoreRef = useRef(true);
   const fetchingRef = useRef(false);
   const intersectingRef = useRef(false);
@@ -38,12 +37,12 @@ export function OsrsSpriteTab(): React.JSX.Element {
     if (fetchingRef.current || !hasMoreRef.current || bufferRef.current) return;
     fetchingRef.current = true;
     const generation = generationRef.current;
-    osrsCacheApi
+    osrsAssetsApi
       .listSprites(PAGE_SIZE, offsetRef.current, { category: category ?? undefined, search: nameSearch })
-      .then((data) => {
+      .then((page) => {
         if (generation !== generationRef.current) return;
-        bufferRef.current = data;
-        if (data.length < PAGE_SIZE) hasMoreRef.current = false;
+        bufferRef.current = page;
+        if (page.sprites < PAGE_SIZE) hasMoreRef.current = false;
       })
       .catch(() => {
         if (generation === generationRef.current) hasMoreRef.current = false;
@@ -63,8 +62,8 @@ export function OsrsSpriteTab(): React.JSX.Element {
     }
     const batch = bufferRef.current;
     bufferRef.current = null;
-    offsetRef.current += batch.length;
-    setSprites((prev) => [...prev, ...batch]);
+    offsetRef.current += batch.sprites;
+    setSprites((prev) => [...prev, ...batch.items]);
     ensureBuffer();
   }, [ensureBuffer]);
   drainRef.current = drain;
@@ -79,7 +78,7 @@ export function OsrsSpriteTab(): React.JSX.Element {
     if (filterIsId) {
       fetchingRef.current = false;
       setLoading(true);
-      osrsCacheApi
+      osrsAssetsApi
         .getSprite(Number(trimmedFilter))
         .then((data) => {
           if (generation === generationRef.current) setSprites(data);
@@ -95,13 +94,13 @@ export function OsrsSpriteTab(): React.JSX.Element {
 
     fetchingRef.current = true;
     setLoading(true);
-    osrsCacheApi
+    osrsAssetsApi
       .listSprites(PAGE_SIZE, 0, { category: category ?? undefined, search: nameSearch })
-      .then((data) => {
+      .then((page) => {
         if (generation !== generationRef.current) return;
-        setSprites(data);
-        offsetRef.current = data.length;
-        hasMoreRef.current = data.length === PAGE_SIZE;
+        setSprites(page.items);
+        offsetRef.current = page.sprites;
+        hasMoreRef.current = page.sprites === PAGE_SIZE;
       })
       .catch(() => {
         if (generation === generationRef.current) setSprites([]);
@@ -139,21 +138,15 @@ export function OsrsSpriteTab(): React.JSX.Element {
   }, [paginated]);
 
   const copyUrl = useCallback(async (sprite: OsrsSprite) => {
-    await navigator.clipboard.writeText(`${API_URL}/osrs-cache${sprite.png_url}`);
+    await navigator.clipboard.writeText(sprite.webp_url);
     setCopied(sprite.sprite_id);
     setTimeout(() => setCopied(null), 2000);
   }, []);
 
-  const downloadSprite = useCallback(async (sprite: OsrsSprite) => {
-    const res = await fetch(`${API_URL}/osrs-cache${sprite.png_url}`);
-    const blob = await res.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = `${sprite.name ?? `sprite-${sprite.sprite_id}`}.png`;
-    link.click();
-    URL.revokeObjectURL(blobUrl);
-  }, []);
+  const downloadSprite = useCallback(
+    (sprite: OsrsSprite) => downloadImage(sprite.webp_url, `${sprite.name}.webp`),
+    [],
+  );
 
   return (
     <div className="space-y-4" ref={rootRef}>

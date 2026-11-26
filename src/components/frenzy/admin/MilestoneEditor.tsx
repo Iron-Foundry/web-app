@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BossPicker } from "./BossPicker";
-import type { FrenzyMilestone, OsrsBoss } from "@/types/frenzy";
+import type { FrenzyMilestone } from "@/types/frenzyTemplate";
+import type { OsrsBoss } from "@/types/frenzy";
 import { Plus, Trash2 } from "lucide-react";
 
 const CATEGORIES = ["killcount", "experience", "cluescroll"] as const;

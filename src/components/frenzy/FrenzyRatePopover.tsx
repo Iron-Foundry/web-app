@@ -1,7 +1,7 @@
 import { Info } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { hoursPerDrop, isTypedCard, measuredBy, rateSourceLabel } from "@/lib/frenzyCard";
-import type { FrenzyItem, FrenzySource } from "@/types/frenzy";
+import type { FrenzyItem, FrenzySource } from "@/types/frenzyTemplate";
 
 function chance(item: FrenzyItem): string {
   return item.drop_denom ? `1/${item.drop_denom.toLocaleString()}` : "-";

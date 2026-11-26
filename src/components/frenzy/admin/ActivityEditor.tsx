@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ActivityPicker } from "./ActivityPicker";
-import type { FrenzyActivity, OsrsActivity } from "@/types/frenzy";
+import type { FrenzyActivity } from "@/types/frenzyTemplate";
+import type { OsrsActivity } from "@/types/frenzy";
 import { Plus, Trash2 } from "lucide-react";
 
 interface Props {

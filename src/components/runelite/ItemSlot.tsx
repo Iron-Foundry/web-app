@@ -1,4 +1,4 @@
-import { itemIconUrl } from "./bankTag";
+import { itemImageUrl } from "@/api/osrsAssets";
 import { useItemNames } from "@/hooks/useItemNames";
 
 function formatQuantity(quantity: number): string {
@@ -23,7 +23,7 @@ export function ItemSlot({ itemId, quantity, empty = false }: ItemSlotProps) {
       {filled && (
         <>
           <img
-            src={itemIconUrl(itemId)}
+            src={itemImageUrl(itemId)}
             alt={label}
             title={label}
             loading="lazy"

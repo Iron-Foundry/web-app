@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TemplateEditor } from "./TemplateEditor";
 import { useTemplates, useTemplate, useDeleteTemplate } from "@/hooks/useFrenzy";
-import type { FrenzyTemplateSummary } from "@/types/frenzy";
+import type { FrenzyTemplateSummary } from "@/types/frenzyTemplate";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 

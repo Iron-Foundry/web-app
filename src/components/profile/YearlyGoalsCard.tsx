@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Target, RefreshCw, Share2, Check } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { GoalsCardHead } from "./GoalsCardHead";
+import { applySnapshot } from "./goalSnapshot";
 import { PresetPicker } from "./PresetPicker";
 import { GoalRow } from "./GoalRow";
 import { GoalForm, CheckboxGoalForm } from "./GoalForm";
@@ -14,21 +13,6 @@ import { membersApi } from "@/api/members";
 import { queryKeys } from "@/lib/queryKeys";
 import type { LinkedAccount } from "@/api/accounts";
 import type { Goal, GoalFormData } from "@/types/goals";
-
-function applySnapshot(
-  goals: Goal[],
-  snapshot: { skills: Record<string, number>; bosses: Record<string, number>; activities: Record<string, number> },
-): Goal[] {
-  return goals.map((g) => {
-    if (!g.wmMetricType || !g.wmMetric) return g;
-    const raw = g.wmMetricType === "skill_xp"
-      ? snapshot.skills[g.wmMetric]
-      : g.wmMetricType === "boss_kc"
-        ? snapshot.bosses[g.wmMetric]
-        : snapshot.activities[g.wmMetric];
-    return raw != null ? { ...g, current: Math.round(raw) } : g;
-  });
-}
 
 /** Yearly goal tracker per linked RSN, synced to backend and shareable. */
 export function YearlyGoalsCard({ accounts }: {
@@ -111,7 +95,6 @@ export function YearlyGoalsCard({ accounts }: {
     persist([...goals, { id: crypto.randomUUID(), title, category, type: "checkbox", checked: false, current: 0, target: 1, unit: "", year }]);
     setAddMode(null);
   }
-
   function handleShare(): void {
     const token = goalsData?.share_token;
     if (!token) return;
@@ -137,52 +120,18 @@ export function YearlyGoalsCard({ accounts }: {
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="font-rs-bold text-xl text-primary flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            {year} Goals
-          </CardTitle>
-          <div className="flex items-center gap-1.5">
-            {selectedRsn && (
-              <Button size="sm" variant="ghost" onClick={handleShare} disabled={!goalsData?.share_token} className="text-muted-foreground">
-                {copied ? <Check className="h-3.5 w-3.5 mr-1 text-green-500" /> : <Share2 className="h-3.5 w-3.5 mr-1" />}
-                {copied ? "Copied!" : "Share"}
-              </Button>
-            )}
-            {addMode === null && editId === null && (
-              <Button size="sm" variant="outline" onClick={() => setAddMode("preset")}>
-                <Plus className="h-3.5 w-3.5 mr-1" />
-                Add goal
-              </Button>
-            )}
-          </div>
-        </div>
-        {accounts.length > 1 && (
-          <div className="flex gap-1.5 flex-wrap pt-1">
-            {accounts.map((a) => (
-              <button
-                key={a.rsn}
-                onClick={() => setSelectedRsn(a.rsn)}
-                className={cn(
-                  "rounded-full px-3 py-0.5 text-xs font-medium transition-colors border",
-                  selectedRsn === a.rsn
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30",
-                )}
-              >
-                {a.rsn}
-              </button>
-            ))}
-          </div>
-        )}
-        {snapshot?.fetched_at && (
-          <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
-            <RefreshCw className="h-3 w-3" />
-            WOM data from {new Date(snapshot.fetched_at).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
-          </p>
-        )}
-      </CardHeader>
+      <GoalsCardHead
+        year={year}
+        accounts={accounts}
+        selectedRsn={selectedRsn}
+        onSelectRsn={setSelectedRsn}
+        copied={copied}
+        canShare={!!goalsData?.share_token}
+        onShare={handleShare}
+        showAdd={addMode === null && editId === null}
+        onAdd={() => setAddMode("preset")}
+        fetchedAt={snapshot?.fetched_at}
+      />
       <CardContent className="space-y-3">
         {goals.length === 0 && addMode === null && (
           <p className="text-sm text-muted-foreground italic">No goals set for {year} yet. Track OSRS milestones, clan targets, or anything else.</p>

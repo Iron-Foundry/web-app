@@ -1,5 +1,5 @@
 import { calcTierEntryPoints, getTiersCompleted } from "@/lib/frenzy";
-import type { FrenzyMilestone } from "@/types/frenzy";
+import type { FrenzyMilestone } from "@/types/frenzyTemplate";
 
 interface Props {
   category: string;

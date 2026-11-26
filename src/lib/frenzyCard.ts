@@ -1,4 +1,4 @@
-import type { FrenzyItem, FrenzyMultiplier, FrenzySource } from "@/types/frenzy";
+import type { FrenzyItem, FrenzyMultiplier, FrenzySource } from "@/types/frenzyTemplate";
 
 export type ProgressState = "none" | "base" | "full";
 
@@ -9,6 +9,7 @@ const MEASURED_BY: Record<string, string> = {
   item_drop: "Item drop",
   superior: "Superior",
   fixed: "Fixed",
+  foundry: "Foundry",
 };
 
 export function itemKey(tierName: string, cardName: string, itemName: string): string {

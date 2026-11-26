@@ -23,10 +23,6 @@ export const queryKeys = {
     notificationCategories: () => ["parties", "notification-categories"] as const,
     notificationPreferences: () => ["parties", "notification-preferences"] as const,
   },
-  bingo: {
-    board: () => ["bingo", "board"] as const,
-    teams: () => ["bingo", "teams"] as const,
-  },
   members: {
     accounts: () => ["members", "accounts"] as const,
     myGoals: (rsn: string) => ["members", "my-goals", rsn] as const,
@@ -114,8 +110,10 @@ export const queryKeys = {
       ["tilerace", "accounts", eventId, discordUserId] as const,
   },
   reference: {
-    sources: (category: string) => ["reference", "sources", category] as const,
-    source: (slug: string) => ["reference", "source", slug] as const,
+    lootSources: (category: string, q: string) => ["reference", "loot-sources", category, q] as const,
+    lootSourcesAll: () => ["reference", "loot-sources"] as const,
+    sourceRates: (source: string) => ["reference", "loot-rates", "source", source] as const,
+    killRate: (source: string) => ["reference", "kill-rates", source] as const,
     rates: (kind: string) => ["reference", "rates", kind] as const,
     itemLootRates: (itemName: string) => ["reference", "loot-rates", "item", itemName] as const,
     npcSearch: (q: string) => ["reference", "osrs", "npcs", q] as const,
@@ -137,6 +135,8 @@ export const queryKeys = {
     events: () => ["frenzy", "events"] as const,
     event: (id: number) => ["frenzy", "event", id] as const,
     submissions: (eventId: number, params?: string) => ["frenzy", "submissions", eventId, params ?? ""] as const,
+    draft: (eventId: number) => ["frenzy", "draft", eventId] as const,
+    signups: (eventId: number) => ["frenzy", "signups", eventId] as const,
   },
   music: {
     queue: (channelId: string) => ["music", "queue", channelId] as const,

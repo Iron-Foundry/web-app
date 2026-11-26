@@ -7,9 +7,16 @@ export const VIBE_LABEL: Record<Vibe, string> = {
 };
 
 export const VIBE_CLASS: Record<Vibe, string> = {
-  learning: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-  chill: "bg-green-500/15 text-green-400 border-green-500/20",
-  sweat: "bg-red-500/15 text-red-400 border-red-500/20",
+  learning: "bg-mk-blue/15 text-mk-blue border-mk-blue/30",
+  chill: "bg-mk-green/15 text-mk-green border-mk-green/30",
+  sweat: "bg-mk-red/15 text-mk-red border-mk-red/30",
+};
+
+/** The vibe's colour as plain text, for the word on a party card. */
+export const VIBE_TEXT: Record<Vibe, string> = {
+  learning: "text-mk-blue",
+  chill: "text-mk-green",
+  sweat: "text-mk-red",
 };
 
 export function displayName(user: { username: string; rsn: string | null }): string {

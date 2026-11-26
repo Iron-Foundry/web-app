@@ -23,7 +23,7 @@ export function NonRaidCard({
 
   return (
     <>
-      <div className="rounded-md border border-border bg-card">
+      <div className="rounded-xl border border-border bg-card">
         <div title={activity} className={cn("font-rs-bold text-primary truncate", compact ? "px-2 pt-1.5 pb-0.5 text-sm" : "px-3 pt-2.5 pb-1 text-base")}>
           {activity}
         </div>

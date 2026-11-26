@@ -1,5 +1,5 @@
 import { calcTierEntryPoints, getTiersCompleted } from "@/lib/frenzy";
-import type { FrenzyActivity } from "@/types/frenzy";
+import type { FrenzyActivity } from "@/types/frenzyTemplate";
 
 interface Props {
   activities: FrenzyActivity[];

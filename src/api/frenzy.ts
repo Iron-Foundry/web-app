@@ -1,25 +1,7 @@
 import { apiFetch } from "@/api/client";
-import type {
-  FrenzyActiveEvent,
-  FrenzyEventDetail,
-  FrenzyEventHistory,
-  FrenzyEventSummary,
-  FrenzyLeaderboardEntry,
-  FrenzySubmission,
-  FrenzySubmissionCreate,
-  FrenzySubmissionList,
-  FrenzyTemplate,
-  FrenzyTemplateSummary,
-  FrenzyTemplateUpdate,
-  FrenzyTeamDetail,
-  FrenzyTeamHistory,
-  FrenzyTierData,
-  FrenzyVersionDetail,
-  FrenzyVersionSummary,
-  OsrsActivity,
-  OsrsBoss,
-  OsrsItem,
-} from "@/types/frenzy";
+import type { FrenzyActiveEvent, FrenzyEventDetail, FrenzyEventHistory, FrenzyEventSummary, FrenzyLeaderboardEntry, FrenzyTeamDetail, FrenzyTeamHistory, OsrsActivity, OsrsBoss, OsrsItem } from "@/types/frenzy";
+import type { FrenzySubmission, FrenzySubmissionCreate, FrenzySubmissionList } from "@/types/frenzySubmission";
+import type { FrenzyTemplate, FrenzyTemplateSummary, FrenzyTemplateUpdate, FrenzyTierData, FrenzyVersionDetail, FrenzyVersionSummary } from "@/types/frenzyTemplate";
 
 export const frenzyApi = {
   // Public

@@ -1,12 +1,11 @@
 import { createRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { rootRoute } from "./__root";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Target } from "lucide-react";
+import { rootRoute } from "./__root";
 import { membersApi } from "@/api/members";
 import { queryKeys } from "@/lib/queryKeys";
 import { GoalRow } from "@/components/profile/GoalRow";
+import { PageHead } from "@/components/layout/PageHead";
 import type { Goal } from "@/types/goals";
 
 export const goalsRsnRoute = createRoute({
@@ -15,12 +14,14 @@ export const goalsRsnRoute = createRoute({
   component: GoalsPage,
 });
 
+const noop = (): void => {};
+
 function GoalsPage(): React.JSX.Element {
   const { token } = goalsRsnRoute.useParams();
-  const year      = new Date().getFullYear();
+  const year = new Date().getFullYear();
   const { data, isLoading, isError } = useQuery({
     queryKey: queryKeys.members.goalsByToken(token),
-    queryFn:  () => membersApi.getGoalsByToken(token),
+    queryFn: () => membersApi.getGoalsByToken(token),
     staleTime: 1000 * 60 * 5,
     retry: false,
   });
@@ -28,39 +29,23 @@ function GoalsPage(): React.JSX.Element {
   const goals = (data?.goals ?? []).filter((g: Goal) => g.year === year);
 
   return (
-    <div className="mx-auto max-w-7xl py-6 space-y-6 px-4">
-      <div className="rounded-md border border-yellow-500/40 bg-yellow-500/10 px-4 py-2.5 text-sm text-yellow-700 dark:text-yellow-400">
+    <div className="mx-auto w-full max-w-5xl space-y-8 py-6">
+      <p className="rounded-lg border border-mk-yellow/35 bg-mk-yellow/10 px-4 py-2.5 text-sm">
         Work in progress - goal tracking is still being developed.
+      </p>
+      <PageHead title={data?.rsn ?? "Goals"}>
+        <p className="flex items-center gap-1.5 text-muted-foreground"><Target className="h-4 w-4 text-primary" />{year} Goals</p>
+      </PageHead>
+      {isLoading && <p className="text-sm text-muted-foreground">Loading...</p>}
+      {isError && <p className="text-sm text-muted-foreground">Goals not found.</p>}
+      {!isLoading && !isError && goals.length === 0 && (
+        <p className="text-sm italic text-muted-foreground">No goals shared for {year}.</p>
+      )}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {goals.map((goal: Goal) => (
+          <GoalRow key={goal.id} goal={goal} readonly onEdit={noop} onDelete={noop} onProgressUpdate={noop} onToggleCheck={noop} />
+        ))}
       </div>
-      <div className="space-y-1">
-        <h1 className="font-rs-bold text-4xl text-primary">{data?.rsn ?? "Goals"}</h1>
-        <p className="text-muted-foreground text-sm flex items-center gap-1.5"><Target className="h-3.5 w-3.5" />{year} Goals</p>
-      </div>
-
-      <Separator />
-
-      <Card>
-        <CardContent className="pt-6">
-          {isLoading && <p className="text-sm text-muted-foreground">Loading...</p>}
-          {isError  && <p className="text-sm text-muted-foreground">Goals not found.</p>}
-          {!isLoading && !isError && goals.length === 0 && (
-            <p className="text-sm text-muted-foreground italic">No goals shared for {year}.</p>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {goals.map((goal: Goal) => (
-              <GoalRow
-                key={goal.id}
-                goal={goal}
-                readonly
-                onEdit={() => {}}
-                onDelete={() => {}}
-                onProgressUpdate={() => {}}
-                onToggleCheck={() => {}}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

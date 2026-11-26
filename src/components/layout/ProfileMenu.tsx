@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Settings, LogOut, LayoutDashboard, Music2, SlidersHorizontal } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,9 +23,7 @@ function RoleBadge({ roles, roleLabels }: { roles: string[]; roleLabels: Record<
   const top = highestRoleDisplay(roles, roleLabels);
   if (!top || !(top in ROLE_BADGE_CLASS)) return null;
   return (
-    <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", ROLE_BADGE_CLASS[top])}>
-      {top}
-    </Badge>
+    <span className={cn("text-xs font-medium border-0", ROLE_BADGE_CLASS[top])}>{top}</span>
   );
 }
 
@@ -62,9 +59,9 @@ export function ProfileMenu({ user, logout }: { user: AuthUser; logout: () => vo
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center gap-2 rounded-md p-1 outline-none transition-colors hover:bg-muted">
-          {avatarUrl && <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full" />}
-          <div className="flex flex-col items-start gap-0.5 leading-none">
+        <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-lg p-1 outline-none transition-colors hover:bg-muted">
+          {avatarUrl && <img src={avatarUrl} alt={`${user.username} avatar`} className="h-8 w-8 rounded-full" />}
+          <div className="flex flex-col items-start gap-0.5 leading-tight">
             <span className="text-sm text-foreground">{user.rsn ?? user.username}</span>
             <RoleBadge roles={user.effective_roles} roleLabels={user.role_labels} />
           </div>

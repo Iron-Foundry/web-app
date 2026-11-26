@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { ITEM_RENDER_SIZES, osrsCacheApi, type ItemRenderSize } from "@/api/osrsCache";
+import { ITEM_SCALES, downloadImage, itemImageUrl, type ItemScale } from "@/api/osrsAssets";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,24 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { OsrsItem } from "@/types/osrsCache";
+import type { OsrsItem } from "@/types/osrsAssets";
 
 interface ItemRenderDialogProps {
   item: OsrsItem;
   onClose: () => void;
 }
 
-function downloadBlob(blob: Blob, filename: string): void {
-  const blobUrl = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = blobUrl;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(blobUrl);
-}
-
 export function ItemRenderDialog({ item, onClose }: ItemRenderDialogProps): React.JSX.Element {
-  const [size, setSize] = useState<ItemRenderSize>(512);
+  const [scale, setScale] = useState<ItemScale>("max");
   const [rendering, setRendering] = useState(false);
   const [error, setError] = useState(false);
 
@@ -41,8 +32,8 @@ export function ItemRenderDialog({ item, onClose }: ItemRenderDialogProps): Reac
     setRendering(true);
     setError(false);
     try {
-      const blob = await osrsCacheApi.renderItemIcon(item.item_id, size);
-      downloadBlob(blob, `${item.name}_${size}x${size}.webp`);
+      const label = ITEM_SCALES.find((s) => s.scale === scale)?.label.replace(" x ", "x") ?? scale;
+      await downloadImage(itemImageUrl(item.item_id, scale), `${item.name}_${label}.webp`);
       onClose();
     } catch {
       setError(true);
@@ -55,21 +46,17 @@ export function ItemRenderDialog({ item, onClose }: ItemRenderDialogProps): Reac
     <Dialog open onOpenChange={(next) => !next && !rendering && onClose()}>
       <DialogContent onClick={(e) => e.stopPropagation()} className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle className="font-rs-bold">Render {item.name}</DialogTitle>
+          <DialogTitle className="font-rs-bold">Download {item.name}</DialogTitle>
         </DialogHeader>
 
-        <Select
-          value={String(size)}
-          onValueChange={(v) => setSize(Number(v) as ItemRenderSize)}
-          disabled={rendering}
-        >
+        <Select value={scale} onValueChange={(v) => setScale(v as ItemScale)} disabled={rendering}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {ITEM_RENDER_SIZES.map((s) => (
-              <SelectItem key={s} value={String(s)}>
-                {s} x {s}
+            {ITEM_SCALES.map((s) => (
+              <SelectItem key={s.scale} value={s.scale}>
+                {s.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -77,7 +64,7 @@ export function ItemRenderDialog({ item, onClose }: ItemRenderDialogProps): Reac
 
         {error && (
           <p className="text-xs text-destructive">
-            Render failed. This item may have no visual model.
+            OSRSClans has no image for this item.
           </p>
         )}
 
@@ -86,10 +73,10 @@ export function ItemRenderDialog({ item, onClose }: ItemRenderDialogProps): Reac
             {rendering ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Rendering...
+                Downloading...
               </>
             ) : (
-              "Render and download"
+              "Download"
             )}
           </Button>
         </DialogFooter>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { AccountSwitch } from "./AccountSwitch";
 import { useMySnapshot } from "@/hooks/useMemberDashboard";
 import { SKILLS, levelFromXp, skillIconUrl } from "@/lib/osrs";
 import type { LinkedAccount } from "@/api/accounts";
@@ -48,29 +48,12 @@ export function SkillsCard({ accounts }: { accounts: LinkedAccount[] }): React.J
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className="font-rs-bold text-xl text-primary">Skills</CardTitle>
+          <CardTitle className="font-rs-bold text-xl text-foreground">Skills</CardTitle>
           <span className="text-sm text-muted-foreground">
-            Total <span className="font-rs-bold text-foreground">{totalLevel.toLocaleString()}</span>
+            Total <span className="font-rs-bold text-primary">{totalLevel.toLocaleString()}</span>
           </span>
         </div>
-        {accounts.length > 1 && (
-          <div className="flex gap-1.5 flex-wrap pt-1">
-            {accounts.map((a) => (
-              <button
-                key={a.rsn}
-                onClick={() => setSelectedRsn(a.rsn)}
-                className={cn(
-                  "rounded-full px-3 py-0.5 text-xs font-medium transition-colors border",
-                  selectedRsn === a.rsn
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30",
-                )}
-              >
-                {a.rsn}
-              </button>
-            ))}
-          </div>
-        )}
+        <AccountSwitch accounts={accounts} selected={selectedRsn} onSelect={setSelectedRsn} />
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-3 gap-1">

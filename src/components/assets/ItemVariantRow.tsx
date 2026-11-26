@@ -1,8 +1,7 @@
 import { memo, useState } from "react";
 import { Check, Copy } from "lucide-react";
-import { API_URL } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import type { OsrsItem } from "@/types/osrsCache";
+import type { OsrsItem } from "@/types/osrsAssets";
 
 interface ItemVariantRowProps {
   variant: OsrsItem;
@@ -24,7 +23,7 @@ function ItemVariantRowImpl({
   async function handleCopy(e: React.MouseEvent) {
     e.stopPropagation();
     if (!variant.icon_url) return;
-    await navigator.clipboard.writeText(`${API_URL}/osrs-cache${variant.icon_url}`);
+    await navigator.clipboard.writeText(variant.icon_url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -47,7 +46,7 @@ function ItemVariantRowImpl({
       <div className="h-8 w-8 shrink-0 flex items-center justify-center rounded bg-muted/30 border border-border overflow-hidden">
         {variant.icon_url ? (
           <img
-            src={`${API_URL}/osrs-cache${variant.icon_url}`}
+            src={variant.icon_url}
             alt={variant.name}
             loading="lazy"
             decoding="async"

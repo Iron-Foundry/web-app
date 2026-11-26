@@ -1,7 +1,7 @@
 import { calcItemPoints } from "@/lib/frenzy";
 import { STATE_TEXT, cardState, isTypedCard, itemKey, itemState } from "@/lib/frenzyCard";
 import { FrenzyRatePopover } from "./FrenzyRatePopover";
-import type { FrenzyItem, FrenzySource } from "@/types/frenzy";
+import type { FrenzyItem, FrenzySource } from "@/types/frenzyTemplate";
 
 interface Props {
   tierName: string;

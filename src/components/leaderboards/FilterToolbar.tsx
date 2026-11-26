@@ -40,8 +40,8 @@ export function FilterToolbar({
 }: {
   search: string;
   onSearchChange: (v: string) => void;
-  rankFilter: string | null;
-  onRankFilterChange: (r: string | null) => void;
+  rankFilter?: string | null;
+  onRankFilterChange?: (r: string | null) => void;
   compact: boolean;
   onCompactToggle: () => void;
   searchPlaceholder?: string;
@@ -53,21 +53,23 @@ export function FilterToolbar({
       {showSearch && (
         <SearchBar value={search} onChange={onSearchChange} placeholder={searchPlaceholder} />
       )}
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className={cn("gap-1.5 h-8 shrink-0", rankFilter && "border-primary text-primary")}
-          >
-            <Filter className="h-3.5 w-3.5" />
-            {rankFilter ? `Filter (${rankFilter})` : "Filter"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-72 p-3" align="end">
-          <RankFilterPills active={rankFilter} onChange={onRankFilterChange} compact={false} counts={rankCounts} />
-        </PopoverContent>
-      </Popover>
+      {onRankFilterChange && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn("gap-1.5 h-8 shrink-0", rankFilter && "border-primary text-primary")}
+            >
+              <Filter className="h-3.5 w-3.5" />
+              {rankFilter ? `Filter (${rankFilter})` : "Filter"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-3" align="end">
+            <RankFilterPills active={rankFilter ?? null} onChange={onRankFilterChange} compact={false} counts={rankCounts} />
+          </PopoverContent>
+        </Popover>
+      )}
       <Button
         variant="ghost"
         size="sm"

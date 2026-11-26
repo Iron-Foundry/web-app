@@ -1880,6 +1880,8 @@ export interface paths {
         /**
          * Get Active Event
          * @description Return the active event with all teams ranked by total points.
+         *
+         *     A signed-in caller also gets their own signup as `my_signup`.
          */
         get: operations["get_active_event_frenzy_active_get"];
         put?: never;
@@ -2058,6 +2060,162 @@ export interface paths {
          * @description Stop the running event without deleting its progress.
          */
         post: operations["deactivate_event_frenzy_events__event_id__deactivate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frenzy/events/{event_id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Draft
+         * @description The draft as everyone sees it: teams in drawn order and the pool.
+         */
+        get: operations["get_draft_frenzy_events__event_id__draft_get"];
+        /**
+         * Set Up Draft
+         * @description Choose the mode, the top picks per captain and the captains.
+         */
+        put: operations["set_up_draft_frenzy_events__event_id__draft_put"];
+        post?: never;
+        /**
+         * Reset Draft
+         * @description Remove the draft and the teams its draw made; every signup returns to the pool.
+         */
+        delete: operations["reset_draft_frenzy_events__event_id__draft_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frenzy/events/{event_id}/draft/draw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Draw Order
+         * @description Draw a random round-1 order and make one team per captain.
+         */
+        post: operations["draw_order_frenzy_events__event_id__draft_draw_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frenzy/events/{event_id}/draft/moves": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Move Member
+         * @description Move a member to another team after the draft and before the event starts.
+         */
+        post: operations["move_member_frenzy_events__event_id__draft_moves_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frenzy/events/{event_id}/draft/picks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Make Pick
+         * @description Put a pool signup on the team whose turn it is.
+         */
+        post: operations["make_pick_frenzy_events__event_id__draft_picks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frenzy/events/{event_id}/draft/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Draft
+         * @description Open pick 1.
+         */
+        post: operations["start_draft_frenzy_events__event_id__draft_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frenzy/events/{event_id}/signup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign Up
+         * @description Sign the member up for the event under one of their linked RSNs.
+         */
+        post: operations["sign_up_frenzy_events__event_id__signup_post"];
+        /**
+         * Cancel Signup
+         * @description Withdraw the member's signup from the event.
+         */
+        delete: operations["cancel_signup_frenzy_events__event_id__signup_delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Change Signup
+         * @description Move the signup to another linked account, or change the opt-in or time zone.
+         */
+        patch: operations["change_signup_frenzy_events__event_id__signup_patch"];
+        trace?: never;
+    };
+    "/frenzy/events/{event_id}/signups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Signups
+         * @description The event's signups, oldest first, with the member's Discord name.
+         */
+        get: operations["list_signups_frenzy_events__event_id__signups_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2265,7 +2423,7 @@ export interface paths {
         };
         /**
          * Search Osrs Items
-         * @description Search OSRS item names for the frenzy task editor. Cached in Valkey.
+         * @description Search OSRS items by name on OSRSClans for the frenzy task editor.
          */
         get: operations["search_osrs_items_frenzy_osrs_items_get"];
         put?: never;
@@ -3193,474 +3351,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/osrs-cache/gamevals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Gamevals
-         * @description Search the internal Jagex symbol names by namespace (`npcs`, `items`, ...).
-         */
-        get: operations["list_gamevals_osrs_cache_gamevals_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/gamevals/{namespace}/{entry_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Gameval
-         * @description Return one entity's symbol name, plus its sub-entries where it has them.
-         */
-        get: operations["get_gameval_osrs_cache_gamevals__namespace___entry_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/item-icons/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Item Icon
-         * @description Serve the baked 512px item icon as lossless WebP, immutably cached.
-         */
-        get: operations["get_item_icon_osrs_cache_item_icons__item_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/item-icons/{item_id}/render": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Render Item Icon
-         * @description Render the item icon at a custom size on demand.
-         *
-         *     Slower than the baked icon and cached for days rather than forever; prefer
-         *     `/item-icons/{item_id}` unless you need a specific size.
-         */
-        get: operations["render_item_icon_osrs_cache_item_icons__item_id__render_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Items
-         * @description Search item definitions by name, or page through all of them.
-         */
-        get: operations["list_items_osrs_cache_items_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/items/names": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Item Names
-         * @description Return the full item id to name map, for bulk client-side lookups.
-         */
-        get: operations["list_item_names_osrs_cache_items_names_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/items/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Item
-         * @description Return one item definition, including its 2D render recipe.
-         */
-        get: operations["get_item_osrs_cache_items__item_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/items/{item_id}/variants": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Item Variants
-         * @description List the noted, placeholder, and charged forms sharing this item's name.
-         */
-        get: operations["get_item_variants_osrs_cache_items__item_id__variants_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/map/icons": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Map Icons
-         * @description List the map icons placed on a plane, joined to their source object.
-         */
-        get: operations["get_map_icons_osrs_cache_map_icons_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/map/labels": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Map Labels
-         * @description List named areas on a plane. Areas carry no polygon, so these are unplaced.
-         */
-        get: operations["get_map_labels_osrs_cache_map_labels_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/map/locations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Map Locations
-         * @description Find placed scenery, either by object id or within a tile bounding box.
-         */
-        get: operations["get_map_locations_osrs_cache_map_locations_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/map/meta": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Map Meta
-         * @description Return the slippy-map manifest: zoom range, bounds, and coverage bitmap.
-         *
-         *     The relative `tileUrl` is rewritten onto the public tile host, so clients
-         *     can use it directly.
-         */
-        get: operations["get_map_meta_osrs_cache_map_meta_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/map/regions/{region_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Map Region
-         * @description Return one map region's decoded terrain, keyed by region id.
-         */
-        get: operations["get_map_region_osrs_cache_map_regions__region_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/map/sections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Map Sections
-         * @description List the named map sections used to jump the viewport to a landmark.
-         */
-        get: operations["get_map_sections_osrs_cache_map_sections_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/meta": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Meta
-         * @description Report the ingested cache build and how many definitions it holds.
-         */
-        get: operations["get_meta_osrs_cache_meta_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/npcs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Npcs
-         * @description Search NPC definitions by name, or page through all of them.
-         */
-        get: operations["list_npcs_osrs_cache_npcs_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/npcs/names": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Npc Names
-         * @description Return the full NPC id to name map, for bulk client-side lookups.
-         *
-         *     Unnamed NPCs - the shells a varbit transform points away from - are omitted.
-         */
-        get: operations["list_npc_names_osrs_cache_npcs_names_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/npcs/{npc_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Npc
-         * @description Return one NPC definition: models, actions, recolours, and its form table.
-         */
-        get: operations["get_npc_osrs_cache_npcs__npc_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/objects": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Objects
-         * @description Search scenery object definitions by name, or page through all of them.
-         */
-        get: operations["list_objects_osrs_cache_objects_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/sprites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Sprites
-         * @description Search UI sprites by name or category, or page through all of them.
-         */
-        get: operations["list_sprites_osrs_cache_sprites_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/sprites/categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Sprite Categories
-         * @description List the sprite category names, as grouped by RuneLite's SpriteID.
-         */
-        get: operations["list_sprite_categories_osrs_cache_sprites_categories_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/sprites/{sprite_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Sprite
-         * @description List the frames in a sprite group. Most groups hold exactly one.
-         */
-        get: operations["get_sprite_osrs_cache_sprites__sprite_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/osrs-cache/sprites/{sprite_id}/{frame_index}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Sprite Image
-         * @description Serve one sprite frame as PNG or WebP, optionally scaled up.
-         */
-        get: operations["get_sprite_image_osrs_cache_sprites__sprite_id___frame_index__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/parties/": {
         parameters: {
             query?: never;
@@ -3981,6 +3671,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reference/kill-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Kill Rates
+         * @description List the staff-set kill rates of OSRSClans drop sources, by source key.
+         */
+        get: operations["list_kill_rates_reference_kill_rates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/kill-rates/{source}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Kill Rate
+         * @description Return the staff-set kill rate of one OSRSClans drop source, URL-encoded.
+         */
+        get: operations["get_kill_rate_reference_kill_rates__source__get"];
+        /**
+         * Set Kill Rate
+         * @description Set the kill rate of an OSRSClans drop source that has none of its own.
+         *
+         *     `source` is the OSRSClans source key, URL-encoded. A source that OSRSClans
+         *     gives a rate keeps that rate on the loot rate routes.
+         */
+        put: operations["set_kill_rate_reference_kill_rates__source__put"];
+        post?: never;
+        /**
+         * Remove Kill Rate
+         * @description Remove the staff-set kill rate of an OSRSClans drop source.
+         */
+        delete: operations["remove_kill_rate_reference_kill_rates__source__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reference/loot-rates": {
         parameters: {
             query?: never;
@@ -3995,7 +3736,9 @@ export interface paths {
          *     `item`, `source`, `page`, `category` and `wom_metric` keep one of each. `q`
          *     keeps the rows whose item or source name holds the text. `level` sets the
          *     level that a skilling pet or clue nest chance is computed at. `points` and
-         *     `raid_level` set the raid that `chance_per_raid` is computed at.
+         *     `raid_level` set the raid that `chance_per_raid` is computed at. A row with
+         *     no OSRSClans kill rate takes the staff-set rate of its source, marked
+         *     `foundry`.
          */
         get: operations["list_loot_rates_reference_loot_rates_get"];
         put?: never;
@@ -4018,7 +3761,8 @@ export interface paths {
          * @description Return the drop sources from OSRSClans, with each source's kill rate.
          *
          *     `page`, `category` and `wom_metric` keep one of each. `q` keeps the sources
-         *     whose name, or the name of an item they drop, holds the text.
+         *     whose name, or the name of an item they drop, holds the text. A source with
+         *     no OSRSClans kill rate takes its staff-set rate, marked `foundry`.
          */
         get: operations["list_loot_sources_reference_loot_rates_sources_get"];
         put?: never;
@@ -4029,7 +3773,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/reference/loot/items/{item_id}": {
+    "/reference/osrs/items": {
         parameters: {
             query?: never;
             header?: never;
@@ -4037,10 +3781,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Sources For Item
-         * @description Reverse lookup: list every source that drops this item, with rarities.
+         * List Items
+         * @description Return a window of named items from OSRSClans, or those whose name holds `search`.
          */
-        get: operations["sources_for_item_reference_loot_items__item_id__get"];
+        get: operations["list_items_reference_osrs_items_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4049,7 +3793,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/reference/loot/sources": {
+    "/reference/osrs/items/names": {
         parameters: {
             query?: never;
             header?: never;
@@ -4057,10 +3801,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List Sources
-         * @description List the loot sources scraped from the OSRS Wiki, filtered by category.
+         * Item Names
+         * @description Return every item's name by id. Fetch it once a session, not per row.
          */
-        get: operations["list_sources_reference_loot_sources_get"];
+        get: operations["item_names_reference_osrs_items_names_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4069,7 +3813,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/reference/loot/sources/{slug}": {
+    "/reference/osrs/items/{item_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -4077,10 +3821,30 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get Source
-         * @description Return one loot source with its full drop table.
+         * Get Item
+         * @description Return one item.
          */
-        get: operations["get_source_reference_loot_sources__slug__get"];
+        get: operations["get_item_reference_osrs_items__item_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/osrs/items/{item_id}/variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Item Variants
+         * @description Return an item with its noted, placeholder and stack forms.
+         */
+        get: operations["item_variants_reference_osrs_items__item_id__variants_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4109,6 +3873,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reference/osrs/sprite-frames": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Sprite Frames
+         * @description Return a window of sprites as one row per frame, filtered by name or category.
+         *
+         *     `limit` and `offset` count sprites, not frames. Advance `offset` by `sprites`.
+         */
+        get: operations["list_sprite_frames_reference_osrs_sprite_frames_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/osrs/sprite-frames/{sprite_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Sprite Frames
+         * @description Return each frame of one sprite.
+         */
+        get: operations["get_sprite_frames_reference_osrs_sprite_frames__sprite_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reference/osrs/sprites": {
         parameters: {
             query?: never;
@@ -4121,6 +3927,26 @@ export interface paths {
          * @description Return the interface sprites from OSRSClans whose name holds `q`.
          */
         get: operations["search_sprites_reference_osrs_sprites_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reference/osrs/sprites/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sprite Categories
+         * @description Return every named sprite category with its sprite count.
+         */
+        get: operations["sprite_categories_reference_osrs_sprites_categories_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5398,11 +5224,9 @@ export interface paths {
         };
         /**
          * Search Osrs Npcs
-         * @description Search OSRS NPC names for the tile editor. Needs at least two characters.
+         * @description Search OSRS NPC names on OSRSClans for the tile editor, with each one's still.
          *
-         *     Names and ids come from our own cache; the wiki supplies only the artwork,
-         *     which the cache cannot render. An NPC with no wiki image still comes back,
-         *     with `icon_url` empty.
+         *     Needs at least two characters.
          */
         get: operations["search_osrs_npcs_tilerace_osrs_npcs_get"];
         put?: never;
@@ -6120,30 +5944,109 @@ export interface components {
             /** Voice Channel Id */
             voice_channel_id?: number | null;
         };
-        /** DropOut */
-        DropOut: {
-            /** Drop Group */
-            drop_group: string;
-            /** Ge Price */
-            ge_price?: number | null;
-            /** Item Id */
-            item_id: number | null;
-            /** Item Name */
-            item_name: string;
-            /** Noted */
-            noted: boolean;
-            /** Quantity High */
-            quantity_high: number;
-            /** Quantity Low */
-            quantity_low: number;
-            /** Rarity Denom */
-            rarity_denom: number | null;
-            /** Rarity Num */
-            rarity_num: number | null;
-            /** Rarity Text */
-            rarity_text: string | null;
-            /** Rolls */
-            rolls: number;
+        /**
+         * DraftMember
+         * @description One signup as the draft shows it; rank and points are null without a ranking.
+         *
+         *     `timezone` is the IANA zone the member signed up from, null when unknown.
+         */
+        DraftMember: {
+            /** Pick Kind */
+            pick_kind: ("captain" | "drafted" | "auto") | null;
+            /** Pick Number */
+            pick_number: number | null;
+            /** Points */
+            points: number | null;
+            /** Rank */
+            rank: string | null;
+            /** Rsn */
+            rsn: string;
+            /** Signup Id */
+            signup_id: number;
+            /** Timezone */
+            timezone: string | null;
+            /** Wants Captain */
+            wants_captain: boolean;
+        };
+        /**
+         * DraftMoveBody
+         * @description Moves a drafted member to another team of the event.
+         */
+        DraftMoveBody: {
+            /** Signup Id */
+            signup_id: number;
+            /** Team Id */
+            team_id: number;
+        };
+        /**
+         * DraftPickBody
+         * @description One pick; `pick_number` must be the draft's next pick.
+         */
+        DraftPickBody: {
+            /** Pick Number */
+            pick_number: number;
+            /** Signup Id */
+            signup_id: number;
+        };
+        /**
+         * DraftSetupBody
+         * @description The mode, the top picks per captain and the captains, as signup ids.
+         */
+        DraftSetupBody: {
+            /** Captain Signup Ids */
+            captain_signup_ids: number[];
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "full" | "top_picks";
+            /**
+             * Top Picks
+             * @default 5
+             */
+            top_picks: number;
+        };
+        /** DraftTeam */
+        DraftTeam: {
+            captain: components["schemas"]["DraftMember"];
+            /** Captain Discord User Id */
+            captain_discord_user_id: string;
+            /** Members */
+            members: components["schemas"]["DraftMember"][];
+            /** Name */
+            name: string;
+            /** Team Id */
+            team_id: number;
+        };
+        /**
+         * DraftView
+         * @description The whole draft: teams in drawn order, the pool strongest first.
+         */
+        DraftView: {
+            /** Captains */
+            captains: components["schemas"]["DraftMember"][];
+            /** Event Id */
+            event_id: number;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "full" | "top_picks";
+            /** Next Pick */
+            next_pick: number;
+            /** Picking Team Id */
+            picking_team_id: number | null;
+            /** Pool */
+            pool: components["schemas"]["DraftMember"][];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "setup" | "drawn" | "picking" | "complete";
+            /** Teams */
+            teams: components["schemas"]["DraftTeam"][];
+            /** Top Picks */
+            top_picks: number;
         };
         /** EditCompetitionInput */
         EditCompetitionInput: {
@@ -6219,6 +6122,65 @@ export interface components {
              * @enum {string}
              */
             type: "free_text";
+        };
+        /**
+         * FrenzySignupBody
+         * @description A signup request; no `account_id` means the member's primary account.
+         *
+         *     `timezone` is the member's IANA time zone, as their browser reports it.
+         */
+        FrenzySignupBody: {
+            /** Account Id */
+            account_id?: number | null;
+            /** Timezone */
+            timezone?: string | null;
+            /**
+             * Wants Captain
+             * @default false
+             */
+            wants_captain: boolean;
+        };
+        /** FrenzySignupList */
+        FrenzySignupList: {
+            /** Items */
+            items: components["schemas"]["FrenzySignupOut"][];
+            /** Total */
+            total: number;
+        };
+        /**
+         * FrenzySignupOut
+         * @description One signup in the staff list.
+         */
+        FrenzySignupOut: {
+            /** Account Id */
+            account_id: number | null;
+            /** Discord User Id */
+            discord_user_id: string;
+            /** Discord Username */
+            discord_username: string | null;
+            /** Id */
+            id: number;
+            /** Rsn */
+            rsn: string;
+            /**
+             * Signed Up At
+             * Format: date-time
+             */
+            signed_up_at: string;
+            /** Wants Captain */
+            wants_captain: boolean;
+        };
+        /**
+         * FrenzySignupPatch
+         * @description Moves a signup to another linked account, or changes the opt-in or time zone.
+         */
+        FrenzySignupPatch: {
+            /** Account Id */
+            account_id?: number | null;
+            /** Timezone */
+            timezone?: string | null;
+            /** Wants Captain */
+            wants_captain?: boolean | null;
         };
         /** GenerateTeamsBody */
         GenerateTeamsBody: {
@@ -6315,10 +6277,34 @@ export interface components {
              */
             refresh_interval_minutes: number;
         };
-        /** ItemSourceOut */
-        ItemSourceOut: {
-            drop: components["schemas"]["DropOut"];
-            source: components["schemas"]["SourceOut"];
+        /** ItemOut */
+        ItemOut: {
+            /** Examine */
+            examine: string | null;
+            /** Icon Url */
+            icon_url: string;
+            /** Item Id */
+            item_id: number;
+            /** Members */
+            members: boolean;
+            /** Name */
+            name: string;
+            /** Noted Id */
+            noted_id: number | null;
+            /** Placeholder Id */
+            placeholder_id: number | null;
+            /** Stackable */
+            stackable: boolean;
+            /** Team Id */
+            team_id: number | null;
+            /** Tradeable */
+            tradeable: boolean;
+            /** Value */
+            value: number;
+            /** Variant Count */
+            variant_count: number;
+            /** Weight */
+            weight: number | null;
         };
         /** JoinPartyRequest */
         JoinPartyRequest: {
@@ -6332,6 +6318,38 @@ export interface components {
              * @default []
              */
             role_ids: string[];
+        };
+        /** KillRateBody */
+        KillRateBody: {
+            /** Kills Per Hour */
+            kills_per_hour: number;
+        };
+        /** KillRateOut */
+        KillRateOut: {
+            /** Kills Per Hour */
+            kills_per_hour: number;
+            /** Set By */
+            set_by: number;
+            /** Set By Name */
+            set_by_name: string | null;
+            /** Source */
+            source: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** KillRatePage */
+        KillRatePage: {
+            /** Items */
+            items: components["schemas"]["KillRateOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
         };
         /** LatestAchievementSchema */
         LatestAchievementSchema: {
@@ -6435,12 +6453,14 @@ export interface components {
             group: string | null;
             /** High Alchemy */
             high_alchemy: number | null;
+            /** Image Url */
+            readonly image_url: string | null;
             /** Item Id */
             item_id: number | null;
             /** Item Name */
             item_name: string;
             /** Kill Rate Source */
-            kill_rate_source: ("wom" | "droptracker" | "clue_scroll" | "fixed" | "item_drop" | "superior") | null;
+            kill_rate_source: ("wom" | "droptracker" | "clue_scroll" | "fixed" | "item_drop" | "superior" | "foundry") | null;
             /** Kills Per Hour */
             kills_per_hour: number | null;
             /** Kills Per Hour Ironman */
@@ -6504,7 +6524,7 @@ export interface components {
             /** Drop Types */
             drop_types: string[];
             /** Kill Rate Source */
-            kill_rate_source: ("wom" | "droptracker" | "clue_scroll" | "fixed" | "item_drop" | "superior") | null;
+            kill_rate_source: ("wom" | "droptracker" | "clue_scroll" | "fixed" | "item_drop" | "superior" | "foundry") | null;
             /** Kills Per Hour */
             kills_per_hour: number | null;
             /** Kills Per Hour Ironman */
@@ -6556,6 +6576,25 @@ export interface components {
             uptime_seconds?: number | null;
             /** Version */
             version?: string | null;
+        };
+        /**
+         * MyFrenzySignup
+         * @description The caller's own signup, as the public event view shows it.
+         */
+        MyFrenzySignup: {
+            /** Account Id */
+            account_id: number | null;
+            /** Rsn */
+            rsn: string;
+            /**
+             * Signed Up At
+             * Format: date-time
+             */
+            signed_up_at: string;
+            /** Timezone */
+            timezone: string | null;
+            /** Wants Captain */
+            wants_captain: boolean;
         };
         /** NameChangesSection */
         NameChangesSection: {
@@ -6642,6 +6681,8 @@ export interface components {
         OsrsSprite: {
             /** Category */
             category?: string | null;
+            /** Frames */
+            frames?: components["schemas"]["SpriteFrame"][];
             /** Id */
             id: number;
             /** Image Url */
@@ -7261,63 +7302,58 @@ export interface components {
              */
             type: "snakes_ladders";
         };
-        /** SourceDetailOut */
-        SourceDetailOut: {
+        /** SpriteCategoryOut */
+        SpriteCategoryOut: {
             /** Category */
             category: string;
-            /** Display Name */
-            display_name: string;
-            /** Drops */
-            drops: components["schemas"]["DropOut"][];
-            /** Reward Kind */
-            reward_kind: string | null;
-            /** Slug */
-            slug: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
-            /** Wiki Page */
-            wiki_page: string;
+            /** Count */
+            count: number;
         };
-        /** SourceListOut */
-        SourceListOut: {
-            /** Category */
-            category: string;
-            /** Display Name */
-            display_name: string;
-            /** Drop Count */
-            drop_count: number;
-            /** Reward Kind */
-            reward_kind: string | null;
-            /** Slug */
-            slug: string;
+        /**
+         * SpriteFrame
+         * @description One frame of a sprite. Most sprites have one.
+         */
+        SpriteFrame: {
             /**
-             * Updated At
-             * Format: date-time
+             * Empty
+             * @default false
              */
-            updated_at: string;
-            /** Wiki Page */
-            wiki_page: string;
+            empty: boolean;
+            /** Frame */
+            frame: number;
+            /** Height */
+            height: number;
+            /** Width */
+            width: number;
         };
-        /** SourceOut */
-        SourceOut: {
+        /** SpriteFrameOut */
+        SpriteFrameOut: {
             /** Category */
-            category: string;
-            /** Display Name */
-            display_name: string;
-            /** Reward Kind */
-            reward_kind: string | null;
-            /** Slug */
-            slug: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
-            /** Wiki Page */
-            wiki_page: string;
+            category: string | null;
+            /** Frame Index */
+            frame_index: number;
+            /** Height */
+            height: number;
+            /** Name */
+            name: string;
+            /** Sprite Id */
+            sprite_id: number;
+            /** Svg Url */
+            svg_url: string;
+            /** Webp Url */
+            webp_url: string;
+            /** Width */
+            width: number;
+        };
+        /**
+         * SpriteFramePage
+         * @description The frames of one window of sprites. `sprites` is the window's sprite count.
+         */
+        SpriteFramePage: {
+            /** Items */
+            items: components["schemas"]["SpriteFrameOut"][];
+            /** Sprites */
+            sprites: number;
         };
         /** StaffCascadeBody */
         StaffCascadeBody: {
@@ -7778,6 +7814,8 @@ export interface components {
             leaderboard_metrics?: string[] | null;
             /** Name */
             name?: string | null;
+            /** Signups Open */
+            signups_open?: boolean | null;
             /** Starts At */
             starts_at?: string | null;
             /** Trusted Sources */
@@ -12846,6 +12884,364 @@ export interface operations {
             };
         };
     };
+    get_draft_frenzy_events__event_id__draft_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_up_draft_frenzy_events__event_id__draft_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftSetupBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_draft_frenzy_events__event_id__draft_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    draw_order_frenzy_events__event_id__draft_draw_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    move_member_frenzy_events__event_id__draft_moves_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftMoveBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    make_pick_frenzy_events__event_id__draft_picks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftPickBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_draft_frenzy_events__event_id__draft_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sign_up_frenzy_events__event_id__signup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["FrenzySignupBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyFrenzySignup"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_signup_frenzy_events__event_id__signup_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_signup_frenzy_events__event_id__signup_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FrenzySignupPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_signups_frenzy_events__event_id__signups_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrenzySignupList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_submissions_frenzy_events__event_id__submissions_get: {
         parameters: {
             query?: {
@@ -15324,1114 +15720,6 @@ export interface operations {
             };
         };
     };
-    list_gamevals_osrs_cache_gamevals_get: {
-        parameters: {
-            query?: {
-                namespace?: string | null;
-                search?: string | null;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_gameval_osrs_cache_gamevals__namespace___entry_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                namespace: string;
-                entry_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_item_icon_osrs_cache_item_icons__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                item_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    render_item_icon_osrs_cache_item_icons__item_id__render_get: {
-        parameters: {
-            query?: {
-                size?: number;
-            };
-            header?: never;
-            path: {
-                item_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    list_items_osrs_cache_items_get: {
-        parameters: {
-            query?: {
-                search?: string | null;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    list_item_names_osrs_cache_items_names_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_item_osrs_cache_items__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                item_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_item_variants_osrs_cache_items__item_id__variants_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                item_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_map_icons_osrs_cache_map_icons_get: {
-        parameters: {
-            query?: {
-                plane?: number | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_map_labels_osrs_cache_map_labels_get: {
-        parameters: {
-            query?: {
-                plane?: number | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_map_locations_osrs_cache_map_locations_get: {
-        parameters: {
-            query?: {
-                object_id?: number | null;
-                plane?: number | null;
-                min_x?: number | null;
-                min_y?: number | null;
-                max_x?: number | null;
-                max_y?: number | null;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_map_meta_osrs_cache_map_meta_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_map_region_osrs_cache_map_regions__region_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                region_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_map_sections_osrs_cache_map_sections_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_meta_osrs_cache_meta_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    list_npcs_osrs_cache_npcs_get: {
-        parameters: {
-            query?: {
-                search?: string | null;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    list_npc_names_osrs_cache_npcs_names_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_npc_osrs_cache_npcs__npc_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                npc_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    list_objects_osrs_cache_objects_get: {
-        parameters: {
-            query?: {
-                search?: string | null;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    list_sprites_osrs_cache_sprites_get: {
-        parameters: {
-            query?: {
-                category?: string | null;
-                search?: string | null;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    list_sprite_categories_osrs_cache_sprites_categories_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_sprite_osrs_cache_sprites__sprite_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                sprite_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown[];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
-    get_sprite_image_osrs_cache_sprites__sprite_id___frame_index__get: {
-        parameters: {
-            query?: {
-                format?: string;
-                scale?: number | null;
-            };
-            header?: never;
-            path: {
-                sprite_id: number;
-                frame_index: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description The internal service behind this proxy did not respond. */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorDetail"];
-                };
-            };
-        };
-    };
     get_parties_parties__get: {
         parameters: {
             query?: never;
@@ -17272,6 +16560,169 @@ export interface operations {
             };
         };
     };
+    list_kill_rates_reference_kill_rates_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KillRatePage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_kill_rate_reference_kill_rates__source__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KillRateOut"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_kill_rate_reference_kill_rates__source__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KillRateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KillRateOut"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_kill_rate_reference_kill_rates__source__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_loot_rates_reference_loot_rates_get: {
         parameters: {
             query?: {
@@ -17385,7 +16836,98 @@ export interface operations {
             };
         };
     };
-    sources_for_item_reference_loot_items__item_id__get: {
+    list_items_reference_osrs_items_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemOut"][];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    item_names_reference_osrs_items_names_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    get_item_reference_osrs_items__item_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -17402,7 +16944,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ItemSourceOut"][];
+                    "application/json": components["schemas"]["ItemOut"];
                 };
             };
             /** @description No record matches the identifier in the path. */
@@ -17423,30 +16965,8 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
-        };
-    };
-    list_sources_reference_loot_sources_get: {
-        parameters: {
-            query?: {
-                category?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SourceListOut"][];
-                };
-            };
-            /** @description No record matches the identifier in the path. */
-            404: {
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17454,23 +16974,14 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
-    get_source_reference_loot_sources__slug__get: {
+    item_variants_reference_osrs_items__item_id__variants_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                slug: string;
+                item_id: number;
             };
             cookie?: never;
         };
@@ -17482,7 +16993,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SourceDetailOut"];
+                    "application/json": components["schemas"]["ItemOut"][];
                 };
             };
             /** @description No record matches the identifier in the path. */
@@ -17501,6 +17012,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
         };
@@ -17525,6 +17045,107 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OsrsNpcPage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    list_sprite_frames_reference_osrs_sprite_frames_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                category?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpriteFramePage"];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    get_sprite_frames_reference_osrs_sprite_frames__sprite_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sprite_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpriteFrameOut"][];
                 };
             };
             /** @description No record matches the identifier in the path. */
@@ -17594,6 +17215,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The internal service behind this proxy did not respond. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
+                };
+            };
+        };
+    };
+    sprite_categories_reference_osrs_sprites_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpriteCategoryOut"][];
+                };
+            };
+            /** @description No record matches the identifier in the path. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDetail"];
                 };
             };
             /** @description The internal service behind this proxy did not respond. */

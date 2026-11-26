@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { osrsCacheApi } from "@/api/osrsCache";
+import { osrsAssetsApi } from "@/api/osrsAssets";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
-import type { OsrsItem } from "@/types/osrsCache";
+import type { OsrsItem } from "@/types/osrsAssets";
 import { ItemHoverPreview } from "@/components/assets/ItemHoverPreview";
 import { ItemVariantRow } from "@/components/assets/ItemVariantRow";
 import { useHoverPreview } from "@/components/assets/useHoverPreview";
@@ -33,7 +33,7 @@ export function ItemVariantPopover({
   useEffect(() => {
     let active = true;
     setLoading(true);
-    osrsCacheApi
+    osrsAssetsApi
       .getItemVariants(item.item_id)
       .then((data) => {
         if (active) setVariants(data);

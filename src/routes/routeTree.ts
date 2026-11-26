@@ -15,7 +15,6 @@ import { leaderboardsRankingRoute } from "./leaderboards/ranking";
 import { partiesRoute } from "./parties";
 import { competitionsRoute } from "./competitions";
 import { competitionDetailRoute } from "./competitions.$compId";
-import { bingoRoute } from "./bingo";
 import { pluginsLayoutRoute } from "./plugins/_layout";
 import { pluginsIndexRoute } from "./plugins/index";
 import { pluginsEntryRoute } from "./plugins/$entryId";
@@ -29,6 +28,7 @@ import { membersSettingsRoute } from "./members/settings";
 import { membersTicketsRoute } from "./members/tickets";
 import { frenzyRoute } from "./activities/frenzy";
 import { frenzyTeamRoute } from "./activities/frenzy.$teamSlug";
+import { frenzyDraftRoute } from "./activities/frenzy.draft";
 import { tileraceRoute } from "./activities/tilerace";
 import { goalsRsnRoute } from "./goals.$rsn";
 import { membersSurveysRoute } from "./members/surveys";
@@ -36,7 +36,6 @@ import { membersApplicationsRoute } from "./members/applications";
 import { membersSuggestionsRoute } from "./members/suggestions";
 import { membersBugsRoute } from "./members/bugs";
 import { feedbackRoute } from "./feedback";
-import { mapTestRoute } from "./map-test";
 import { surveyDetailRoute } from "./members/surveys.$templateId";
 import { applicationDetailRoute } from "./members/applications.$templateId";
 import { staffPortalLayoutRoute } from "./staff-portal/_layout";
@@ -97,12 +96,11 @@ export const routeTree = rootRoute.addChildren([
   partiesRoute,
   competitionsRoute,
   competitionDetailRoute,
-  bingoRoute,
   frenzyRoute,
+  frenzyDraftRoute,
   frenzyTeamRoute,
   tileraceRoute,
   feedbackRoute,
-  mapTestRoute,
   goalsRsnRoute,
   pluginsTree,
   resourcesTree,

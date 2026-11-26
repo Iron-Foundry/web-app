@@ -1,4 +1,4 @@
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, Link } from "@tanstack/react-router";
 import { rootRoute } from "../__root";
 import { registerPage } from "@/lib/permissions";
 import { useAuth } from "@/context/AuthContext";
@@ -6,9 +6,11 @@ import { useEffectiveRoles } from "@/context/ViewAsContext";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useControlPanel } from "@/context/ControlPanelContext";
 import { useActiveEvent } from "@/hooks/useFrenzy";
+import { useFrenzyDraft } from "@/hooks/useFrenzyDraft";
 import { FrenzyStandings } from "@/components/frenzy/FrenzyStandings";
 import { FrenzyEventCharts } from "@/components/frenzy/FrenzyEventCharts";
 import { FrenzyLeaderboard } from "@/components/frenzy/FrenzyLeaderboard";
+import { FrenzySignup } from "@/components/frenzy/FrenzySignup";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,8 +41,9 @@ function FrenzyPage() {
   const { hasPermission } = usePermissions();
   const { openPanel } = useControlPanel();
   const { data: activeEvent, isLoading } = useActiveEvent();
+  const { data: draft } = useFrenzyDraft(activeEvent?.id);
 
-  const canManage = hasPermission("frenzy", "edit", effectiveRoles);
+  const canManage = hasPermission("frenzy.admin", "edit", effectiveRoles);
 
   const daysLeft =
     activeEvent?.ends_at
@@ -55,7 +58,7 @@ function FrenzyPage() {
             <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
               Active Event
             </p>
-            <h1 className="font-rs-bold text-4xl text-primary">
+            <h1 className="font-rs-bold text-4xl text-mark">
               {activeEvent?.name ?? "PVM Frenzy"}
             </h1>
             {activeEvent?.ends_at && (
@@ -72,12 +75,20 @@ function FrenzyPage() {
                 {daysLeft === 0 ? "Ends today" : `${daysLeft}d remaining`}
               </Badge>
             )}
-            {canManage && (
-              <Button size="sm" variant="outline" onClick={() => openPanel("frenzy")}>
-                <Settings className="h-4 w-4 mr-1.5" />
-                Manage
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {user && activeEvent && <FrenzySignup event={activeEvent} />}
+              {draft && (
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/activities/frenzy/draft">Draft</Link>
+                </Button>
+              )}
+              {canManage && (
+                <Button size="sm" variant="outline" onClick={() => openPanel("frenzy")}>
+                  <Settings className="h-4 w-4 mr-1.5" />
+                  Manage
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

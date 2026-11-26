@@ -1,97 +1,51 @@
-import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { useLootSources } from "@/hooks/useReference";
-import type { LootCategory, LootSource } from "@/types/reference";
-import { cn } from "@/lib/utils";
-import { DropTable } from "./DropTable";
+import { useCallback, useState } from "react";
+import { Search } from "lucide-react";
+import type { LootCategory } from "@/api/osrsclans";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/AuthContext";
+import { usePermissions } from "@/context/PermissionsContext";
+import { useEffectiveRoles } from "@/context/ViewAsContext";
+import { useLootSources } from "@/hooks/useLootSources";
+import { SourceDialog } from "./SourceDialog";
+import { SourceList } from "./SourceList";
 
-function SourceRow({
-  source,
-  expanded,
-  onToggle,
-}: {
-  source: LootSource;
-  expanded: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <>
-      <tr
-        className="cursor-pointer hover:bg-muted/20"
-        onClick={onToggle}
-      >
-        <td className="px-3 py-2">
-          <span className="flex items-center gap-2">
-            {expanded ? (
-              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            ) : (
-              <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            )}
-            {source.display_name}
-          </span>
-        </td>
-        <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
-          {source.drop_count}
-        </td>
-        <td className="px-3 py-2 text-right text-xs text-muted-foreground">
-          {new Date(source.updated_at).toLocaleDateString()}
-        </td>
-      </tr>
-      {expanded && (
-        <tr>
-          <td colSpan={3} className="p-0">
-            <DropTable slug={source.slug} />
-          </td>
-        </tr>
-      )}
-    </>
-  );
+function useCanSetKillRates(): boolean {
+  const { user } = useAuth();
+  const roles = useEffectiveRoles(user?.effective_roles ?? []);
+  const { hasPermission } = usePermissions();
+  return hasPermission("frenzy.admin", "edit", roles);
 }
 
-export function LootSourcesTab({ category }: { category: LootCategory }) {
-  const { data, isPending, isError } = useLootSources(category);
-  const [selected, setSelected] = useState<string | null>(null);
-
-  if (isPending)
-    return <p className="text-sm text-muted-foreground">Loading sources...</p>;
-  if (isError)
-    return <p className="text-sm text-red-500">Failed to load sources.</p>;
-  if (!data || data.length === 0)
-    return (
-      <p className="text-sm text-muted-foreground">
-        No {category} loot tables ingested yet.
-      </p>
-    );
+/** One OSRSClans category: a search, its sources, and the dialog of the open one. */
+export function LootSourcesTab({ category }: { category: LootCategory }): React.ReactElement {
+  const [q, setQ] = useState("");
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const canEdit = useCanSetKillRates();
+  const { data, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useLootSources(category, q.trim());
+  const sources = data?.pages.flatMap((page) => page.items) ?? [];
+  const openSource = sources.find((source) => source.source === openKey) ?? null;
+  const fetchMore = useCallback(() => {
+    if (!isFetchingNextPage) void fetchNextPage();
+  }, [isFetchingNextPage, fetchNextPage]);
 
   return (
-    <div className={cn("overflow-x-auto rounded-md border border-border")}>
-      <table className="w-full text-sm">
-        <thead className="border-b border-border bg-muted/30">
-          <tr>
-            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-              Source
-            </th>
-            <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-              Drops
-            </th>
-            <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-              Updated
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {data.map((source) => (
-            <SourceRow
-              key={source.slug}
-              source={source}
-              expanded={selected === source.slug}
-              onToggle={() =>
-                setSelected(selected === source.slug ? null : source.slug)
-              }
-            />
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-3">
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+        <Input className="h-8 pl-8" placeholder="Search sources or items" value={q} onChange={(e) => setQ(e.target.value)} />
+      </div>
+      {isPending && <p className="text-sm text-muted-foreground">Loading sources...</p>}
+      {isError && <p className="text-sm text-destructive">OSRSClans did not answer.</p>}
+      {data && sources.length === 0 && <p className="text-sm text-muted-foreground">No sources match.</p>}
+      {sources.length > 0 && (
+        <SourceList
+          sources={sources}
+          hasMore={hasNextPage}
+          onNearEnd={fetchMore}
+          onOpen={(source) => setOpenKey(source.source)}
+        />
+      )}
+      <SourceDialog source={openSource} canEdit={canEdit} onClose={() => setOpenKey(null)} />
     </div>
   );
 }

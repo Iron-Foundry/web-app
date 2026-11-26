@@ -1,8 +1,7 @@
 import { memo } from "react";
-import { API_URL } from "@/context/AuthContext";
 import { Check, Copy, Download, Layers, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { OsrsItem } from "@/types/osrsCache";
+import type { OsrsItem } from "@/types/osrsAssets";
 
 export interface ItemIconCellProps {
   item: OsrsItem;
@@ -47,7 +46,7 @@ function ItemIconCellImpl({
     >
       {item.icon_url ? (
         <img
-          src={`${API_URL}/osrs-cache${item.icon_url}`}
+          src={item.icon_url}
           alt={item.name}
           loading="lazy"
           decoding="async"

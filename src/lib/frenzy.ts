@@ -1,12 +1,5 @@
-import type {
-  FrenzyActivity,
-  FrenzyItem,
-  FrenzyMilestone,
-  FrenzyMultiplier,
-  FrenzySource,
-  FrenzyTeamProgress,
-  TeamScoreBreakdown,
-} from "@/types/frenzy";
+import type { FrenzyActivity, FrenzyItem, FrenzyMilestone, FrenzyMultiplier, FrenzySource } from "@/types/frenzyTemplate";
+import type { FrenzyTeamProgress, TeamScoreBreakdown } from "@/types/frenzy";
 
 export const TEAM_COLORS = [
   "hsl(220,70%,55%)",

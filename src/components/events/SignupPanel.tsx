@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -11,20 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Crown } from "lucide-react";
-
-export interface SignupAccount {
-  id: number;
-  rsn: string;
-  is_primary?: boolean;
-}
+import { SignupFields, type SignupAccount } from "./SignupFields";
 
 interface SignupPanelProps {
   open: boolean;
@@ -92,42 +77,13 @@ export function SignupPanel({
           </DialogDescription>
         </DialogHeader>
 
-        {accounts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Link an account first to sign up.
-          </p>
-        ) : (
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs">Account</Label>
-              <Select
-                value={accountId !== null ? String(accountId) : undefined}
-                onValueChange={(v) => setAccountId(Number(v))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an account" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accounts.map((a) => (
-                    <SelectItem key={a.id} value={String(a.id)}>
-                      {a.rsn}
-                      {a.is_primary ? " (primary)" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <Checkbox
-                checked={captain}
-                onCheckedChange={(v) => setCaptain(v === true)}
-              />
-              <Crown className="h-3.5 w-3.5 text-amber-500" />
-              Willing to captain a team
-            </label>
-          </div>
-        )}
+        <SignupFields
+          accounts={accounts}
+          accountId={accountId}
+          onAccountChange={setAccountId}
+          captain={captain}
+          onCaptainChange={setCaptain}
+        />
 
         <DialogFooter className="gap-2 sm:gap-2">
           {signedUp && (

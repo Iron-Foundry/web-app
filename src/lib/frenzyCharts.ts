@@ -1,4 +1,5 @@
-import type { FrenzyEventHistoryTeam, FrenzyHistoryPoint, FrenzySubmissionType } from "@/types/frenzy";
+import type { FrenzyEventHistoryTeam, FrenzyHistoryPoint } from "@/types/frenzy";
+import type { FrenzySubmissionType } from "@/types/frenzySubmission";
 
 export type TimeRange = "all" | "30d" | "7d" | "24h";
 export type TypeFilter = FrenzySubmissionType | "all";

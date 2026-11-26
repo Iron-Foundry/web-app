@@ -1,5 +1,3 @@
-import { API_URL } from "@/context/AuthContext";
-
 export const BANK_TAG_COLUMNS = 8;
 
 export interface BankTagSlot {
@@ -33,8 +31,4 @@ export function parseBankTag(raw: string): BankTagLayout | null {
     icon: Number(parts[3] ?? 0),
     slots,
   };
-}
-
-export function itemIconUrl(itemId: number): string {
-  return `${API_URL}/osrs-cache/item-icons/${itemId}`;
 }

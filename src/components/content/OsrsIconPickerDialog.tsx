@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Tabs } from "radix-ui";
-import { API_URL } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { osrsCacheApi } from "@/api/osrsCache";
+import { osrsAssetsApi } from "@/api/osrsAssets";
 import { buildImageMarkup } from "@/lib/guideAssets";
 
 interface OsrsIconPickerDialogProps {
@@ -58,23 +57,17 @@ export function OsrsIconPickerDialog({ open, onClose, onSelect }: OsrsIconPicker
     async (offset: number): Promise<{ rows: IconResult[]; rawLength: number }> => {
       const q = query.trim();
       if (tab === "items") {
-        const items = await osrsCacheApi.listItems(PAGE_SIZE, offset, q || undefined);
-        const rows = items
-          .filter((i) => i.icon_url)
-          .map((i) => ({
-            key: `i${i.item_id}`,
-            name: i.name,
-            url: `${API_URL}/osrs-cache${i.icon_url}`,
-          }));
+        const items = await osrsAssetsApi.listItems(PAGE_SIZE, offset, q || undefined);
+        const rows = items.map((i) => ({ key: `i${i.item_id}`, name: i.name, url: i.icon_url }));
         return { rows, rawLength: items.length };
       }
-      const sprites = await osrsCacheApi.listSprites(PAGE_SIZE, offset, { search: q || undefined });
-      const rows = sprites.map((s) => ({
+      const page = await osrsAssetsApi.listSprites(PAGE_SIZE, offset, { search: q || undefined });
+      const rows = page.items.map((s) => ({
         key: `s${s.sprite_id}-${s.frame_index}`,
-        name: s.name ?? `Sprite ${s.sprite_id}`,
-        url: `${API_URL}/osrs-cache${s.png_url}`,
+        name: s.name,
+        url: s.webp_url,
       }));
-      return { rows, rawLength: sprites.length };
+      return { rows, rawLength: page.sprites };
     },
     [tab, query],
   );

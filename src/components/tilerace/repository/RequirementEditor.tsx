@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { ItemSearch } from "./ItemSearch";
-import { itemIconUrl } from "@/components/runelite/bankTag";
+import { itemImageUrl } from "@/api/osrsAssets";
 import type { RequirementNode } from "@/types/tilerace";
 
 interface RequirementEditorProps {
@@ -27,7 +27,7 @@ export function RequirementEditor({ node, onChange, onRemove }: RequirementEdito
   if (node.kind === "item") {
     return (
       <div className="flex items-center gap-2">
-        <img src={itemIconUrl(node.item_id)} alt={node.name} className="h-6 w-6 object-contain" />
+        <img src={itemImageUrl(node.item_id)} alt={node.name} className="h-6 w-6 object-contain" />
         <span className="flex-1 text-sm truncate">{node.name}</span>
         <Input
           type="number"

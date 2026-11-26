@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { Footer } from "@/components/layout/Footer";
 import { useLayout } from "@/context/LayoutContext";
-import { Menu, X, LayoutDashboard, Settings, Ticket, ClipboardList, FileText, Lightbulb, Bug, User } from "lucide-react";
+import { LayoutDashboard, Settings, Ticket, ClipboardList, FileText, Lightbulb, Bug, User } from "lucide-react";
 import { rootRoute } from "../__root";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 export const membersLayoutRoute = createRoute({
@@ -25,55 +23,44 @@ const NAV_LINKS = [
   { to: "/members/bugs" as const,         label: "Bug Reports",  icon: Bug,             exact: false },
 ];
 
-function navLinkClass(base?: string) {
-  return cn(
-    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground",
-    "transition-colors hover:bg-muted hover:text-foreground",
-    "[&.active]:bg-muted [&.active]:text-primary",
-    base,
-  );
-}
+const RAIL_LINK = cn(
+  "flex items-center gap-3 border-l-2 border-transparent px-3 py-2 text-sm text-muted-foreground",
+  "transition-colors hover:text-foreground motion-reduce:transition-none",
+  "[&.active]:border-primary [&.active]:text-foreground",
+);
 
-function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+/** The members pages beside the content from md up; under md the page row carries them. */
+function MembersRail({ user }: { user: AuthUser }): React.ReactElement {
   return (
-    <div className="flex flex-col flex-1 min-h-0">
-      {/* Top nav links */}
-      <nav className="flex flex-col gap-1 p-2 shrink-0">
-        {NAV_LINKS.map(({ to, label, icon: Icon, exact }) => (
-          <Link
-            key={to}
-            to={to}
-            onClick={onNavigate}
-            activeOptions={{ exact }}
-            className={navLinkClass()}
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            {label}
-          </Link>
-        ))}
-      </nav>
-
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Bottom: settings */}
-      <div className="flex flex-col gap-1 border-t border-border p-2 shrink-0">
-        <Link
-          to="/members/settings"
-          onClick={onNavigate}
-          activeOptions={{ exact: false }}
-          className={navLinkClass()}
-        >
-          <Settings className="h-4 w-4 shrink-0" />
-          Settings
-        </Link>
+    <nav aria-label="Members pages" className="sticky top-6 hidden w-52 shrink-0 self-start md:flex md:flex-col md:gap-0.5">
+      <div className="mb-2 flex items-center gap-2.5 border-b border-border px-3 pb-4">
+        {user.avatar ? (
+          <img
+            src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
+            alt={`${user.username} avatar`}
+            className="h-8 w-8 rounded-full"
+          />
+        ) : (
+          <span className="h-8 w-8 rounded-full bg-muted" />
+        )}
+        <span className="truncate text-sm font-semibold text-foreground">{user.rsn ?? user.username}</span>
       </div>
-    </div>
+      {NAV_LINKS.map(({ to, label, icon: Icon, exact }) => (
+        <Link key={to} to={to} activeOptions={{ exact }} className={RAIL_LINK}>
+          <Icon className="h-4 w-4 shrink-0" />
+          {label}
+        </Link>
+      ))}
+      <hr className="my-2 border-border" />
+      <Link to="/members/settings" activeOptions={{ exact: false }} className={RAIL_LINK}>
+        <Settings className="h-4 w-4 shrink-0" />
+        Settings
+      </Link>
+    </nav>
   );
 }
 
 function MembersShell({ user }: { user: AuthUser }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const { setHasSidebar, hasNestedLayout } = useLayout();
 
   useEffect(() => {
@@ -82,65 +69,20 @@ function MembersShell({ user }: { user: AuthUser }) {
   }, [setHasSidebar]);
 
   return (
-    <div className="flex flex-1 min-h-0">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-border px-4 py-3 shrink-0">
-          {user.avatar && (
-            <img
-              src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
-              alt=""
-              className="h-7 w-7 rounded-full"
-            />
-          )}
-          <span className="truncate text-sm font-medium text-foreground">
-            {user.rsn ?? user.username}
-          </span>
-        </div>
-        <SidebarNav />
-      </aside>
-
-      {/* Mobile sidebar trigger */}
-      <div className="fixed bottom-4 left-4 z-40 md:hidden">
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="h-10 w-10 rounded-full shadow-md">
-              {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="flex flex-col w-56 border-border bg-card pt-4 gap-0">
-            <div className="flex items-center gap-2 border-b border-border px-4 py-3 shrink-0">
-              {user.avatar && (
-                <img
-                  src={`https://cdn.discordapp.com/avatars/${user.discord_user_id}/${user.avatar}.webp?size=32`}
-                  alt=""
-                  className="h-7 w-7 rounded-full"
-                />
-              )}
-              <span className="truncate text-sm font-medium text-foreground">
-                {user.rsn ?? user.username}
-              </span>
+    <div className="flex flex-1 min-h-0 flex-col overflow-auto">
+      {hasNestedLayout ? (
+        <Outlet />
+      ) : (
+        <>
+          <div className="mx-auto flex w-full max-w-7xl flex-1 gap-10 px-4 py-8 md:px-8">
+            <MembersRail user={user} />
+            <div className="min-w-0 flex-1">
+              <Outlet />
             </div>
-            <SidebarNav onNavigate={() => setMobileOpen(false)} />
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Page content */}
-      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-        <div className="flex flex-col flex-1 min-h-0 overflow-auto">
-          {hasNestedLayout ? (
-            <Outlet />
-          ) : (
-            <>
-              <div className="flex flex-col flex-1 px-6 pt-6 pb-6">
-                <Outlet />
-              </div>
-              <Footer />
-            </>
-          )}
-        </div>
-      </div>
+          </div>
+          <Footer />
+        </>
+      )}
     </div>
   );
 }

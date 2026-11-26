@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { osrsCacheApi } from "@/api/osrsCache";
-import type { OsrsSpriteCategory } from "@/types/osrsCache";
+import { osrsAssetsApi } from "@/api/osrsAssets";
+import type { OsrsSpriteCategory } from "@/types/osrsAssets";
 
 function humanize(category: string): string {
   return category.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/^./, (c) => c.toUpperCase());
@@ -18,7 +18,7 @@ export function SpriteCategoryPicker({
   const [categories, setCategories] = useState<OsrsSpriteCategory[]>([]);
 
   useEffect(() => {
-    osrsCacheApi
+    osrsAssetsApi
       .listSpriteCategories()
       .then(setCategories)
       .catch(() => setCategories([]));

@@ -26,7 +26,7 @@ export function GoalRow({ goal, onEdit, onDelete, onProgressUpdate, onToggleChec
 
   if (goal.type === "checkbox") {
     return (
-      <div className={cn("flex items-center gap-3 rounded-md border p-3", goal.checked ? "border-green-500/30 bg-green-500/5" : "border-border")}>
+      <div className={cn("flex items-center gap-3 rounded-xl border bg-card p-3.5", goal.checked ? "border-mk-green/30 bg-mk-green/5" : "border-border")}>
         <button onClick={() => !readonly && onToggleCheck(!goal.checked)} disabled={readonly} className="shrink-0 text-muted-foreground hover:text-primary transition-colors disabled:pointer-events-none">
           {goal.checked ? <CheckSquare className="h-4 w-4 text-green-500" /> : <Square className="h-4 w-4" />}
         </button>
@@ -46,7 +46,7 @@ export function GoalRow({ goal, onEdit, onDelete, onProgressUpdate, onToggleChec
   }
 
   return (
-    <div className={cn("rounded-md border p-4 space-y-2.5", done ? "border-green-500/30" : "border-border")}>
+    <div className={cn("rounded-xl border bg-card p-4 space-y-2.5", done ? "border-mk-green/30" : "border-border")}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap min-w-0">
           <span className={cn("text-sm font-medium truncate", done ? "text-green-600 dark:text-green-400" : "text-foreground")}>{goal.title}</span>

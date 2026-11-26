@@ -18,7 +18,7 @@ export function RankFilterPills({
       <button
         onClick={() => onChange(null)}
         className={cn(
-          "rounded-full px-3 py-0.5 font-medium transition-colors border",
+          "rounded-md px-3 py-0.5 font-medium transition-colors border",
           compact && "px-2 py-px text-xs",
           active === null
             ? "border-primary bg-primary text-primary-foreground"
@@ -34,7 +34,7 @@ export function RankFilterPills({
             key={r}
             onClick={() => onChange(r)}
             className={cn(
-              "rounded-full px-3 py-0.5 font-medium transition-colors border text-sm",
+              "rounded-md px-3 py-0.5 font-medium transition-colors border text-sm",
               compact && "px-2 py-px text-xs",
               active === r
                 ? "border-primary bg-primary text-primary-foreground"

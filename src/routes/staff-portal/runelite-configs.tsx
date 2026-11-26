@@ -22,6 +22,7 @@ import { runeliteConfigsApi } from "@/api/runeliteConfigs";
 import {
   RUNELITE_OBJECT_TYPES,
   getObjectType,
+  isShownConfig,
   objectTypeLabel,
   objectSummary,
 } from "@/components/runelite/objectTypes";
@@ -68,7 +69,7 @@ export function RuneliteConfigsPage() {
   useEffect(() => {
     runeliteConfigsApi
       .list()
-      .then(setConfigs)
+      .then((all) => setConfigs(all.filter(isShownConfig)))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

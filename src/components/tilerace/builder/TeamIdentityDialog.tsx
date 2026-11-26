@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { itemIconUrl } from "@/components/runelite/bankTag";
+import { itemImageUrl } from "@/api/osrsAssets";
 import { usePatchTileraceTeam } from "@/hooks/useTilerace";
 import { OsrsIconSearch } from "./OsrsIconSearch";
 import type { TileRaceTeam } from "@/types/tilerace";
@@ -125,7 +125,7 @@ export function TeamIdentityDialog({
               onKindChange={setIconType}
               onPick={(result) =>
                 setIconUrl(
-                  iconType === "item" ? itemIconUrl(result.id) : result.icon_url,
+                  iconType === "item" ? itemImageUrl(result.id) : result.icon_url,
                 )
               }
             />

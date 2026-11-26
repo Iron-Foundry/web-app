@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { OsrsSprite } from "@/types/osrsCache";
+import type { OsrsSprite } from "@/types/osrsAssets";
 import { SpriteCell } from "@/components/assets/SpriteCell";
 import { SpriteHoverPreview } from "@/components/assets/SpriteHoverPreview";
 import { SpriteRenderDialog } from "@/components/assets/SpriteRenderDialog";

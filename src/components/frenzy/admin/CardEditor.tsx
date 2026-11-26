@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { FrenzyCardImage } from "../FrenzySourceCard";
 import { CardImagePicker } from "./CardImagePicker";
 import { FrenzyItemRow } from "./FrenzyItemRow";
-import type { FrenzyItem, FrenzySource } from "@/types/frenzy";
+import type { FrenzyItem, FrenzySource } from "@/types/frenzyTemplate";
 
 export function emptyItem(): FrenzyItem {
   return { name: "", points: 10, required: 1, duplicate_required: 1, icon_url: null, drop_denom: null, kph: null, points_locked: false };

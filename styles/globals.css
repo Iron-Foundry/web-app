@@ -43,92 +43,158 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-mk-body: var(--mk-body);
+  --color-mk-orange: var(--mk-orange);
+  --color-mk-blue: var(--mk-blue);
+  --color-mk-green: var(--mk-green);
+  --color-mk-purple: var(--mk-purple);
+  --color-mk-teal: var(--mk-teal);
+  --color-mk-red: var(--mk-red);
+  --color-mk-yellow: var(--mk-yellow);
+  --color-mk-onyx: var(--mk-onyx);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* Monogram: the clan's I/F mark on near-black, coloured text, plain controls, neutral borders. */
 :root {
   --radius: 0.5rem;
 
-  /* Base */
-  --background:           hsl(222, 20%, 10%);
-  --foreground:           hsl(40,  15%, 88%);
+  --background:           #0a0b0e;
+  --foreground:           #f3f1ec;
+  --card:                 #121418;
+  --card-foreground:      #f3f1ec;
+  --popover:              #121418;
+  --popover-foreground:   #f3f1ec;
+  --primary:              #ff9a2e;
+  --primary-foreground:   #1a0e00;
+  --secondary:            #181b21;
+  --secondary-foreground: #f3f1ec;
+  --muted:                #181b21;
+  --muted-foreground:     #9ba1ab;
+  --accent:               #181b21;
+  --accent-foreground:    #f3f1ec;
+  --destructive:          #e5484d;
+  --destructive-foreground: #f3f1ec;
+  --border:               #23272f;
+  --input:                #23272f;
+  --ring:                 #ff9a2e;
 
-  /* Card / Popover */
-  --card:                 hsl(222, 18%, 14%);
-  --card-foreground:      hsl(40,  15%, 88%);
-  --popover:              hsl(222, 18%, 14%);
-  --popover-foreground:   hsl(40,  15%, 88%);
-
-  /* Primary - Gold */
-  --primary:              hsl(42,  80%, 55%);
-  --primary-foreground:   hsl(222, 20%, 10%);
-
-  /* Secondary - Muted Blue */
-  --secondary:            hsl(210, 40%, 25%);
-  --secondary-foreground: hsl(40,  15%, 88%);
-
-  /* Muted */
-  --muted:                hsl(222, 15%, 18%);
-  --muted-foreground:     hsl(220, 10%, 55%);
-
-  /* Accent - matches Primary */
-  --accent:               hsl(42,  80%, 55%);
-  --accent-foreground:    hsl(222, 20%, 10%);
-
-  /* Destructive */
-  --destructive:          hsl(0,   65%, 50%);
-  --destructive-foreground: hsl(40, 15%, 88%);
-
-  /* Functional */
-  --border:               hsl(222, 15%, 20%);
-  --input:                hsl(222, 15%, 20%);
-  --ring:                 hsl(42,  80%, 55%);
+  --mk-body:   #d6d3cd;
+  --mk-orange: #ff8a1f;
+  --mk-blue:   #3fa9ff;
+  --mk-green:  #7be35a;
+  --mk-purple: #b06bff;
+  --mk-teal:   #2fe0c8;
+  --mk-red:    #ff4d4d;
+  --mk-yellow: #ffe14d;
+  --mk-onyx:   #c9c9d1;
+  --mk-glow:   linear-gradient(90deg, #ff6a00, #ffb347 50%, #ffe14d);
+  --mk-wash:
+    radial-gradient(60rem 28rem at 90% -8%, rgb(255 138 31 / 0.16), transparent 70%),
+    radial-gradient(50rem 30rem at -10% 45%, rgb(63 169 255 / 0.08), transparent 70%);
 }
 
 .light {
-  /* Base - warm parchment */
-  --background:           hsl(36,  22%, 87%);
-  --foreground:           hsl(220, 18%, 18%);
+  --background:           #f6f4f0;
+  --foreground:           #1b1a17;
+  --card:                 #ffffff;
+  --card-foreground:      #1b1a17;
+  --popover:              #ffffff;
+  --popover-foreground:   #1b1a17;
+  --primary:              #c2600a;
+  --primary-foreground:   #ffffff;
+  --secondary:            #f0ede7;
+  --secondary-foreground: #1b1a17;
+  --muted:                #f0ede7;
+  --muted-foreground:     #6b6760;
+  --accent:               #f0ede7;
+  --accent-foreground:    #1b1a17;
+  --destructive:          #c93a3f;
+  --destructive-foreground: #ffffff;
+  --border:               #e2ddd4;
+  --input:                #e2ddd4;
+  --ring:                 #c2600a;
 
-  /* Card / Popover */
-  --card:                 hsl(36,  16%, 82%);
-  --card-foreground:      hsl(220, 18%, 18%);
-  --popover:              hsl(36,  16%, 82%);
-  --popover-foreground:   hsl(220, 18%, 18%);
-
-  /* Primary - Gold */
-  --primary:              hsl(42,  58%, 42%);
-  --primary-foreground:   hsl(36,  22%, 86%);
-
-  /* Secondary - soft slate blue */
-  --secondary:            hsl(208, 30%, 75%);
-  --secondary-foreground: hsl(220, 18%, 18%);
-
-  /* Muted - soft blue-gray */
-  --muted:                hsl(205, 20%, 80%);
-  --muted-foreground:     hsl(210, 15%, 38%);
-
-  /* Accent - soft sage green */
-  --accent:               hsl(42, 88%, 81%);
-  --accent-foreground:    hsl(148, 25%, 10%);
-
-  /* Destructive */
-  --destructive:          hsl(0,   50%, 44%);
-  --destructive-foreground: hsl(36, 22%, 88%);
-
-  /* Functional - blue-tinted */
-  --border:               hsl(205, 22%, 70%);
-  --input:                hsl(205, 22%, 70%);
-  --ring:                 hsl(42,  58%, 42%);
+  --mk-body:   #34312c;
+  --mk-orange: #c95f00;
+  --mk-blue:   #1f6fc2;
+  --mk-green:  #2f8f37;
+  --mk-purple: #7244c9;
+  --mk-teal:   #0f8577;
+  --mk-red:    #c93a3f;
+  --mk-yellow: #9a7a00;
+  --mk-onyx:   #555a66;
+  --mk-glow:   linear-gradient(90deg, #d24f00, #e98400 50%, #c99400);
+  --mk-wash:
+    radial-gradient(60rem 28rem at 90% -8%, rgb(255 138 31 / 0.14), transparent 70%),
+    radial-gradient(50rem 30rem at -10% 45%, rgb(63 169 255 / 0.07), transparent 70%);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+}
+
+/* Gradient heading text and the gradient fill of the main button */
+@utility text-mark {
+  background: var(--mk-glow);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility bg-mark {
+  background: var(--mk-glow);
+}
+@utility bg-wash {
+  background: var(--mk-wash), var(--background);
+}
+
+/* Row and page grids of the Monogram lists and pages */
+@utility grid-cols-avatar-row {
+  grid-template-columns: 2rem minmax(0, 1fr);
+}
+@utility grid-cols-icon-row {
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+}
+@utility grid-cols-achievement-row {
+  grid-template-columns: 2rem auto minmax(0, 1fr) auto;
+}
+@utility grid-cols-feed-row {
+  grid-template-columns: 1.25rem minmax(0, 1fr) auto 3.5rem;
+}
+@utility grid-cols-feed-row-typed {
+  grid-template-columns: 1.25rem 5rem minmax(0, 1fr) auto 3.5rem;
+}
+@utility grid-cols-ticket-row {
+  grid-template-columns: 1rem auto minmax(0, 1fr) auto;
+}
+@utility grid-cols-ticket-row-dated {
+  grid-template-columns: 1rem 4rem minmax(0, 1fr) auto auto;
+}
+@utility grid-cols-rank-sheet {
+  grid-template-columns: 2rem 1fr 5rem 5rem;
+}
+@utility grid-cols-side-main {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+@utility grid-cols-side-feed {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+}
+@utility grid-cols-side-feed-side {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
+}
+@utility grid-cols-main-side {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+@utility grid-cols-draft-row {
+  grid-template-columns: minmax(0, 1fr) 6.5rem 5rem auto;
+}
+@utility grid-cols-roster-row {
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
 }
 
 /* Rendered content wraps long tokens instead of forcing horizontal scroll */
@@ -179,32 +245,9 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
-/* Reusable spotlight border — pair with useShineEffect() hook for mouse tracking */
+/* Monogram draws cards flat: the wrapper keeps its place and adds no glow */
 .shine-border {
   position: relative;
-  isolation: isolate;
-  padding: 2px;
-  transition: box-shadow 400ms ease;
-}
-.shine-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: radial-gradient(
-    300px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
-    var(--primary) 0%,
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity 400ms ease;
-}
-.shine-border:hover::before {
-  opacity: 1;
-}
-.shine-border:hover {
-  box-shadow: 0 0 14px 2px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
 /* Own-player RSN highlight — applied when the name matches the logged-in user's linked accounts */
@@ -221,27 +264,6 @@
 
 .text-shadow-white {
   text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
-}
-
-/* Stat cards */
-.stat-card {
-  border-radius: 0.75rem;
-}
-
-/* Achievement cards — cascade entry; add shine-border class in markup for hover effect */
-.achievement-card {
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 300ms ease var(--cascade-delay, 0ms),
-              transform 300ms ease var(--cascade-delay, 0ms),
-              box-shadow 400ms ease 0ms;
-}
-.achievements-visible .achievement-card {
-  opacity: var(--tl-opacity, 1);
-  transform: none;
-}
-.achievement-card:hover {
-  transition-delay: 0ms;
 }
 
 /* Tile race progress bar - the pan wraps exactly once per cycle because the
@@ -274,6 +296,10 @@
   animation:
     tilerace-progress-pan 24s linear infinite,
     tilerace-progress-twist 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilerace-progress-track { animation: none; }
 }
 
 .tilerace-progress-glow {

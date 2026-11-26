@@ -32,7 +32,7 @@ export function FrenzyTeamHeader({ detail, place, teamCount }: Props): React.Rea
       <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
         <TeamIcon team={detail} className="h-16 w-16" />
         <div className="min-w-0">
-          <h1 className="font-rs-bold text-3xl text-primary">{detail.name}</h1>
+          <h1 className="font-rs-bold text-3xl text-mark">{detail.name}</h1>
           {detail.participants.length > 0 && <Participants names={detail.participants} />}
         </div>
         <div className="col-span-2 sm:col-span-1 sm:text-right">

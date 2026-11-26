@@ -1,6 +1,6 @@
 import { createRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
-import { Separator } from "@/components/ui/separator";
+import { PageHead } from "@/components/layout/PageHead";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LeaderboardProvider } from "@/components/leaderboards/LeaderboardContext";
 import { registerPage } from "@/lib/permissions";
@@ -34,21 +34,19 @@ function LeaderboardsLayout(): React.ReactElement {
   return (
     <TooltipProvider delayDuration={200}>
     <LeaderboardProvider>
-      <div className="mx-auto max-w-7xl w-full space-y-4 py-6">
-        <h1 className="font-rs-bold text-4xl text-primary">Leaderboards</h1>
-        <div className="flex flex-wrap gap-1 justify-start">
+      <div className="mx-auto max-w-7xl w-full space-y-6 py-6">
+        <PageHead title="Leaderboards" />
+        <nav aria-label="Leaderboard" className="flex gap-7 overflow-x-auto border-b border-border">
           {TABS.map(({ to, label }) => (
             <Link
               key={to}
               to={to}
-              activeProps={{ "data-active": "true" } as Record<string, string>}
-              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground data-[active=true]:border-transparent"
+              className="-mb-px shrink-0 whitespace-nowrap border-b-2 border-transparent pb-3 text-sm text-muted-foreground transition-colors hover:text-foreground [&.active]:border-primary [&.active]:text-foreground"
             >
               {label}
             </Link>
           ))}
-        </div>
-        <Separator />
+        </nav>
         <div className="min-h-[60vh]">
           <Outlet />
         </div>

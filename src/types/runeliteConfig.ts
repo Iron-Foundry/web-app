@@ -1,14 +1,5 @@
 export type RuneLiteColor = string | number | { value: number };
 
-export interface TileMarkerData {
-  regionId: number;
-  regionX: number;
-  regionY: number;
-  z: number;
-  color?: RuneLiteColor;
-  label?: string;
-}
-
 export interface BossHealthEntry {
   percentage: number;
   color?: RuneLiteColor;

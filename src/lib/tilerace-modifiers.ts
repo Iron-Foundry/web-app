@@ -1,4 +1,4 @@
-import { itemIconUrl } from "@/components/runelite/bankTag";
+import { itemImageUrl } from "@/api/osrsAssets";
 import type { CellModifier } from "@/types/tilerace";
 
 const MODIFIER_META: Record<CellModifier["type"], { label: string; symbol: string }> = {
@@ -42,7 +42,7 @@ export function describeModifier(mod: CellModifier): ModifierDescription {
     return {
       ...meta,
       summary: `Landing here rolls ${mod.dice_count}d${mod.dice_sides} and sends the team back that many tiles. A team springs this trap once - after that it is spent and they roll on as normal.`,
-      iconUrl: itemIconUrl(TRAP_ICON_ITEM_ID),
+      iconUrl: itemImageUrl(TRAP_ICON_ITEM_ID),
       params: [
         { label: "Trap dice", value: `${mod.dice_count}d${mod.dice_sides}` },
         {

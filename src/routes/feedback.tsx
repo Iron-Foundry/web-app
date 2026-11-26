@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
 import { API_URL, getAuthHeaders, useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { PageHead } from "@/components/layout/PageHead";
+import { UnderlineTabs } from "@/components/layout/UnderlineTabs";
 import { FeedbackCard, type FeedbackItem } from "@/components/feedback/FeedbackCard";
 import { FeedbackArchiveSection } from "@/components/feedback/FeedbackArchiveSection";
 import { SubmitFeedbackDialog } from "@/components/feedback/SubmitFeedbackDialog";
-import { cn } from "@/lib/utils";
+import { EditFeedbackDialog } from "@/components/feedback/EditFeedbackDialog";
+import { ARCHIVED_STATUSES, sortActive } from "@/lib/feedbackBoard";
+import type { FeedbackType } from "@/lib/feedbackDraft";
 import { usePermissions } from "@/context/PermissionsContext";
 import { useEffectiveRoles } from "@/context/ViewAsContext";
 
@@ -17,39 +19,16 @@ export const feedbackRoute = createRoute({
   component: FeedbackBoardPage,
 });
 
-type TabType = "suggestion" | "bug";
-
-const ARCHIVED_STATUSES: Record<TabType, Set<string>> = {
-  suggestion: new Set(["implemented", "wont-add"]),
-  bug: new Set(["patched", "wont-fix"]),
-};
-
-const STATUS_ORDER: Record<string, number> = {
-  "needs-triage": 0,
-  "open":         1,
-  "reviewing":    2,
-  "planned":      3,
-};
-
-function sortActive(items: FeedbackItem[]): FeedbackItem[] {
-  return [...items].sort((a, b) => {
-    const statusDiff = (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99);
-    if (statusDiff !== 0) return statusDiff;
-    const aTime = a.last_reply_at ?? a.created_at;
-    const bTime = b.last_reply_at ?? b.created_at;
-    return bTime.localeCompare(aTime);
-  });
-}
-
 function FeedbackBoardPage() {
   const { user } = useAuth();
   const { hasPermission } = usePermissions();
   const effectiveRoles = useEffectiveRoles(user?.effective_roles ?? []);
   const canPin = hasPermission("staff.feedback", "edit", effectiveRoles);
 
-  const [tab, setTab] = useState<TabType>("suggestion");
+  const [tab, setTab] = useState<FeedbackType>("suggestion");
   const [items, setItems] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<FeedbackItem | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -65,6 +44,14 @@ function FeedbackBoardPage() {
     if (item.type === tab) {
       setItems((prev) => [item, ...prev]);
     }
+  }
+
+  function handleSaved(updated: FeedbackItem) {
+    setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+  }
+
+  function openEdit(id: number) {
+    setEditing(items.find((i) => i.id === id) ?? null);
   }
 
   function handleStatusChange(id: number, status: string) {
@@ -99,38 +86,17 @@ function FeedbackBoardPage() {
 
   return (
     <div className="mx-auto max-w-7xl w-full space-y-6 py-6">
-      <div className="space-y-1">
-        <h1 className="font-rs-bold text-4xl text-primary">Feedback Board</h1>
-        <p className="text-sm text-muted-foreground">
-          Community suggestions and bug reports.
-          {!user && " Log in to submit or react."}
-        </p>
-      </div>
+      <PageHead title="Feedback Board" lede={`Community suggestions and bug reports.${user ? "" : " Log in to submit or react."}`} />
 
-      <Separator />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <UnderlineTabs
+          label="Feedback type"
+          tabs={[{ value: "suggestion", label: "Suggestions" }, { value: "bug", label: "Bug Reports" }]}
+          value={tab}
+          onChange={setTab}
+        />
 
-      {/* Tab selector + actions */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex gap-2">
-          <Button
-            variant={tab === "suggestion" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTab("suggestion")}
-            className={cn(tab !== "suggestion" && "text-muted-foreground")}
-          >
-            Suggestions
-          </Button>
-          <Button
-            variant={tab === "bug" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTab("bug")}
-            className={cn(tab !== "bug" && "text-muted-foreground")}
-          >
-            Bug Reports
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pb-2">
           {user && (
             <SubmitFeedbackDialog type={tab} onSubmitted={handleSubmitted} />
           )}
@@ -165,6 +131,7 @@ function FeedbackBoardPage() {
               item={item}
               onHeart={handleHeart}
               onStatusChange={handleStatusChange}
+              onEdit={openEdit}
               canHeart={!!user}
               canReply={!!user}
               canPin={canPin}
@@ -172,6 +139,10 @@ function FeedbackBoardPage() {
             />
           ))}
         </div>
+      )}
+
+      {editing && (
+        <EditFeedbackDialog item={editing} onSaved={handleSaved} onClose={() => setEditing(null)} />
       )}
     </div>
   );

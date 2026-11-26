@@ -1,3 +1,6 @@
+/** The asset manager fetches OSRSClans images to save them, so fetch must reach it. */
+const OSRSCLANS_ORIGIN = "https://osrsclans.cc";
+
 function safeOrigin(apiUrl: string): string {
   try {
     return new URL(apiUrl).origin;
@@ -22,7 +25,7 @@ export function buildCsp(apiOrigin: string, nonce: string): string {
     `script-src 'self' 'nonce-${nonce}' https://esm.sh https://static.cloudflareinsights.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
-    `connect-src 'self' ${apiOrigin} ${socketOrigin(apiOrigin)} https://esm.sh https://cloudflareinsights.com`
+    `connect-src 'self' ${apiOrigin} ${socketOrigin(apiOrigin)} https://esm.sh https://cloudflareinsights.com ${OSRSCLANS_ORIGIN}`
       .replace(/\s+/g, " ")
       .trim(),
     "font-src 'self' data:",

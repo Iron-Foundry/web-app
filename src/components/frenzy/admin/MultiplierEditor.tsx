@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { FrenzyMultiplier, FrenzyTierData } from "@/types/frenzy";
+import type { FrenzyMultiplier, FrenzyTierData } from "@/types/frenzyTemplate";
 import { Plus, Trash2, X } from "lucide-react";
 
 interface Props {

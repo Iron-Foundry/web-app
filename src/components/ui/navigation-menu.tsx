@@ -48,10 +48,9 @@ export const NavigationMenuTrigger = React.forwardRef<
   <Primitive.Trigger
     ref={ref}
     className={cn(
-      "group inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium",
+      "group inline-flex items-center gap-1 py-1 text-sm font-medium",
       "text-muted-foreground transition-colors",
-      "hover:bg-muted hover:text-foreground",
-      "data-[state=open]:bg-muted data-[state=open]:text-foreground",
+      "hover:text-foreground data-[state=open]:text-foreground",
       "focus:outline-none disabled:pointer-events-none disabled:opacity-50",
       className,
     )}
@@ -73,8 +72,8 @@ export const NavigationMenuContent = React.forwardRef<
   <Primitive.Content
     ref={ref}
     className={cn(
-      "absolute left-0 top-full z-50 mt-1",
-      "rounded-md border border-border bg-card shadow-lg",
+      "absolute left-0 top-full z-50 mt-2",
+      "rounded-lg border border-border bg-card p-1 shadow-xl",
       "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-2",
       "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-90 data-[state=closed]:slide-out-to-top-2",
       "duration-200 origin-top-left",

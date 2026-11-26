@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { isMultiplierUnlocked } from "@/lib/frenzy";
-import type { FrenzyMultiplier } from "@/types/frenzy";
+import type { FrenzyMultiplier } from "@/types/frenzyTemplate";
 import { Lock, Unlock } from "lucide-react";
 
 interface Props {
