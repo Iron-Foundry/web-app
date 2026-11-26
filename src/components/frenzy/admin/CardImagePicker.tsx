@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { FrenzyFilterLine } from "../FrenzyFilterLine";
-import { useDebounce } from "@/hooks/useDebounce";
+import { SEARCH_SETTLE_MS, useDebounce } from "@/hooks/useDebounce";
 import { useNpcSearch, useSpriteSearch } from "@/hooks/useOsrsClans";
 import type { FrenzyItem } from "@/types/frenzyTemplate";
 
@@ -45,10 +45,16 @@ function useChoices(kind: Kind, q: string, items: FrenzyItem[]): { choices: Choi
   };
 }
 
-function ChoiceTile({ choice, onPick, onBroken }: { choice: Choice; onPick: () => void; onBroken: () => void }): React.ReactElement {
+/** One result. An image that fails to load leaves a blank box, so the tile never vanishes. */
+function ChoiceTile({ choice, onPick }: { choice: Choice; onPick: () => void }): React.ReactElement {
+  const [broken, setBroken] = useState(false);
   return (
-    <button type="button" onClick={onPick} className="grid justify-items-center gap-1 rounded-md border p-2 text-xs hover:bg-muted" title={choice.name}>
-      <img src={choice.url} alt={choice.name} className="h-16 w-16 object-contain" onError={onBroken} />
+    <button type="button" onClick={onPick} disabled={broken} className="grid justify-items-center gap-1 rounded-md border p-2 text-xs hover:bg-muted disabled:opacity-50" title={choice.name}>
+      {broken ? (
+        <span role="img" aria-label={`${choice.name} has no image`} className="h-16 w-16 rounded-md bg-muted" />
+      ) : (
+        <img src={choice.url} alt={choice.name} className="h-16 w-16 object-contain" onError={() => setBroken(true)} />
+      )}
       <span className="w-full truncate text-center">{choice.name}</span>
     </button>
   );
@@ -58,11 +64,9 @@ function ChoiceTile({ choice, onPick, onBroken }: { choice: Choice; onPick: () =
 export function CardImagePicker({ open, onOpenChange, cardName, items, onPick }: Props): React.ReactElement {
   const [kind, setKind] = useState<Kind>("npc");
   const [q, setQ] = useState(cardName);
-  const [broken, setBroken] = useState<ReadonlySet<string>>(new Set());
-  const term = useDebounce(q.trim(), 300);
-  const { choices, isLoading } = useChoices(kind, term, items);
-  const shown = choices.filter((c) => !broken.has(c.url));
-  const searching = isLoading || (kind !== "item" && q.trim() !== term);
+  const term = useDebounce(q.trim(), SEARCH_SETTLE_MS);
+  const { choices: shown, isLoading } = useChoices(kind, term, items);
+  const searching = shown.length === 0 && (isLoading || (kind !== "item" && q.trim() !== term));
 
   useEffect(() => {
     if (open) setQ(cardName);
@@ -82,7 +86,7 @@ export function CardImagePicker({ open, onOpenChange, cardName, items, onPick }:
         {kind !== "item" && <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name" className="h-8 text-sm" />}
         <div className="grid max-h-96 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-5">
           {shown.map((c) => (
-            <ChoiceTile key={c.key} choice={c} onPick={() => pick(c.url)} onBroken={() => setBroken((b) => new Set(b).add(c.url))} />
+            <ChoiceTile key={c.key} choice={c} onPick={() => pick(c.url)} />
           ))}
         </div>
         {searching && <p className="text-sm text-muted-foreground">Loading...</p>}

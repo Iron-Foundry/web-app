@@ -2444,7 +2444,11 @@ export interface paths {
         };
         /**
          * Search Osrs Items
-         * @description Search OSRS items by name on OSRSClans for the frenzy task editor.
+         * @description Search OSRS item names for the frenzy and tile editors, best match first.
+         *
+         *     One item per name, the lowest id. The match ignores case, accents and
+         *     punctuation. Foundry matches against OSRSClans' item name list, which it
+         *     reads once an hour.
          */
         get: operations["search_osrs_items_frenzy_osrs_items_get"];
         put?: never;
@@ -3958,7 +3962,11 @@ export interface paths {
         };
         /**
          * Search Npcs
-         * @description Return the NPCs from OSRSClans whose name holds `q`, with each one's still.
+         * @description Return the NPCs whose name holds `q`, best match first, with each one's still.
+         *
+         *     The match ignores case, accents and punctuation, so "kril" finds
+         *     "K'ril Tsutsaroth". Foundry matches against OSRSClans' NPC name list, which it
+         *     reads once an hour.
          */
         get: operations["search_npcs_reference_osrs_npcs_get"];
         put?: never;
@@ -4020,7 +4028,10 @@ export interface paths {
         };
         /**
          * Search Sprites
-         * @description Return the interface sprites from OSRSClans whose name holds `q`.
+         * @description Return the interface sprites whose name holds `q`, best match first.
+         *
+         *     The match ignores case, accents and punctuation. Foundry matches against
+         *     OSRSClans' sprite list, which it reads once an hour.
          */
         get: operations["search_sprites_reference_osrs_sprites_get"];
         put?: never;

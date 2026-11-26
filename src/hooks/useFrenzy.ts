@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { frenzyApi } from "@/api/frenzy";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -55,6 +55,7 @@ export function useOsrsItems(q: string) {
     queryKey: queryKeys.frenzy.osrsItems(q),
     queryFn: () => frenzyApi.searchItems(q),
     staleTime: STALE_24H,
+    placeholderData: keepPreviousData,
     enabled: q.length >= 2,
   });
 }

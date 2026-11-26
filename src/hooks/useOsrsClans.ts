@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { osrsclansApi, type CollectionLogPage, type LootRateRow, type OsrsNpcPage, type OsrsSpritePage } from "@/api/osrsclans";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -21,6 +21,7 @@ export function useCollectionLogPages(q: string): UseQueryResult<CollectionLogPa
     queryKey: queryKeys.reference.collectionLogPages(q),
     queryFn: () => osrsclansApi.collectionLogPages(q),
     staleTime: STALE_1H,
+    placeholderData: keepPreviousData,
     enabled: q.length >= 2,
   });
 }
@@ -43,6 +44,7 @@ export function useNpcSearch(q: string): UseQueryResult<OsrsNpcPage> {
     queryKey: queryKeys.reference.npcSearch(q),
     queryFn: () => osrsclansApi.searchNpcs(q),
     staleTime: STALE_1H,
+    placeholderData: keepPreviousData,
     enabled: q.length >= 2,
   });
 }
@@ -52,6 +54,7 @@ export function useSpriteSearch(q: string): UseQueryResult<OsrsSpritePage> {
     queryKey: queryKeys.reference.spriteSearch(q),
     queryFn: () => osrsclansApi.searchSprites(q),
     staleTime: STALE_1H,
+    placeholderData: keepPreviousData,
     enabled: q.length >= 2,
   });
 }

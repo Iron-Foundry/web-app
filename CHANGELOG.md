@@ -17,6 +17,7 @@ component. Entries land under Unreleased until then.
 - Until the draft starts picking, the frenzy event page lists the current signups, strongest first, with search, a rank filter, clan rank, points and each member's time offset.
 - While an active frenzy event has signups open, the event page shows the whole event board (all tiers and cards, activities, milestones and multipliers) in place of the standings, charts and leaderboards.
 - In the frenzy template editor, staff move tiers up and down, and the board, the team pages and the editor show the tiers in that order. Each tier has a points multiplier, such as 1.1 for Medium, that scales its items' points above the base.
+- A frenzy card's image in its top left is half its old size: 36px in place of 72px, for NPC stills, sprites, item images and the item mosaic alike.
 - A frenzy card shows up to 9 item rows. A longer card scrolls inside, with a fade and a chevron at the foot until the last row. The chevron scrolls further down.
 - The event board has its own page at `/activities/frenzy/board`. Outside signups, a "Board" button on the event page opens it.
 - In the frenzy template editor, the card name lists the matching collection log pages as you type, without regard to capitals or apostrophes. Picking one, such as K'ril Tsutsaroth or Chambers of Xeric, names the card after it and adds the page's drops the card lacks. Each drop takes its rate from the fastest OSRSClans source, so The Gauntlet takes Corrupted Gauntlet rates. Guaranteed drops, such as the Gauntlet cape, stay out. A free-text name, such as Slayer, adds nothing.
@@ -78,6 +79,8 @@ component. Entries land under Unreleased until then.
 
 ### Fixed
 
+- The frenzy card image, card name and item searches wait until typing settles (400 ms) before they search, and keep the last results on screen until the new ones arrive, so they no longer flicker or send a request per pause.
+- A card image result whose image fails to load stays in the picker as a blank tile; before, the picker dropped such tiles and could end on "No images found" while it held results.
 - A request that fails with 502, 503 or 504 is no longer retried, so a failing OSRSClans gets no extra load from the site.
 - OSRS item and sprite images load from Foundry's image route, which keeps a copy, in place of OSRSClans. The page policy no longer lets the browser fetch from OSRSClans.
 - The frenzy card image picker searches for the current card's name each time it opens. It no longer keeps the first card's name.

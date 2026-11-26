@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useDebounce } from "@/hooks/useDebounce";
+import { SEARCH_SETTLE_MS, useDebounce } from "@/hooks/useDebounce";
 import { useCollectionLogPages } from "@/hooks/useOsrsClans";
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 /** The card name: free text, with the matching collection log pages listed below it to pick from. */
 export function CardNameField({ value, onChange, onPickPage }: Props): React.ReactElement {
   const [open, setOpen] = useState(false);
-  const term = useDebounce(value.trim(), 300);
+  const term = useDebounce(value.trim(), SEARCH_SETTLE_MS);
   const { data: pages } = useCollectionLogPages(term);
   const shown = open && (pages?.length ?? 0) > 0;
   return (
