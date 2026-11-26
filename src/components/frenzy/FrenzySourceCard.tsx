@@ -1,6 +1,7 @@
 import { calcItemPoints } from "@/lib/frenzy";
 import { STATE_TEXT, cardState, isTypedCard, itemKey, itemState } from "@/lib/frenzyCard";
 import { roundHalfUp } from "@/lib/frenzyPoints";
+import { FrenzyItemList } from "./FrenzyItemList";
 import { FrenzyRatePopover } from "./FrenzyRatePopover";
 import type { FrenzyItem, FrenzySource } from "@/types/frenzyTemplate";
 
@@ -78,11 +79,11 @@ export function FrenzySourceCard({ tierName, source, itemProgress, factor }: Pro
       <div className="h-1.5 overflow-hidden rounded-full bg-muted">
         <div className="h-full rounded-full bg-primary" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
       </div>
-      <ul className="space-y-1">
+      <FrenzyItemList count={source.items.length}>
         {source.items.map((item) => (
           <ItemRow key={item.name} item={item} obtained={obtained(item)} />
         ))}
-      </ul>
+      </FrenzyItemList>
     </article>
   );
 }
